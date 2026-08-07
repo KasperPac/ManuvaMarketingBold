@@ -295,6 +295,12 @@ a.site-tile { color: inherit; }
 .site-matrix-table tbody tr:not(.site-matrix-divider):hover td { background: var(--bg-card-2); }
 .site-matrix-table svg { color: var(--ok); }
 
+/* Not .mv-cols-2: that utility's own 720px breakpoint collapses it to a single
+   column, but responsive.css only ever displays .mv-matrix-cards AT ≤720px
+   (it's display:none above that) — using .mv-cols-2 here would mean this grid
+   is always in its single-column collapsed state and never actually shows the
+   intended 2-up card layout. The literal repeat(2,1fr) + hand-rolled 480px
+   collapse is deliberate, not a missed utility. */
 .site-matrix-cards { grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
 .site-matrix-card { background: var(--bg-card); border: 1px solid var(--stroke-card); border-radius: var(--radius-lg); padding: var(--space-5); }
 .site-matrix-card-name { font-family: var(--font-display); font-weight: var(--fw-semibold); font-size: var(--fs-md); margin-bottom: var(--space-3); }

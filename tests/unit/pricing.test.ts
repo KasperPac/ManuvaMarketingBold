@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { expect, test } from 'vitest';
+import { extractTables } from '../../scripts/parity/extract.js';
 
 const html = () => readFileSync('dist/pricing.html', 'utf8');
 
@@ -48,7 +49,7 @@ test('the head carries the old page\'s real title and description, not an invent
   );
 });
 
-test('the feature matrix carries all 43 rows across its 9 category groups', () => {
+test('the feature matrix has all 43 data rows across its 9 categories, with specific verdicts intact', () => {
   const h = html();
   for (const category of [
     'Plan Limits',
@@ -63,4 +64,23 @@ test('the feature matrix carries all 43 rows across its 9 category groups', () =
   ]) {
     expect(h, `${category} missing`).toContain(category);
   }
+
+  // Category labels alone would pass against a matrix missing half its rows —
+  // this counts the actual extracted rows and checks specific verdicts, using
+  // the same extractTables() the parity gate's table tier runs on.
+  const rows = extractTables(h);
+  // 1 header row ("Feature" + 4 tier names) + 43 data rows + 9 category-divider
+  // rows (colspan label, 0 verdicts each) = 53.
+  expect(rows.length, 'total extracted table rows').toBe(53);
+
+  const byName = new Map(rows.map((r) => [r.name.toLowerCase(), r.verdicts]));
+  // Starter is the only tier without BOM versioning — a row a bare label check
+  // would never catch if it silently dropped or flipped to a check for all four.
+  expect(byName.get('bom versioning + draft/publish')).toEqual([
+    '[none]', '[icon:check]', '[icon:check]', '[icon:check]',
+  ]);
+  // Enterprise is the only tier with a dedicated account manager.
+  expect(byName.get('dedicated account manager')).toEqual([
+    '[none]', '[none]', '[none]', '[icon:check]',
+  ]);
 });
