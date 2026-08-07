@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { extractText, toPhrases } from '../../scripts/parity/extract.js';
+import { extractText, toPhrases, toShortFragments } from '../../scripts/parity/extract.js';
 
 test('prefers main, since seven of eight old pages wrap content in it', () => {
   const html = `<body><header>nav junk</header><main>The real content of the page.</main><footer>footer junk</footer></body>`;
@@ -27,4 +27,46 @@ test('splits into phrases and drops fragments too short to be meaningful', () =>
     'Flat pricing that never charges per seat.',
     'Unlimited users on Growth and above.',
   ]);
+});
+
+// --- Fix round: chrome leaked past header/nav/footer, and adjacent blocks glued together ---
+
+test('strips dialog-role overlays like the mobile nav drawer, not just header/nav/footer tags', () => {
+  // Mirrors the old index.html exactly: no <main> (falls back to body), and the drawer
+  // is a <div class="nav-drawer"> sibling of <nav> — not nested inside it — wrapping an
+  // <aside role="dialog" aria-modal="true">. Only the nested <nav> of links inside it
+  // was being stripped; the close button and CTA links around it survived into the
+  // comparison, gluing onto the start of the real hero copy.
+  const html = `<body><header>nav junk</header><div class="nav-drawer"><aside role="dialog" aria-modal="true"><button>Close</button><nav><a href="#">Features</a></nav><a href="#">Start free trial</a></aside></div><section>Real content here that matters.</section><footer>footer junk</footer></body>`;
+  expect(extractText(html)).toBe('Real content here that matters.');
+});
+
+test('inserts a boundary between adjacent block elements so they do not glue into one run-on string', () => {
+  const html = `<body><main><h1>Heading</h1><p>Paragraph text.</p></main></body>`;
+  expect(extractText(html)).toBe('Heading | Paragraph text.');
+});
+
+test('treats <br> as a boundary too, since headings split by it currently glue with no space at all', () => {
+  const html = `<body><main><h1>Operations,<br/>finally simple.</h1></main></body>`;
+  expect(extractText(html)).toBe('Operations, | finally simple.');
+});
+
+test('inserts a boundary between table cells so a row does not glue into one string', () => {
+  const html = `<body><main><table><tr><td>Feature</td><td>Starter</td><td>Growth</td></tr></table></main></body>`;
+  expect(extractText(html)).toBe('Feature | Starter | Growth');
+});
+
+test('does not leave a trailing boundary marker when a block element is last in its container', () => {
+  const html = `<body><main><p>Only paragraph.</p></main></body>`;
+  expect(extractText(html)).toBe('Only paragraph.');
+});
+
+test('toShortFragments collects the 2-24 character fragments toPhrases drops, for table-cell verdicts like Yes/No', () => {
+  const text = 'Feature | Starter | Growth | Pro | Enterprise';
+  expect(toShortFragments(text)).toEqual(['Feature', 'Starter', 'Growth', 'Pro', 'Enterprise']);
+});
+
+test('toShortFragments still excludes single-character noise like a lone dash', () => {
+  const text = 'Custom integrations | - | Yes';
+  expect(toShortFragments(text)).toEqual(['Custom integrations', 'Yes']);
 });

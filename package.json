@@ -14,7 +14,8 @@
     "astro": "astro",
     "test": "vitest run",
     "test:watch": "vitest",
-    "parity": "node scripts/parity/check.js"
+    "parity": "node scripts/parity/check.js",
+    "parity:strict": "node scripts/parity/check.js --require-all"
   },
   "dependencies": {
     "astro": "^7.2.0"
