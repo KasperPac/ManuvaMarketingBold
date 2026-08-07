@@ -68,8 +68,24 @@ export function normalise(text) {
     .trim();
 }
 
+// Verdict cells on the comparison tables are frequently an icon and nothing
+// else (the old pricing matrix alone has 117 check-icon cells with no text at
+// all). Swap each icon element for a "[icon:name]" text token — using its
+// glyph name, not a rendering of it — before it can be stripped as chrome, so
+// a checkmark that disappears between old and new produces a real signal
+// instead of two empty cells comparing equal. Runs on both sides: the old
+// site marks icons with data-lucide, the new site's Icon.astro/Icon.jsx with
+// data-icon (see the Icon component fix in this same round).
+function tokenizeIcons($) {
+  $('[data-lucide], [data-icon]').each((_, el) => {
+    const name = $(el).attr('data-lucide') || $(el).attr('data-icon') || 'icon';
+    $(el).replaceWith(`[icon:${name}]`);
+  });
+}
+
 export function extractText(html) {
   const $ = load(html);
+  tokenizeIcons($);
   $(CHROME_SELECTORS).remove();
 
   // <br> carries no text of its own but is a hard line break in the source
@@ -107,4 +123,43 @@ export function toPhrases(text) {
 // the 25-character floor.
 export function toShortFragments(text) {
   return splitFragments(text).filter((s) => s.length >= 2 && s.length <= 24);
+}
+
+// Both toPhrases() and toShortFragments() flatten a table into a bag of text with
+// no idea which cell came from which row — a multiset comparison can't tell "Row A
+// flipped to No" from "Row B flipped to Yes", because the page-wide Yes/No counts
+// come out the same either way. Extract every <table> as rows instead, each keyed
+// by its own first cell (the feature/provider/version name), so the comparison in
+// compare.js can ask "for THIS row, what changed" — which survives the new site
+// reordering or restyling the table, since nothing here depends on row position.
+export function extractTables(html) {
+  const $ = load(html);
+  tokenizeIcons($);
+  $(CHROME_SELECTORS).remove();
+
+  const root = $('main').length ? $('main') : $('body');
+
+  // An empty cell and a lone "not applicable" dash both carry the same meaning —
+  // "nothing here" — and both would otherwise vanish (an empty string, or a
+  // single hyphen post-normalise, sit below toShortFragments' 2-char floor).
+  // Naming that meaning explicitly means a row losing this verdict is comparable
+  // text instead of two blanks that trivially match each other.
+  const cellValue = (el) => {
+    const raw = normalise($(el).text());
+    return raw === '' || raw === '-' ? '[none]' : raw;
+  };
+
+  const rows = [];
+  root.find('table').each((_, table) => {
+    $(table)
+      .find('tr')
+      .each((_, tr) => {
+        const cells = $(tr).find('td, th').toArray();
+        if (!cells.length) return;
+        const [first, ...rest] = cells;
+        rows.push({ name: cellValue(first), verdicts: rest.map(cellValue) });
+      });
+  });
+
+  return rows;
 }

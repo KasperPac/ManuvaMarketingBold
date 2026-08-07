@@ -22,14 +22,17 @@ try {
 
 // lucide-static ships width/height/stroke already set. Re-stamp the dimensions
 // for the requested size and mark it decorative; colour comes from currentColor,
-// which the source already uses for stroke.
+// which the source already uses for stroke. data-icon carries the glyph's
+// identity through, matching the design system original (Icon.jsx) — without
+// it, anything inspecting the rendered markup (e.g. the copy-parity gate) sees
+// an anonymous, textless <svg> instead of a named icon.
 const svg = raw
   .replace(/<svg([^>]*)>/, (_m, attrs) => {
     const cleaned = String(attrs)
       .replace(/\swidth="[^"]*"/, '')
       .replace(/\sheight="[^"]*"/, '')
       .replace(/\sclass="[^"]*"/, '');
-    return `<svg${cleaned} width="${size}" height="${size}" aria-hidden="true" focusable="false"${
+    return `<svg${cleaned} width="${size}" height="${size}" data-icon="${name}" aria-hidden="true" focusable="false"${
       className ? ` class="${className}"` : ''
     }>`;
   })

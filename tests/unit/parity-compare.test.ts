@@ -1,5 +1,11 @@
 import { expect, test } from 'vitest';
-import { diffPhrases, diffShortFragments, evaluateRoute, routeStatus } from '../../scripts/parity/compare.js';
+import {
+  diffPhrases,
+  diffShortFragments,
+  diffTableRows,
+  evaluateRoute,
+  routeStatus,
+} from '../../scripts/parity/compare.js';
 
 test('diffPhrases reports old phrases absent from the new page text', () => {
   const oldPhrases = ['Flat pricing that never charges per seat.', 'Unlimited users on Growth and above.'];
@@ -96,4 +102,81 @@ test('routeStatus: a missing dist file is skipped by default, and a required fai
   expect(routeStatus(false, true)).toBe('missing');
   expect(routeStatus(true, false)).toBe('checked');
   expect(routeStatus(true, true)).toBe('checked');
+});
+
+// --- Fix round 2: the multiset tier is position-blind; keyed row comparison fixes it ---
+
+test('diffTableRows reports a row present in old but absent from new, keyed by name not position', () => {
+  const oldRows = [{ name: 'BOM versioning', verdicts: ['Yes', 'No'] }];
+  const newRows = [];
+  const { missingRows } = diffTableRows(oldRows, newRows);
+  expect(missingRows).toEqual([{ name: 'BOM versioning', oldVerdicts: ['Yes', 'No'] }]);
+});
+
+test('diffTableRows catches a verdict swap between two rows that a page-wide count would miss', () => {
+  // The reviewer's construction: old ['Yes','No'] / new ['No','Yes'] across two rows keeps
+  // the page-wide tally at 1 Yes + 1 No either way, so diffShortFragments alone sees no
+  // decrease. Comparing row-by-row catches it because each row is judged against its own
+  // past self, not the page's aggregate counts.
+  const oldRows = [
+    { name: 'Row A', verdicts: ['Yes'] },
+    { name: 'Row B', verdicts: ['No'] },
+  ];
+  const newRows = [
+    { name: 'Row A', verdicts: ['No'] },
+    { name: 'Row B', verdicts: ['Yes'] },
+  ];
+  const { changedRows } = diffTableRows(oldRows, newRows);
+  expect(changedRows).toEqual([
+    { name: 'Row A', oldVerdicts: ['Yes'], newVerdicts: ['No'] },
+    { name: 'Row B', oldVerdicts: ['No'], newVerdicts: ['Yes'] },
+  ]);
+});
+
+test('diffTableRows does not fire when a table is legitimately reordered but every row keeps its verdicts', () => {
+  const oldRows = [
+    { name: 'Row A', verdicts: ['Yes'] },
+    { name: 'Row B', verdicts: ['No'] },
+  ];
+  const newRows = [
+    { name: 'Row B', verdicts: ['No'] },
+    { name: 'Row A', verdicts: ['Yes'] },
+  ];
+  const result = diffTableRows(oldRows, newRows);
+  expect(result.missingRows).toEqual([]);
+  expect(result.changedRows).toEqual([]);
+  expect(result.columnCountChanges).toEqual([]);
+});
+
+test('diffTableRows reports a column-count change separately from (but alongside) a value change', () => {
+  const oldRows = [{ name: 'API access', verdicts: ['No', 'No', 'Yes'] }];
+  const newRows = [{ name: 'API access', verdicts: ['No', 'Yes'] }];
+  const result = diffTableRows(oldRows, newRows);
+  expect(result.columnCountChanges).toEqual([{ name: 'API access', oldCount: 3, newCount: 2 }]);
+  expect(result.changedRows).toEqual([
+    { name: 'API access', oldVerdicts: ['No', 'No', 'Yes'], newVerdicts: ['No', 'Yes'] },
+  ]);
+});
+
+test('diffTableRows matches the row key and compares verdicts case-insensitively', () => {
+  const oldRows = [{ name: 'BOM Versioning', verdicts: ['YES'] }];
+  const newRows = [{ name: 'bom versioning', verdicts: ['yes'] }];
+  const result = diffTableRows(oldRows, newRows);
+  expect(result.missingRows).toEqual([]);
+  expect(result.changedRows).toEqual([]);
+});
+
+test('evaluateRoute folds table results in alongside the phrase and fragment tiers', () => {
+  const result = evaluateRoute({
+    oldPhrases: [],
+    oldFragments: [],
+    newText: '',
+    newFragments: [],
+    ignoreList: [],
+    oldTableRows: [{ name: 'BOM versioning', verdicts: ['Yes'] }],
+    newTableRows: [],
+  });
+  expect(result.missingRows).toEqual([{ name: 'BOM versioning', oldVerdicts: ['Yes'] }]);
+  expect(result.changedRows).toEqual([]);
+  expect(result.columnCountChanges).toEqual([]);
 });

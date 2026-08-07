@@ -29,6 +29,16 @@ test('is hidden from assistive technology', async () => {
   expect(html).toContain('aria-hidden="true"');
 });
 
+test('carries the glyph name as data-icon, matching the design system original', async () => {
+  // The design system's own Icon.jsx stamps data-icon={name} on its span. This port swapped
+  // the CSS-mask span for an inlined SVG but dropped that attribute in the process, which made
+  // the icon's identity invisible to anything inspecting the markup (e.g. the copy-parity gate,
+  // which tokenises data-icon/data-lucide elements so a table-cell checkmark is comparable text
+  // instead of vanishing as an empty element).
+  const html = await render({ name: 'check' });
+  expect(html).toContain('data-icon="check"');
+});
+
 test('renders each fixed domain glyph', async () => {
   const domains = ['package', 'layers', 'factory', 'shopping-cart', 'receipt', 'truck', 'history', 'settings-2'];
   for (const name of domains) {

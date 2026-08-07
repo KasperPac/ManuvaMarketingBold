@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { extractText, toPhrases, toShortFragments } from '../../scripts/parity/extract.js';
+import { extractText, toPhrases, toShortFragments, extractTables } from '../../scripts/parity/extract.js';
 
 test('prefers main, since seven of eight old pages wrap content in it', () => {
   const html = `<body><header>nav junk</header><main>The real content of the page.</main><footer>footer junk</footer></body>`;
@@ -69,4 +69,45 @@ test('toShortFragments collects the 2-24 character fragments toPhrases drops, fo
 test('toShortFragments still excludes single-character noise like a lone dash', () => {
   const text = 'Custom integrations | - | Yes';
   expect(toShortFragments(text)).toEqual(['Custom integrations', 'Yes']);
+});
+
+// --- Fix round 2: icon-only verdict cells were invisible, and tables lost row identity ---
+
+test('extractText tokenizes an old-site data-lucide icon instead of losing it as empty text', () => {
+  // The old pricing matrix expresses 117 of its verdicts as an icon with no text at all
+  // (<span class="ci"><i data-lucide="check"></i></span>) — previously this contributed
+  // nothing to the comparison, so a checkmark that silently disappeared produced no signal.
+  const html = `<body><main><p>Native sync <i data-lucide="check"></i> included.</p></main></body>`;
+  expect(extractText(html)).toBe('Native sync [icon:check] included.');
+});
+
+test('extractText tokenizes the new site\'s data-icon the same way, so both sides compare identically', () => {
+  const html = `<body><main><p><svg data-icon="check"></svg></p></main></body>`;
+  expect(extractText(html)).toBe('[icon:check]');
+});
+
+test('a decorative svg with no data-lucide/data-icon is still stripped as chrome', () => {
+  const html = `<body><main><p>Open menu <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/></svg></p></main></body>`;
+  expect(extractText(html)).toBe('Open menu');
+});
+
+test('extractTables keys each row by its first cell and captures the rest as a verdict tuple', () => {
+  const html = `<body><main><table><tr><th>Feature</th><th>Starter</th><th>Growth</th></tr><tr><td>BOM versioning</td><td>No</td><td>Yes</td></tr></table></main></body>`;
+  expect(extractTables(html)).toEqual([
+    { name: 'Feature', verdicts: ['Starter', 'Growth'] },
+    { name: 'BOM versioning', verdicts: ['No', 'Yes'] },
+  ]);
+});
+
+test('extractTables tokenizes an icon cell so a checkmark verdict is comparable text', () => {
+  const html = `<body><main><table><tr><td>Sync</td><td><span class="ci"><i data-lucide="check"></i></span></td></tr></table></main></body>`;
+  expect(extractTables(html)).toEqual([{ name: 'Sync', verdicts: ['[icon:check]'] }]);
+});
+
+test('extractTables collapses an empty or dash-only cell to [none] instead of dropping the verdict', () => {
+  // The old pricing matrix expresses 42 more verdicts as a lone em-dash for "not on this
+  // tier". normalise() turns the dash into a single hyphen, which the short-fragment floor
+  // (>=2 chars) would otherwise discard, leaving the table one cell short with no trace.
+  const html = `<body><main><table><tr><td>API access</td><td><span class="dm">—</span></td><td></td></tr></table></main></body>`;
+  expect(extractTables(html)).toEqual([{ name: 'API access', verdicts: ['[none]', '[none]'] }]);
 });

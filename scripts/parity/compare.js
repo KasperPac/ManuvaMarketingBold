@@ -78,18 +78,75 @@ function mergeFired(a, b) {
   return merged;
 }
 
-// Runs both tiers for one route and flags ignore.json entries that suppressed
+function tableRowKey(name) {
+  return normalise(name).toLowerCase();
+}
+
+// Tier 3: table rows, keyed by their own first cell (feature/provider/version name)
+// rather than by position. Neither tier 1 nor tier 2 can tell a swapped verdict from
+// an unchanged page: a multiset sees old ['Yes','No'] / new ['No','Yes'] as the same
+// 1-Yes-1-No either way. Comparing each row against its past self — by name, not by
+// row index — catches a swap, and also survives the new site legitimately reordering
+// or restyling the table, since nothing here depends on where the row sits.
+export function diffTableRows(oldRows, newRows) {
+  const newByKey = new Map(newRows.map((row) => [tableRowKey(row.name), row]));
+  const missingRows = [];
+  const changedRows = [];
+  const columnCountChanges = [];
+
+  for (const oldRow of oldRows) {
+    const newRow = newByKey.get(tableRowKey(oldRow.name));
+    if (!newRow) {
+      missingRows.push({ name: oldRow.name, oldVerdicts: oldRow.verdicts });
+      continue;
+    }
+
+    const sameLength = oldRow.verdicts.length === newRow.verdicts.length;
+    if (!sameLength) {
+      columnCountChanges.push({
+        name: oldRow.name,
+        oldCount: oldRow.verdicts.length,
+        newCount: newRow.verdicts.length,
+      });
+    }
+
+    const sameValues =
+      sameLength && oldRow.verdicts.every((v, i) => v.toLowerCase() === newRow.verdicts[i].toLowerCase());
+    if (!sameValues) {
+      changedRows.push({ name: oldRow.name, oldVerdicts: oldRow.verdicts, newVerdicts: newRow.verdicts });
+    }
+  }
+
+  return { missingRows, changedRows, columnCountChanges };
+}
+
+// Runs all three tiers for one route and flags ignore.json entries that suppressed
 // nothing at all ("stale") — an entry that protects nothing is how these files
-// silently rot into permission to lose content.
-export function evaluateRoute({ oldPhrases, oldFragments, newText, newFragments, ignoreList }) {
+// silently rot into permission to lose content. Table rows aren't run against
+// ignore.json — the table tier reports structural differences (a row, a swap, a
+// column count), and "this specific row is allowed to differ" isn't a shape
+// ignore.json's flat phrase list currently expresses; revisit if that's needed.
+export function evaluateRoute({
+  oldPhrases,
+  oldFragments,
+  newText,
+  newFragments,
+  ignoreList,
+  oldTableRows = [],
+  newTableRows = [],
+}) {
   const phraseResult = diffPhrases(oldPhrases, newText, ignoreList);
   const fragmentResult = diffShortFragments(oldFragments, newFragments, ignoreList);
+  const tableResult = diffTableRows(oldTableRows, newTableRows);
   const fired = mergeFired(phraseResult.fired, fragmentResult.fired);
   const staleEntries = ignoreList.filter((entry) => !fired.has(entry));
 
   return {
     missingPhrases: phraseResult.missing,
     decreasedFragments: fragmentResult.decreased,
+    missingRows: tableResult.missingRows,
+    changedRows: tableResult.changedRows,
+    columnCountChanges: tableResult.columnCountChanges,
     fired,
     staleEntries,
   };

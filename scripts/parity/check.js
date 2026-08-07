@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { readFileSync, existsSync } from 'node:fs';
-import { extractText, toPhrases, toShortFragments } from './extract.js';
+import { extractText, toPhrases, toShortFragments, extractTables } from './extract.js';
 import { evaluateRoute, routeStatus } from './compare.js';
 
 // Overridable so the gate isn't bound to one machine's checkout path.
@@ -31,6 +31,7 @@ const only = args.find((a) => a !== '--require-all');
 let failed = 0;
 let checked = 0;
 let skipped = 0;
+let missingRequired = 0;
 
 for (const [route, oldPath, newPath] of ROUTES) {
   if (only && only !== route) continue;
@@ -39,6 +40,7 @@ for (const [route, oldPath, newPath] of ROUTES) {
 
   if (status === 'missing') {
     failed++;
+    missingRequired++;
     console.error(`\nFAIL ${route} — ${newPath} does not exist and --require-all is set.`);
     continue;
   }
@@ -51,18 +53,36 @@ for (const [route, oldPath, newPath] of ROUTES) {
 
   checked++;
 
-  const oldText = extractText(readOld(oldPath));
+  const oldHtml = readOld(oldPath);
+  const oldText = extractText(oldHtml);
   const oldPhrases = toPhrases(oldText);
   const oldFragments = toShortFragments(oldText);
+  const oldTableRows = extractTables(oldHtml);
 
-  const newTextRaw = extractText(readFileSync(newPath, 'utf8'));
+  const newHtml = readFileSync(newPath, 'utf8');
+  const newTextRaw = extractText(newHtml);
   const newText = newTextRaw.toLowerCase();
   const newFragments = toShortFragments(newTextRaw);
+  const newTableRows = extractTables(newHtml);
 
   const ignoreList = ignore[route] || [];
-  const result = evaluateRoute({ oldPhrases, oldFragments, newText, newFragments, ignoreList });
+  const result = evaluateRoute({
+    oldPhrases,
+    oldFragments,
+    newText,
+    newFragments,
+    ignoreList,
+    oldTableRows,
+    newTableRows,
+  });
 
-  const problems = result.missingPhrases.length || result.decreasedFragments.length || result.staleEntries.length;
+  const problems =
+    result.missingPhrases.length ||
+    result.decreasedFragments.length ||
+    result.missingRows.length ||
+    result.changedRows.length ||
+    result.columnCountChanges.length ||
+    result.staleEntries.length;
 
   if (problems) {
     failed++;
@@ -84,12 +104,33 @@ for (const [route, oldPath, newPath] of ROUTES) {
       }
     }
 
+    if (result.missingRows.length) {
+      console.error(`  ${result.missingRows.length} table row(s) present in the old page but gone from the new one:`);
+      for (const r of result.missingRows.slice(0, 40)) console.error(`    · ${r.name}: ${r.oldVerdicts.join(', ')}`);
+      if (result.missingRows.length > 40) console.error(`    … and ${result.missingRows.length - 40} more`);
+    }
+
+    if (result.changedRows.length) {
+      console.error(`  ${result.changedRows.length} table row(s) whose verdicts changed:`);
+      for (const r of result.changedRows.slice(0, 40)) {
+        console.error(`    · ${r.name}: [${r.oldVerdicts.join(', ')}] → [${r.newVerdicts.join(', ')}]`);
+      }
+      if (result.changedRows.length > 40) console.error(`    … and ${result.changedRows.length - 40} more`);
+    }
+
+    if (result.columnCountChanges.length) {
+      console.error(`  ${result.columnCountChanges.length} table row(s) with a different number of columns:`);
+      for (const c of result.columnCountChanges) console.error(`    · ${c.name}: ${c.oldCount} → ${c.newCount}`);
+    }
+
     if (result.staleEntries.length) {
       console.error(`  ${result.staleEntries.length} ignore.json entr${result.staleEntries.length === 1 ? 'y' : 'ies'} for this route matched nothing — remove or fix:`);
       for (const s of result.staleEntries) console.error(`    · ${s}`);
     }
   } else {
-    console.log(`+ ${route}  ${oldPhrases.length} phrases, ${oldFragments.length} short fragments present`);
+    console.log(
+      `+ ${route}  ${oldPhrases.length} phrases, ${oldFragments.length} short fragments, ${oldTableRows.length} table rows present`,
+    );
   }
 
   if (result.fired.size) {
@@ -100,7 +141,7 @@ for (const [route, oldPath, newPath] of ROUTES) {
   }
 }
 
-console.log(`\nChecked ${checked} route(s), skipped ${skipped}.`);
+console.log(`\nChecked ${checked} route(s), skipped ${skipped}, missing (required) ${missingRequired}.`);
 
 if (failed) {
   console.error(`\n${failed} page(s) lost content. Move the copy across, or add a reasoned entry to scripts/parity/ignore.json.`);
