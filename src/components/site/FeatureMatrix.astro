@@ -102,6 +102,10 @@ const CATEGORIES = [
 // switched in by responsive.css below 720px). This is the old page's own
 // `<!-- KEEP IN SYNC: plan-feats-mobile ↔ matrix rows -->` content, verbatim,
 // relocated from inside each plan card to here — same claims, same source.
+// The old "Open this page on desktop" note is deliberately dropped, not
+// carried across: it told mobile users to leave because no mobile matrix
+// existed, and one exists now, so the instruction is obsolete rather than
+// lost. Ruled on and cleared via scripts/parity/ignore.json (not this file).
 const DIFFERENTIATORS = [
   { plan: 'Starter', rows: [
     { label: 'Locations', v: '1' },
@@ -182,5 +186,4 @@ const DIFFERENTIATORS = [
       </ul>
     </div>
   ))}
-  <p class="site-matrix-note">Need every feature side-by-side? Open this page on desktop to see the full comparison matrix.</p>
 </div>

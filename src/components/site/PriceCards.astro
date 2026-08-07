@@ -1,7 +1,7 @@
 ---
 import Icon from '../ds/Icon.astro';
 import Button from '../ds/Button.astro';
-import { APP_URL, CONTACT_EMAIL } from '../../site';
+import { APP_URL } from '../../site';
 
 // Verbatim from the old pricing page's four plan cards (annual figures are the
 // old page's default toggle state; monthly figures only ever lived in the old
@@ -87,12 +87,13 @@ const PLANS = [
     monthlyPrice: null,
     custom: true,
     chips: [{ text: 'Unlimited locations', ok: true }, { text: 'Unlimited users', ok: true }],
-    // The old page's own href="/contact" points nowhere in this port — the
-    // contact section lives at "/#contact" on the home page (Task 7), and
-    // CtaBand's own "Talk to us" pill already resolved this same old-form
-    // problem with a direct mailto. Same call here, for the same reason.
+    // The old page's own href="/contact" is a dead link on the live site —
+    // no contact.html exists and "/contact" isn't in the sitemap. The old
+    // page's own nav and footer use "index.html#contact" instead, which is
+    // the working convention (and the home page now has a real #contact
+    // section, Task 7) — so this points there rather than porting the 404.
     ctaLabel: 'Contact sales →',
-    ctaHref: `mailto:${CONTACT_EMAIL}`,
+    ctaHref: '/#contact',
     ctaVariant: 'ink' as const,
     featured: false,
     enterprise: true,

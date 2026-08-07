@@ -10,7 +10,11 @@
     "Send message"
   ],
   "/features": [],
-  "/pricing": [],
+  "/pricing_reason": "The old page's entire mobile treatment for the feature matrix was this two-sentence note telling the reader to come back on a bigger screen (matrix-section is display:none below 720px with nothing standing in for it but this text). This build ships a real mobile fallback instead (.mv-matrix-cards, the old page's own KEEP-IN-SYNC plan-feats-mobile content, relocated into FeatureMatrix.astro) — so the instruction to leave and open a desktop is obsolete, not lost. Team-lead ruling (task-8): drop the note rather than keep it as a caption above a working mobile view, which would be actively contradictory.",
+  "/pricing": [
+    "Need every feature side-by-side?",
+    "Open this page on desktop to see the full comparison matrix."
+  ],
   "/about": [],
   "/alternatives/katana": [],
   "/alternatives/mrpeasy": [],

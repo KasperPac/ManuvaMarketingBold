@@ -102,7 +102,11 @@ a.site-tile { color: inherit; }
 .site-marquee-word > i { width: 9px; height: 9px; border-radius: 50%; background: var(--on-lime); flex: none; }
 
 .site-cta-inner { display: grid; justify-items: center; text-align: center; gap: var(--space-8); }
-.site-cta-heading { font-size: var(--fs-display-5); max-width: 12ch; margin: 0; }
+/* max-width widened from 12ch: CtaBand headings must quote a real sentence
+   from the page verbatim (never an assembled tagline), and those run longer
+   than a short marketing line — text-wrap:balance (mv-display) still keeps
+   the wrap even across pages with very different heading lengths. */
+.site-cta-heading { font-size: var(--fs-display-5); max-width: 26ch; margin: 0; }
 .site-cta-body { margin: 0; font-size: var(--fs-lg); max-width: 38ch; opacity: .84; text-wrap: pretty; }
 .site-cta-actions { display: flex; gap: var(--space-4); }
 
@@ -298,7 +302,6 @@ a.site-tile { color: inherit; }
 .site-matrix-card-list li { display: flex; justify-content: space-between; align-items: baseline; font-size: var(--fs-sm); }
 .site-matrix-card-list li svg { color: var(--ok); }
 .site-matrix-card-label { color: var(--ink-muted); }
-.site-matrix-note { grid-column: 1 / -1; text-align: center; font-size: var(--fs-sm); color: var(--ink-faint); margin: var(--space-2) 0 0; max-width: 32ch; margin-inline: auto; line-height: var(--lh-normal); }
 
 @media (max-width: 480px) {
   .site-matrix-cards { grid-template-columns: 1fr; }
