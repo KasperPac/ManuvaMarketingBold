@@ -1,0 +1,26 @@
+---
+import Logo from '../ds/Logo.astro';
+import { FOOTER_GROUPS, CONTACT_EMAIL } from '../../site';
+const year = new Date().getFullYear();
+---
+<footer class="mv-field-ink site-footer">
+  <div class="mv-wrap site-footer-grid">
+    <div class="site-footer-brand">
+      <Logo variant="lockup" height={24} />
+      <p>Manufacturing operations, finally simple.</p>
+      <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+    </div>
+    {FOOTER_GROUPS.map((g) => (
+      <div class="site-footer-col">
+        <span class="mv-eyebrow">{g.heading}</span>
+        {g.links.map((l) => <a href={l.href}>{l.label}</a>)}
+      </div>
+    ))}
+  </div>
+  <div class="site-footer-base">
+    <div class="mv-wrap">
+      <span>© {year} Pac Technologies Pty Ltd</span>
+      <span class="mv-mono">manuva.app</span>
+    </div>
+  </div>
+</footer>

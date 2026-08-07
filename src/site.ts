@@ -1,0 +1,30 @@
+export const APP_URL = 'https://app.manuva.app';
+export const CONTACT_EMAIL = 'hello@manuva.app';
+
+export const NAV_LINKS = [
+  { href: '/features', label: 'Features' },
+  { href: '/pricing', label: 'Pricing' },
+  { href: '/alternatives/katana', label: 'Compare' },
+  { href: '/about', label: 'About' },
+] as const;
+
+export const FOOTER_GROUPS = [
+  { heading: 'Product', links: [
+    { href: '/features', label: 'Features' },
+    { href: '/pricing', label: 'Pricing' },
+  ] },
+  { heading: 'Compare', links: [
+    { href: '/alternatives/katana', label: 'vs Katana' },
+    { href: '/alternatives/mrpeasy', label: 'vs MRPeasy' },
+  ] },
+  { heading: 'Company', links: [
+    { href: '/about', label: 'About' },
+    { href: '/privacy', label: 'Privacy' },
+    { href: '/terms', label: 'Terms' },
+  ] },
+] as const;
+
+export const ALL_ROUTES = [
+  '/', '/features', '/pricing', '/about',
+  '/alternatives/katana', '/alternatives/mrpeasy', '/privacy', '/terms',
+] as const;
