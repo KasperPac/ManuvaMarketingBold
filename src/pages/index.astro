@@ -413,8 +413,14 @@ const schema = [
     </div>
   </section>
 
-  {/* ink comparison — the old page's full 8-row table, verbatim */}
-  <Field field="ink" class="site-compare">
+  {/* ink comparison — the old page's full 8-row table, verbatim. id="compare"
+      matches the old page's own <section class="compare" id="compare">
+      (origin/master:index.html) — both /alternatives/ pages' "Explore
+      further" links carry a real "/#compare" href that pointed at this
+      section on the old site and silently lost its target in the reskin
+      (Task 14, caught by testing every href="/route#id" resolves, not just
+      same-page ones — team-lead correction, not a content decision). */}
+  <Field field="ink" class="site-compare" id="compare">
     <span class="mv-eyebrow">Why Manuva</span>{' '}
     <h2 class="mv-display">Built for the floor, not for the demo</h2>
     <p class="site-compare-intro">
