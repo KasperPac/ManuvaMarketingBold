@@ -1,0 +1,291 @@
+---
+import Doc from '../layouts/Doc.astro';
+import { APP_URL } from '../site';
+
+// Head values and Doc props are the old page's own <head>/<doc-hero> text,
+// verbatim — read from terms.html at origin/master, not assembled. See
+// Doc.astro's own comment for why `sub`/`effective`/`version` exist even
+// though the task brief's Props list didn't have them.
+const description =
+  'The agreement between Manuva (operated by Pac Technologies Pty Ltd) and customers who use the Manuva platform.';
+---
+<Doc
+  title="Terms of Service — Manuva"
+  description={description}
+  twitterDescription={description}
+  canonical="https://manuva.app/terms"
+  heading="Terms of Service"
+  sub="The agreement between you and Manuva when you sign up for, use, or pay for the Manuva platform. These Terms cover what you can expect from us, what we expect from you, and the legal mechanics that sit behind both."
+  effective="12 May 2026"
+  version="1.0"
+  updated="12 May 2026"
+>
+  <section id="introduction">
+    <h2>1. Introduction &amp; agreement to these Terms</h2>
+    <p>The Manuva service is operated by Pac Technologies Pty Ltd (ABN 99 113 680 443; ACN 113 680 443), a company registered in Victoria, Australia, trading as Manuva. Registered office: 10–20 Gwynne St, Cremorne VIC 3121.</p>
+    <p>These Terms of Service (<strong>"Terms"</strong>) form a binding agreement between Pac Technologies Pty Ltd (<strong>"Manuva"</strong>, <strong>"we"</strong>, <strong>"us"</strong>) and the legal entity that signs up for the Manuva service (<strong>"Customer"</strong>, <strong>"you"</strong>).</p>
+    <p><strong>Authorised Users</strong> are the individuals you permit to access the Service on your behalf — typically your employees and contractors. You are responsible for their acts and omissions in relation to the Service.</p>
+    <p>You accept these Terms when you sign up for, access, or pay for the Service. By doing any of those things on behalf of an organisation, you warrant that you have the authority to bind that organisation to these Terms.</p>
+  </section>
+
+  <section id="service">
+    <h2>2. The Service</h2>
+    <p>Manuva is a manufacturing-operations platform. It covers bills of materials (BOMs), inventory, component libraries, supplier records, staffing and costing, dashboards, and integrations with third-party systems including Shopify, Stripe, and Xero. The Service is delivered as software-as-a-service over the internet at <a href={APP_URL}>app.manuva.app</a>.</p>
+    <p>The Service evolves over time. We may add, modify, or retire features as the product matures. Where a change materially reduces functionality you rely on, we will give reasonable advance notice by email and in-app notification.</p>
+    <h3>Beta and preview features</h3>
+    <p>From time to time we may make features available marked "Beta", "Preview", "Experimental", or similar. These features are provided as-is, may be modified or discontinued at any time without notice, and are excluded from the warranties and indemnities in these Terms. Use of a Beta or Preview feature is optional and at the Customer's discretion.</p>
+  </section>
+
+  <section id="account">
+    <h2>3. Account, signup &amp; free trial</h2>
+    <p>The Service is intended for business use. The individual creating the account must be at least 18 years old and must have authority to bind the Customer organisation.</p>
+    <p>Customer is responsible for the acts and omissions of its Authorised Users in relation to the Service as if they were the Customer's own.</p>
+    <h3>Free trial</h3>
+    <p>We offer a 14-day free trial. No credit card is required up front. At the end of the trial the account expires automatically — there is no auto-conversion to a paid plan. To continue using the Service after the trial, the Customer must enter card details and select a plan.</p>
+    <h3>Credentials and account security</h3>
+    <p>Customer and each Authorised User are responsible for keeping login credentials confidential. We are not liable for losses arising from credentials disclosed by the Customer or its Authorised Users, whether intentionally or otherwise. Notify us promptly at <a href="mailto:support@manuva.app">support@manuva.app</a> if you suspect unauthorised use of your account.</p>
+    <h3>Inactive accounts</h3>
+    <p>We may deactivate accounts that have been continuously inactive for 12 months, on prior email notice to the billing contact on file. Reactivation is available on request before deletion of the underlying data per the Privacy Policy retention schedule.</p>
+  </section>
+
+  <section id="billing">
+    <h2>4. Subscription, billing &amp; taxes</h2>
+    <p>The Service is offered on Monthly and Annual plans. The current pricing and feature breakdown is published at <a href="/pricing">manuva.app/pricing</a> and may change with notice — price changes take effect at the next renewal, and existing terms run out at the agreed rate.</p>
+    <p>Billing is processed by Stripe under its own terms. Annual plans are paid upfront for the full term; Monthly plans are charged at the start of each billing month.</p>
+    <h3>Auto-renewal</h3>
+    <p>Subscriptions auto-renew at the end of each term unless the Customer cancels in-product before the renewal date. Annual customers receive an email reminder at least 30 days before renewal.</p>
+    <div class="site-doc-note">
+      <strong>No mid-term refunds for Annual subscriptions.</strong> Cancelling an Annual subscription stops auto-renew; access continues to the end of the prepaid term. We do not pro-rate refunds for the unused portion of a paid Annual term except where these Terms expressly say otherwise (for example, termination by Manuva for convenience under Section 11).
+    </div>
+    <h3>Taxes</h3>
+    <p>Prices are stated in Australian Dollars (AUD). GST is included for Australian customers and shown separately on invoices. The Customer is responsible for any withholding or other taxes payable in its own jurisdiction outside Australia.</p>
+    <h3>Failed payment</h3>
+    <p>Payment failure triggers an automated email notice. If payment is not resolved within 14 days of the first failed charge, we may suspend the Customer's access to the Service. If non-payment continues for 30 days from the first failed charge, we may terminate the subscription, unless otherwise agreed in writing.</p>
+    <h3>Price changes</h3>
+    <p>We may change pricing for the Service. Any change applies from the next renewal of the Customer's subscription. We will give at least 30 days' notice by email before a price change takes effect.</p>
+    <h3>Disputed charges</h3>
+    <p>Disputed charges must be raised in writing to <a href="mailto:support@manuva.app">support@manuva.app</a> within 60 days of the invoice date. Charges not disputed within that window are deemed accepted.</p>
+  </section>
+
+  <section id="customer-data">
+    <h2>5. Customer Data &amp; ownership</h2>
+    <p><strong>Customer Data</strong> means data the Customer or its Authorised Users upload, enter, or generate through the Service — including supplier records, BOMs, order data synced from Shopify, staff records, costings, and activity within the Customer's workspace.</p>
+    <p>The Customer retains all rights, title, and interest in Customer Data. Manuva acquires no ownership of Customer Data.</p>
+    <p>The Customer grants Manuva a limited, non-exclusive, worldwide licence to host, process, transmit, and display Customer Data solely to operate and support the Service for the Customer. This licence terminates when the data is deleted in accordance with this Section and the Privacy Policy retention schedule.</p>
+    <div class="site-doc-note">
+      <strong>AI &amp; ML.</strong> Manuva will not use Customer Data to train, fine-tune, or evaluate any machine-learning or artificial-intelligence model, whether Manuva's own model or a third party's. We may use aggregated and de-identified analytics derived from use of the Service to maintain and improve the Service, on the basis that such data does not identify the Customer or any individual.
+    </div>
+    <h3>Export during the subscription</h3>
+    <p>During the subscription, the Customer may export Customer Data through in-product features at any time. Where a given dataset is not yet covered by an in-product export, we will assist with a one-off export on reasonable request.</p>
+    <h3>Export at end of subscription</h3>
+    <p>The Customer has 30 days from the effective date of termination to access the Service in read-only mode and export Customer Data. After 30 days, access ends and data is retained per the deletion schedule in the Privacy Policy (§5 of the <a href="/privacy">Privacy Policy</a>: 12-month default retention for closed accounts, longer where required for tax records or legal holds).</p>
+    <h3>Deletion confirmation</h3>
+    <p>On written request and at no cost, Manuva will confirm completion of deletion of Customer Data once the relevant retention period has elapsed.</p>
+  </section>
+
+  <section id="ip">
+    <h2>6. Intellectual property</h2>
+    <p>Manuva (or its licensors) owns all right, title, and interest in the Service, the platform, the Manuva brand, code, models, templates, documentation, and underlying technology — subject only to the limited licence granted to the Customer to use the Service in accordance with these Terms.</p>
+    <h3>Feedback licence</h3>
+    <p>If the Customer or any Authorised User provides feedback, suggestions, ideas, or recommendations about the Service, the Customer grants Manuva a perpetual, royalty-free, worldwide, sublicensable licence to use that feedback for any purpose, including in the Service and other Manuva products. This licence does not extend to Customer Data.</p>
+    <h3>Customer marks and marketing identification</h3>
+    <p>The Customer grants Manuva a non-exclusive licence to use the Customer's name and logo to identify it as a customer of the Service — for example on <a href="https://manuva.app">manuva.app</a>, in case studies, or in pitch decks. The Customer may revoke this licence at any time by emailing <a href="mailto:legal@manuva.app">legal@manuva.app</a>; Manuva will stop new use within a reasonable time and remove from existing public materials at the next routine refresh.</p>
+    <h3>Restrictions</h3>
+    <p>The Customer must not reverse engineer, decompile, scrape, create derivative works of, or remove proprietary notices from the Service. The full list of restrictions and acceptable use rules is in Section 7.</p>
+  </section>
+
+  <section id="aup">
+    <h2>7. Acceptable use</h2>
+    <p>Customer and its Authorised Users must not:</p>
+    <ol>
+      <li>Use the Service in violation of any law or third-party rights.</li>
+      <li>Upload, transmit, or distribute malware, viruses, or code designed to harm or interfere.</li>
+      <li>Attempt to gain unauthorised access to any part of the Service, other accounts, or underlying infrastructure.</li>
+      <li>Scrape, harvest, or systematically extract data from the Service except via documented features or APIs.</li>
+      <li>Reverse engineer, decompile, or attempt to derive the source code, models, or algorithms of the Service (except to the extent this prohibition is invalid under law).</li>
+      <li>Probe, scan, or test the vulnerability of the Service without prior written authorisation.</li>
+      <li>Resell, sublicense, or operate the Service as a service bureau for third parties not Authorised Users of the Customer.</li>
+      <li>Use the Service to build, train, or improve a product that competes with the Service.</li>
+      <li>Publish performance benchmarks of the Service without Manuva's prior written consent.</li>
+      <li>Use the Service to send unsolicited commercial communications, spam, or phishing content.</li>
+      <li>Upload content that is unlawful, infringing, defamatory, obscene, or that violates another person's privacy.</li>
+      <li>Interfere with or disrupt the integrity, performance, or availability of the Service (including rate-busting, automated load generation, or denial-of-service patterns).</li>
+      <li>Remove or obscure proprietary notices, branding, or licence text in the Service.</li>
+    </ol>
+    <p><strong>Consequence.</strong> Breach of this Section is grounds for immediate suspension (with notice where practical) and termination for cause if not cured.</p>
+  </section>
+
+  <section id="privacy-dpa">
+    <h2>8. Security, privacy &amp; data processing</h2>
+    <p>The <a href="/privacy">Privacy Policy</a> at <a href="/privacy">manuva.app/privacy</a> governs Manuva's collection, use, and disclosure of personal information and is incorporated into these Terms by reference. To the extent these Terms and the Privacy Policy overlap on personal-information handling, the Privacy Policy controls within its specific domain.</p>
+    <h3>Roles</h3>
+    <p>The Customer is the controller of Customer Data and instructs Manuva on its processing through these Terms, the Privacy Policy, and in-product configuration. Manuva acts as processor of Customer Data on behalf of the Customer, and as controller of account, usage, and billing information about the Customer and its Authorised Users (consistent with §4 of the Privacy Policy).</p>
+    <h3>Manuva's processor obligations</h3>
+    <p>As processor of Customer Data, Manuva will: process Customer Data only on the Customer's documented instructions (these Terms and configured Service settings being the baseline instruction); impose written confidentiality obligations on personnel with access; maintain appropriate technical and organisational security measures (see §7 of the Privacy Policy); and assist the Customer on reasonable request with data-subject rights requests, regulator queries, breach notifications, and data-protection impact assessment inputs.</p>
+    <h3>Subprocessors</h3>
+    <p>The current list of subprocessors is maintained in §4 of the Privacy Policy and includes Supabase, Stripe, Shopify, Resend, and Xero. Manuva will give at least 30 days' notice by email and in-app of any addition or material replacement of a subprocessor that processes Customer Data. The Customer may terminate the affected subscription without penalty if it objects on reasonable security or compliance grounds and the issue cannot be resolved.</p>
+    <h3>International transfers</h3>
+    <p>Primary processing of Customer Data takes place in Australia. Where any subprocessor processes Customer Data outside Australia, Manuva ensures that appropriate contractual safeguards are in place with that subprocessor in line with the Australian Privacy Principles.</p>
+    <h3>Breach notification</h3>
+    <p>Manuva will notify the Customer without undue delay and in any event within 72 hours of becoming aware of a confirmed personal-data breach affecting Customer Data, consistent with the Office of the Australian Information Commissioner's eligible-data-breach scheme. The notice will include the available facts, the likely impact, and the steps Manuva is taking in response.</p>
+    <h3>Audit rights</h3>
+    <p>Once per year on reasonable written request, Manuva will provide a summary of its security measures and any current third-party audit reports it holds (where Manuva has the right to disclose them). On-site audits by the Customer are not permitted by default and require separately negotiated terms; this reflects the shared-infrastructure nature of the Service.</p>
+    <h3>Standalone DPA</h3>
+    <p>Manuva will provide a standalone Data Processing Addendum on written request to Customers with a reasonable need — for example, a documented procurement requirement. Until an executed standalone DPA is in place, this Section governs the processing relationship between the parties.</p>
+    <h3>Customer's security obligations</h3>
+    <p>The Customer is responsible for the secure use of credentials, prompt revocation of access for departing personnel, enabling multi-factor authentication where the Service offers it, and notifying Manuva promptly of any suspected unauthorised use of its account.</p>
+    <h3>Deletion</h3>
+    <p>On end of subscription, Customer Data is handled in accordance with Section 5 above and §5 of the Privacy Policy.</p>
+  </section>
+
+  <section id="availability">
+    <h2>9. Service availability</h2>
+    <p>Manuva uses commercially reasonable efforts to make the Service available 24×7. There is <strong>no formal service-level agreement and no service credits</strong> under these Terms; availability commitments above this baseline are only created where the parties sign a separate written agreement.</p>
+    <p>Planned maintenance is scheduled outside Australian business hours where practical and announced via in-product notice ahead of time.</p>
+    <p>Manuva is not liable for unavailability caused by force majeure events, third-party platform outages (for example, outages at Supabase, Stripe, or Shopify), or the Customer's own network, devices, or equipment.</p>
+  </section>
+
+  <section id="support">
+    <h2>10. Support</h2>
+    <p>Manuva provides email support at <a href="mailto:support@manuva.app">support@manuva.app</a>. Response targets at the base plan level are best-efforts and are not contractually binding. Any premium support response targets are governed by the relevant plan description published at <a href="/pricing">manuva.app/pricing</a>.</p>
+    <p>Support covers questions about how to use the Service, defect reports, and operational issues. It does not cover paid implementation, data-migration, or bespoke development work, which are available separately on request.</p>
+  </section>
+
+  <section id="termination">
+    <h2>11. Suspension &amp; termination</h2>
+    <h3>Customer termination</h3>
+    <p>Monthly subscriptions: the Customer may cancel anytime in-product. Cancellation stops auto-renew; access continues to the end of the current billing month.</p>
+    <p>Annual subscriptions: the Customer may cancel anytime in-product. Cancellation stops auto-renew; access continues to the end of the prepaid term. There is no mid-term refund — see Section 4.</p>
+    <h3>Manuva suspension</h3>
+    <p>Manuva may suspend access to the Service for: non-payment after the 14-day grace period in Section 4; breach of the Acceptable Use Policy in Section 7; or a credible security threat to the Service or to other customers. Notice will be provided where practical.</p>
+    <h3>Manuva termination for cause</h3>
+    <p>Manuva may terminate the Customer's subscription for cause on at least 30 days' written notice where the Customer has materially breached these Terms and has not cured the breach within the notice period.</p>
+    <h3>Manuva termination for convenience</h3>
+    <p>Manuva may terminate the Customer's subscription for convenience on at least 60 days' written notice. In that case, Manuva will refund any prepaid unused fees on a pro-rata basis.</p>
+    <h3>Effect of termination</h3>
+    <p>All access rights end on the termination effective date, subject to the 30-day read-only export window in Section 5. Accrued payment obligations survive termination. Sections that by their nature are intended to survive termination continue to apply (see Section 18 on survival).</p>
+  </section>
+
+  <section id="confidentiality">
+    <h2>12. Confidentiality</h2>
+    <p>Each party may receive non-public information about the other in connection with the Service. Each party will protect the other party's Confidential Information using at least the same standard of care it uses to protect its own confidential information, and not less than a reasonable standard of care.</p>
+    <p>Customer Data is treated as the Customer's Confidential Information.</p>
+    <p>Permitted disclosures: to personnel, contractors, and advisers on a need-to-know basis under written confidentiality obligations no less protective than those in these Terms; and as required by law, regulation, or court order — with prior notice to the other party where legally permitted, so that party can seek a protective order.</p>
+    <p>Confidentiality obligations survive termination indefinitely for trade secrets, and for three years for other Confidential Information.</p>
+  </section>
+
+  <section id="warranties">
+    <h2>13. Warranties &amp; disclaimers</h2>
+    <p>Each party warrants that it has authority to enter into these Terms and to perform its obligations under them.</p>
+    <p>Except as expressly stated in these Terms, the Service is provided <strong>"as is" and "as available"</strong>. To the maximum extent permitted by law, Manuva disclaims all other warranties, conditions, and guarantees, whether express, implied, statutory, or otherwise — including any implied warranty of merchantability, fitness for a particular purpose, or non-infringement.</p>
+    <p><strong>Australian Consumer Law preserved.</strong> Nothing in these Terms excludes, restricts, or modifies any guarantee, right, or remedy conferred by the Australian Consumer Law or any other law that cannot lawfully be excluded, restricted, or modified. Where the ACL implies a guarantee that cannot be excluded, Manuva's liability for breach is, where permitted, limited at Manuva's option to re-supplying the Service or paying the cost of having the Service re-supplied.</p>
+    <p>Manuva makes no warranty regarding third-party integrations (including Shopify, Stripe, and Xero) or for their availability, accuracy, or continued provision; those integrations are governed by their providers' own terms.</p>
+    <p>Beta and Preview features are excluded from all warranties, express or implied, to the maximum extent permitted by law.</p>
+  </section>
+
+  <section id="indemnity">
+    <h2>14. Indemnification</h2>
+    <h3>Manuva's indemnity</h3>
+    <p>Manuva will defend the Customer against any third-party claim alleging that the Service, as provided by Manuva and used by the Customer in accordance with these Terms, infringes that third party's intellectual property rights, and will pay any damages finally awarded against the Customer (or settlement amounts approved by Manuva) for such a claim. This indemnity is conditional on the Customer: (a) giving Manuva prompt written notice of the claim; (b) giving Manuva sole control of the defence and settlement; and (c) providing reasonable cooperation at Manuva's expense.</p>
+    <p>If the Service becomes, or in Manuva's reasonable opinion is likely to become, the subject of an infringement claim, Manuva may at its option: modify the Service so that it is non-infringing; obtain a licence for the Customer to continue using the Service; or terminate the affected subscription and refund any prepaid unused fees.</p>
+    <p><strong>Carveouts.</strong> Manuva has no obligation under this Section for any claim arising from: (i) Customer Data; (ii) modifications to the Service made by anyone other than Manuva; (iii) use of the Service in combination with non-Manuva products, data, or services where the claim would not have arisen but for the combination; or (iv) use of the Service beyond the scope of these Terms.</p>
+    <h3>Customer's indemnity</h3>
+    <p>The Customer will defend Manuva against any third-party claim arising from: Customer Data; the Customer's or its Authorised Users' breach of the Acceptable Use Policy in Section 7; or use of the Service in violation of law. The Customer will pay any damages finally awarded against Manuva (or settlement amounts approved by the Customer) for such a claim. This indemnity is subject to the same procedural conditions as Manuva's indemnity above (prompt notice, sole control of defence, reasonable cooperation).</p>
+  </section>
+
+  <section id="liability">
+    <h2>15. Limitation of liability</h2>
+    <p><strong>Cap.</strong> Each party's aggregate liability for all claims arising under or in connection with this agreement is limited to the fees paid by the Customer to Manuva in the 12 months immediately preceding the event giving rise to the claim.</p>
+    <p><strong>Excluded damages.</strong> Neither party is liable to the other for indirect, consequential, special, exemplary, or punitive damages, or for loss of profits, revenue, goodwill, or data (other than restoration costs already implied by the Service), even if the party has been advised of the possibility of such damages.</p>
+    <p><strong>The cap and the indirect-damages exclusion do not apply to:</strong></p>
+    <ul>
+      <li>breach of confidentiality (Section 12);</li>
+      <li>the IP indemnity in Section 14;</li>
+      <li>gross negligence or wilful misconduct;</li>
+      <li>death or personal injury caused by negligence;</li>
+      <li>fraud or fraudulent misrepresentation; and</li>
+      <li>any liability that cannot lawfully be limited under the Australian Consumer Law or other applicable law.</li>
+    </ul>
+    <p>The Australian Consumer Law is preserved: nothing in this Section excludes or limits any liability that cannot lawfully be excluded or limited.</p>
+  </section>
+
+  <section id="governing-law">
+    <h2>16. Governing law &amp; disputes</h2>
+    <p>These Terms are governed by the laws of Victoria, Australia.</p>
+    <p>The parties submit to the non-exclusive jurisdiction of the courts of Victoria and the Federal Court of Australia for any dispute arising out of or in connection with these Terms.</p>
+    <p>Before commencing litigation, the parties will attempt in good faith to resolve any dispute through senior-level negotiation for at least 30 days, except where urgent injunctive or equitable relief is required to protect a party's rights.</p>
+  </section>
+
+  <section id="changes">
+    <h2>17. Changes to these Terms</h2>
+    <p>Manuva may update these Terms from time to time. Non-material changes (clarifications, formatting, fixes) take effect on publication.</p>
+    <p><strong>Material changes</strong> are communicated via: email notice to active Customer billing contacts; an in-app banner shown on login for 30 days; and an effective date no earlier than 30 days after notification. This matches the change-notification mechanism in the Privacy Policy.</p>
+    <p>Continued use of the Service after the effective date of a material change constitutes acceptance of the updated Terms.</p>
+    <p>If the Customer objects to a material change, the Customer may terminate its subscription without penalty before the effective date by emailing <a href="mailto:legal@manuva.app">legal@manuva.app</a>. In that case Manuva will refund any prepaid unused fees on a pro-rata basis.</p>
+  </section>
+
+  <section id="general">
+    <h2>18. General provisions</h2>
+    <h3>Entire agreement</h3>
+    <p>These Terms, together with the Privacy Policy and any signed order form between the parties, constitute the entire agreement between the parties on the subject matter and supersede prior agreements, proposals, and communications on that subject matter.</p>
+    <h3>Order of precedence</h3>
+    <p>If there is a conflict: a signed order form prevails over these Terms; these Terms prevail over linked policies, except that the Privacy Policy controls within its specific domain (handling of personal information).</p>
+    <h3>Assignment</h3>
+    <p>Manuva may assign these Terms in connection with a merger, acquisition, corporate reorganisation, or sale of substantially all of its assets. The Customer may assign these Terms only with Manuva's prior written consent, not to be unreasonably withheld. Any purported assignment in breach of this Section is void.</p>
+    <h3>Notices</h3>
+    <p>Notices from Manuva to the Customer are given by email to the billing contact on file, plus in-app notice for material matters. Notices from the Customer to Manuva are given by email to <a href="mailto:legal@manuva.app">legal@manuva.app</a> and/or by written notice to Pac Technologies Pty Ltd, 10–20 Gwynne St, Cremorne VIC 3121, Australia.</p>
+    <h3>Severability</h3>
+    <p>If any provision of these Terms is held unenforceable by a court of competent jurisdiction, the remainder of the Terms continues in force, and the unenforceable provision is to be read down or severed only to the minimum extent necessary.</p>
+    <h3>No waiver</h3>
+    <p>Failure or delay by either party in enforcing any right or provision is not a waiver of that right or provision.</p>
+    <h3>Force majeure</h3>
+    <p>Neither party is liable for delay or failure to perform caused by events beyond its reasonable control, including acts of God, war, terrorism, pandemic, government action, major internet or cloud outages, and industrial action.</p>
+    <h3>No partnership or agency</h3>
+    <p>Nothing in these Terms creates a partnership, joint venture, agency, fiduciary, or employment relationship between the parties.</p>
+    <h3>Survival</h3>
+    <p>Sections that by their nature should survive termination do — including Section 5 (Customer Data export and deletion), Section 6 (Intellectual property), Section 12 (Confidentiality), Section 13 (Warranties and disclaimers), Section 14 (Indemnification), Section 15 (Limitation of liability), Section 16 (Governing law), Section 19 (Definitions), and any accrued payment obligations.</p>
+  </section>
+
+  <section id="definitions">
+    <h2>19. Definitions</h2>
+    <ul>
+      <li><strong>Acceptable Use Policy</strong> — the use rules set out in Section 7 of these Terms, which form part of the agreement between the parties.</li>
+      <li><strong>ACL</strong> — the Australian Consumer Law, set out in Schedule 2 to the <em>Competition and Consumer Act 2010</em> (Cth).</li>
+      <li><strong>APP</strong> — an Australian Privacy Principle as set out in the <em>Privacy Act 1988</em> (Cth).</li>
+      <li><strong>Authorised User</strong> — an individual the Customer permits to access the Service on its behalf, typically an employee or contractor.</li>
+      <li><strong>Confidential Information</strong> — non-public information disclosed by one party to the other in connection with the Service that is identified as confidential or that a reasonable person would understand to be confidential. Customer Data is the Customer's Confidential Information.</li>
+      <li><strong>Customer</strong> — the legal entity that signs up for, accesses, or pays for the Service. Where a person signs up on behalf of an organisation, that organisation is the Customer.</li>
+      <li><strong>Customer Data</strong> — data the Customer or its Authorised Users upload, enter, or generate through the Service, including supplier records, BOMs, order data synced from Shopify, staff records, costings, and activity within the Customer's workspace.</li>
+      <li><strong>Effective Date</strong> — the date the Customer first signs up for, accesses, or pays for the Service, whichever happens first.</li>
+      <li><strong>Manuva</strong> — Pac Technologies Pty Ltd (ABN 99 113 680 443; ACN 113 680 443), trading as Manuva.</li>
+      <li><strong>OAIC</strong> — the Office of the Australian Information Commissioner.</li>
+      <li><strong>Service</strong> — the Manuva manufacturing-operations platform delivered at <a href={APP_URL}>app.manuva.app</a>, together with the marketing site at <a href="https://manuva.app">manuva.app</a>, supporting integrations, and related documentation.</li>
+      <li><strong>Subprocessor</strong> — a third party engaged by Manuva to process Customer Data on Manuva's behalf in providing the Service.</li>
+      <li><strong>Term</strong> — the period during which the Customer has an active subscription to the Service, beginning on the Effective Date and continuing until terminated in accordance with these Terms.</li>
+    </ul>
+
+    <hr />
+
+    <h3>Version history</h3>
+    <div class="mv-table-scroll">
+      <table class="site-doc-table">
+        <thead>
+          <tr>
+            <th>Version</th>
+            <th>Date</th>
+            <th>Changes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1.0</td>
+            <td>12 May 2026</td>
+            <td>Initial Terms of Service.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="site-doc-footnote">These Terms are effective immediately upon publication. Manuva reserves the right to update these Terms at any time. Material changes will be communicated by email and in-app notification with at least 30 days' notice.</p>
+  </section>
+</Doc>

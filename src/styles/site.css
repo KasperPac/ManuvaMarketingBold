@@ -672,3 +672,52 @@ a.site-tile { color: inherit; }
   .site-about-hero-panel { padding: var(--space-10); }
   .site-about-company { padding: var(--space-6); }
 }
+
+/* --- privacy / terms: plain document layout (Doc.astro) ---
+   Paper only, no field — the design system forbids colour behind long-form
+   copy, and these are the longest-form pages on the site. 72ch keeps the
+   measure readable across 38-48KB of legal text; nothing here sets `display`
+   on anything cell-like (Task 10's collapsed-table lesson) or an absolute ink
+   inside a Field (there is no Field on these two pages at all). */
+.site-doc { max-width: 72ch; margin-inline: auto; padding-inline: var(--gutter); padding-block: var(--section-y); }
+
+.site-doc-head { margin-bottom: var(--space-10); padding-bottom: var(--space-8); border-bottom: 1px solid var(--stroke); }
+.site-doc-eyebrow { color: var(--ink-faint); margin-bottom: var(--space-4); }
+.site-doc-title { font-size: var(--fs-display-3); margin: 0 0 var(--space-4); }
+.site-doc-sub { margin: 0 0 var(--space-5); max-width: 60ch; font-size: var(--fs-lg); line-height: var(--lh-normal); color: var(--ink-muted); text-wrap: pretty; }
+.site-doc-meta { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-6); font-size: var(--fs-sm); color: var(--ink-faint); }
+.site-doc-meta strong { color: var(--ink-muted); font-weight: var(--fw-semibold); }
+
+.site-doc h2 { font-family: var(--font-display); font-size: var(--fs-display-1); color: var(--ink-strong); margin: var(--space-10) 0 var(--space-4); }
+.site-doc h3 { font-size: var(--fs-lg); font-weight: var(--fw-semibold); color: var(--ink-strong); margin: var(--space-8) 0 var(--space-3); }
+.site-doc p, .site-doc li { font-size: var(--fs-md); line-height: var(--lh-normal); color: var(--ink-muted); }
+.site-doc p { margin: 0 0 var(--space-4); }
+.site-doc ul, .site-doc ol { margin: 0 0 var(--space-4); padding-left: var(--space-6); display: grid; gap: var(--space-2); }
+.site-doc li { margin: 0; }
+.site-doc strong { color: var(--ink-strong); font-weight: var(--fw-semibold); }
+.site-doc a { color: var(--brand-1); }
+.site-doc hr { margin: var(--space-8) 0; }
+
+.site-doc-note {
+  background: var(--bg-card-2); border: 1px solid var(--stroke-card); border-left: 3px solid var(--brand-1);
+  border-radius: var(--radius-sm); padding: var(--space-4); margin: 0 0 var(--space-4); font-size: var(--fs-sm); color: var(--ink-muted);
+}
+.site-doc-note strong { color: var(--ink-strong); }
+
+.site-doc-table { width: 100%; border-collapse: collapse; font-size: var(--fs-base); background: var(--bg-card); border: 1px solid var(--stroke-card); border-radius: var(--radius-sm); overflow: hidden; margin: 0 0 var(--space-4); }
+.site-doc-table th, .site-doc-table td { padding: var(--space-3) var(--space-4); text-align: left; border-bottom: 1px solid var(--stroke); vertical-align: top; }
+.site-doc-table thead th { background: var(--bg-card-2); color: var(--ink-strong); font-weight: var(--fw-semibold); font-size: var(--fs-xs); }
+.site-doc-table tbody td { color: var(--ink-muted); }
+.site-doc-table tbody tr:last-child td { border-bottom: none; }
+
+.site-doc-contact { background: var(--brand-dim); border-radius: var(--radius-lg); padding: var(--space-6); margin-top: var(--space-6); }
+.site-doc-contact h3 { margin: 0 0 var(--space-2); }
+.site-doc-contact p { margin: 0; font-size: var(--fs-sm); color: var(--ink-strong); }
+.site-doc-contact a { font-weight: var(--fw-semibold); }
+
+.site-doc-footnote { font-size: var(--fs-base); color: var(--ink-faint); margin-top: var(--space-6); }
+
+@media (max-width: 720px) {
+  .site-doc-head { margin-bottom: var(--space-8); padding-bottom: var(--space-6); }
+  .site-doc p, .site-doc li { font-size: var(--fs-base); }
+}

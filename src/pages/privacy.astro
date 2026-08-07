@@ -1,0 +1,437 @@
+---
+import Doc from '../layouts/Doc.astro';
+import { APP_URL } from '../site';
+
+// Head values and Doc props are the old page's own <head>/<doc-hero> text,
+// verbatim — read from privacy.html at origin/master, not assembled. See
+// Doc.astro's own comment for why `sub`/`effective`/`version` exist even
+// though the task brief's Props list didn't have them.
+const description =
+  'How Manuva collects, uses, discloses, and protects personal information in accordance with the Australian Privacy Principles.';
+---
+<Doc
+  title="Privacy Policy — Manuva"
+  description={description}
+  twitterDescription={description}
+  canonical="https://manuva.app/privacy"
+  heading="Privacy Policy"
+  sub="How Manuva collects, uses, discloses, and protects your personal information — and the rights you have over it under the Australian Privacy Principles."
+  effective="12 May 2026"
+  version="1.1"
+  updated="12 May 2026"
+>
+  <section id="introduction">
+    <h2>1. Introduction &amp; scope</h2>
+    <p>The Manuva service is operated by Pac Technologies Pty Ltd (ABN 99 113 680 443; ACN 113 680 443), a company registered in Victoria, Australia, trading as Manuva. Registered office: 10–20 Gwynne St, Cremorne VIC 3121.</p>
+    <p>Pac Technologies Pty Ltd, trading as Manuva, is committed to managing personal information in accordance with the Australian Privacy Principles (APPs) set out in the <em>Privacy Act 1988</em> (Cth).</p>
+    <p>This Privacy Policy explains how Manuva collects, uses, discloses, stores, and protects personal information. It applies to all personal information Manuva holds about you, whether collected online or offline, and regardless of how it is stored.</p>
+
+    <h3>What this policy covers</h3>
+    <ul>
+      <li>The Manuva marketing site (<a href="https://manuva.app">manuva.app</a>)</li>
+      <li>The Manuva web application (<a href={APP_URL}>app.manuva.app</a>)</li>
+      <li>All associated services and integrations</li>
+    </ul>
+
+    <h3>What this policy does not cover</h3>
+    <ul>
+      <li>Third-party websites linked from Manuva — each has its own privacy policy</li>
+      <li>Shopify's handling of customer data — Shopify's Privacy Policy applies</li>
+      <li>Stripe's handling of payment information — Stripe's Privacy Policy applies</li>
+      <li>Other integrated service providers — each governed by their own privacy policies</li>
+    </ul>
+  </section>
+
+  <section id="collect">
+    <h2>2. Personal information we collect</h2>
+    <p>We collect personal information only when necessary to provide our services.</p>
+
+    <h3>App users</h3>
+    <p>When you create a Manuva account we collect:</p>
+    <ul>
+      <li>First name and last name</li>
+      <li>Email address</li>
+      <li>Your role and permission level within your organisation</li>
+      <li>Records of your activity and actions within the platform (activity logs)</li>
+      <li>IP address and login information (managed by Supabase Auth)</li>
+    </ul>
+
+    <h3>Supplier contacts</h3>
+    <p>If you add suppliers to Manuva, we store the following about supplier contacts:</p>
+    <ul>
+      <li>Contact name and job title</li>
+      <li>Email address and phone number</li>
+      <li>Business address</li>
+      <li>Your notes about the relationship</li>
+    </ul>
+
+    <h3>Order data (Shopify integration)</h3>
+    <p>When you connect your Shopify store to Manuva, we import:</p>
+    <ul>
+      <li>Order ID and order date</li>
+      <li>Order total and line item details (product names, quantities, prices)</li>
+      <li>Shipping and billing addresses associated with the order</li>
+      <li>Order fulfilment status</li>
+    </ul>
+    <div class="site-doc-note">
+      <strong>Important.</strong> We do <strong>not</strong> currently collect end-customer names, email addresses, or personal details from your Shopify orders — that information stays in Shopify. This is planned for a future release; see the <a href="#roadmap">Roadmap</a> below.
+    </div>
+
+    <h3>Staff data</h3>
+    <p>If you use Manuva's staffing and costing features, we collect:</p>
+    <ul>
+      <li>Employee names and job titles</li>
+      <li>Department assignments</li>
+      <li>Availability schedules (days/hours available to work)</li>
+      <li>Cost rates and payroll information</li>
+    </ul>
+
+    <h3>Analytical &amp; operational data</h3>
+    <p>We automatically collect:</p>
+    <ul>
+      <li>Usage analytics (feature adoption, page views, session duration)</li>
+      <li>Dashboard metrics (sales trends, inventory levels, order counts)</li>
+      <li>System events and error logs</li>
+      <li>Metadata about your use of the platform</li>
+    </ul>
+    <p>We do <strong>not</strong> collect intrusive analytics such as keystroke logging or mouse tracking.</p>
+  </section>
+
+  <section id="use">
+    <h2>3. How &amp; why we use your information</h2>
+
+    <h3>Providing the service</h3>
+    <ul>
+      <li>Create and manage your account</li>
+      <li>Authenticate your identity and manage access to the platform</li>
+      <li>Process and display your orders, inventory, and operational data</li>
+      <li>Calculate costs, generate invoices, and manage billing</li>
+      <li>Provide customer support and respond to your inquiries</li>
+      <li>Send service-related notifications (billing alerts, security updates, system status)</li>
+    </ul>
+
+    <h3>Improving the platform</h3>
+    <p>We use aggregated and anonymised data to:</p>
+    <ul>
+      <li>Analyse how Manuva is used (feature adoption rates, common workflows)</li>
+      <li>Identify bugs, performance issues, and areas for improvement</li>
+      <li>Test new features and improvements</li>
+      <li>Personalise your user experience based on usage patterns</li>
+    </ul>
+    <p><strong>Your activity logs are not used for marketing or profiling.</strong></p>
+
+    <h3>Communication &amp; support</h3>
+    <p>We use your email address to:</p>
+    <ul>
+      <li>Send invitations to join workspaces</li>
+      <li>Provide support responses to your inquiries</li>
+      <li>Send billing notifications and invoices</li>
+      <li>Notify you of important updates to our service or this policy</li>
+      <li>Send transactional emails (order confirmations, account changes)</li>
+    </ul>
+    <p>You can manage email preferences in your account settings.</p>
+
+    <h3>Compliance &amp; legal obligations</h3>
+    <p>We may use your information to:</p>
+    <ul>
+      <li>Comply with Australian tax and accounting laws</li>
+      <li>Respond to legal requests, subpoenas, or court orders</li>
+      <li>Investigate fraud, abuse, or unauthorised access</li>
+      <li>Enforce our <a href="/terms">Terms of Service</a> and other agreements</li>
+      <li>Protect the security and integrity of our platform and users</li>
+    </ul>
+
+    <h3>What we do not do</h3>
+    <p>We do <strong>not</strong> use your personal information for:</p>
+    <ul>
+      <li>Marketing or advertising outside the Manuva platform</li>
+      <li>Selling your data to third parties</li>
+      <li>Automated decision-making or profiling that affects your access</li>
+      <li>Purposes beyond those described in this policy</li>
+    </ul>
+  </section>
+
+  <section id="share">
+    <h2>4. Who we share your information with</h2>
+
+    <h3>Service providers (data processors)</h3>
+    <p>We share information with trusted third parties who process it on our behalf:</p>
+    <div class="mv-table-scroll">
+      <table class="site-doc-table">
+        <thead>
+          <tr>
+            <th>Provider</th>
+            <th>Purpose</th>
+            <th>Data shared</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Supabase</strong></td>
+            <td>Authentication, database, backend infrastructure</td>
+            <td>Account data, activity logs, operational data</td>
+          </tr>
+          <tr>
+            <td><strong>Shopify</strong></td>
+            <td>Order synchronisation, product data</td>
+            <td>OAuth token (read-only access to orders), product data</td>
+          </tr>
+          <tr>
+            <td><strong>Stripe</strong></td>
+            <td>Payment processing and billing</td>
+            <td>Billing information, subscription data, invoice records</td>
+          </tr>
+          <tr>
+            <td><strong>Resend</strong></td>
+            <td>Transactional email delivery</td>
+            <td>User email addresses, email content for notifications</td>
+          </tr>
+          <tr>
+            <td><strong>Xero</strong></td>
+            <td>Accounting data synchronisation</td>
+            <td>Order totals, financial transaction data</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>All service providers are contractually required to maintain confidentiality and security of your information.</p>
+
+    <h3>Data controllers and processors</h3>
+    <p><strong>You are the data controller</strong> for:</p>
+    <ul>
+      <li>Data about your own account and activities</li>
+      <li>Supplier contact data you add to Manuva</li>
+      <li>Staff and payroll information you enter</li>
+    </ul>
+    <p><strong>Manuva is the data controller</strong> for:</p>
+    <ul>
+      <li>App user account data (name, email, login history)</li>
+      <li>Activity logs of your actions in the platform</li>
+      <li>Analytics and aggregated usage data</li>
+      <li>Billing and subscription information</li>
+    </ul>
+
+    <h3>Disclosure without consent</h3>
+    <p>We may disclose your information without consent in limited cases:</p>
+    <ul>
+      <li><strong>Law enforcement:</strong> when legally compelled by warrant, subpoena, or court order</li>
+      <li><strong>Government requests:</strong> compliance with tax authorities, regulators, or legal proceedings</li>
+      <li><strong>Emergency:</strong> to protect life, health, or safety in urgent situations</li>
+      <li><strong>Business transfer:</strong> if Manuva is acquired or merged, your data may be transferred (you will be notified)</li>
+    </ul>
+    <p>Where legally permitted, we will provide you with notice before any such disclosure.</p>
+
+    <div class="site-doc-note">
+      <strong>We do not sell, rent, or trade personal information.</strong> Your data is not a commodity for us.
+    </div>
+  </section>
+
+  <section id="retention">
+    <h2>5. Data retention &amp; deletion</h2>
+
+    <h3>Default retention</h3>
+    <p><strong>Active accounts.</strong> Personal information is retained while your account is active so we can provide ongoing service and maintain your records.</p>
+    <p><strong>Closed accounts.</strong> After you delete or close your account, personal data is retained for 12 months to support dispute resolution, account recovery, and compliance audits. After 12 months, the data is permanently deleted.</p>
+
+    <h3>Activity logs</h3>
+    <p>Activity logs are retained for 12 months and used for security audits, troubleshooting, and compliance verification. After 12 months they are permanently deleted.</p>
+
+    <h3>Legal &amp; compliance exceptions</h3>
+    <p>Despite the 12-month default, we may retain data longer where required by law:</p>
+    <ul>
+      <li><strong>Tax records:</strong> 5 years (Australian Taxation Office requirements)</li>
+      <li><strong>Accounting records:</strong> per accounting standards and legal obligations</li>
+      <li><strong>Fraud investigations:</strong> for the duration of the investigation</li>
+      <li><strong>Court orders:</strong> as ordered</li>
+      <li><strong>Contractual disputes:</strong> until the dispute is resolved</li>
+    </ul>
+
+    <h3>Requesting deletion</h3>
+    <p>You can request deletion of your personal information at any time:</p>
+    <ol>
+      <li>Email <a href="mailto:privacy@manuva.app">privacy@manuva.app</a> with "Data Deletion Request" in the subject line.</li>
+      <li>Include your name, email, account details, and the specific data you want deleted.</li>
+      <li>We will action your request within 30 days, or explain why we cannot.</li>
+    </ol>
+    <p><strong>Limitations.</strong> We cannot delete records required by law, data needed to investigate fraud or abuse, or data already removed.</p>
+
+    <h3>Data portability</h3>
+    <p>You have the right to receive your personal data in a portable format. Email <a href="mailto:privacy@manuva.app">privacy@manuva.app</a> with "Data Portability Request" in the subject line and we will provide your data in CSV or JSON format within 30 days.</p>
+  </section>
+
+  <section id="rights">
+    <h2>6. Your rights</h2>
+
+    <h3>Right to access (APP 12)</h3>
+    <p>You can request access to the personal information Manuva holds about you. Email <a href="mailto:privacy@manuva.app">privacy@manuva.app</a> with "Access Request" in the subject line and include proof of identity. We will respond within 30 days. Access is normally free; for very large requests we may charge reasonable cost-recovery fees.</p>
+
+    <h3>Right to correction (APP 13)</h3>
+    <p>You can request correction of information that is inaccurate, incomplete, or out-of-date. If we decline to correct, you have the right to add a statement of disagreement, which we will note alongside the information.</p>
+
+    <h3>Right to deletion</h3>
+    <p>See <a href="#retention">Data retention &amp; deletion</a> above.</p>
+
+    <h3>Right to opt out of direct marketing</h3>
+    <p>Click "Unsubscribe" on any marketing email, or update your preferences in your account settings. We action opt-out requests immediately.</p>
+
+    <h3>How to exercise your rights</h3>
+    <ul>
+      <li><strong>Email:</strong> <a href="mailto:privacy@manuva.app">privacy@manuva.app</a></li>
+      <li><strong>Mailing address:</strong> 10–20 Gwynne St, Cremorne VIC 3121</li>
+    </ul>
+    <p>We acknowledge requests within 10 business days and provide a full response within 30 days.</p>
+  </section>
+
+  <section id="security">
+    <h2>7. Security &amp; data protection</h2>
+
+    <h3>Technical safeguards</h3>
+    <ul>
+      <li><strong>Encryption in transit:</strong> all traffic uses TLS/HTTPS (minimum TLS 1.2)</li>
+      <li><strong>Encryption at rest:</strong> sensitive database data is encrypted</li>
+      <li><strong>Password security:</strong> passwords are hashed with bcrypt and random salts</li>
+      <li><strong>Access controls:</strong> role-based access for authorised staff only</li>
+      <li><strong>Regular updates:</strong> security patches applied within 30 days of release</li>
+      <li><strong>Firewalls &amp; intrusion detection:</strong> continuous monitoring for unauthorised access</li>
+    </ul>
+
+    <h3>Organisational safeguards</h3>
+    <ul>
+      <li>Annual privacy and confidentiality training for all employees</li>
+      <li>Confidentiality agreements signed by all staff</li>
+      <li>Need-to-know access only</li>
+      <li>Quarterly review of privacy and security practices</li>
+    </ul>
+
+    <h3>Vendor security</h3>
+    <ul>
+      <li>Data Processing Agreements with critical providers (Supabase, Stripe, Resend, Xero)</li>
+      <li>Annual security audits of critical vendors</li>
+      <li>Breach notification from vendors within 24 hours</li>
+    </ul>
+
+    <h3>Data breach response</h3>
+    <p>If a data breach occurs we will:</p>
+    <ol>
+      <li>Immediately investigate the scope and impact</li>
+      <li>Contain the breach and prevent further access</li>
+      <li>Notify affected individuals within 30 days where legally required</li>
+      <li>Notify the Office of the Australian Information Commissioner (OAIC) for eligible data breaches</li>
+      <li>Provide advice on steps you can take to protect yourself</li>
+    </ol>
+
+    <div class="site-doc-note">
+      <strong>What we cannot guarantee.</strong> No security measure is completely secure. We take reasonable precautions but cannot guarantee absolute security. You are responsible for protecting your password and login credentials — do not share them.
+    </div>
+  </section>
+
+  <section id="roadmap">
+    <h2>8. Roadmap &amp; planned changes</h2>
+
+    <h3>End-customer data import (planned, Q3 2026)</h3>
+    <p>We plan to expand Manuva to collect customer data directly from Shopify:</p>
+    <ul>
+      <li><strong>What:</strong> customer names, email addresses, and phone numbers from Shopify orders</li>
+      <li><strong>Why:</strong> to power better customer management and communication features</li>
+      <li><strong>When:</strong> planned for Q3 2026 (subject to change)</li>
+      <li><strong>Notification:</strong> email and in-app notice at least 30 days before launch</li>
+      <li><strong>Consent:</strong> requires explicit opt-in; not auto-enabled for existing customers</li>
+      <li><strong>Policy update:</strong> a new version of this policy will be published and become effective before launch</li>
+    </ul>
+
+    <h3>International expansion (planned, 2027)</h3>
+    <ul>
+      <li><strong>EU (GDPR):</strong> a separate privacy policy aligned with the General Data Protection Regulation</li>
+      <li><strong>California (CCPA):</strong> an addendum for California customers</li>
+      <li><strong>Other regions:</strong> regional policies will be added as we expand</li>
+    </ul>
+
+    <h3>How we communicate changes</h3>
+    <p>For material changes to this Privacy Policy:</p>
+    <ol>
+      <li>Email notification to all active users</li>
+      <li>In-app banner shown on login for 30 days</li>
+      <li>Effective date no earlier than 30 days after notification</li>
+      <li>Account deletion remains available if you object to the changes</li>
+    </ol>
+    <p>Your continued use of Manuva after the effective date means you accept the updated policy.</p>
+  </section>
+
+  <section id="contact">
+    <h2>9. Contact &amp; complaints</h2>
+
+    <h3>Privacy officer</h3>
+    <p>For questions about this policy or how your personal information is handled:</p>
+    <ul>
+      <li><strong>Email:</strong> <a href="mailto:privacy@manuva.app">privacy@manuva.app</a></li>
+      <li><strong>Mailing address:</strong> 10–20 Gwynne St, Cremorne VIC 3121</li>
+    </ul>
+    <p>We acknowledge inquiries within 10 business days and provide a full response within 30 days.</p>
+
+    <h3>Lodging a complaint</h3>
+    <p>If you believe Manuva has breached the Australian Privacy Principles, you have the right to lodge a complaint.</p>
+    <ol>
+      <li><strong>Contact Manuva:</strong> email <a href="mailto:privacy@manuva.app">privacy@manuva.app</a> with your name, contact details, a description of the concern, relevant dates, and any supporting documentation.</li>
+      <li><strong>We investigate:</strong> we acknowledge within 10 business days, investigate, may contact you for clarification, and provide a written response within 30 days.</li>
+      <li><strong>Resolution:</strong> our response sets out whether we believe a breach occurred, what we are doing about it, and your options for next steps.</li>
+      <li><strong>OAIC escalation:</strong> if you are not satisfied, you can lodge a complaint with the Office of the Australian Information Commissioner.</li>
+    </ol>
+
+    <h3>Office of the Australian Information Commissioner</h3>
+    <ul>
+      <li><strong>Website:</strong> <a href="https://www.oaic.gov.au" rel="noopener">www.oaic.gov.au</a></li>
+      <li><strong>Phone:</strong> 1300 363 992</li>
+      <li><strong>Address:</strong> GPO Box 5218, Sydney NSW 2001</li>
+    </ul>
+    <p>You can lodge directly with the OAIC even if you have not contacted Manuva first, though the OAIC prefers organisations have an opportunity to resolve complaints internally before escalation.</p>
+
+    <div class="site-doc-contact">
+      <h3>Have a privacy question?</h3>
+      <p>Email <a href="mailto:privacy@manuva.app">privacy@manuva.app</a> and we will respond within 10 business days.</p>
+    </div>
+  </section>
+
+  <section id="definitions">
+    <h2>10. Definitions</h2>
+    <ul>
+      <li><strong>Personal information</strong> — information about an identified individual or reasonably identifiable individual (e.g., name, email, phone, address, identification numbers).</li>
+      <li><strong>Sensitive information</strong> — a subset of personal information requiring extra protection, including health information, religious beliefs, criminal record, political opinion, and membership of professional associations. We minimise collection of sensitive information.</li>
+      <li><strong>Data subject</strong> — an individual whose personal information is collected (e.g., app user, supplier contact, staff member).</li>
+      <li><strong>Data controller</strong> — an organisation that decides the purposes and means of processing personal information.</li>
+      <li><strong>Data processor</strong> — an organisation that processes data on behalf of a controller.</li>
+      <li><strong>Activity log</strong> — a record of actions taken by a user in Manuva (login, created order, updated inventory, etc.) including timestamp and user identity.</li>
+      <li><strong>Breach</strong> — unauthorised access to, disclosure of, loss of, or damage to personal information.</li>
+      <li><strong>Cookie</strong> — a small file stored on your device. Manuva uses cookies for authentication and site functionality, not tracking.</li>
+      <li><strong>Metadata</strong> — information about information (e.g., when a file was created, its size) rather than the content itself.</li>
+    </ul>
+
+    <hr />
+
+    <h3>Version history</h3>
+    <div class="mv-table-scroll">
+      <table class="site-doc-table">
+        <thead>
+          <tr>
+            <th>Version</th>
+            <th>Date</th>
+            <th>Changes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1.0</td>
+            <td>12 May 2026</td>
+            <td>Initial privacy policy (MVP launch)</td>
+          </tr>
+          <tr>
+            <td>1.1</td>
+            <td>12 May 2026</td>
+            <td>Filled entity details (ABN, ACN, mailing address); added cross-reference to Terms of Service.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="site-doc-footnote">This Privacy Policy is effective immediately upon publication. Manuva reserves the right to update this policy at any time. Material changes will be communicated via email and in-app notification with at least 30 days' notice.</p>
+  </section>
+</Doc>
