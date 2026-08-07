@@ -74,13 +74,18 @@
 
 - [ ] **Step 1: Scaffold the project**
 
+> **Corrected during execution.** `create-astro@5.2.3` does not offer a yes/no
+> confirm on a non-empty directory — it asks for an *alternate directory name*,
+> and `--yes` silently redirects the scaffold into a random sibling directory
+> rather than using `.`. Verified with `--dry-run`. Hand-author the files below
+> instead; they match what a real scaffold produces.
+
 ```bash
-npm create astro@latest . -- --template minimal --no-install --no-git --typescript strict --skip-houston
 npm install
 npm install -D vitest cheerio
 ```
 
-Answer "y" if it warns the directory is not empty — `_ds/`, `docs/` and `CLAUDE.md` must survive. Verify afterwards with `ls _ds docs CLAUDE.md`.
+`_ds/`, `docs/`, `CLAUDE.md` and `.gitignore` must survive whatever route you take. Verify afterwards with `ls -d _ds docs CLAUDE.md .gitignore`, and confirm `git diff --stat -- _ds/` is empty. If any approach threatens the vendored design system, stop — it is the project's single irreplaceable input.
 
 - [ ] **Step 2: Configure Astro**
 
@@ -314,7 +319,7 @@ Expected: build completes, `dist/index.html` exists, `dist/_ds/tokens/colors.css
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): scaffold Astro, wire design-system tokens, add Base layout"
+git commit -m "feat(MVBOLD-4): scaffold Astro, wire design-system tokens, add Base layout"
 ```
 
 ---
@@ -443,7 +448,7 @@ Expected: PASS, 6 tests.
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): add Icon with Lucide glyphs inlined at build time"
+git commit -m "feat(MVBOLD-4): add Icon with Lucide glyphs inlined at build time"
 ```
 
 ---
@@ -707,7 +712,7 @@ Expected: PASS — Base 5, Icon 6, Logo 5, Button 8.
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): port Logo and Button from the design system"
+git commit -m "feat(MVBOLD-4): port Logo and Button from the design system"
 ```
 
 ---
@@ -1052,7 +1057,7 @@ Expected: PASS — 30 tests across five files.
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): add site chrome with drawer ported from mobile.js"
+git commit -m "feat(MVBOLD-4): add site chrome with drawer ported from mobile.js"
 ```
 
 ---
@@ -1323,7 +1328,7 @@ Expected: PASS — all files green.
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): add field, panel, tile, pill, marquee and CTA primitives"
+git commit -m "feat(MVBOLD-4): add field, panel, tile, pill, marquee and CTA primitives"
 ```
 
 ---
@@ -1514,7 +1519,7 @@ Expected: `/` reports either a pass or a list of missing phrases against the pla
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): add copy-parity gate against the old site"
+git commit -m "feat(MVBOLD-4): add copy-parity gate against the old site"
 ```
 
 ---
@@ -1739,7 +1744,7 @@ Expected: `+ / N phrases present`. If phrases are reported missing, move that co
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): build the home page on the field system"
+git commit -m "feat(MVBOLD-4): build the home page on the field system"
 ```
 
 ---
@@ -1857,7 +1862,7 @@ Expected: `+ /pricing N phrases present`.
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): build the pricing page with matrix and card fallback"
+git commit -m "feat(MVBOLD-4): build the pricing page with matrix and card fallback"
 ```
 
 ---
@@ -1955,7 +1960,7 @@ Expected: `+ /features N phrases present`.
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): build the features page"
+git commit -m "feat(MVBOLD-4): build the features page"
 ```
 
 ---
@@ -2104,7 +2109,7 @@ Expected: both report all phrases present. **If either reports missing phrases, 
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): build both alternatives pages with copy intact"
+git commit -m "feat(MVBOLD-4): build both alternatives pages with copy intact"
 ```
 
 ---
@@ -2179,7 +2184,7 @@ Expected: all phrases present.
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): build the about page"
+git commit -m "feat(MVBOLD-4): build the about page"
 ```
 
 ---
@@ -2294,7 +2299,7 @@ Expected: all phrases present on both.
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): build privacy and terms on a plain document layout"
+git commit -m "feat(MVBOLD-4): build privacy and terms on a plain document layout"
 ```
 
 ---
@@ -2480,7 +2485,7 @@ Expected: PASS, 7 tests.
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): carry SEO assets across and add structured data"
+git commit -m "feat(MVBOLD-4): carry SEO assets across and add structured data"
 ```
 
 ---
@@ -2669,7 +2674,7 @@ Collect and report to the user:
 
 ```bash
 git add -A
-git commit -m "test(MVBOLD-2): add end-to-end route, accessibility and responsive coverage"
+git commit -m "test(MVBOLD-4): add end-to-end route, accessibility and responsive coverage"
 ```
 
 ---
