@@ -331,17 +331,28 @@ a[href$="features#purchasing"] .site-tile-chip { background: rgb(255 255 255 / .
 }
 
 /* --- home: pricing --- */
-.site-pricing-toggle { display: flex; justify-content: center; gap: var(--space-2); margin: var(--space-8) 0 var(--space-10); }
-.site-pricing-toggle-btn {
+/* .site-pricing-toggle/-btn/-on/-save are reused verbatim by the class name
+   on /pricing's own toggle below (different markup, different meaning: this
+   one is a static, aria-hidden decorative preview; that one is a real
+   annual/monthly toggle with its own field background). Two rule blocks
+   sharing one class name applied everywhere on both pages, colliding
+   silently whenever either one changed a property the other relied on
+   (Task 14, team-lead review — this was the actual mechanism behind two
+   contrast bugs a first pass patched with [data-fold]/:not() overrides
+   instead of fixing at the root). Scoped under each page's own existing
+   section class (.site-pricing here, .site-pricing-hero below) instead —
+   the two blocks can no longer reach each other's elements at all. */
+.site-pricing .site-pricing-toggle { display: flex; justify-content: center; gap: var(--space-2); margin: var(--space-8) 0 var(--space-10); }
+.site-pricing .site-pricing-toggle-btn {
   padding: var(--space-2) var(--space-4); border-radius: var(--radius-pill); font-size: var(--fs-sm);
   font-weight: var(--fw-medium); color: var(--ink-muted); background: transparent;
 }
-.site-pricing-toggle-on { background: var(--bg-card); color: var(--ink-strong); box-shadow: var(--shadow-sm); }
+.site-pricing .site-pricing-toggle-on { background: var(--bg-card); color: var(--ink-strong); box-shadow: var(--shadow-sm); }
 /* --ok as text on --ok-dim's tint reads as a soft "success" pill, but the
    pairing itself is short of AA (Task 14, axe: 3.01-3.49:1 depending on the
    surface behind the tint) — darkening the text, not the tint, keeps the
    pill's look and clears it. Same fix reused by .site-plan-chip-ok below. */
-.site-pricing-save { margin-left: var(--space-1); font-size: var(--fs-xs); font-weight: var(--fw-bold); color: color-mix(in srgb, var(--ok) 70%, black); }
+.site-pricing .site-pricing-save { margin-left: var(--space-1); font-size: var(--fs-xs); font-weight: var(--fw-bold); color: color-mix(in srgb, var(--ok) 70%, black); }
 
 .site-tier-grid { align-items: stretch; }
 .site-tier {
@@ -390,37 +401,24 @@ a[href$="features#purchasing"] .site-tile-chip { background: rgb(255 255 255 / .
 .site-pricing-hero-eyebrow { opacity: .72; }
 .site-pricing-hero-title { font-size: var(--fs-display-4); max-width: 18ch; }
 .site-pricing-hero-sub { margin: 0; max-width: 46ch; font-size: var(--fs-lg); line-height: var(--lh-normal); opacity: .82; text-wrap: pretty; }
-.site-pricing-toggle { display: flex; align-items: center; gap: var(--space-3); }
-.site-pricing-toggle-pill { display: flex; background: rgb(255 255 255 / .14); border-radius: var(--radius-pill); padding: 3px; }
-/* This selector is also declared above for the home-page preview toggle —
-   same class name, two different surfaces, so BOTH declarations apply on
-   BOTH pages and collide; whichever property either one sets last in the
-   file wins everywhere, not just on its own page. opacity was set only
-   here, so it silently applied to the home instance too, dimming its
-   already-set --ink-muted down to 3.32:1 on paper there (Task 14, axe) on
-   top of a separate 1.15:1 this rule caused on THIS page's ink field
-   (inherited --ink-muted is a light-theme dark grey, wrong for a dark
-   background regardless of opacity — [data-fold] below gives this page its
-   own colour). Dropping the shared opacity fixes the home side without
-   touching its rule; [data-fold] still supplies this page's own dimming. */
-.site-pricing-toggle-btn { padding: var(--space-2) var(--space-5); border-radius: var(--radius-pill); font-size: var(--fs-md); font-weight: var(--fw-medium); }
-.site-pricing-toggle-on { background: var(--bg-card); color: var(--on-paper); opacity: 1; font-weight: var(--fw-semibold); }
-/* :not(.site-pricing-toggle-on) matters, not just style — without it this
-   rule and .site-pricing-toggle-on share specificity (0,2,0) and, coming
-   later, this one would win on the *selected* pill too: --on-ink (white)
-   text on .site-pricing-toggle-on's own var(--bg-card) (white) is a real
-   1:1 the custom Playwright contrast check (not axe, which doesn't probe
-   text on top of an inline `background` override the same way) caught. */
-[data-fold] .site-pricing-toggle-btn:not(.site-pricing-toggle-on) { color: var(--on-ink); opacity: .8; }
-/* Same collision: this declaration's `color: var(--ok)` is unconditional and
-   loads after the home instance's own (darkened) declaration above, so it
-   was winning everywhere and silently undoing that fix (Task 14, axe still
-   showed the pre-fix 3.01:1 on the home page after the first pass). Matching
-   colour here instead of re-diverging keeps both pages' paper instances
-   consistent; [data-fold] below still supplies this page's own (lighter, for
-   a dark field) variant. */
-.site-pricing-save { display: inline-flex; align-items: center; padding: var(--space-1) var(--space-3); background: var(--ok-dim); color: color-mix(in srgb, var(--ok) 70%, black); border-radius: var(--radius-pill); font-size: var(--fs-sm); font-weight: var(--fw-bold); }
-[data-fold] .site-pricing-save { color: color-mix(in srgb, var(--ok) 55%, white); }
+/* Scoped under .site-pricing-hero — see the home-page block's own comment
+   above for why (Task 14, team-lead review). Specificity does the rest:
+   .site-pricing-hero-toggle-btn.site-pricing-toggle-on (below) is one
+   compound selector combining both classes on the same element, which
+   outranks the plain -toggle-btn rule regardless of source order — no
+   :not() needed once the two pages can't reach each other's rules at all. */
+.site-pricing-hero .site-pricing-toggle { display: flex; align-items: center; gap: var(--space-3); }
+.site-pricing-hero .site-pricing-toggle-pill { display: flex; background: rgb(255 255 255 / .14); border-radius: var(--radius-pill); padding: 3px; }
+/* --ink-muted (this class's un-scoped ancestor rule) is a light-theme dark
+   grey — wrong for this page's ink field regardless of opacity, which is
+   what caused the 1.15:1 this page's toggle measured before scoping
+   (Task 14, axe). --on-ink is this field's own real ink. */
+.site-pricing-hero .site-pricing-toggle-btn { padding: var(--space-2) var(--space-5); border-radius: var(--radius-pill); font-size: var(--fs-md); font-weight: var(--fw-medium); color: var(--on-ink); opacity: .8; }
+.site-pricing-hero .site-pricing-toggle-btn.site-pricing-toggle-on { background: var(--bg-card); color: var(--on-paper); opacity: 1; font-weight: var(--fw-semibold); }
+/* Same --ok-on-tint pairing as the home instance above, but on a dark field
+   instead of paper — lightening (not darkening) is what a dark background
+   needs (Task 14, axe: undarkened --ok measured 3.49:1 here). */
+.site-pricing-hero .site-pricing-save { display: inline-flex; align-items: center; padding: var(--space-1) var(--space-3); background: var(--ok-dim); color: color-mix(in srgb, var(--ok) 55%, white); border-radius: var(--radius-pill); font-size: var(--fs-sm); font-weight: var(--fw-bold); }
 
 /* --- pricing: plan cards --- */
 .site-plan-grid { align-items: stretch; }
@@ -549,7 +547,15 @@ a[href$="#purchasing"] .site-tile-title { color: #141413 !important; }
    value expresses an unequal split — same documented-exception category as
    .site-compare-row's repeat(4,1fr) (Task 7) and .site-matrix-cards'
    repeat(2,1fr) (Task 8). */
-.site-feat-row-image { display: grid; grid-template-columns: 1fr 1.1fr; gap: var(--space-14); align-items: center; }
+/* --space-14 doesn't exist in the design system's scale (1,2,3,4,5,6,8,10,
+   12,16,20,24,32 — it skips 14), so this declaration was invalid at
+   computed-value time and fell back to its initial value: gap: 0, the BOMs
+   screenshot butting straight against its feature text (Task 14, team-lead
+   review, measured in Chrome). Old source's own gap here is 56px, exactly
+   between --space-12 (48px) and --space-16 (64px) — checked rendered, not
+   picked by arithmetic: --space-12 keeps the 1.1fr image column from
+   crowding the text column at this section's own width. */
+.site-feat-row-image { display: grid; grid-template-columns: 1fr 1.1fr; gap: var(--space-12); align-items: center; }
 
 .site-feat-grid { gap: var(--space-2) var(--space-8); }
 .site-feat { display: flex; gap: var(--space-3); padding: var(--space-2) 0; }
@@ -689,7 +695,14 @@ a[href$="#purchasing"] .site-tile-title { color: #141413 !important; }
 [data-fold] .site-hero-meta { opacity: 1; }
 
 /* --- alternatives: comparison groups (paper — the whole slot, tables included) --- */
-.site-alt-group { padding-block: var(--space-14); border-top: 1px solid var(--stroke); }
+/* --space-14 doesn't exist (see .site-feat-row-image above for the full
+   explanation) — this fell back to padding-block: 0, every group's
+   border-top divider sitting flush against the preceding paragraph on both
+   /alternatives/ pages (Task 14, team-lead review, measured in Chrome: 0px
+   on every group). Old source's own value here is 72px; --space-16 (64px)
+   is the closer of the two real neighbours and reads right at this
+   section's own generous vertical rhythm. */
+.site-alt-group { padding-block: var(--space-16); border-top: 1px solid var(--stroke); }
 .site-alt-group:first-child { border-top: 0; padding-top: 0; }
 .site-alt-group-head { max-width: 68ch; margin: 0 0 var(--space-8); }
 .site-alt-group-head .mv-eyebrow { color: var(--ink-faint); }
@@ -804,7 +817,13 @@ a[href$="#purchasing"] .site-tile-title { color: #141413 !important; }
 
 /* --- alternatives: FAQ heading + related links --- */
 .site-alt-faq-section h2 { font-size: var(--fs-display-2); margin: var(--space-2) 0 var(--space-8); max-width: 50ch; }
-.site-alt-related { padding: var(--space-14) 0; border-top: 1px solid var(--stroke); text-align: center; }
+/* --space-14 doesn't exist (see .site-feat-row-image above) — fell back to
+   padding: 0, this section's whole padding lost (Task 14, team-lead
+   review). Old source's own value is 56px, between --space-12 (48px) and
+   --space-16 (64px); --space-12 reads right here and keeps this closing
+   "Explore further" strip visibly lighter than .site-alt-group's own
+   64px above it, matching the old page's own 72px→56px step down. */
+.site-alt-related { padding: var(--space-12) 0; border-top: 1px solid var(--stroke); text-align: center; }
 .site-alt-related h2 { font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--ink-muted); margin: 0 0 var(--space-5); text-transform: uppercase; letter-spacing: var(--ls-caps); }
 .site-alt-related-links { display: flex; gap: var(--space-3); justify-content: center; flex-wrap: wrap; }
 .site-alt-related-links a {

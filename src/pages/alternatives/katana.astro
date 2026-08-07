@@ -1,14 +1,14 @@
 ---
 import Alternative from '../../layouts/Alternative.astro';
-import Pill from '../../components/site/Pill.astro';
-import { APP_URL } from '../../site';
 
 // Verbatim from the old page's own <head> — title/description/og:*/twitter:*
 // all match; confirmed identical across the source's <head> block.
 const description =
   "Looking for a Katana alternative with BOM versioning, flat-rate pricing, and real Shopify sync? See how Manuva compares — 14-day free trial, no credit card.";
-// Old page's own og:description/twitter:description — shorter than the meta
-// description above (drops the trailing "14-day free trial, no credit card").
+// Old page's own og:description AND twitter:description — identical to each
+// other (confirmed independently, not assumed — see Alternative.astro's own
+// note on why that assumption broke for mrpeasy), both shorter than the meta
+// description above (drop the trailing "14-day free trial, no credit card").
 const ogDescription =
   'Looking for a Katana alternative with BOM versioning, flat-rate pricing, and real Shopify sync? See how Manuva compares.';
 
@@ -145,6 +145,7 @@ const schema = [
   title="Katana Alternative for Shopify Manufacturers — Manuva"
   description={description}
   ogDescription={ogDescription}
+  twitterDescription={ogDescription}
   canonical="https://manuva.app/alternatives/katana"
   {schema}
   competitor="Katana"
@@ -154,6 +155,7 @@ const schema = [
   faqHeading="Switching from Katana — common questions"
   ctaHeading="Try Manuva free for 14 days"
   ctaBody="Full Pro access. No credit card required. Run it in parallel with Katana — switch your Shopify webhook when you're satisfied."
+  ctaSecondActionHref="/#contact"
 >
   <Fragment slot="hero">
     <h1 class="mv-display site-alt-hero-title">Katana Alternatives for Shopify Manufacturers: Why Teams Switch to Manuva</h1>
@@ -162,19 +164,14 @@ const schema = [
       versioning, your team has hit per-user pricing, or you need capacity planning that a real shop floor can run
       on. Built for Shopify-first product brands, priced flat, set up in a day.
     </p>
-    {/* Relocated from the old page's closing cta-section — CtaBand's second
-        action is fixed to "Talk to us" project-wide, so "Book a demo" has
-        nowhere else to land without being lost. The old markup glues the two
-        button labels into one run ("Start free trial Book a demo"), sibling
-        <a> tags not being parity boundaries — {' '} reproduces the same join.
-        /?demo=1#contact prefilled the old contact form's message field via
-        JS; that form is gone (Task 7 ruling), so this points at the home
-        page's real contact section instead, matching the same ruling applied
-        on /features and /. */}
-    <div class="mv-cta-stack site-alt-hero-actions">
-      <Pill href={APP_URL}>Start free trial</Pill>{' '}
-      <Pill href="/#contact" ghost>Book a demo</Pill>
-    </div>
+    {/* "Start free trial" / "Book a demo" used to be relocated here as a
+        workaround, because CtaBand's second action was hardcoded to "Talk to
+        us" and had nowhere else to put "Book a demo" without losing it.
+        CtaBand now carries a real secondActionHref (Task 14, team-lead
+        review, ctaSecondActionHref="/#contact" above), so both buttons moved
+        back to the closing band where the old page's own cta-section
+        actually has them, and this workaround is gone. page-hero on the old
+        page is eyebrow + h1 + lede only — no buttons. */}
     <div class="site-hero-meta">
       <div>14-day free trial</div>
       <div>No credit card</div>

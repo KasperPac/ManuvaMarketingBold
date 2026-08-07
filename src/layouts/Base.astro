@@ -58,6 +58,16 @@ const ogImageUrl = Astro.site ? new URL(ogImage, Astro.site) : ogImage;
     <meta property="og:description" content={ogDescription} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImageUrl} />
+    {/* All four fixed, identical across all eight source pages (verified by
+        reading each page's own raw <head>, not assumed from one) — the
+        og-image asset itself never varies per page, so neither does its own
+        width/height/alt. Dropped entirely until Task 14 (team-lead review):
+        Base.astro's og:* block was written in Task 1 and never revisited
+        once later tasks added real per-page og:title/description. */}
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Manuva — Manufacturing operations, finally simple" />
+    <meta property="og:site_name" content="Manuva" />
     {/* Whole block conditional together, not just title/description under an
         unconditional twitter:card — a lone twitter:card with no title/body
         is a half-populated card. Tasks 11-12 (/about, /privacy, /terms) are
@@ -68,10 +78,12 @@ const ogImageUrl = Astro.site ? new URL(ogImage, Astro.site) : ogImage;
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={twitterDescription} />
+        <meta name="twitter:image" content={ogImageUrl} />
       </>
     )}
 
     <link rel="icon" href="/favicon-32.png" sizes="32x32" />
+    <link rel="icon" href="/favicon-16.png" sizes="16x16" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     {TOKENS.map((t) => <link rel="stylesheet" href={`/_ds/tokens/${t}.css`} />)}

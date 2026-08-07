@@ -70,16 +70,20 @@ test('closing CTA carries the real trial terms', () => {
   expect(h).toMatch(/14-day free trial, full Pro access\. No credit card required\. Set up in a day\./);
 });
 
-// The old page's closing CTA has two buttons ("Start free trial" / "Book a
-// demo"); CtaBand's own second action is fixed to "Talk to us" project-wide
-// (Task 5), so "Book a demo" has nowhere to land unless it's relocated
-// elsewhere on the page — same ruling Tasks 9-10 applied to their own
-// CtaBand-closed pages.
-test('both closing-CTA buttons survive: "Start free trial" (CtaBand) and "Book a demo" (relocated)', () => {
+// The old page's closing cta-section has two buttons, "Start free trial" and
+// "Book a demo" (→ /#contact) — both live on CtaBand itself (Task 14,
+// team-lead review: a first pass hardcoded CtaBand's second action to "Talk
+// to us", a phrase that appears on none of the eight source pages, silently
+// losing "Book a demo" here and on three other routes). Earlier this was
+// relocated into the hero as a workaround since CtaBand couldn't hold it;
+// that workaround is gone along with the bug that required it, so this
+// checks the real closing band specifically, not just page-wide presence.
+test('the closing CTA band carries both "Start free trial" and "Book a demo" → /#contact', () => {
   const h = html();
-  expect(h).toContain('Start free trial');
-  expect(h).toContain('Book a demo');
-  expect(h).toContain('href="/#contact"');
+  const band = h.slice(h.indexOf('site-cta-heading'));
+  expect(band).toContain('Start free trial');
+  expect(band).toContain('Book a demo');
+  expect(band).toContain('href="/#contact"');
 });
 
 test('no two adjacent folds share a hue', () => {

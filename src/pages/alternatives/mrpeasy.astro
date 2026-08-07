@@ -1,15 +1,19 @@
 ---
 import Alternative from '../../layouts/Alternative.astro';
-import Pill from '../../components/site/Pill.astro';
-import { APP_URL } from '../../site';
 
 // Verbatim from the old page's own <head>.
 const description =
   'MRPeasy alternative built around flat-rate pricing, native Shopify webhook sync, and BOM versioning. See how Manuva compares — 14-day free trial.';
-// Old page's own og:description/twitter:description — shorter than the meta
-// description above (drops the trailing "14-day free trial").
+// Old page's own og:description — shorter than the meta description above
+// (drops the trailing "14-day free trial").
 const ogDescription =
   'MRPeasy alternative built around flat-rate pricing, native Shopify webhook sync, and BOM versioning. See how Manuva compares.';
+// Old page's own twitter:description — shorter again, drops "See how Manuva
+// compares." too. NOT the same value as ogDescription (Task 14, team-lead
+// review: a prior pass assumed the two were always identical, true for
+// katana but not here — checked this page's own raw <head> independently).
+const twitterDescription =
+  'MRPeasy alternative built around flat-rate pricing, native Shopify webhook sync, and BOM versioning.';
 
 // Verbatim from the old page's <table class="seat-table"> — 5 rows. Each
 // Manuva cell is [amount, delta|null] — the source wraps the delta in its
@@ -120,6 +124,7 @@ const schema = [
   title="MRPeasy Alternative — Flat-Rate MRP for Shopify Manufacturers | Manuva"
   description={description}
   ogDescription={ogDescription}
+  twitterDescription={twitterDescription}
   canonical="https://manuva.app/alternatives/mrpeasy"
   {schema}
   competitor="MRPeasy"
@@ -129,6 +134,7 @@ const schema = [
   faqHeading="Switching from MRPeasy — common questions"
   ctaHeading="Try Manuva free for 14 days"
   ctaBody="Full Pro access. No credit card required. Run it alongside MRPeasy during the trial — switch your Shopify webhook only when you're satisfied."
+  ctaSecondActionHref="/#contact"
 >
   <Fragment slot="hero">
     <h1 class="mv-display site-alt-hero-title">MRPeasy Alternative: Flat-Rate Manufacturing Software for Growing Teams</h1>
@@ -138,16 +144,11 @@ const schema = [
       feature set you're paying for but mostly don't use. Manuva is the focused alternative: native Shopify
       webhooks, flat-rate pricing, capacity planning built for product brands.
     </p>
-    {/* Relocated from the old page's closing cta-section, same reasoning as
-        the katana page: CtaBand's second action is fixed to "Talk to us", so
-        "Book a demo" has nowhere else to land. {' '} reproduces the old
-        markup's glued "Start free trial Book a demo" run (sibling <a> tags,
-        not parity boundaries). /#contact per the project-wide ruling on
-        /?demo=1#contact (Task 7). */}
-    <div class="mv-cta-stack site-alt-hero-actions">
-      <Pill href={APP_URL}>Start free trial</Pill>{' '}
-      <Pill href="/#contact" ghost>Book a demo</Pill>
-    </div>
+    {/* Same fix as the katana page: "Start free trial" / "Book a demo" moved
+        back to the closing CtaBand now that it carries a real
+        secondActionHref (ctaSecondActionHref="/#contact" above) instead of
+        staying relocated here as a workaround for CtaBand's old hardcoded
+        "Talk to us". */}
     <div class="site-hero-meta">
       <div>14-day free trial</div>
       <div>No credit card</div>

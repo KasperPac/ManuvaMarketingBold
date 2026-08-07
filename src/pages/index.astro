@@ -122,12 +122,15 @@ const COMPARE_ROWS = [
 
 const description =
   'Inventory, BOMs, work orders, and stock control — connected, live, and built for the floor. The simpler alternative to legacy MRP for Shopify manufacturers.';
-// Old page's own twitter:description — identical to its og:description,
-// both shorter than the meta description above (they drop the trailing
-// "The simpler alternative to legacy MRP for Shopify manufacturers."
-// clause). Base.astro's og:description still defaults to the long
-// `description` (unchanged, not part of this fix); this only supplies the
-// Twitter pair, which previously leaked the long description onto this page.
+// Old page's own og:description AND twitter:description — identical to each
+// other, both shorter than the meta description above (they drop the
+// trailing "The simpler alternative to legacy MRP for Shopify
+// manufacturers." clause). One value, two prop names: passed as both
+// `ogDescription` and `twitterDescription` below. A prior pass supplied only
+// the Twitter one and left `ogDescription` on Base's long-`description`
+// default, leaking the long meta description into og:description here (Task
+// 14, team-lead review) — the same value this const already held, just not
+// wired to both places it's needed.
 const twitterDescription =
   'Inventory, BOMs, work orders, and stock control — connected, live, and built for the floor.';
 
@@ -206,6 +209,7 @@ const schema = [
 <Base
   title="Manuva — Manufacturing operations, finally simple"
   description={description}
+  ogDescription={twitterDescription}
   twitterDescription={twitterDescription}
   canonical="https://manuva.app/"
   {schema}
@@ -480,10 +484,12 @@ const schema = [
     </div>
   </section>
 
-  {/* flare CTA */}
+  {/* flare CTA. secondActionHref bare (not "/#contact") — already on this
+      page, matching the hero's own "Book a demo" Pill just above. */}
   <CtaBand
     field="flare"
     heading="Manufacturing operations, finally simple."
     body="14 days free with full Pro access. No credit card required."
+    secondActionHref="#contact"
   />
 </Base>

@@ -3,11 +3,8 @@ import Base from '../layouts/Base.astro';
 import Field from '../components/site/Field.astro';
 import Panel from '../components/site/Panel.astro';
 import Tile from '../components/site/Tile.astro';
-import Pill from '../components/site/Pill.astro';
 import CtaBand from '../components/site/CtaBand.astro';
 import Icon from '../components/ds/Icon.astro';
-import Button from '../components/ds/Button.astro';
-import { APP_URL } from '../site';
 
 // The old page's own <title>/<meta description>/og:*, verbatim — confirmed
 // identical across <title>, og:title, og:description and twitter:* in the
@@ -272,27 +269,17 @@ const schema = [
           Connected inventory, BOMs, production, purchasing, capacity, costing, and reporting — built specifically
           for product brands that make what they sell.
         </p>
-        {/* The old page's own hero has no buttons — these two are moved up
-            from its closing cta-section ("Start free trial" / "Book a demo"),
-            which CtaBand (used below) can't reproduce: CtaBand's second
-            action is fixed to "Talk to us" across every page (Task 5), so
-            "Book a demo" would otherwise be lost entirely. Old markup glues
-            the two button labels into one phrase ("Start free trial Book a
-            demo") since sibling <a> tags aren't parity boundaries either —
-            reproduced the same way here with {' '}. "Book a demo" points at
-            /#contact, matching Task 7's ruling for the identical button
-            elsewhere: the old target (index.html?demo=1#contact) is a
-            same-site contact-form prefill that no longer applies since the
-            form is gone; the home page's contact section is the closest
-            live equivalent. */}
-        <div class="mv-cta-stack site-features-hero-actions">
-          <Button as="a" href={APP_URL} size="xl" shape="pill" variant="ink" class="mv-press"
-            style="background:var(--field-lime);color:var(--on-lime);border-color:var(--on-lime)">Start free trial</Button>{' '}
-          <Pill href="/#contact" ghost>Book a demo</Pill>
-        </div>
-        {/* Sourced from the old page's own CTA-section meta row (cta-meta),
-            relocated here for the same reason as the buttons above — same
-            three fragments, verbatim, just moved up so they aren't lost. */}
+        {/* The old page's own hero has no buttons at all (confirmed:
+            page-hero is eyebrow + h1 + lede only) — "Start free trial" /
+            "Book a demo" used to be relocated up here as a workaround,
+            because CtaBand's second action was hardcoded to "Talk to us"
+            and had nowhere else to put "Book a demo" without losing it.
+            CtaBand now carries a real secondActionHref (Task 14, team-lead
+            review), so both buttons moved back to the closing band where
+            the old page actually has them, and this workaround is gone.
+            The meta row just below is a *different* fragment (the old
+            page's own cta-section "cta-meta" row) that CtaBand still has no
+            slot for — that one stays relocated, or it would be lost again. */}
         <div class="site-hero-meta">
           <div>14-day free trial</div>
           <div>No credit card</div>
@@ -364,10 +351,14 @@ const schema = [
   })}
 
   {/* 4 · flare CTA. Heading and body both quote the old page's own closing
-      cta-section verbatim — real sourced sentences, not assembled. */}
+      cta-section verbatim — real sourced sentences, not assembled.
+      secondActionHref matches the old page's own "Book a demo" href
+      (index.html?demo=1#contact → /#contact, the query param only ever
+      prefilled the now-removed contact form). */}
   <CtaBand
     field="flare"
     heading="Ready to see it in action?"
     body="Full Pro access for 14 days. No credit card required. Set up in a day, not a quarter."
+    secondActionHref="/#contact"
   />
 </Base>

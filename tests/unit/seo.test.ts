@@ -62,10 +62,45 @@ test('every route emits a canonical matching its sitemap entry', () => {
   }
 });
 
-test('no page references the CDN-hosted fonts or icons', () => {
+// Task 14, team-lead review: Base.astro was written in Task 1 and never
+// revisited once later tasks added real per-page og:*/twitter:* — five tags
+// present on all eight source pages (verified by reading each page's own raw
+// <head>, not assumed) went missing from every route, and the gate never
+// caught it because it doesn't read <head> at all. This is the head-tag
+// equivalent of a body-copy parity check: assert the full fixed set survives
+// on every route, not just the handful of tags earlier tests already cover.
+test('every route emits the full fixed head-tag set (og:image dimensions/alt, og:site_name, twitter:image, 16px favicon)', () => {
+  for (const route of ALL_ROUTES) {
+    const h = readFileSync(file(route), 'utf8');
+    expect(h, `${route} og:image:width`).toContain('<meta property="og:image:width" content="1200">');
+    expect(h, `${route} og:image:height`).toContain('<meta property="og:image:height" content="630">');
+    expect(h, `${route} og:image:alt`).toContain(
+      '<meta property="og:image:alt" content="Manuva — Manufacturing operations, finally simple">',
+    );
+    expect(h, `${route} og:site_name`).toContain('<meta property="og:site_name" content="Manuva">');
+    expect(h, `${route} twitter:image`).toContain('<meta name="twitter:image" content="https://manuva.app/og-image.png">');
+    expect(h, `${route} 16px favicon link`).toContain('<link rel="icon" href="/favicon-16.png" sizes="16x16">');
+  }
+});
+
+test('no page references the CDN-hosted icons, and fonts once fonts-selfhost.css ships', () => {
+  // The font half of this test was previously a no-op: named "no CDN fonts
+  // or icons" but only ever checked jsDelivr, never fonts.googleapis.com —
+  // the actual, currently-live font CDN reference (Task 14, team-lead
+  // review). Can't make that assertion unconditional yet: fonts-selfhost.css
+  // (MVBOLD-3) hasn't landed, Base.astro still deliberately loads
+  // fonts.googleapis.com, and that's a known, reported blocking item, not a
+  // silent regression this suite should fail red over today. Gating on the
+  // file's existence means this starts enforcing itself the moment the swap
+  // lands, instead of needing a second person to remember to un-skip it.
+  const fontsSelfHosted = existsSync('_ds/tokens/fonts-selfhost.css');
   for (const route of ALL_ROUTES) {
     const h = readFileSync(file(route), 'utf8');
     expect(h, `${route} references jsDelivr`).not.toContain('cdn.jsdelivr.net');
+    if (fontsSelfHosted) {
+      expect(h, `${route} still references fonts.googleapis.com after fonts-selfhost.css shipped`)
+        .not.toContain('fonts.googleapis.com');
+    }
   }
 });
 

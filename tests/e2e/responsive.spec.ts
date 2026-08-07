@@ -89,15 +89,34 @@ async function tableColumnReport(page: import('@playwright/test').Page) {
   });
 }
 
-for (const route of ['/alternatives/katana', '/alternatives/mrpeasy'] as const) {
+// Widened to every route, not just the two /alternatives/ pages (Task 14,
+// team-lead review) — /pricing's 43-row matrix and the legal pages' own
+// tables (/privacy, /terms) are the same shape of risk: a <td> with its
+// display overridden takes it out of table layout just as easily there as
+// on a comparison table, and nothing else in this suite would catch it.
+for (const route of ALL_ROUTES) {
   test(`${route} — every table body row forms as many real columns as its header`, async ({ page }) => {
     await page.goto(route);
     const report = await tableColumnReport(page);
-    expect(report.length, 'expected at least one comparison table on this route').toBeGreaterThan(0);
     const broken = report.filter((r) => r.bodyCols !== r.headerCols || r.misalignedIndexes.length > 0);
     expect(broken, JSON.stringify(broken, null, 2)).toEqual([]);
   });
 }
+
+// Five routes are known, from reading each page's own markup, to carry a
+// real <table>: both /alternatives/ pages, /pricing's comparison matrix, and
+// /privacy and /terms' own document tables. This guards the check above
+// against silently passing everywhere because tableColumnReport stopped
+// finding any tables at all (a selector typo, a markup change dropping
+// <table> for a div grid, etc.) rather than because every table is healthy.
+test('at least five routes carry a real <table>, matching what the source pages are known to have', async ({ page }) => {
+  let totalTables = 0;
+  for (const route of ALL_ROUTES) {
+    await page.goto(route);
+    totalTables += await page.locator('table').count();
+  }
+  expect(totalTables, 'total <table> elements found across all 8 routes').toBeGreaterThanOrEqual(5);
+});
 
 // --- anchor landing clearance -----------------------------------------------
 //

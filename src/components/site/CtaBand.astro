@@ -1,9 +1,24 @@
 ---
 import Pill from './Pill.astro';
 import type { FieldName } from '../../site';
-import { APP_URL, CONTACT_EMAIL } from '../../site';
-export interface Props { field: FieldName; heading: string; body: string }
-const { field, heading, body } = Astro.props;
+import { APP_URL } from '../../site';
+export interface Props {
+  field: FieldName;
+  heading: string;
+  body: string;
+  /** Old page's own second action in this closing band, verbatim: every
+   * source page except pricing.html closes on "Start free trial" + "Book a
+   * demo" (→ its own #contact). "Talk to us" → mailto never appeared here on
+   * any of the eight source pages (Task 14, team-lead review: grepped all
+   * six content pages individually) — a first pass invented it wholesale on
+   * six routes, silently losing "Book a demo" on four of them. Optional
+   * because pricing.html's own closing band has no second action at all (no
+   * cta-section on that page — this CtaBand's heading/body are sourced from
+   * its meta description instead, task-8 ruling); omitting this prop there
+   * renders "Start free trial" alone rather than inventing a replacement. */
+  secondActionHref?: string;
+}
+const { field, heading, body, secondActionHref } = Astro.props;
 ---
 <section class="mv-section site-cta">
   <div class="mv-wrap">
@@ -11,8 +26,15 @@ const { field, heading, body } = Astro.props;
       <h2 class="mv-display site-cta-heading">{heading}</h2>
       <p class="site-cta-body">{body}</p>
       <div class="mv-cta-stack site-cta-actions">
-        <Pill href={APP_URL}>Start free trial</Pill>
-        <Pill href={`mailto:${CONTACT_EMAIL}`}>Talk to us</Pill>
+        {/* {' '} — Astro drops the whitespace-only text node between these
+            two block siblings on separate source lines; the old page's own
+            sibling <a> tags glue into one run ("Start free trial Book a
+            demo") via real source whitespace, which the parity gate's
+            phrase tier matches as a single string (Task 14: this broke on
+            all four routes that pass secondActionHref, until this was
+            added — a straight port of the same fix used everywhere else in
+            this codebase two adjacent Pills/buttons appear). */}
+        <Pill href={APP_URL}>Start free trial</Pill>{secondActionHref && <>{' '}<Pill href={secondActionHref}>Book a demo</Pill></>}
       </div>
     </div>
   </div>

@@ -2,7 +2,6 @@
 import Base from '../layouts/Base.astro';
 import Field from '../components/site/Field.astro';
 import Panel from '../components/site/Panel.astro';
-import Pill from '../components/site/Pill.astro';
 import CtaBand from '../components/site/CtaBand.astro';
 import Icon from '../components/ds/Icon.astro';
 import { APP_URL, CONTACT_EMAIL } from '../site';
@@ -101,16 +100,16 @@ const schema = [
   canonical="https://manuva.app/about"
   {schema}
 >
-  {/* 1 · mint hero, inset on paper. Old page's own hero has no buttons — the
-      closing cta-section's two buttons ("Start free trial" / "Book a demo")
-      are relocated up here, same ruling as /features and both /alternatives/
-      pages: CtaBand's own second action is fixed to "Talk to us" project-wide
-      (Task 5), so "Book a demo" has nowhere else to land without being lost.
-      Old markup glues the two button labels into one run ("Start free trial
-      Book a demo"), sibling <a> tags not being parity boundaries — {' '}
-      reproduces the same join. /#contact per the project-wide ruling on the
-      old ?demo=1#contact target (Task 7): the old contact form is gone, so
-      this points at the home page's real #contact section instead. */}
+  {/* 1 · mint hero, inset on paper. Old page's own hero has no buttons at
+      all (confirmed: page-hero is eyebrow + h1 + lede only). A first pass
+      relocated the closing cta-section's "Start free trial" / "Book a demo"
+      pair up here as a workaround, because CtaBand's second action was
+      hardcoded to "Talk to us" and had nowhere else to put "Book a demo"
+      without losing it. CtaBand now carries a real secondActionHref (Task
+      14, team-lead review), so that workaround is gone too — its own reason
+      for existing went with it. Restoring a bare hero matches the source
+      exactly, and avoids showing the same two buttons twice on one page,
+      which the old page never did either. */}
   <section class="site-hero site-about-hero">
     <div class="mv-wrap">
       <Panel field="mint" data-fold="mint" class="site-about-hero-panel">
@@ -121,10 +120,6 @@ const schema = [
           costing, and reporting — built specifically for small and mid-size manufacturers that sell through
           Shopify and adjacent channels.
         </p>
-        <div class="mv-cta-stack site-about-hero-actions">
-          <Pill href={APP_URL}>Start free trial</Pill>{' '}
-          <Pill href="/#contact" ghost>Book a demo</Pill>
-        </div>
       </Panel>
     </div>
   </section>
@@ -221,10 +216,13 @@ const schema = [
   </section>
 
   {/* 5 · flare CTA. Heading and body are the old page's own closing
-      cta-section text, verbatim — not an assembled tagline. */}
+      cta-section text, verbatim — not an assembled tagline. secondActionHref
+      matches the old page's own "Book a demo" href (same query-param-drop
+      as features.astro above). */}
   <CtaBand
     field="flare"
     heading="See Manuva in action"
     body="14-day free trial, full Pro access. No credit card required. Set up in a day."
+    secondActionHref="/#contact"
   />
 </Base>
