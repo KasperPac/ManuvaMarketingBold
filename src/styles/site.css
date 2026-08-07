@@ -1,5 +1,14 @@
 /* Site-only geometry. Tokens live in _ds/. Nothing here redeclares one. */
 
+/* Single source of truth for the sticky nav's own height, so anything that
+   needs to compensate for it (in-page anchor scroll targets — see
+   .site-doc section below) tracks the same value instead of duplicating a
+   magic number that can drift out of sync with .site-nav-inner's own
+   height. Overridden at the same 960px breakpoint the nav's own layout
+   already switches at. */
+:root { --nav-h: 88px; }
+@media (max-width: 960px) { :root { --nav-h: 64px; } }
+
 .skip {
   position: absolute;
   left: -9999px;
@@ -22,7 +31,7 @@ body { background: var(--field-paper); color: var(--ink-strong); }
 
 /* --- nav --- */
 .site-nav { position: sticky; top: 0; z-index: 40; background: var(--field-paper); }
-.site-nav-inner { display: flex; align-items: center; gap: var(--space-10); height: 88px; }
+.site-nav-inner { display: flex; align-items: center; gap: var(--space-10); height: var(--nav-h); }
 .site-nav-logo { color: var(--ink-strong); flex: none; display: inline-flex; }
 .site-nav-links { display: flex; gap: var(--space-6); flex: 1; }
 .site-nav-links a, .site-nav-signin {
@@ -34,7 +43,6 @@ body { background: var(--field-paper); color: var(--ink-strong); }
   flex-direction: column; gap: 5px; align-items: center; justify-content: center;
 }
 .site-burger > span { display: block; width: 22px; height: 2px; background: var(--ink-strong); }
-@media (max-width: 960px) { .site-nav-inner { height: 64px; } }
 
 /* --- drawer --- */
 .site-drawer { position: fixed; inset: 0; z-index: 60; background: rgb(20 20 19 / .5); }
@@ -681,6 +689,17 @@ a.site-tile { color: inherit; }
    inside a Field (there is no Field on these two pages at all). */
 .site-doc { max-width: 72ch; margin-inline: auto; padding-inline: var(--gutter); padding-block: var(--section-y); }
 
+/* Source's own `.prose > section { scroll-margin-top: 88px }`, carried
+   across via the shared --nav-h custom property instead of a hardcoded
+   88px — the sticky nav (.site-nav-inner) sits on top of every page and is
+   exactly what this compensates for: without it, jumping to any of the 31
+   in-page anchors here (10 privacy TOC entries, 19 terms, plus privacy's
+   own #roadmap/#retention body links) lands the target heading's top edge
+   directly under the nav, invisible rather than merely mis-scrolled. Team
+   lead's review caught this — confirmed missing in-browser (elementFromPoint
+   at a jumped-to heading returned the nav's own inner div) before fixing. */
+.site-doc section { scroll-margin-top: var(--nav-h); }
+
 .site-doc-head { margin-bottom: var(--space-10); padding-bottom: var(--space-8); border-bottom: 1px solid var(--stroke); }
 .site-doc-eyebrow { color: var(--ink-faint); margin-bottom: var(--space-4); }
 .site-doc-title { font-size: var(--fs-display-3); margin: 0 0 var(--space-4); }
@@ -690,7 +709,15 @@ a.site-tile { color: inherit; }
 
 .site-doc h2 { font-family: var(--font-display); font-size: var(--fs-display-1); color: var(--ink-strong); margin: var(--space-10) 0 var(--space-4); }
 .site-doc h3 { font-size: var(--fs-lg); font-weight: var(--fw-semibold); color: var(--ink-strong); margin: var(--space-8) 0 var(--space-3); }
-.site-doc p, .site-doc li { font-size: var(--fs-md); line-height: var(--lh-normal); color: var(--ink-muted); }
+/* 15px literal, not a token: the scale jumps --fs-md (14px) to --fs-lg
+   (16px) with nothing at 15px, and the source's own `.prose` is 15px —
+   matched exactly rather than rounded to the nearest step, since legal
+   prose readability was the reason this got flagged in review (round 1
+   shipped --fs-md, one step small at both this and the 720px breakpoint
+   below). Not a value any existing token already names, so a literal here
+   doesn't conflict with the "no hardcoded value a token already names"
+   rule. */
+.site-doc p, .site-doc li { font-size: 15px; line-height: var(--lh-normal); color: var(--ink-muted); }
 .site-doc p { margin: 0 0 var(--space-4); }
 .site-doc ul, .site-doc ol { margin: 0 0 var(--space-4); padding-left: var(--space-6); display: grid; gap: var(--space-2); }
 .site-doc li { margin: 0; }
@@ -701,18 +728,26 @@ a.site-tile { color: inherit; }
 /* In-document TOC — a plain list of links to the sections below it, same as
    the old page's own <nav class="toc">. Kept inside .site-doc's 72ch measure
    (no width rule of its own), and deliberately not redesigned into anything
-   other than "On this page" + a list of links, per team-lead ruling. Placed
-   after the general `.site-doc ul, .site-doc ol` rule above (same 0,1,1
-   specificity — source order decides), so its 2-column list layout wins over
-   that rule's single-column grid instead of being silently overridden by it. */
+   other than "On this page" + a list of links, per team-lead ruling.
+   `ol`/`li`/`a` are qualified with the `.site-doc` ancestor (not just
+   `.site-doc-toc`) so each has strictly higher specificity — (0,2,1) vs the
+   general `.site-doc ul/ol/li/a` rules' (0,1,1) — than what they override.
+   Round 1 relied on source order alone (equal specificity, TOC block placed
+   after the general rules); review correctly flagged that a stylesheet
+   reorder would silently flatten the TOC back to the generic single-column
+   list styling with no error anywhere. */
 .site-doc-toc { background: var(--bg-card); border: 1px solid var(--stroke-card); border-radius: var(--radius-md); padding: var(--space-5) var(--space-6); margin-bottom: var(--space-8); }
 .site-doc-toc-title { font-family: var(--font-display); font-size: var(--fs-xs); font-weight: var(--fw-bold); letter-spacing: var(--ls-caps); text-transform: uppercase; color: var(--ink-muted); margin: 0 0 var(--space-3); }
-.site-doc-toc ol { margin: 0; padding-left: var(--space-5); columns: 2; column-gap: var(--space-6); display: block; }
-.site-doc-toc li { font-size: var(--fs-sm); color: var(--ink-muted); margin-bottom: var(--space-2); break-inside: avoid; }
-.site-doc-toc a { color: var(--ink-muted); }
+.site-doc .site-doc-toc ol { margin: 0; padding-left: var(--space-5); columns: 2; column-gap: var(--space-6); display: block; }
+.site-doc .site-doc-toc li { font-size: var(--fs-sm); color: var(--ink-muted); margin-bottom: var(--space-2); break-inside: avoid; }
+.site-doc .site-doc-toc a { color: var(--ink-muted); }
 .site-doc-toc a:hover { color: var(--brand-1); }
 @media (max-width: 620px) {
-  .site-doc-toc ol { columns: 1; }
+  /* Same qualified selector as the desktop rule above — (0,1,1) here would
+     never win against that rule's (0,2,1), media query or not; specificity
+     is decided independent of where a rule sits, not by "this one's in a
+     more specific media condition". */
+  .site-doc .site-doc-toc ol { columns: 1; }
 }
 
 .site-doc-note {
@@ -736,5 +771,8 @@ a.site-tile { color: inherit; }
 
 @media (max-width: 720px) {
   .site-doc-head { margin-bottom: var(--space-8); padding-bottom: var(--space-6); }
-  .site-doc p, .site-doc li { font-size: var(--fs-base); }
+  /* 14.5px literal, matching the source's own `.prose` mobile override
+     exactly — not on the token scale (nearest is --fs-base at 13px, which
+     review correctly flagged as too small for legal prose on a phone). */
+  .site-doc p, .site-doc li { font-size: 14.5px; }
 }

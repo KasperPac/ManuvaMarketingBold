@@ -1,27 +1,101 @@
 import { readFileSync } from 'node:fs';
+import { load } from 'cheerio';
 import { expect, test } from 'vitest';
 
 const pages = [['privacy', 'dist/privacy.html'], ['terms', 'dist/terms.html']] as const;
 
-test.each(pages)('%s uses no colour field behind long-form copy', (_n, path) => {
+// Representative body-text sample, one distinctive sentence/fragment per
+// clause, pulled from actual <p>/<li> prose (never a heading) — round 1's
+// suite could lose every <p>, <li>, <table> and <div> of clause copy on both
+// pages and still fail only one test (review demonstrated this by stripping
+// the built pages and re-running). Scoped to <main> so the site-wide footer
+// (which repeats "Pac Technologies Pty Ltd") can't satisfy these by proxy.
+const PRIVACY_CLAUSE_BODY: readonly [string, string][] = [
+  ['1', 'This Privacy Policy explains how Manuva collects, uses, discloses, stores, and protects personal information.'],
+  ['2', 'Records of your activity and actions within the platform (activity logs)'],
+  ['3', 'Your activity logs are not used for marketing or profiling.'],
+  ['4', 'All service providers are contractually required to maintain confidentiality and security of your information.'],
+  ['5', 'Activity logs are retained for 12 months and used for security audits, troubleshooting, and compliance verification.'],
+  ['6', 'You can request correction of information that is inaccurate, incomplete, or out-of-date.'],
+  ['7', 'passwords are hashed with bcrypt and random salts'],
+  ['8', 'a new version of this policy will be published and become effective before launch'],
+  ['9', 'If you believe Manuva has breached the Australian Privacy Principles, you have the right to lodge a complaint.'],
+  ['10', 'Sensitive information'],
+];
+
+const TERMS_CLAUSE_BODY: readonly [string, string][] = [
+  ['1', 'You accept these Terms when you sign up for, access, or pay for the Service.'],
+  ['2', 'The Service evolves over time.'],
+  ['3', 'We offer a 14-day free trial.'],
+  ['4', 'GST is included for Australian customers and shown separately on invoices.'],
+  ['5', 'The Customer retains all rights, title, and interest in Customer Data.'],
+  ['6', 'This licence does not extend to Customer Data.'],
+  ['7', 'Probe, scan, or test the vulnerability of the Service without prior written authorisation.'],
+  ['8', 'Primary processing of Customer Data takes place in Australia.'],
+  ['9', 'Manuva uses commercially reasonable efforts to make the Service available 24×7.'],
+  ['10', 'Support covers questions about how to use the Service, defect reports, and operational issues.'],
+  ['11', 'There is no mid-term refund — see Section 4.'],
+  ['12', 'Confidentiality obligations survive termination indefinitely for trade secrets, and for three years for other Confidential Information.'],
+  ['13', 'Beta and Preview features are excluded from all warranties, express or implied, to the maximum extent permitted by law.'],
+  ['14', 'This indemnity is conditional on the Customer'],
+  ['15', 'breach of confidentiality (Section 12);'],
+  ['16', 'These Terms are governed by the laws of Victoria, Australia.'],
+  ['17', 'Continued use of the Service after the effective date of a material change constitutes acceptance of the updated Terms.'],
+  ['18', 'Nothing in these Terms creates a partnership, joint venture, agency, fiduciary, or employment relationship between the parties.'],
+  ['19', 'the period during which the Customer has an active subscription to the Service'],
+];
+
+function mainOf(path: string): string {
   const h = readFileSync(path, 'utf8');
-  const body = h.slice(h.indexOf('<main'), h.indexOf('</main>'));
+  return h.slice(h.indexOf('<main'), h.indexOf('</main>'));
+}
+
+test.each(pages)('%s uses no colour field behind long-form copy', (_n, path) => {
+  const body = mainOf(path);
   expect(body).not.toMatch(/background:var\(--field-(cobalt|flare|amber|violet|mint|aqua|lime|ink)\)/);
 });
 
+// Not just "the string 'site-doc' appears somewhere" (round 1's version,
+// satisfied by the class name alone regardless of what's inside it) — checks
+// the wrapper is actually the immediate child of <main> and has real content
+// nested inside, matching the readable-measure claim to a structural fact.
 test.each(pages)('%s constrains the measure for readability', (_n, path) => {
-  expect(readFileSync(path, 'utf8')).toContain('site-doc');
+  const body = mainOf(path);
+  expect(body).toMatch(/<main[^>]*>\s*<article class="site-doc">/);
+  expect(body.length).toBeGreaterThan(20000);
 });
 
-test.each(pages)('%s names the operating entity and contact', (_n, path) => {
-  const h = readFileSync(path, 'utf8');
-  expect(h).toContain('Pac Technologies');
-  expect(h).toContain('hello@manuva.app');
+// Scoped to <main> — the site-wide footer (Footer.astro) repeats "Pac
+// Technologies Pty Ltd" and CONTACT_EMAIL (hello@manuva.app) on every page,
+// so an unscoped check here passes on any route regardless of what the
+// legal body itself says. The body's own entity statement and its own
+// contact routing (privacy@/support@/legal@, not hello@ — see the task
+// report) are what this needs to guard.
+test('privacy names the operating entity in its own body text, not just the footer', () => {
+  const body = mainOf('dist/privacy.html');
+  expect(body).toContain('Pac Technologies Pty Ltd (ABN 99 113 680 443; ACN 113 680 443)');
+  expect(body).toContain('privacy@manuva.app');
 });
 
-test('terms keeps its clause numbering intact', () => {
-  const h = readFileSync('dist/terms.html', 'utf8');
-  expect(h).toMatch(/\b15\b/);
+test('terms names the operating entity in its own body text, not just the footer', () => {
+  const body = mainOf('dist/terms.html');
+  expect(body).toContain('Pac Technologies Pty Ltd (ABN 99 113 680 443; ACN 113 680 443)');
+  expect(body).toContain('support@manuva.app');
+  expect(body).toContain('legal@manuva.app');
+});
+
+test('privacy clause bodies survive intact — one representative fragment per clause', () => {
+  const body = mainOf('dist/privacy.html');
+  for (const [clause, text] of PRIVACY_CLAUSE_BODY) {
+    expect(body, `clause ${clause} body text missing: "${text}"`).toContain(text);
+  }
+});
+
+test('terms clause bodies survive intact — one representative fragment per clause', () => {
+  const body = mainOf('dist/terms.html');
+  for (const [clause, text] of TERMS_CLAUSE_BODY) {
+    expect(body, `clause ${clause} body text missing: "${text}"`).toContain(text);
+  }
 });
 
 // Base.astro gates the whole twitter:card/title/description triple on
@@ -66,9 +140,14 @@ test('terms clause numbers run 1 to 19 with no gaps or repeats', () => {
 });
 
 // Terms §15's carve-out list — the source repo's own spec notes this list
-// was aligned deliberately; it must keep its exact 6-item count.
+// was aligned deliberately; it must keep its exact 6-item count. Round 1
+// checked all six items were present but never asserted the list's length —
+// a seventh item slipped in (e.g. a duplicate or an unrelated addition)
+// would have passed. $('#liability > ul > li').length pins the count itself.
 test('terms carve-out list under §15 keeps its exact 6 items', () => {
   const h = readFileSync('dist/terms.html', 'utf8');
+  const $ = load(h);
+  expect($('#liability > ul > li').length).toBe(6);
   for (const item of [
     'breach of confidentiality (Section 12)',
     'the IP indemnity in Section 14',
