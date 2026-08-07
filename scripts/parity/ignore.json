@@ -1,0 +1,11 @@
+{
+  "_comment": "Phrases present in the old site that are deliberately absent from the new one. Each entry needs a reason. Matching is substring, case-insensitive.",
+  "/": [],
+  "/features": [],
+  "/pricing": [],
+  "/about": [],
+  "/alternatives/katana": [],
+  "/alternatives/mrpeasy": [],
+  "/privacy": [],
+  "/terms": []
+}
