@@ -1,0 +1,51 @@
+---
+import '../styles/site.css';
+
+export interface Props {
+  title: string;
+  description: string;
+  canonical: string;
+  ogImage?: string;
+  /** JSON-LD nodes. Populated in Task 13; ignored until then. */
+  schema?: Record<string, unknown>[];
+}
+const { title, description, canonical, ogImage = '/og-image.png', schema } = Astro.props;
+
+const TOKENS = [
+  'fonts', 'colors', 'themes', 'typography', 'spacing',
+  'shape', 'marketing', 'responsive', 'motion', 'base',
+];
+
+// Astro.site is undefined when this layout is rendered through the container
+// API (astro/container) without an astroConfig, e.g. in unit tests. Fall back
+// to the raw path there; dev/build always have `site` set in astro.config.mjs.
+const ogImageUrl = Astro.site ? new URL(ogImage, Astro.site) : ogImage;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    {TOKENS.map((t) => <link rel="stylesheet" href={`/_ds/tokens/${t}.css`} />)}
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <slot name="nav" />
+    <main id="main"><slot /></main>
+    <slot name="footer" />
+  </body>
+</html>

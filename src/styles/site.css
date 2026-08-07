@@ -1,0 +1,15 @@
+/* Site-only geometry. Tokens live in _ds/. Nothing here redeclares one. */
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: var(--space-3) var(--space-5);
+  background: var(--bg-card);
+  color: var(--ink-strong);
+  border-radius: var(--radius-lg);
+}
+.skip:focus { left: var(--space-4); top: var(--space-4); }
+
+body { background: var(--field-paper); color: var(--ink-strong); }

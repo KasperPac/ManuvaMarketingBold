@@ -1,0 +1,25 @@
+{
+  "name": "manuva-marketing",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "sync:ds": "node scripts/sync-ds.js",
+    "dev": "npm run sync:ds && astro dev",
+    "build": "npm run sync:ds && astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "astro": "^7.2.0"
+  },
+  "devDependencies": {
+    "cheerio": "^1.2.0",
+    "vitest": "^4.1.10"
+  }
+}
