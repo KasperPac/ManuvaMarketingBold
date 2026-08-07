@@ -11,28 +11,45 @@ const description =
 const ogDescription =
   'MRPeasy alternative built around flat-rate pricing, native Shopify webhook sync, and BOM versioning. See how Manuva compares.';
 
-// Verbatim from the old page's <table class="seat-table"> — 5 rows.
-const SEAT_ROWS: [string, string, string, string][] = [
-  ['3 users', '~$147/mo', '$249/mo', '$499/mo'],
-  ['5 users', '~$245/mo', '$249/mo', '$499/mo'],
-  ['10 users', '~$490/mo', '$249/mo −$241', '$499/mo'],
-  ['15 users', '~$735/mo', '$249/mo −$486', '$499/mo −$236'],
-  ['25 users', '~$1,225/mo', '$249/mo −$976', '$499/mo −$726'],
+// Verbatim from the old page's <table class="seat-table"> — 5 rows. Each
+// Manuva cell is [amount, delta|null] — the source wraps the delta in its
+// own <span class="delta"> at 13px --ink-faint, de-emphasised against the
+// full-strength amount; a first pass flattened both into one plain-text
+// string, losing that de-emphasis (still present as text, but no longer
+// visually secondary). Restored via a real nested span below.
+const SEAT_ROWS: [string, string, [string, string | null], [string, string | null]][] = [
+  ['3 users', '~$147/mo', ['$249/mo', null], ['$499/mo', null]],
+  ['5 users', '~$245/mo', ['$249/mo', null], ['$499/mo', null]],
+  ['10 users', '~$490/mo', ['$249/mo', '−$241'], ['$499/mo', null]],
+  ['15 users', '~$735/mo', ['$249/mo', '−$486'], ['$499/mo', '−$236']],
+  ['25 users', '~$1,225/mo', ['$249/mo', '−$976'], ['$499/mo', '−$726']],
 ];
 
 // Verbatim from the old page's <table class="compare-tbl"> — 11 data rows.
-const COMPARE_ROWS: [string, string, string][] = [
-  ['Pricing model', 'Flat per account', 'Per user'],
-  ['Native Shopify webhook sync', 'Yes', 'Batch connector'],
-  ['BOM versioning with comparison', 'Yes', 'No'],
-  ['Yield % per BOM line', 'Yes', 'Limited'],
-  ['Capacity planning with staff costing', 'Yes (Pro)', 'Basic'],
-  ['PO variance reporting', 'Yes', 'No'],
-  ['Lead-time accuracy by supplier', 'Yes', 'Limited'],
-  ['Multi-warehouse + bin locations', 'Yes (Growth)', 'Yes'],
-  ['Financial profitability dashboard', 'Yes (Pro)', 'No'],
-  ['Free trial', '14 days, full Pro', '15 days'],
-  ['Setup time', 'Hours to days', 'Days to weeks'],
+// The 4th element is the OLD PAGE's own verdict class for the MRPeasy
+// column (yes/no/partial) — carried as sourced data, not re-derived from
+// the verdict text. A text-matching ternary (anything not literally "Yes"/
+// "No" falling through to "partial") shipped in fix round 1 and silently
+// softened MRPeasy's own "Per user" pricing (source class="no") to an
+// amber "partial", and sharpened its "15 days" free trial (source
+// class="yes", a true positive fact about MRPeasy) to "partial" too — the
+// same bug class as katana.astro's "14 days" row, and it made the two
+// pages disagree with each other on the identical "Pricing model → Per
+// user" claim. The Manuva column's class is hardcoded 'yes' below: verified
+// against the old page's own markup, every one of these 11 rows uses
+// class="yes" for the Manuva cell with no exception.
+const COMPARE_ROWS: [string, string, string, 'yes' | 'no' | 'partial'][] = [
+  ['Pricing model', 'Flat per account', 'Per user', 'no'],
+  ['Native Shopify webhook sync', 'Yes', 'Batch connector', 'partial'],
+  ['BOM versioning with comparison', 'Yes', 'No', 'no'],
+  ['Yield % per BOM line', 'Yes', 'Limited', 'partial'],
+  ['Capacity planning with staff costing', 'Yes (Pro)', 'Basic', 'partial'],
+  ['PO variance reporting', 'Yes', 'No', 'no'],
+  ['Lead-time accuracy by supplier', 'Yes', 'Limited', 'partial'],
+  ['Multi-warehouse + bin locations', 'Yes (Growth)', 'Yes', 'yes'],
+  ['Financial profitability dashboard', 'Yes (Pro)', 'No', 'no'],
+  ['Free trial', '14 days, full Pro', '15 days', 'yes'],
+  ['Setup time', 'Hours to days', 'Days to weeks', 'partial'],
 ];
 
 // Verbatim from the old page's <div class="adds-grid">.
@@ -137,8 +154,8 @@ const FAQS = [
               <tr>
                 <td class="site-alt-users">{users}</td>
                 <td class="site-alt-mrp-cell">{mrp}</td>
-                <td class="site-alt-manuva-cell">{growth}</td>
-                <td class="site-alt-manuva-cell">{pro}</td>
+                <td class="site-alt-manuva-cell">{growth[0]}{growth[1] && <>{' '}<span class="site-alt-delta">{growth[1]}</span></>}</td>
+                <td class="site-alt-manuva-cell">{pro[0]}{pro[1] && <>{' '}<span class="site-alt-delta">{pro[1]}</span></>}</td>
               </tr>
             ))}
           </tbody>
@@ -172,11 +189,11 @@ const FAQS = [
             </tr>
           </thead>
           <tbody>
-            {COMPARE_ROWS.map(([name, manuva, mrpeasy]) => (
+            {COMPARE_ROWS.map(([name, manuva, mrpeasy, mrpeasyClass]) => (
               <tr>
                 <td>{name}</td>
                 <td class="site-alt-yes">{manuva}</td>
-                <td class={mrpeasy === 'Yes' ? 'site-alt-yes' : mrpeasy === 'No' ? 'site-alt-no' : 'site-alt-partial'}>{mrpeasy}</td>
+                <td class={`site-alt-${mrpeasyClass}`}>{mrpeasy}</td>
               </tr>
             ))}
           </tbody>

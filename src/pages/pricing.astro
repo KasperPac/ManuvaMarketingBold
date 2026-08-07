@@ -37,8 +37,16 @@ const FAQS = [
 // users.") for the hero and never states this page's real head values at all.
 const description =
   'Simple pricing for manufacturing teams. One price per tier, no per-seat fees, no usage meters. Start free for 14 days.';
+// Old page's own twitter:description — identical to its og:description,
+// both shorter than the meta description above (they drop the trailing
+// "Start free for 14 days." clause). Base.astro's og:description still
+// defaults to the long `description` (unchanged, not part of this fix);
+// this only supplies the Twitter pair, which previously leaked the long
+// description onto this page.
+const twitterDescription =
+  'Simple pricing for manufacturing teams. One price per tier, no per-seat fees, no usage meters.';
 ---
-<Base title="Pricing — Manuva" description={description} canonical="https://manuva.app/pricing">
+<Base title="Pricing — Manuva" description={description} twitterDescription={twitterDescription} canonical="https://manuva.app/pricing">
   {/* 1 · ink hero, inset on paper */}
   <section class="site-hero site-pricing-hero">
     <div class="mv-wrap">

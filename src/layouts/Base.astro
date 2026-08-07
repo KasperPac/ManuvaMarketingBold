@@ -17,12 +17,21 @@ export interface Props {
   /** Old page's og:type — "article" for the two /alternatives/ pages,
    * "website" (the prior hardcoded default) everywhere else so far. */
   ogType?: string;
+  /** Genuinely optional, no fallback to `description` or `ogDescription`:
+   * a first pass wired twitter:title/twitter:description unconditionally
+   * off `ogDescription`'s default, which silently emitted the long meta
+   * description as the Twitter card body on / and /pricing — both old
+   * pages carry a shorter Twitter variant Base had never read. Every page
+   * that wants a Twitter card must supply the real value from its own old
+   * page's <head>; pages that don't pass this get no twitter:title/
+   * description at all, same as before Task 10 touched this file. */
+  twitterDescription?: string;
   /** JSON-LD nodes. Populated in Task 13; ignored until then. */
   schema?: Record<string, unknown>[];
 }
 const {
   title, description, canonical, ogImage = '/og-image.png',
-  ogDescription = description, ogType = 'website', schema,
+  ogDescription = description, ogType = 'website', twitterDescription, schema,
 } = Astro.props;
 
 const TOKENS = [
@@ -50,8 +59,12 @@ const ogImageUrl = Astro.site ? new URL(ogImage, Astro.site) : ogImage;
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImageUrl} />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={ogDescription} />
+    {twitterDescription && (
+      <>
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={twitterDescription} />
+      </>
+    )}
 
     <link rel="icon" href="/favicon-32.png" sizes="32x32" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

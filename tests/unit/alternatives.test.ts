@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { load } from 'cheerio';
 import { expect, test } from 'vitest';
 import { extractText, extractTables } from '../../scripts/parity/extract.js';
 
@@ -87,6 +88,146 @@ test('mrpeasy seat-math and comparison tables keep every row with verdicts intac
   expect(byName.get('native shopify webhook sync')).toEqual(['Yes', 'Batch connector']);
   // header (1) + 5 seat rows + header (1) + 11 feature rows = 18
   expect(rows.length).toBe(18);
+});
+
+// Fix round 1 shipped a verdict class derived from matching the verdict
+// TEXT (e.g. `=== 'Yes' ? 'site-alt-yes' : 'site-alt-no'`), which silently
+// recoloured katana's true "14 days" free-trial fact red (source class="yes")
+// and, on mrpeasy, softened "Per user" from red to amber and sharpened
+// "15 days" from green to amber — because none of those strings are the
+// literal word "Yes"/"No". extractTables() only sees cell TEXT, not CSS
+// classes, so that bug produced zero signal there; this asserts the class
+// on every single row of both tables against the old page's own markup,
+// read directly (not re-derived), so a future ternary-from-text regression
+// fails here instead of shipping invisibly again.
+function competitorVerdictClasses(html: string, tableAriaLabel: string) {
+  const $ = load(html);
+  const rows: Record<string, string | undefined> = {};
+  $(`table[aria-label="${tableAriaLabel}"] tbody tr`).each((_, tr) => {
+    const cells = $(tr).find('td');
+    const name = $(cells[0]).text().trim().toLowerCase();
+    const competitorClass = $(cells[2])
+      .attr('class')
+      ?.split(/\s+/)
+      .find((c) => c.startsWith('site-alt-'))
+      ?.replace('site-alt-', '');
+    rows[name] = competitorClass;
+  });
+  return rows;
+}
+
+test('katana verdict colours match the old table exactly, not a text-matching guess', () => {
+  const h = readFileSync('dist/alternatives/katana.html', 'utf8');
+  const classes = competitorVerdictClasses(h, 'Manuva vs Katana feature comparison');
+  // Verbatim from the old page's own class="yes|no|partial" on the Katana
+  // column of every one of its 12 rows.
+  expect(classes).toEqual({
+    'bom versioning with comparison': 'no',
+    'yield % per bom line': 'no',
+    'multi-level / nested boms': 'yes',
+    'capacity planning': 'no',
+    'staff costing per production run': 'no',
+    'shopify webhook sync (real-time)': 'yes',
+    'multi-warehouse + bin locations': 'partial',
+    'po variance reporting': 'no',
+    'lead-time accuracy by supplier': 'no',
+    'financial profitability dashboard': 'no',
+    'pricing model': 'no',
+    // The regression: Katana's own "14 days" free trial is a true, positive
+    // fact about Katana — the old page colours it green, not red.
+    'free trial': 'yes',
+  });
+});
+
+test('mrpeasy verdict colours match the old table exactly, not a text-matching guess', () => {
+  const h = readFileSync('dist/alternatives/mrpeasy.html', 'utf8');
+  const classes = competitorVerdictClasses(h, 'Manuva vs MRPeasy feature comparison');
+  // Verbatim from the old page's own class="yes|no|partial" on the MRPeasy
+  // column of every one of its 11 rows.
+  expect(classes).toEqual({
+    // The regression: "Per user" is a real negative (old page colours it
+    // red); "15 days" is a real positive (old page colours it green) — a
+    // text-matching ternary got both backwards since neither string is the
+    // literal word "Yes"/"No".
+    'pricing model': 'no',
+    'native shopify webhook sync': 'partial',
+    'bom versioning with comparison': 'no',
+    'yield % per bom line': 'partial',
+    'capacity planning with staff costing': 'partial',
+    'po variance reporting': 'no',
+    'lead-time accuracy by supplier': 'partial',
+    'multi-warehouse + bin locations': 'yes',
+    'financial profitability dashboard': 'no',
+    'free trial': 'yes',
+    'setup time': 'partial',
+  });
+});
+
+test('the Manuva column is coloured "yes" on every row of both tables', () => {
+  for (const [file, label] of [
+    ['dist/alternatives/katana.html', 'Manuva vs Katana feature comparison'],
+    ['dist/alternatives/mrpeasy.html', 'Manuva vs MRPeasy feature comparison'],
+  ] as const) {
+    const $ = load(readFileSync(file, 'utf8'));
+    const manuvaCells = $(`table[aria-label="${label}"] tbody tr td:nth-child(2)`);
+    expect(manuvaCells.length).toBeGreaterThan(0);
+    manuvaCells.each((_, td) => {
+      expect($(td).attr('class')).toContain('site-alt-yes');
+    });
+  }
+});
+
+test('verdict colour lives on a non-text marker, not the word itself', () => {
+  // Design-system ruling: verdict words stay --ink-strong (4.5:1 text AA);
+  // the ok/danger/warning colour lives on a decorative ::before dot (WCAG's
+  // looser 3:1 non-text bar) instead — --ok on --bg-card measures 3.37:1,
+  // which fails 4.5:1 as text colour. CSS lives in a separate compiled
+  // stylesheet, not the page HTML (dist/*.html has no <style> for this), so
+  // this reads the real source file rather than grepping rendered markup —
+  // same reasoning as feat-contrast-cascade.test.ts.
+  const css = readFileSync('src/styles/site.css', 'utf8');
+  const rule = css.match(/\.site-alt-yes,\s*\.site-alt-no,\s*\.site-alt-partial\s*\{([^}]*)\}/);
+  expect(rule, 'verdict base rule not found').toBeTruthy();
+  expect(rule![1]).not.toMatch(/color:\s*var\(--(ok|danger|warning)\)/);
+  expect(rule![1]).toMatch(/color:\s*var\(--ink-strong\)/);
+  for (const [cls, token] of [
+    ['site-alt-yes', '--ok'],
+    ['site-alt-no', '--danger'],
+    ['site-alt-partial', '--warning'],
+  ] as const) {
+    // Anchored to start-of-line: `.site-alt-partial::before` also appears
+    // mid-line inside the shared content/size rule above (the last name in
+    // a comma-separated selector list), which has no `background` — an
+    // unanchored match picks that block up first and fails on a false
+    // negative rather than actually checking the per-colour rule below it.
+    const marker = css.match(new RegExp(`^\\.${cls}::before\\s*\\{([^}]*)\\}`, 'm'));
+    expect(marker, `${cls}::before own rule not found`).toBeTruthy();
+    expect(marker![1]).toMatch(new RegExp(`background:\\s*var\\(${token}\\)`));
+  }
+});
+
+test('flare CtaBand ink is overridden to near-black, not the token default white', () => {
+  // --on-flare (#FFFFFF) on flare (#FF4D00) measures 3.33:1, below 4.5:1 AA
+  // for CtaBand's 16px body text — katana's CTA is on flare. Design-system
+  // ruling: override the custom property's cascaded value at
+  // [data-fold="flare"] rather than edit the _ds/ token (near-black
+  // measures 5.54:1). This also reaches /'s and /features' flare CTAs.
+  const css = readFileSync('src/styles/site.css', 'utf8');
+  expect(css).toMatch(/\[data-fold="flare"\]\s*\{\s*--on-flare:\s*#141413;?\s*\}/);
+  const h = readFileSync('dist/alternatives/katana.html', 'utf8');
+  expect(h).toContain('data-fold="flare"');
+});
+
+test('mrpeasy seat-table restores the source de-emphasised delta figure as its own element', () => {
+  const h = readFileSync('dist/alternatives/mrpeasy.html', 'utf8');
+  // Text survives either way (already covered by the table-row test above);
+  // this pins that it survives as a SEPARATE, styleable element — a first
+  // pass flattened it into one plain-text string, losing the source's own
+  // 13px/--ink-faint de-emphasis against the bold full amount.
+  expect(h).toMatch(/\$249\/mo\s*<span class="site-alt-delta">−\$241<\/span>/);
+  expect(h).toMatch(/\$499\/mo\s*<span class="site-alt-delta">−\$236<\/span>/);
+  const css = readFileSync('src/styles/site.css', 'utf8');
+  expect(css).toMatch(/\.site-alt-delta\s*\{[^}]*color:\s*var\(--ink-faint\)/);
 });
 
 test('no colour field sits behind either comparison table', () => {

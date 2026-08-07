@@ -109,14 +109,34 @@ a.site-tile { color: inherit; }
 .site-cta-heading { font-size: var(--fs-display-5); max-width: 26ch; margin: 0; }
 .site-cta-body { margin: 0; font-size: var(--fs-lg); max-width: 38ch; opacity: .84; text-wrap: pretty; }
 .site-cta-actions { display: flex; gap: var(--space-4); }
-/* CtaBand's own div always carries data-fold (see CtaBand.astro) — every
-   instance runs on a field, never paper, so this always applies. .84 measures
-   4.97:1 on cobalt's own full-strength baseline but only 3.98:1 once muted
-   (computed), below 4.5:1 AA at this 16px body size; mrpeasy's CTA is the
-   first use of field="cobalt" on this component (prior pages used flare/
-   amber, both with far more full-strength headroom). Full strength avoids
-   relitigating the exact number per field. */
+/* CtaBand's own div always carries data-fold (see CtaBand.astro), so this
+   rule reaches EVERY CtaBand on the site, not just mrpeasy's: /, /features
+   and /pricing's flare/amber CTAs also lose the .84 mute, in addition to
+   mrpeasy's cobalt one. Full strength is never a contrast regression on any
+   field (it can only raise a ratio, never lower one), so this is safe
+   everywhere it applies — but it IS a real, site-wide behaviour change from
+   a single rule, not something scoped to this task's two pages; flagging
+   the full reach explicitly here (and in the task report) rather than
+   describing only the case that motivated it.
+   The number that motivated it: .84 measures 4.97:1 on cobalt's own
+   full-strength baseline but only 3.98:1 once muted (computed), below
+   4.5:1 AA at this 16px body size — mrpeasy's CTA is the first use of
+   field="cobalt" on this component. */
 [data-fold] .site-cta-body { opacity: 1; }
+/* --on-flare (#FFFFFF) on flare (#FF4D00) measures 3.33:1 (computed),
+   below 4.5:1 AA for this same 16px CtaBand body text (also affects the
+   heading, though its larger display size clears WCAG's "large text" 3:1
+   bar regardless) — a token-level pairing gap, not a site-side bug, and
+   flagged to Kasper as a design-system issue rather than fixed by editing
+   _ds/. Design-system ruling: override the custom property's cascaded
+   VALUE at this specific scope instead of touching the token file — CSS
+   custom properties resolve against whatever's cascaded at the element
+   they're read on, so redeclaring --on-flare here changes what
+   `color:var(--on-flare)` (CtaBand's own inline style) resolves to for
+   every flare CtaBand site-wide (/, /features, /alternatives/katana),
+   without altering the token itself for anything else that reads it.
+   Near-black measures 5.54:1 (computed), comfortably clears 4.5:1. */
+[data-fold="flare"] { --on-flare: #141413; }
 
 /* --- home: hero --- */
 .site-hero { padding: 0 var(--gutter) var(--gutter); }
@@ -525,15 +545,42 @@ a.site-tile { color: inherit; }
 .site-alt-table thead th.site-alt-table-manuva { color: var(--brand-1); }
 .site-alt-table tbody tr:last-child td { border-bottom: none; }
 .site-alt-table td:first-child { font-weight: var(--fw-semibold); color: var(--ink-strong); }
-.site-alt-yes { color: var(--ok); font-weight: var(--fw-semibold); }
-.site-alt-no { color: var(--danger); font-weight: var(--fw-semibold); }
-.site-alt-partial { color: var(--warning); font-weight: var(--fw-semibold); font-size: var(--fs-xs); }
+/* Verdict text is always --ink-strong (18.43:1 on --bg-card, comfortably
+   clears 4.5:1 AA) — the ok/danger/warning colour survives only as a small
+   non-text dot before the word, where WCAG's lower 3:1 "non-text contrast"
+   bar applies instead of 4.5:1. A first pass coloured the WORDS themselves
+   (--ok #12A150 on white measures 3.37:1, below 4.5:1 text AA), which also
+   meant a text-matching ternary deriving colour from the verdict string was
+   the mechanism that shipped the two katana/mrpeasy verdict-class bugs (see
+   the COMPARE_ROWS comments in each page) — carrying the source's own class
+   as data and keeping colour off the text removes both problems at once.
+   Non-text figures: --danger 5.74:1, --warning 6.39:1, both comfortably
+   clear 3:1 too. */
+.site-alt-yes, .site-alt-no, .site-alt-partial {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  color: var(--ink-strong); font-weight: var(--fw-semibold);
+}
+.site-alt-yes::before, .site-alt-no::before, .site-alt-partial::before {
+  content: ''; flex: none; width: 8px; height: 8px; border-radius: var(--radius-pill);
+}
+.site-alt-yes::before { background: var(--ok); }
+.site-alt-no::before { background: var(--danger); }
+.site-alt-partial::before { background: var(--warning); }
+.site-alt-partial { font-size: var(--fs-xs); }
 .site-alt-table-foot { margin-top: var(--space-3); font-size: var(--fs-xs); color: var(--ink-faint); }
 
 /* --- alternatives: mrpeasy seat-cost table --- */
 .site-alt-seat-table .site-alt-users { font-weight: var(--fw-semibold); color: var(--ink-strong); }
 .site-alt-seat-table .site-alt-mrp-cell { color: var(--ink-muted); }
 .site-alt-seat-table .site-alt-manuva-cell { color: var(--brand-1); font-weight: var(--fw-semibold); }
+/* Source's own de-emphasis for the per-row saving figure (13px, --ink-faint,
+   normal weight against the cell's own bold --brand-1 amount) — a first
+   pass flattened amount + delta into one plain-text string, which kept the
+   text but lost this visual distinction. --fs-base is the token that
+   actually matches the source's literal 13px; --ink-faint is confirmed AA
+   (4.71:1 on --bg-card; the design system's own token comment already
+   states 4.9:1, independently reconfirmed here). */
+.site-alt-delta { font-size: var(--fs-base); font-weight: var(--fw-regular); color: var(--ink-faint); margin-left: var(--space-1); }
 
 /* --- alternatives: katana price columns --- */
 .site-alt-price-cols { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); margin-top: var(--space-2); }

@@ -39,19 +39,28 @@ const GAPS = [
 ];
 
 // Verbatim from the old page's <table class="compare-tbl"> — 12 data rows.
-const COMPARE_ROWS: [string, string, string][] = [
-  ['BOM versioning with comparison', 'Yes', 'No'],
-  ['Yield % per BOM line', 'Yes', 'No'],
-  ['Multi-level / nested BOMs', 'Yes', 'Yes'],
-  ['Capacity planning', 'Yes (Pro)', 'No'],
-  ['Staff costing per production run', 'Yes (Pro)', 'No'],
-  ['Shopify webhook sync (real-time)', 'Yes', 'Yes'],
-  ['Multi-warehouse + bin locations', 'Yes (Growth)', 'Limited'],
-  ['PO variance reporting', 'Yes', 'No'],
-  ['Lead-time accuracy by supplier', 'Yes', 'No'],
-  ['Financial profitability dashboard', 'Yes (Pro)', 'No'],
-  ['Pricing model', 'Flat per account', 'Per user'],
-  ['Free trial', '14 days, full Pro', '14 days'],
+// The 4th element is the OLD PAGE's own verdict class for the Katana column
+// (yes/no/partial), carried across as sourced data rather than re-derived
+// from the verdict text. A text-matching ternary (`=== 'Yes' ? yes : no`)
+// shipped in fix round 1 and silently recoloured Katana's own "14 days" free
+// trial — a TRUE, POSITIVE fact about Katana (source class="yes") — as a
+// red "no" verdict, because the text isn't the literal string "Yes". The
+// Manuva column's class is hardcoded 'yes' below: verified against the old
+// page's own markup, every one of these 12 rows uses class="yes" for the
+// Manuva cell with no exception.
+const COMPARE_ROWS: [string, string, string, 'yes' | 'no' | 'partial'][] = [
+  ['BOM versioning with comparison', 'Yes', 'No', 'no'],
+  ['Yield % per BOM line', 'Yes', 'No', 'no'],
+  ['Multi-level / nested BOMs', 'Yes', 'Yes', 'yes'],
+  ['Capacity planning', 'Yes (Pro)', 'No', 'no'],
+  ['Staff costing per production run', 'Yes (Pro)', 'No', 'no'],
+  ['Shopify webhook sync (real-time)', 'Yes', 'Yes', 'yes'],
+  ['Multi-warehouse + bin locations', 'Yes (Growth)', 'Limited', 'partial'],
+  ['PO variance reporting', 'Yes', 'No', 'no'],
+  ['Lead-time accuracy by supplier', 'Yes', 'No', 'no'],
+  ['Financial profitability dashboard', 'Yes (Pro)', 'No', 'no'],
+  ['Pricing model', 'Flat per account', 'Per user', 'no'],
+  ['Free trial', '14 days, full Pro', '14 days', 'yes'],
 ];
 
 // Verbatim from the old page's two <div class="price-col">.
@@ -187,11 +196,11 @@ const FAQS = [
             </tr>
           </thead>
           <tbody>
-            {COMPARE_ROWS.map(([name, manuva, katana]) => (
+            {COMPARE_ROWS.map(([name, manuva, katana, katanaClass]) => (
               <tr>
                 <td>{name}</td>
                 <td class="site-alt-yes">{manuva}</td>
-                <td class={katana === 'Yes' ? 'site-alt-yes' : katana === 'Limited' ? 'site-alt-partial' : 'site-alt-no'}>{katana}</td>
+                <td class={`site-alt-${katanaClass}`}>{katana}</td>
               </tr>
             ))}
           </tbody>

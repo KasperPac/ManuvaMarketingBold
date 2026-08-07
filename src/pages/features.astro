@@ -233,9 +233,14 @@ const GROUPS = [
 const tierClass = (tier: string) =>
   tier === 'Pro+' ? 'site-feat-tier-pro' : tier === 'Enterprise' ? 'site-feat-tier-ent' : '';
 ---
+{/* twitter:description reuses `description` directly — old page's own
+    twitter:description is identical to its og:description and meta
+    description, all three the same string (unlike / and /pricing, which
+    each trim a trailing clause for og:/twitter:). */}
 <Base
   title="Features — Manuva"
   description={description}
+  twitterDescription={description}
   canonical="https://manuva.app/features"
 >
   {/* 1 · aqua hero panel, inset on paper */}

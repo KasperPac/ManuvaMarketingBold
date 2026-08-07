@@ -122,6 +122,14 @@ const COMPARE_ROWS = [
 
 const description =
   'Inventory, BOMs, work orders, and stock control — connected, live, and built for the floor. The simpler alternative to legacy MRP for Shopify manufacturers.';
+// Old page's own twitter:description — identical to its og:description,
+// both shorter than the meta description above (they drop the trailing
+// "The simpler alternative to legacy MRP for Shopify manufacturers."
+// clause). Base.astro's og:description still defaults to the long
+// `description` (unchanged, not part of this fix); this only supplies the
+// Twitter pair, which previously leaked the long description onto this page.
+const twitterDescription =
+  'Inventory, BOMs, work orders, and stock control — connected, live, and built for the floor.';
 ---
 {/* title is the old page's own <title>, verbatim — not Landing.jsx:74's hero
     eyebrow, which is what shipped here before. On a re-skin whose whole point
@@ -130,6 +138,7 @@ const description =
 <Base
   title="Manuva — Manufacturing operations, finally simple"
   description={description}
+  twitterDescription={twitterDescription}
   canonical="https://manuva.app/"
 >
   {/* 1 · cobalt hero panel, inset on paper */}

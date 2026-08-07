@@ -32,8 +32,11 @@ const {
 ---
 {/* Both old /alternatives/ pages carry og:type="article", not Base's
     "website" default — real head content per the task brief's "check each
-    page's own og:* and match them too". */}
-<Base {title} {description} {canonical} {ogDescription} ogType="article" {schema}>
+    page's own og:* and match them too". Confirmed both pages' own
+    twitter:description equals their own og:description verbatim (not
+    assumed), so `ogDescription` is passed as `twitterDescription` too —
+    two prop names, one already-verified value, not a coupling. */}
+<Base {title} {description} {canonical} {ogDescription} ogType="article" twitterDescription={ogDescription} {schema}>
   <section class="site-hero site-alt-hero">
     <div class="mv-wrap">
       <Panel field={heroField} data-fold={heroField} class="site-alt-hero-panel">
