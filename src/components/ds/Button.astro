@@ -16,6 +16,7 @@ const {
   shape = 'default',
   block = false,
   class: className,
+  style: callerStyle,
   ...rest
 } = Astro.props;
 
@@ -40,7 +41,7 @@ const VARIANTS = {
 } as const;
 
 const s = SIZES[size];
-const style = [
+const ownStyle = [
   block ? 'display:flex;width:100%' : 'display:inline-flex',
   'align-items:center',
   'justify-content:center',
@@ -58,6 +59,9 @@ const style = [
   'transition:filter var(--dur-fast) ease, background var(--dur-fast) ease, border-color var(--dur-fast) ease',
   VARIANTS[variant],
 ].join(';');
+// Caller declarations are appended, not substituted, so they override individual
+// properties (e.g. background) while the rest of Button's own geometry survives.
+const style = callerStyle ? `${ownStyle};${callerStyle}` : ownStyle;
 ---
 <Tag class:list={['mv-btn', className]} data-variant={variant} style={style} {...rest}>
   <slot />

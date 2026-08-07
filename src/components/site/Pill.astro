@@ -7,6 +7,6 @@ const style = field
   ? `background:var(--field-${field});color:var(--on-${field});border-color:var(--field-${field})`
   : undefined;
 ---
-<Button as="a" href={href} size="xl" shape="pill" variant="ink" class:list={['mv-press', className]} {...(style ? { style } : {})}>
+<Button as="a" href={href} size="xl" shape="pill" variant="ink" class:list={['mv-press', className]} style={style}>
   <slot />
 </Button>

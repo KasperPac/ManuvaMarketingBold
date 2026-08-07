@@ -48,6 +48,13 @@ test('pill CTAs are real anchors at pill shape', async () => {
   expect(html).toContain('https://app.manuva.app');
 });
 
+test('a field-scoped pill keeps its field colours and the button pill radius together', async () => {
+  const html = await render(Pill, { href: 'https://app.manuva.app', field: 'lime' }, 'Start free');
+  expect(html, 'field background').toContain('var(--field-lime)');
+  expect(html, 'field ink').toContain('var(--on-lime)');
+  expect(html, 'button geometry').toContain('var(--radius-pill)');
+});
+
 test('marquee duplicates its words so the loop is seamless', async () => {
   const words = ['Yield % on every BOM line', '14-day free trial'];
   const html = await render(Marquee, { words });

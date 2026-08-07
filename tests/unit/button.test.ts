@@ -53,3 +53,9 @@ test('spreads unknown attributes onto the root', async () => {
   const html = await render({ as: 'a', href: '#', 'data-testid': 'cta' });
   expect(html).toContain('data-testid="cta"');
 });
+
+test('merges a caller-supplied style with its own computed style, rather than replacing it', async () => {
+  const html = await render({ shape: 'pill', style: 'background:red' });
+  expect(html, 'caller declaration').toContain('background:red');
+  expect(html, 'own geometry').toContain('var(--radius-pill)');
+});
