@@ -1,0 +1,50 @@
+<!-- @dsCard group="Components" viewport="700x360" name="Data" subtitle="DataTable, Card, ListPanel, StatusBadge, Tag, StatusDot, ProgressBar" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{margin:0;padding:20px;background:var(--bg-card);font-family:var(--font-body)}.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.stack{display:grid;gap:14px}</style>
+</head><body><div id="root"></div>
+<script type="text/babel">
+const { DataTable, Card, ListPanel, ListRow, StatusBadge, Tag, StatusDot, ProgressBar, Button } = window.ManuvaDesignSystem_169665;
+const rows=[
+{id:1,sku:'SKU-4410-B',name:'Bracket, 6mm mild steel',oh:'8,412',alloc:'1,200',free:'7,212',st:['success','In stock']},
+{id:2,sku:'SKU-2288',name:'Hinge assembly, left',oh:'240',alloc:'240',free:'0',st:['warning','Low']},
+{id:3,sku:'SKU-9014-C',name:'Powder coat, satin black',oh:'0',alloc:'480',free:'-480',st:['danger','Short 480']},
+{id:4,sku:'SKU-1102',name:'M6 flange nut',oh:'54,800',alloc:'12,000',free:'42,800',st:['success','In stock']}];
+function Demo(){
+const [sel,setSel]=React.useState([2]);
+return (<div className="stack">
+<div className="row" style={{gap:10}}>
+<StatusBadge variant="success" dot>Open</StatusBadge><StatusBadge variant="warning" dot>Low stock</StatusBadge>
+<StatusBadge variant="danger" dot>Overdue</StatusBadge><StatusBadge variant="info" dot>In transit</StatusBadge>
+<StatusBadge>Draft</StatusBadge><StatusBadge variant="success" size="sm">sm</StatusBadge>
+<Tag>Kingsgrove</Tag><Tag onDismiss={()=>{}}>On hand &gt; 0</Tag>
+<div data-domain="logistics"><Tag accent>Logistics</Tag></div>
+<StatusDot tone="info" live label="Live from Shopify"/>
+</div>
+<div style={{background:'var(--bg-card)',border:'1px solid var(--stroke-card)',borderRadius:'var(--radius-xl)',overflow:'hidden'}}>
+<DataTable density="default" selectable selected={sel}
+  onToggle={k=>setSel(s=>s.includes(k)?s.filter(x=>x!==k):[...s,k])}
+  onToggleAll={e=>setSel(e.target.checked?rows.map(r=>r.id):[])}
+  columns={[
+    {key:'sku',header:'SKU',mono:true,width:130},
+    {key:'name',header:'Component'},
+    {key:'oh',header:'On hand',align:'right',width:90},
+    {key:'alloc',header:'Allocated',align:'right',width:96,muted:true},
+    {key:'free',header:'Free',align:'right',width:82},
+    {key:'st',header:'Status',width:126,render:r=><StatusBadge variant={r.st[0]} dot>{r.st[1]}</StatusBadge>}]}
+  rows={rows}/></div>
+<ListPanel eyebrow="Operations" title="Order lines" columns={{template:'1.3fr 2fr 70px 90px',labels:['SKU','Item','Qty','Amount']}}>
+  <ListRow template="1.3fr 2fr 70px 90px"><span className="mv-mono" style={{fontSize:12}}>SKU-4410-B</span><span>Bracket, 6mm mild steel</span><span className="mv-tnum" style={{textAlign:'right'}}>2,000</span><span className="mv-tnum" style={{textAlign:'right',fontWeight:600}}>$4,800.00</span></ListRow>
+  <ListRow template="1.3fr 2fr 70px 90px"><span className="mv-mono" style={{fontSize:12}}>SKU-1102</span><span>M6 flange nut, zinc</span><span className="mv-tnum" style={{textAlign:'right'}}>20,000</span><span className="mv-tnum" style={{textAlign:'right',fontWeight:600}}>$2,200.00</span></ListRow>
+</ListPanel>
+<div className="row" style={{gap:24}}>
+<ProgressBar label="WO-4192 · assembly" value={62} showValue style={{width:230}}/>
+<ProgressBar label="Stock coverage" value={18} max={30} tone="warning" showValue style={{width:230}}/>
+</div>
+</div>);}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script></body></html>

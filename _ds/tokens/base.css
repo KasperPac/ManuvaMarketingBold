@@ -1,0 +1,14 @@
+/* Element defaults — mirrors src/app/globals.css. */
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:var(--font-body);font-size:var(--fs-md);line-height:var(--lh-snug);color:var(--ink-strong);background:var(--bg-page);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body,h1,h2,h3,p,ul,li{margin:0;padding:0}
+a{color:var(--brand-1);text-decoration:none;transition:color var(--dur-fast) var(--ease-out)}
+a:hover{color:var(--brand-dark)}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:2px solid var(--focus-border);outline-offset:2px}
+::selection{background:var(--brand-1);color:var(--ink-on-brand)}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--scrollbar-thumb);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--scrollbar-thumb-hover)}
+hr{border:0;border-top:1px solid var(--stroke);margin:var(--space-8) 0}

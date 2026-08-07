@@ -1,0 +1,128 @@
+/* ============================================================
+   RESPONSIVE — the layer the reference layouts don't have.
+
+   The ui_kits/marketing/*.jsx files are desktop preview art built
+   at 1440×900 with inline styles, which cannot express a media
+   query. This file is the real contract, and it is what a
+   production build should consume.
+
+   Breakpoints match the SHIPPED marketing site so behaviour
+   carries across rather than being reinvented:
+     480px  tight phone   — type steps down, CTAs go full width
+     720px  tablet / mid  — multi-column grids stack
+     960px  desktop       — nav links give way to a drawer
+
+   Values are hardcoded in @media conditions because custom
+   properties can't be used there. Changing a breakpoint means
+   changing it in both places.
+   ============================================================ */
+
+/* --- Fluid display scale ---------------------------------
+   Same ceilings as tokens/typography.css — these only bite
+   below roughly 960px, so app and floor surfaces are unchanged
+   while marketing headlines survive a phone. */
+:root{
+  --fs-display-1:clamp(24px, 3.5vw, 32px); /* @kind font */
+  --fs-display-2:clamp(26px, 4.5vw, 40px); /* @kind font */
+  --fs-display-3:clamp(28px, 6vw, 52px); /* @kind font */
+  --fs-display-4:clamp(32px, 8vw, 68px); /* @kind font */
+  --fs-display-5:clamp(38px, 10vw, 88px); /* @kind font */
+  --fs-display-6:clamp(44px, 13vw, 120px); /* @kind font */
+  --fs-display-7:clamp(56px, 17vw, 168px); /* @kind font */
+  --fs-display-8:clamp(72px, 24vw, 240px); /* @kind font */
+
+  /* Section rhythm and gutters shrink with the viewport so a
+     phone isn't 96px of empty field between every band. */
+  --section-y:clamp(48px, 7vw, 112px); /* @kind spacing */
+  --gutter:clamp(16px, 4vw, 32px); /* @kind spacing */
+  --panel-pad:clamp(24px, 5vw, 64px); /* @kind spacing */
+}
+
+/* Panels lose their generous radius on small screens — a 32px
+   round on a 340px-wide card reads as a pill, not a panel. */
+@media (max-width:720px){
+  :root{ --radius-panel:20px; --radius-tile:14px; }
+}
+
+/* --- Grid collapse utilities ------------------------------
+   Use these instead of a fixed repeat(N,1fr). The number is the
+   DESKTOP column count; the steps down are built in. */
+.mv-cols-2,.mv-cols-3,.mv-cols-4,.mv-cols-6{display:grid;gap:var(--space-4)}
+.mv-cols-2{grid-template-columns:repeat(2,1fr)}
+.mv-cols-3{grid-template-columns:repeat(3,1fr)}
+.mv-cols-4{grid-template-columns:repeat(4,1fr)}
+.mv-cols-6{grid-template-columns:repeat(6,1fr)}
+
+@media (max-width:960px){
+  .mv-cols-3{grid-template-columns:repeat(2,1fr)}
+  .mv-cols-4{grid-template-columns:repeat(2,1fr)}
+  .mv-cols-6{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:720px){
+  .mv-cols-2,.mv-cols-3{grid-template-columns:1fr}
+  .mv-cols-6{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:480px){
+  .mv-cols-4,.mv-cols-6{grid-template-columns:1fr}
+}
+
+/* Asymmetric two-column bands (hero splits, FAQ, comparison).
+   Stacks earlier than an even grid because the narrow column
+   becomes unreadable first. */
+.mv-split{display:grid;grid-template-columns:var(--split,1fr 1fr);gap:var(--space-10)}
+@media (max-width:860px){
+  .mv-split{grid-template-columns:1fr;gap:var(--space-8)}
+  .mv-split>.mv-split-media{order:-1}
+}
+
+/* --- Section and panel shells ----------------------------- */
+.mv-section{padding-block:var(--section-y)}
+.mv-wrap{max-width:var(--page-max);margin-inline:auto;padding-inline:var(--gutter)}
+.mv-panel{border-radius:var(--radius-panel);padding:var(--panel-pad)}
+
+/* --- Navigation ------------------------------------------
+   Below 960px the inline links are replaced by a drawer. The
+   shipped site already has one with a focus trap, Escape
+   handling and reduced-motion support — carry that behaviour
+   across rather than rebuilding it. */
+@media (max-width:960px){
+  .mv-nav-links{display:none}
+  .mv-nav-burger{display:inline-flex}
+}
+@media (min-width:961px){
+  .mv-nav-burger{display:none}
+}
+
+/* --- Touch targets ---------------------------------------
+   Anything tappable clears 44px on coarse pointers, whatever
+   the control size token says. */
+@media (pointer:coarse){
+  a,button,summary,[role="button"]{min-height:44px}
+  .mv-cta-stack{display:grid;gap:var(--space-3)}
+  .mv-cta-stack>*{width:100%}
+}
+
+/* --- Data tables -----------------------------------------
+   A wide table on a phone scrolls horizontally rather than
+   crushing its columns. Pair with a visible affordance. */
+@media (max-width:720px){
+  .mv-table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .mv-table-scroll>table,.mv-table-scroll>*{min-width:600px}
+}
+
+/* The pricing feature matrix is the one table that must NOT
+   scroll — below 720px it is replaced by per-plan bullet lists.
+   Both exist in the markup; this switches between them. */
+@media (max-width:720px){
+  .mv-matrix{display:none}
+  .mv-matrix-cards{display:grid}
+}
+@media (min-width:721px){
+  .mv-matrix-cards{display:none}
+}
+
+/* --- Motion ----------------------------------------------- */
+@media (prefers-reduced-motion:reduce){
+  .mv-reveal{opacity:1!important;transform:none!important}
+  .mv-marquee-track{animation:none}
+}

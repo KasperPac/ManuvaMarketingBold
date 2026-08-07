@@ -1,0 +1,79 @@
+/* ============================================================
+   MARKETING FIELDS — the loud layer.
+   These are ADDITIONS scoped to marketing surfaces only. The app
+   never reads them. They are not re-inventions: every field is a
+   domain accent (colors.css) promoted to a full-bleed background,
+   so the site and the product share one palette — the site just
+   turns it up.
+
+   Rule: a field is a BACKGROUND. Always pair it with its --on-*
+   ink. Never use a field as small text on white.
+   ============================================================ */
+:root{
+  --field-cobalt:#3A5EFF;  --on-cobalt:#FFFFFF;
+  --field-flare:#FF4D00;   --on-flare:#FFFFFF;
+  --field-amber:#FFB300;   --on-amber:#141413;
+  --field-violet:#B026FF;  --on-violet:#FFFFFF;
+  --field-mint:#00C271;    --on-mint:#141413;
+  --field-aqua:#00B9D6;    --on-aqua:#141413;
+  --field-lime:#C8FF2E;    --on-lime:#141413;   /* ADDITION — the one accent. Backgrounds only. */
+  --field-ink:#15314D;     --on-ink:#FFFFFF;    /* the logo navy, adopted at the dark end */
+  --field-paper:#FAFAF9;   --on-paper:#141413;
+
+  /* Tints — bedding between fields, so a page can breathe without
+     dropping to white. Body copy at --ink-strong clears AA on all. */
+  --tint-cobalt:#E4E9FF;
+  --tint-flare:#FFE7DC;
+  --tint-amber:#FFF2D1;
+  --tint-violet:#F5E4FF;
+  --tint-mint:#DAF6EA;
+  --tint-aqua:#D7F2F8;
+  --tint-lime:#F0FFD1;
+
+  /* Marketing shape — rounder and softer than the app's 6/8px.
+     The app stays sharp; the site is friendly. */
+  --radius-panel:32px;
+  --radius-tile:20px;
+  --radius-pill:999px;
+
+  /* Rotation order. Sections cycle this so no two adjacent
+     fields collide and the sequence is reproducible. */
+  --field-rotation:cobalt flare amber violet mint aqua; /* @kind other */
+}
+
+/* Field helpers — set background + ink in one class. */
+.mv-field-cobalt{background:var(--field-cobalt);color:var(--on-cobalt)}
+.mv-field-flare{background:var(--field-flare);color:var(--on-flare)}
+.mv-field-amber{background:var(--field-amber);color:var(--on-amber)}
+.mv-field-violet{background:var(--field-violet);color:var(--on-violet)}
+.mv-field-mint{background:var(--field-mint);color:var(--on-mint)}
+.mv-field-aqua{background:var(--field-aqua);color:var(--on-aqua)}
+.mv-field-lime{background:var(--field-lime);color:var(--on-lime)}
+.mv-field-ink{background:var(--field-ink);color:var(--on-ink)}
+
+/* Ultra-condensed scoreboard numerals — stat bands, fixture rows. */
+.mv-score{font-family:var(--font-numeral);font-variation-settings:"wdth" 78,"wght" 800;font-weight:800;line-height:.82;letter-spacing:-.02em;font-variant-numeric:tabular-nums lining-nums}
+
+@keyframes mv-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.mv-marquee-track{display:flex;width:max-content;animation:mv-marquee 26s linear infinite}
+@media (prefers-reduced-motion:reduce){.mv-marquee-track{animation:none}}
+
+/* --- Marketing motion. The app's motion is mechanical (120–180ms,
+   no overshoot). The site is allowed to be slower and softer, because
+   it is read, not operated. Nothing here is load-bearing: every
+   element is fully legible with motion disabled. --- */
+/* Reveals are opt-in at runtime: the hidden state only applies once JS has
+   armed the root. With JS broken, slow, or blocked, every section is simply
+   visible — motion here is decoration and must never gate content. */
+.mv-reveal{transition:opacity 620ms var(--ease-out),transform 620ms var(--ease-out)}
+[data-reveal-armed="1"] .mv-reveal{opacity:0;transform:translateY(20px)}
+[data-reveal-armed="1"] .mv-reveal[data-in="1"]{opacity:1;transform:none}
+.mv-lift{transition:transform 240ms var(--ease-out),box-shadow 240ms var(--ease-out)}
+.mv-lift:hover{transform:translateY(-5px)}
+.mv-press{transition:transform 160ms var(--ease-snap),filter 160ms var(--ease-out)}
+.mv-press:hover{transform:translateY(-2px);filter:brightness(1.07)}
+.mv-press:active{transform:translateY(0)}
+@media (prefers-reduced-motion:reduce){
+  [data-reveal-armed="1"] .mv-reveal{opacity:1;transform:none}
+  .mv-lift:hover,.mv-press:hover{transform:none}
+}

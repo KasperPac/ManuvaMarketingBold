@@ -1,0 +1,93 @@
+<!-- @dsCard group="Colors" viewport="880x700" name="Token taxonomy" subtitle="Four layers, one direction of reference. Where a value may be a literal, and where it must not." -->
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../styles.css"><style>
+body{margin:0;padding:22px;background:var(--bg-card);font-family:var(--font-body)}
+.wrap{display:grid;gap:20px}
+.lay{display:grid;grid-template-columns:132px 1fr;gap:18px;align-items:start}
+.tag{display:grid;gap:3px}
+.n{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-strong)}
+.s{font-size:10px;color:var(--ink-faint);line-height:1.4}
+.box{border:1px solid var(--stroke-card);border-radius:var(--radius-2);padding:13px 15px;display:grid;gap:7px;background:var(--bg-card-alt)}
+code{font-family:var(--font-mono);font-size:11.5px;color:var(--ink-strong)}
+.d{font-size:11.5px;color:var(--ink-muted);line-height:1.5}
+.chain{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-family:var(--font-mono);font-size:11.5px}
+.chain .ar{color:var(--ink-faint);font-family:var(--font-body)}
+.pill{padding:3px 9px;border-radius:var(--radius-pill);border:1px solid var(--stroke-card)}
+.sw{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:6px}
+h3{margin:0;font-family:var(--font-display);font-variation-settings:"wdth" 100,"wght" 700;font-size:17px;letter-spacing:-.02em;color:var(--ink-strong)}
+.rule{border-top:1px solid var(--stroke);padding-top:14px;display:grid;gap:9px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ok{color:var(--ok)}.no{color:var(--danger)}
+</style></head><body><div class="wrap">
+
+<div style="display:grid;gap:5px">
+<span class="mv-eyebrow" style="color:var(--ink-faint)">Naming</span>
+<h3>Four layers. Reference only ever points down.</h3>
+</div>
+
+<div class="lay">
+<div class="tag"><span class="n">1 · Palette</span><span class="s">Raw. Theme-independent. Literals live here and nowhere else.</span></div>
+<div class="box">
+<code>--&lt;hue&gt;-&lt;step&gt;</code>
+<span class="d"><code>--graphite-950</code> <code>--cobalt-500</code> <code>--navy-800</code> — a 0→1000 ramp per hue. Never referenced by a component directly.</span>
+</div>
+</div>
+
+<div class="lay">
+<div class="tag"><span class="n">2 · Semantic</span><span class="s">Theme-scoped. What a thing IS, not what colour it is.</span></div>
+<div class="box">
+<code>--&lt;role&gt;-&lt;variant&gt;</code>
+<span class="d"><code>--bg-card</code> <code>--ink-muted</code> <code>--stroke-strong</code> <code>--brand-1</code> <code>--danger-dim</code> — redefined per theme under <code>[data-theme]</code>. This is the layer components read.</span>
+</div>
+</div>
+
+<div class="lay">
+<div class="tag"><span class="n">3 · Scoped</span><span class="s">Rebound by an ancestor attribute, not by a theme.</span></div>
+<div class="box">
+<span><code>--accent-&lt;use&gt;</code> under <code>[data-domain]</code></span>
+<span class="d"><code>--accent-loud</code> <code>--accent-text</code> <code>--accent-dim</code> <code>--accent-on</code>. One component, six identities: <code>&lt;div data-domain="purchasing"&gt;</code> repoints all four without the component knowing which module it is in.</span>
+</div>
+</div>
+
+<div class="lay">
+<div class="tag"><span class="n">4 · Surface</span><span class="s">Marketing only. The app never reads these.</span></div>
+<div class="box">
+<span><code>--field-&lt;name&gt;</code> · <code>--on-&lt;name&gt;</code> · <code>--tint-&lt;name&gt;</code></span>
+<span class="d">A field is a background and always travels with its ink: <code>--field-amber</code> pairs with <code>--on-amber</code>. Never a field without its <code>--on-</code>.</span>
+</div>
+</div>
+
+<div class="rule">
+<span class="mv-eyebrow" style="color:var(--ink-faint)">Reference scheme — two real chains</span>
+<div class="chain">
+<span class="pill" style="background:var(--brand-dim);color:var(--brand-2)">--info</span><span class="ar">→</span>
+<span class="pill" style="background:var(--brand-dim);color:var(--brand-2)">--brand-1</span><span class="ar">→</span>
+<span class="pill"><span class="sw" style="background:var(--cobalt-500)"></span>--cobalt-500</span><span class="ar">→</span>
+<span class="pill">#3A5EFF</span>
+</div>
+<div class="chain">
+<span class="pill" style="background:var(--warning-dim);color:var(--warning)">--accent-text</span><span class="ar">under <code style="font-size:11px">[data-domain="purchasing"]</code> →</span>
+<span class="pill">--domain-purchasing-text</span><span class="ar">→</span>
+<span class="pill"><span class="sw" style="background:#8A5A00"></span>#8A5A00</span>
+</div>
+<span class="d">Three hops maximum, and every hop goes one layer down. A semantic token may point at a palette token; a palette token may never point at a semantic one, and nothing points sideways within its own layer.</span>
+</div>
+
+<div class="rule two">
+<div style="display:grid;gap:6px">
+<span class="mv-eyebrow ok">Do</span>
+<span class="d"><code>background: var(--bg-card)</code><br><code>color: var(--accent-text)</code><br><code>padding: var(--space-4) var(--space-6)</code></span>
+<span class="d">Read layer 2 or 3. Let the theme and the domain decide.</span>
+</div>
+<div style="display:grid;gap:6px">
+<span class="mv-eyebrow no">Don't</span>
+<span class="d"><code>background: var(--cobalt-500)</code><br><code>color: #3A5EFF</code><br><code>padding: 16px 24px</code></span>
+<span class="d">Reaching past the semantic layer freezes a component to one theme — Midnight, Ocean and Ember all break silently.</span>
+</div>
+</div>
+
+<div class="rule">
+<span class="mv-eyebrow" style="color:var(--ink-faint)">Dimensional tokens follow the same shape</span>
+<span class="d"><code>--space-1…32</code> (4px step) · <code>--fs-xs…2xl</code> then <code>--fs-display-1…8</code> · <code>--radius-1…poster</code> · <code>--control-sm…xl</code> · <code>--dur-*</code> / <code>--ease-*</code>. Numbered scales for anything with a natural order; named ends only where the order is arbitrary.</span>
+</div>
+
+</div></body></html>

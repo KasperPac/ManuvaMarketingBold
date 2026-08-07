@@ -1,0 +1,99 @@
+<!-- @dsCard group="Manuva App" viewport="1440x1760" name="Onboarding — first run" subtitle="The one place the loud layer enters the product. Full field, then the checklist that hands over to the calm app." -->
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Manuva — first run</title>
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{margin:0;background:var(--bg-page);font-family:var(--font-body)}
+.wrap{display:grid;gap:26px;padding:26px}
+.cap{display:grid;gap:5px;max-width:78ch}
+.cap h2{margin:0;font-family:var(--font-display);font-variation-settings:"wdth" 100,"wght" 700;font-size:22px;letter-spacing:-.02em;color:var(--ink-strong)}
+.cap p{margin:0;font-size:14px;line-height:1.6;color:var(--ink-muted);text-wrap:pretty}
+.screen{width:1388px;height:780px;box-sizing:border-box;border-radius:var(--radius-2);overflow:hidden;box-shadow:var(--shadow-md)}
+.display{font-family:var(--font-display);font-variation-settings:"wdth" 118,"wght" 800;font-weight:800;line-height:1;letter-spacing:var(--ls-mega);margin:0}
+.step{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:22px;padding:22px 26px;border-radius:var(--radius-2);background:var(--bg-card);border:1px solid var(--stroke-card)}
+.stepnum{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-family:var(--font-numeral);font-variation-settings:"wdth" 100,"wght" 800;font-size:19px}
+a{color:var(--brand-2)}a:hover{color:var(--brand-dark)}</style>
+</head><body><div class="wrap">
+
+<div class="cap">
+<h2>1 · Welcome — full field</h2>
+<p>The only full-bleed colour field inside the product. It exists because a brand-new tenant has no data to show, so there is nothing to be calm about yet — and because this is the one moment the app should feel like the site. It appears once.</p>
+</div>
+<div class="screen" style="background:var(--field-cobalt);color:var(--on-cobalt);padding:84px 92px;display:grid;align-content:space-between;position:relative">
+<span aria-hidden="true" class="mv-numeral" style="position:absolute;right:-.06em;bottom:-.36em;font-size:var(--fs-display-8);color:rgb(255 255 255/.10);pointer-events:none">4</span>
+<div style="position:relative;display:flex;align-items:center;justify-content:space-between">
+<span style="display:inline-block;height:26px;width:118px;background-color:currentColor;-webkit-mask-image:url(../../assets/logo-lockup.svg);mask-image:url(../../assets/logo-lockup.svg);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:contain;mask-size:contain"></span>
+<span style="font-size:14px;color:rgb(255 255 255/.62)">Signed in as kasper@ridgeline.com.au</span>
+</div>
+<div style="position:relative;display:grid;gap:30px;justify-items:start">
+<span class="mv-eyebrow" style="background:var(--field-lime);color:var(--on-lime);padding:6px 12px">Ridgeline Manufacturing</span>
+<h1 class="display" style="font-size:var(--fs-display-5);max-width:15ch">Four steps and your floor is live.</h1>
+<p style="margin:0;max-width:52ch;font-size:21px;line-height:1.5;color:rgb(255 255 255/.82);text-wrap:pretty">Nothing to install and nobody to book. Connect Shopify, bring in your BOMs, count once, then run a job. Most manufacturers finish in an afternoon.</p>
+<div id="welcome-cta" style="display:flex;gap:14px;align-items:center;margin-top:8px"></div>
+</div>
+<div style="position:relative;display:flex;gap:60px;border-top:var(--border-rule) solid rgb(255 255 255/.24);padding-top:28px">
+<div style="display:grid;gap:5px"><span class="mv-eyebrow" style="color:rgb(255 255 255/.5)">Days free, full Pro</span><span class="mv-numeral" style="font-size:var(--fs-display-1)">14</span></div>
+<div style="display:grid;gap:5px"><span class="mv-eyebrow" style="color:rgb(255 255 255/.5)">Card to start</span><span class="mv-numeral" style="font-size:var(--fs-display-1)">$0</span></div>
+<div style="display:grid;gap:5px"><span class="mv-eyebrow" style="color:rgb(255 255 255/.5)">Seats included</span><span class="mv-numeral" style="font-size:var(--fs-display-1)">∞</span></div>
+</div>
+</div>
+
+<div class="cap">
+<h2>2 · Setup checklist — the handover</h2>
+<p>Colour steps down as soon as there is real work to do. The field shrinks to a <strong>StateBand</strong> at the top, the steps sit on normal app surfaces, and from here the product is the calm product. This is the whole loud-to-calm transition in one screen.</p>
+</div>
+<div class="screen" style="background:var(--bg-page);display:grid;grid-template-rows:auto 1fr">
+<div id="handover-band"></div>
+<div style="padding:38px 34px;display:grid;gap:26px;align-content:start">
+<div style="display:grid;gap:6px">
+<span class="mv-eyebrow" style="color:var(--ink-faint)">Getting started</span>
+<h2 style="margin:0;font-family:var(--font-display);font-variation-settings:'wdth' 100,'wght' 700;font-size:30px;letter-spacing:-.03em;color:var(--ink-strong)">Three steps left</h2>
+</div>
+<div style="display:grid;gap:12px;max-width:960px">
+<div class="step" style="opacity:.62">
+<span class="stepnum" style="background:var(--ok-dim);color:var(--ok)">✓</span>
+<span style="display:grid;gap:3px"><span style="font-size:16px;font-weight:600;color:var(--ink-strong)">Connect Shopify</span><span style="font-size:14px;color:var(--ink-muted)">205 products, 385 components and 118 open orders synced.</span></span>
+<span style="font-size:13px;color:var(--ink-faint)">Done</span>
+</div>
+<div class="step" style="border-color:var(--focus-border);box-shadow:var(--shadow-focus)">
+<span class="stepnum" style="background:var(--brand-dim);color:var(--brand-2)">2</span>
+<span style="display:grid;gap:3px"><span style="font-size:16px;font-weight:600;color:var(--ink-strong)">Import your BOMs</span><span style="font-size:14px;color:var(--ink-muted)">Upload a spreadsheet, or build the first one from a template. Nine minutes, typically.</span></span>
+<span id="step-cta"></span>
+</div>
+<div class="step">
+<span class="stepnum" style="background:var(--surface-1);color:var(--ink-faint)">3</span>
+<span style="display:grid;gap:3px"><span style="font-size:16px;font-weight:600;color:var(--ink-strong)">Count once</span><span style="font-size:14px;color:var(--ink-muted)">One stocktake session sets the baseline. Every movement after that is tracked for you.</span></span>
+<span style="font-size:13px;color:var(--ink-faint)">Needs step 2</span>
+</div>
+<div class="step">
+<span class="stepnum" style="background:var(--surface-1);color:var(--ink-faint)">4</span>
+<span style="display:grid;gap:3px"><span style="font-size:16px;font-weight:600;color:var(--ink-strong)">Run a job</span><span style="font-size:14px;color:var(--ink-muted)">Release a work order, allocate stock, and watch the floor scan against it.</span></span>
+<span style="font-size:13px;color:var(--ink-faint)">Needs step 3</span>
+</div>
+</div>
+<span style="font-size:13px;color:var(--ink-faint)">You can leave and come back — progress is saved against the workspace, not your session.</span>
+</div>
+</div>
+
+</div>
+<script type="text/babel" data-presets="react">
+const {StateBand,Button} = window.ManuvaDesignSystem_169665;
+ReactDOM.createRoot(document.getElementById("step-cta")).render(
+  <Button variant="primary" size="lg">Start</Button>
+);
+ReactDOM.createRoot(document.getElementById("welcome-cta")).render(<>
+  <Button size="xl" shape="pill" variant="ink"
+    style={{background:"var(--field-lime)",color:"var(--on-lime)",borderColor:"var(--field-lime)"}}>Connect Shopify</Button>
+  <Button size="xl" shape="pill" variant="ghost"
+    style={{color:"#fff",borderColor:"rgb(255 255 255/.4)"}}>I'll do this later</Button>
+</>);
+ReactDOM.createRoot(document.getElementById("handover-band")).render(
+  <StateBand domain="inventory" metric="1" unit="of 4"
+    eyebrow="Setting up Ridgeline Manufacturing"
+    title="Shopify is connected — 205 products and 385 components imported."
+    style={{borderRadius:0,padding:"var(--space-5) var(--space-8)"}}
+    actions={<Button size="sm" variant="ink">Continue setup</Button>}/>
+);
+</script></body></html>

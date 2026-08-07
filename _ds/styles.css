@@ -1,0 +1,11 @@
+/* Manuva Design System — global entry. Imports only. */
+@import url("tokens/fonts.css");
+@import url("tokens/colors.css");
+@import url("tokens/themes.css");
+@import url("tokens/typography.css");
+@import url("tokens/spacing.css");
+@import url("tokens/shape.css");
+@import url("tokens/marketing.css");
+@import url("tokens/responsive.css");
+@import url("tokens/motion.css");
+@import url("tokens/base.css");

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Sales deck" description="Manuva sales deck — loud openers and dividers, calm content slides. 1920×1080." -->
+<helmet>
+<script src="./ds-base.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+</helmet>
+<x-import component-from-global-scope="deck-stage" from="./deck-stage.js" width="1920" height="1080" hint-size="100%,100%">
+
+<section data-label="01 Opener" data-screen-label="01" style="width:1920px;height:1080px;box-sizing:border-box;background:#3A5EFF;color:#fff;padding:140px 130px;display:grid;align-content:space-between;position:relative;overflow:hidden;font-family:Inter,system-ui,sans-serif">
+<span aria-hidden="true" style="position:absolute;right:-0.06em;bottom:-0.34em;font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 118,'wght' 800;font-size:620px;line-height:0.86;letter-spacing:-0.035em;color:rgba(255,255,255,0.10);font-variant-numeric:tabular-nums">1,240</span>
+<div style="position:relative;display:flex;align-items:center;justify-content:space-between;gap:40px">
+<span style="font-size:24px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.72)">MRP for Shopify manufacturers</span>
+<sc-if value="{{ showLogo }}" hint-placeholder-val="{{ true }}"><span role="img" aria-label="Manuva" style="display:inline-block;height:44px;width:200px;background-color:#fff;-webkit-mask-image:url(../../assets/logo-lockup.svg);mask-image:url(../../assets/logo-lockup.svg);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-position:center right;mask-position:center right"></span></sc-if>
+</div>
+<div style="position:relative;display:grid;gap:44px;justify-items:start">
+<h1 style="margin:0;font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 118,'wght' 800;font-weight:800;font-size:172px;line-height:0.98;letter-spacing:-0.035em;max-width:14ch">Make it. <span style="background:#C8FF2E;color:#141413;padding:0 0.10em 0.04em;border-radius:20px;white-space:nowrap;-webkit-box-decoration-break:clone;box-decoration-break:clone">Track it.</span> Ship it.</h1>
+<p style="margin:0;max-width:52ch;font-size:38px;line-height:1.4;color:rgba(255,255,255,0.82);text-wrap:pretty">Inventory, BOMs, work orders and stock control — connected, live, and built for people standing on a factory floor.</p>
+</div>
+<div style="position:relative;display:flex;align-items:center;justify-content:space-between;border-top:5px solid rgba(255,255,255,0.28);padding-top:38px">
+<span style="font-size:26px;font-weight:600;color:rgba(255,255,255,0.72)">Ridgeline Manufacturing</span>
+<span style="font-size:26px;font-weight:600;color:rgba(255,255,255,0.62)">manuva.app</span>
+</div>
+</section>
+
+<section data-label="02 The problem" data-screen-label="02" style="width:1920px;height:1080px;box-sizing:border-box;background:#FAFAF9;color:#141413;padding:120px 130px;display:grid;grid-template-rows:auto 1fr;gap:70px;font-family:Inter,system-ui,sans-serif">
+<div style="display:grid;gap:24px">
+<span style="font-size:22px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#74746C">The problem</span>
+<h2 style="margin:0;font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 118,'wght' 800;font-weight:800;font-size:92px;line-height:1.02;letter-spacing:-0.035em;max-width:22ch">Nobody knows what's actually on the shelf.</h2>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:56px;align-content:start">
+<div style="display:grid;gap:18px;border-top:5px solid #FF4D00;padding-top:30px"><span style="font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 78,'wght' 800;font-size:104px;line-height:0.82;letter-spacing:-0.02em;font-variant-numeric:tabular-nums">6</span><span style="font-size:26px;font-weight:700">months to roll out legacy MRP</span><span style="font-size:22px;line-height:1.55;color:#5A5A53;text-wrap:pretty">Before a single work order runs, with an implementation partner billing the whole time.</span></div>
+<div style="display:grid;gap:18px;border-top:5px solid #FFB300;padding-top:30px"><span style="font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 78,'wght' 800;font-size:104px;line-height:0.82;letter-spacing:-0.02em;font-variant-numeric:tabular-nums">1</span><span style="font-size:26px;font-weight:700">nightly CSV, if you're lucky</span><span style="font-size:22px;line-height:1.55;color:#5A5A53;text-wrap:pretty">Shopify orders land the next morning. Stock is always a day behind the floor.</span></div>
+<div style="display:grid;gap:18px;border-top:5px solid #B026FF;padding-top:30px"><span style="font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 78,'wght' 800;font-size:104px;line-height:0.82;letter-spacing:-0.02em;font-variant-numeric:tabular-nums">∞</span><span style="font-size:26px;font-weight:700">spreadsheets nobody trusts</span><span style="font-size:22px;line-height:1.55;color:#5A5A53;text-wrap:pretty">Every shortage is discovered by a person walking to a shelf and finding nothing there.</span></div>
+</div>
+</section>
+
+<section data-label="03 Divider — what it does" data-screen-label="03" style="width:1920px;height:1080px;box-sizing:border-box;background:#FF4D00;color:#fff;padding:130px;display:grid;align-content:center;gap:40px;font-family:Inter,system-ui,sans-serif">
+<span style="font-size:24px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.72)">What Manuva does</span>
+<h2 style="margin:0;font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 118,'wght' 800;font-weight:800;font-size:150px;line-height:0.98;letter-spacing:-0.035em;max-width:16ch">One system. Six jobs. Live.</h2>
+</section>
+
+<section data-label="04 Six domains" data-screen-label="04" style="width:1920px;height:1080px;box-sizing:border-box;background:#FAFAF9;color:#141413;padding:110px 130px;display:grid;grid-template-rows:auto 1fr;gap:56px;font-family:Inter,system-ui,sans-serif">
+<h2 style="margin:0;font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 118,'wght' 800;font-weight:800;font-size:82px;line-height:1.02;letter-spacing:-0.035em">Everything the floor touches.</h2>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:1fr 1fr;gap:28px">
+<div style="background:#3A5EFF;color:#fff;border-radius:20px;padding:44px;display:grid;grid-template-rows:auto auto 1fr;gap:20px"><span style="font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 78,'wght' 800;font-size:44px;line-height:0.82;opacity:0.34">01</span><span style="font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 112,'wght' 800;font-size:42px;letter-spacing:-0.025em">Inventory</span><span style="font-size:22px;line-height:1.5;opacity:0.82;text-wrap:pretty">Stock, bins and goods inwards — counted once, true everywhere.</span></div>
+<div style="background:#B026FF;color:#fff;border-radius:20px;padding:44px;display:grid;grid-template-rows:auto auto 1fr;gap:20px"><span style="font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 78,'wght' 800;font-size:44px;line-height:0.82;opacity:0.34">02</span><span style="font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 112,'wght' 800;font-size:42px;letter-spacing:-0.025em">Products &amp; BOMs</span><span style="font-size:22px;line-height:1.5;opacity:0.82;text-wrap:pretty">Components, variants and bills of materials you can actually reuse.</span></div>
+<div style="background:#FF4D00;color:#fff;border-radius:20px;padding:44px;display:grid;grid-template-rows:auto auto 1fr;gap:20px"><span style="font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 78,'wght' 800;font-size:44px;line-height:0.82;opacity:0.34">03</span><span style="font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 112,'wght' 800;font-size:42px;letter-spacing:-0.025em">Production</span><span style="font-size:22px;line-height:1.5;opacity:0.82;text-wrap:pretty">Work orders, labour and stock allocation on one board.</span></div>
+<div style="background:#FFB300;color:#141413;border-radius:20px;padding:44px;display:grid;grid-template-rows:auto auto 1fr;gap:20px"><span style="font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 78,'wght' 800;font-size:44px;line-height:0.82;opacity:0.34">04</span><span style="font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 112,'wght' 800;font-size:42px;letter-spacing:-0.025em">Purchasing</span><span style="font-size:22px;line-height:1.5;opacity:0.82;text-wrap:pretty">Suppliers, POs and receiving, with lead times that mean something.</span></div>
+<div style="background:#00C271;color:#141413;border-radius:20px;padding:44px;display:grid;grid-template-rows:auto auto 1fr;gap:20px"><span style="font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 78,'wght' 800;font-size:44px;line-height:0.82;opacity:0.34">05</span><span style="font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 112,'wght' 800;font-size:42px;letter-spacing:-0.025em">Logistics</span><span style="font-size:22px;line-height:1.5;opacity:0.82;text-wrap:pretty">Pack, despatch and carriers from a single screen.</span></div>
+<div style="background:#00B9D6;color:#141413;border-radius:20px;padding:44px;display:grid;grid-template-rows:auto auto 1fr;gap:20px"><span style="font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 78,'wght' 800;font-size:44px;line-height:0.82;opacity:0.34">06</span><span style="font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 112,'wght' 800;font-size:42px;letter-spacing:-0.025em">Audit</span><span style="font-size:22px;line-height:1.5;opacity:0.82;text-wrap:pretty">Who moved what, when. Every movement, kept forever.</span></div>
+</div>
+</section>
+
+<section data-label="05 The product" data-screen-label="05" style="width:1920px;height:1080px;box-sizing:border-box;background:#E4E9FF;color:#141413;padding:110px 130px;display:grid;grid-template-rows:auto 1fr;gap:50px;font-family:Inter,system-ui,sans-serif">
+<div style="display:grid;gap:18px">
+<span style="font-size:22px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#1728A8">Live, not nightly</span>
+<h2 style="margin:0;font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 118,'wght' 800;font-weight:800;font-size:82px;line-height:1.02;letter-spacing:-0.035em">One number, everywhere.</h2>
+</div>
+<div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 30px 70px rgba(20,20,19,0.16);display:grid;grid-template-rows:auto 1fr;align-self:start">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:32px 40px;border-bottom:1px solid rgba(20,20,19,0.08)">
+<span style="font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 100,'wght' 700;font-size:34px;letter-spacing:-0.02em">Stock on hand</span>
+<span style="display:flex;align-items:center;gap:12px;font-size:20px;color:#5A5A53"><span style="width:12px;height:12px;border-radius:50%;background:#12A150"></span>Live from the floor</span>
+</div>
+<table style="width:100%;border-collapse:collapse;font-size:22px">
+<tr style="text-align:left;color:#74746C;font-size:17px;letter-spacing:0.08em;text-transform:uppercase"><th style="padding:20px 40px;font-weight:600">SKU</th><th style="padding:20px 0;font-weight:600">Product</th><th style="padding:20px 0;font-weight:600;text-align:right">On hand</th><th style="padding:20px 40px;font-weight:600;text-align:right">Status</th></tr>
+<tr style="border-top:1px solid rgba(20,20,19,0.08)"><td style="padding:22px 40px;font-family:'IBM Plex Mono',monospace;font-size:20px">SKU-4410-B</td><td style="padding:22px 0">Bracket, 6mm mild steel</td><td style="padding:22px 0;text-align:right;font-variant-numeric:tabular-nums">1,840</td><td style="padding:22px 40px;text-align:right"><span style="background:rgba(18,161,80,0.12);color:#00794A;padding:7px 16px;border-radius:999px;font-size:18px;font-weight:600">In stock</span></td></tr>
+<tr style="border-top:1px solid rgba(20,20,19,0.08)"><td style="padding:22px 40px;font-family:'IBM Plex Mono',monospace;font-size:20px">SKU-1102</td><td style="padding:22px 0">M6 flange nut, zinc</td><td style="padding:22px 0;text-align:right;font-variant-numeric:tabular-nums">240</td><td style="padding:22px 40px;text-align:right"><span style="background:rgba(224,134,0,0.14);color:#8A5200;padding:7px 16px;border-radius:999px;font-size:18px;font-weight:600">Below reorder</span></td></tr>
+<tr style="border-top:1px solid rgba(20,20,19,0.08)"><td style="padding:22px 40px;font-family:'IBM Plex Mono',monospace;font-size:20px">SKU-3050-A</td><td style="padding:22px 0">Panel, 1200×600 alloy</td><td style="padding:22px 0;text-align:right;font-variant-numeric:tabular-nums">0</td><td style="padding:22px 40px;text-align:right"><span style="background:rgba(200,30,30,0.10);color:#C81E1E;padding:7px 16px;border-radius:999px;font-size:18px;font-weight:600">Short</span></td></tr>
+</table>
+</div>
+</section>
+
+<section data-label="06 Divider — the number" data-screen-label="06" style="width:1920px;height:1080px;box-sizing:border-box;background:#B026FF;color:#fff;padding:130px;display:grid;align-content:center;gap:36px;font-family:Inter,system-ui,sans-serif">
+<span style="font-size:24px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.72)">Shortages caught before the job starts</span>
+<span style="font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 78,'wght' 800;font-size:400px;line-height:0.82;letter-spacing:-0.02em;font-variant-numeric:tabular-nums">1,240</span>
+<h2 style="margin:0;font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 118,'wght' 800;font-weight:800;font-size:88px;line-height:1.02;letter-spacing:-0.035em;max-width:20ch">Units short, found before the line stopped.</h2>
+</section>
+
+<section data-label="07 Versus legacy" data-screen-label="07" style="width:1920px;height:1080px;box-sizing:border-box;background:#FAFAF9;color:#141413;padding:120px 130px;display:grid;grid-template-rows:auto 1fr;gap:60px;font-family:Inter,system-ui,sans-serif">
+<div style="display:grid;gap:20px">
+<span style="font-size:22px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#74746C">Versus legacy MRP</span>
+<h2 style="margin:0;font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 118,'wght' 800;font-weight:800;font-size:82px;line-height:1.02;letter-spacing:-0.035em">Priced for the shed, not the boardroom.</h2>
+</div>
+<table style="width:100%;border-collapse:collapse;font-size:28px;align-self:start">
+<tr style="text-align:left;font-size:20px;letter-spacing:0.14em;text-transform:uppercase"><th style="padding:0 0 20px;font-weight:700;color:#74746C;width:36%"></th><th style="padding:0 0 20px;font-weight:700;color:#3A5EFF">Manuva</th><th style="padding:0 0 20px;font-weight:700;color:#92928A">Legacy MRP</th></tr>
+<tr style="border-top:2px solid rgba(20,20,19,0.14)"><td style="padding:30px 0;color:#5A5A53">Time to first work order</td><td style="padding:30px 0;font-weight:700">9 minutes</td><td style="padding:30px 0;color:#92928A">6 months</td></tr>
+<tr style="border-top:1px solid rgba(20,20,19,0.14)"><td style="padding:30px 0;color:#5A5A53">Implementation fee</td><td style="padding:30px 0;font-weight:700">$0</td><td style="padding:30px 0;color:#92928A">$18,000+</td></tr>
+<tr style="border-top:1px solid rgba(20,20,19,0.14)"><td style="padding:30px 0;color:#5A5A53">Shopify orders</td><td style="padding:30px 0;font-weight:700">Live, two-way</td><td style="padding:30px 0;color:#92928A">Nightly CSV</td></tr>
+<tr style="border-top:1px solid rgba(20,20,19,0.14);border-bottom:2px solid rgba(20,20,19,0.14)"><td style="padding:30px 0;color:#5A5A53">Seats included</td><td style="padding:30px 0;font-weight:700">Unlimited floor users</td><td style="padding:30px 0;color:#92928A">Per named user</td></tr>
+</table>
+</section>
+
+<section data-label="08 Rollout" data-screen-label="08" style="width:1920px;height:1080px;box-sizing:border-box;background:#FAFAF9;color:#141413;padding:120px 130px;display:grid;grid-template-rows:auto 1fr;gap:64px;font-family:Inter,system-ui,sans-serif">
+<h2 style="margin:0;font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 118,'wght' 800;font-weight:800;font-size:82px;line-height:1.02;letter-spacing:-0.035em">Live this week, not next quarter.</h2>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:36px;align-content:start">
+<div style="display:grid;gap:16px;border-top:5px solid #3A5EFF;padding-top:28px"><span style="font-size:20px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#74746C">Day 1</span><span style="font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 112,'wght' 800;font-size:38px;letter-spacing:-0.025em">Connect Shopify</span><span style="font-size:22px;line-height:1.55;color:#5A5A53;text-wrap:pretty">Products, variants and orders sync in both directions from the first minute.</span></div>
+<div style="display:grid;gap:16px;border-top:5px solid #B026FF;padding-top:28px"><span style="font-size:20px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#74746C">Day 2</span><span style="font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 112,'wght' 800;font-size:38px;letter-spacing:-0.025em">Import BOMs</span><span style="font-size:22px;line-height:1.55;color:#5A5A53;text-wrap:pretty">Upload a spreadsheet or build them from templates. Nine minutes to the first one.</span></div>
+<div style="display:grid;gap:16px;border-top:5px solid #FF4D00;padding-top:28px"><span style="font-size:20px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#74746C">Day 3</span><span style="font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 112,'wght' 800;font-size:38px;letter-spacing:-0.025em">Count once</span><span style="font-size:22px;line-height:1.55;color:#5A5A53;text-wrap:pretty">One stocktake session sets the baseline. Every movement after that is tracked.</span></div>
+<div style="display:grid;gap:16px;border-top:5px solid #00C271;padding-top:28px"><span style="font-size:20px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#74746C">Day 4</span><span style="font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 112,'wght' 800;font-size:38px;letter-spacing:-0.025em">Run a job</span><span style="font-size:22px;line-height:1.55;color:#5A5A53;text-wrap:pretty">Release a work order, allocate stock, and watch the floor scan against it.</span></div>
+</div>
+</section>
+
+<section data-label="09 Close" data-screen-label="09" style="width:1920px;height:1080px;box-sizing:border-box;background: {{ closeBg }};color:#FFFFFF;padding:120px 130px;display:grid;grid-template-rows:auto 1fr auto;font-family:Inter,system-ui,sans-serif">
+<sc-if value="{{ showLogo }}" hint-placeholder-val="{{ true }}"><span role="img" aria-label="Manuva" style="display:inline-block;height:46px;width:210px;background-color:currentColor;-webkit-mask-image:url(../../assets/logo-lockup.svg);mask-image:url(../../assets/logo-lockup.svg);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:contain;mask-size:contain"></span></sc-if>
+<div style="display:grid;align-content:center;justify-items:start;gap:40px">
+<span style="width:130px;height:12px;background:#C8FF2E"></span>
+<h2 style="margin:0;font-family:Archivo,system-ui,sans-serif;font-variation-settings:'wdth' 118,'wght' 800;font-weight:800;font-size:152px;line-height:0.98;letter-spacing:-0.035em;max-width:14ch">Run your first job today.</h2>
+<p style="margin:0;font-size:38px;line-height:1.4;max-width:38ch;color:rgba(255,255,255,0.8);text-wrap:pretty">14 days free with full Pro access. No credit card required.</p>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;border-top:5px solid rgba(255,255,255,0.28);padding-top:32px">
+<span style="font-size:26px;font-weight:600;color:rgba(255,255,255,0.8)">hello@manuva.app</span>
+<span style="font-size:30px;font-weight:700;letter-spacing:-0.01em;color:#C8FF2E">manuva.app</span>
+</div>
+</section>
+
+</x-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1920,&quot;height&quot;:1080},&quot;closingField&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;ink&quot;,&quot;cobalt&quot;,&quot;violet&quot;,&quot;flare&quot;],&quot;default&quot;:&quot;cobalt&quot;,&quot;tsType&quot;:&quot;\&quot;ink\&quot; | \&quot;cobalt\&quot; | \&quot;violet\&quot; | \&quot;flare\&quot;&quot;,&quot;section&quot;:&quot;Deck&quot;,&quot;label&quot;:&quot;Closing slide field&quot;},&quot;showLogo&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Deck&quot;,&quot;label&quot;:&quot;Logo on opener and close&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    /* Closing-slide field. Lime is deliberately not an option: it is an
+       accent, so it never carries a whole slide. */
+    /* Every option is a dark field, so ink, body and rule colours are the
+       same on all four — they stay literal in the template. Only the fill
+       and the accent are holes, which is the floor for two colour tweaks. */
+    const FIELDS = { ink: "#15314D", cobalt: "#3A5EFF", violet: "#B026FF", flare: "#FF4D00" };
+    return {
+      closeBg: FIELDS[p.closingField] || FIELDS.ink,
+      showLogo: p.showLogo !== false
+    };
+  }
+}
+</script>
+</body>
+</html>

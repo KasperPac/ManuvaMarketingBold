@@ -1,0 +1,39 @@
+/* ============================================================
+   SPACE — shipped 4px scale (--space-1..12), extended upward
+   for poster and marketing surfaces.
+   ============================================================ */
+:root{
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;   /* ADDITION */
+  --space-20: 80px;   /* ADDITION */
+  --space-24: 96px;   /* ADDITION */
+  --space-32: 128px;  /* ADDITION */
+
+  /* Density presets — table row heights (ADDITION) */
+  --row-compact:32px;
+  --row-default:38px;
+  --row-comfy:48px;
+
+  --control-sm:28px;
+  --control-md:34px;
+  --control-lg:40px;
+  --control-xl:52px;   /* marketing CTA */
+
+  --tap-min:44px;      /* floor for anything touched on the shop floor */
+
+  /* Layout — from src/app/app/shell.module.css */
+  --grid-columns:12; /* @kind other */
+  --grid-gutter:24px;
+  --page-max:1320px;
+  --prose-max:72ch;
+  --sidebar-w:240px;
+  --content-pad:24px;
+}

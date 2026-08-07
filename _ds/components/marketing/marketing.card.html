@@ -1,0 +1,93 @@
+<!-- @dsCard group="Components" viewport="1160x1560" name="Marketing" subtitle="SectionHeader, FeatureGrid, PricingTable, Testimonial, FAQ, LogoWall — the loud-layer vocabulary" -->
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{margin:0;padding:22px;background:var(--field-paper);font-family:var(--font-body)}
+.sec{display:grid;gap:10px}.lbl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
+a{color:var(--brand-2)}a:hover{color:var(--brand-dark)}</style>
+</head><body><div id="root"></div>
+<script type="text/babel" data-presets="react">
+const NS = () => window.ManuvaDesignSystem_169665 || {};
+/* Resolve at render time so a component missing from the bundle degrades to a
+   labelled gap instead of unmounting the whole specimen. */
+const lazy = n => { const C = props => { const R = NS()[n];
+  return R ? React.createElement(R, props)
+    : <span style={{display:"inline-block",padding:"6px 10px",borderRadius:4,fontSize:12,
+        background:"var(--danger-dim)",color:"var(--danger)",fontFamily:"var(--font-mono)"}}>{n} not in bundle</span>;
+}; C.displayName = n; return C; };
+const SectionHeader=lazy("SectionHeader"), FeatureGrid=lazy("FeatureGrid"), PricingTable=lazy("PricingTable"),
+      Testimonial=lazy("Testimonial"), FAQ=lazy("FAQ"), Button=lazy("Button"), Icon=lazy("Icon");
+const L = ({children}) => <span className="lbl">{children}</span>;
+
+const FEATURES=[
+  {title:"Inventory",body:"Stock, bins and goods inwards — counted once, true everywhere.",field:"cobalt",icon:<Icon name="package" size={30}/>},
+  {title:"Products & BOMs",body:"Components, variants and bills of materials you can actually reuse.",field:"violet",icon:<Icon name="layers" size={30}/>},
+  {title:"Production",body:"Work orders, labour and stock allocation on one board.",field:"flare",icon:<Icon name="factory" size={30}/>}
+];
+const PLANS=[
+  {name:"Starter",price:"$0",period:"/mo",summary:"One workspace, one warehouse.",
+   features:["Unlimited floor users","Shopify sync","Up to 200 SKUs"],
+   action:<Button block variant="secondary">Start free</Button>},
+  {name:"Factory",price:"$249",period:"/mo",featured:true,summary:"Everything a working floor needs.",
+   features:["Everything in Starter","Unlimited SKUs and BOMs","Multi-warehouse","Purchase orders and receiving"],
+   action:<Button block>Start free</Button>},
+  {name:"Group",price:"Talk to us",summary:"Several sites under one roof.",
+   features:["Everything in Factory","Cross-site transfers","SSO and audit export"],
+   action:<Button block variant="secondary">Book a demo</Button>}
+];
+const QS=[
+  {q:"Do I need an implementation partner?",a:"No. Connect Shopify, import your BOMs from a spreadsheet, and run your first work order the same day."},
+  {q:"What happens to stock already in my Shopify?",a:"It syncs both ways from the first minute. Manuva becomes the source of truth for on-hand; Shopify keeps selling against it."},
+  {q:"Can the floor use it without training?",a:"The scan and count screens are built for a shared terminal — big targets, no typing, no login per action."},
+  {q:"Is there a contract?",a:"Monthly, cancel any time. Your data exports as CSV whenever you want it."}
+];
+
+function Demo(){return (<div style={{display:"grid",gap:34}}>
+  <div className="sec"><L>SectionHeader — left, and centred on a field</L>
+    <SectionHeader eyebrow="One system, six domains" title="Everything the floor touches."
+      lede="Inventory, BOMs, work orders and stock control — connected, live, and built for the floor."/>
+    <div style={{background:"var(--field-cobalt)",color:"var(--on-cobalt)",borderRadius:"var(--radius-tile)",padding:"var(--space-12)",marginTop:12}}>
+      <SectionHeader align="center" tone="onField" eyebrow="Versus legacy MRP"
+        title="Priced for the shed, not the boardroom."
+        lede="No implementation partner. No six-month rollout."/>
+    </div>
+  </div>
+
+  <div className="sec"><L>FeatureGrid</L>
+    <FeatureGrid columns={3} items={FEATURES}/>
+  </div>
+
+  <div className="sec"><L>PricingTable — one featured column</L>
+    <PricingTable plans={PLANS} footnote="Prices ex GST. Unlimited floor users on every plan."/>
+  </div>
+
+  <div className="sec"><L>Testimonial — field and card</L>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,alignItems:"stretch"}}>
+      <Testimonial field="cobalt" metric="9" unit="minutes"
+        quote="We had our first BOM running before lunch. The last system took six months and never worked."
+        name="Dana Reyes" role="Operations Manager" company="Ridgeline Manufacturing"/>
+      <Testimonial quote="The floor stopped asking me what's in stock. That's the whole review."
+        name="Sam Okafor" role="Production Lead" company="Fabulous Fabrications"/>
+    </div>
+  </div>
+
+  <div className="sec"><L>FAQ</L>
+    <FAQ items={QS}/>
+  </div>
+
+  <div className="sec"><L>LogoWall — needs real customer logos</L>
+    <div style={{border:"1px dashed var(--stroke-strong)",borderRadius:"var(--radius-tile)",
+      padding:"var(--space-10)",display:"grid",gap:8,justifyItems:"center",textAlign:"center"}}>
+      <span style={{fontSize:14,fontWeight:600,color:"var(--ink-strong)"}}>Not shown — no real logos yet</span>
+      <span style={{fontSize:13,lineHeight:1.55,color:"var(--ink-muted)",maxWidth:"52ch",textWrap:"pretty"}}>
+        <code className="mv-mono" style={{fontSize:12}}>LogoWall</code> masks each logo to one ink so mismatched
+        brand colours read as a single row. Drop single-colour SVGs into <code className="mv-mono" style={{fontSize:12}}>assets/customers/</code> and
+        it renders. A wall of invented logos is worse than no wall, so this specimen stays empty until the real ones exist.
+      </span>
+    </div>
+  </div>
+</div>);}
+ReactDOM.createRoot(document.getElementById("root")).render(<Demo/>);
+</script></body></html>

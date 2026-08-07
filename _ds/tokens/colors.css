@@ -1,0 +1,75 @@
+/* ============================================================
+   MANUVA — BASE PALETTE (raw values, theme-independent)
+   Semantic tokens live in themes.css and use the SHIPPED token
+   names from src/app/globals.css (--bg-card, --ink-strong, …).
+   ============================================================ */
+:root{
+  /* --- Graphite: warm neutral ramp, anchored on the logo ink #141413.
+         Replaces the shipped slate ramp (#0F172A / #F8FAFC / #475569). --- */
+  --graphite-0:#FFFFFF;
+  --graphite-25:#FAFAF9;
+  --graphite-50:#F5F5F3;
+  --graphite-100:#EBEBE8;
+  --graphite-150:#DEDEDA;
+  --graphite-200:#CFCFC9;
+  --graphite-300:#B4B4AD;
+  --graphite-400:#92928A;
+  --graphite-500:#74746C;
+  --graphite-600:#5A5A53;
+  --graphite-700:#42423C;
+  --graphite-800:#2C2C28;
+  --graphite-900:#1E1E1B;
+  --graphite-950:#141413;
+  --graphite-1000:#0A0A09;
+
+  /* --- Navy: the logo's own colour, #15314D. Adopted at the DARK END only
+         (sidebar, ink surfaces, inverted panels). Mid and light greys stay
+         warm graphite — see readme.md "The colour argument". --- */
+  --navy-950:#08121E;
+  --navy-900:#0E1B2C;
+  --navy-800:#15314D;   /* the logo navy */
+  --navy-700:#1E4066;
+  --navy-600:#2A5580;
+
+  /* --- Cobalt: the brand hue, pushed brighter so it separates from the
+         navy substrate. --brand-2 (#1E36DB) remains the AA-safe text value. --- */
+  --cobalt-50:#EDF0FF;
+  --cobalt-100:#DBE1FF;
+  --cobalt-200:#B8C3FF;
+  --cobalt-300:#8B9BFF;
+  --cobalt-400:#6A83FF;
+  --cobalt-500:#3A5EFF;
+  --cobalt-600:#1E36DB;
+  --cobalt-700:#1728A8;
+  --cobalt-800:#131F7A;
+  --cobalt-900:#101A55;
+
+  /* --- Substrates for the Ocean and Ember themes --- */
+  --sea-700:#122536;  --sea-800:#0E1C2B;  --sea-900:#0A1521;  --sea-950:#060E17;
+  --forge-700:#332017;--forge-800:#26170F;--forge-900:#1B0F0A;--forge-950:#120907;
+
+  /* ============================================================
+     DOMAIN ACCENTS — ADDITION to the shipped token set.
+     One accent per product module, matched chroma, evenly spaced
+     hues. Three values each: -loud (fill), -text (AA on light),
+     -dark (AA on dark).
+     ============================================================ */
+  --domain-inventory-loud:#3A5EFF;  --domain-inventory-text:#1E36DB;  --domain-inventory-dark:#8B9BFF;
+  --domain-production-loud:#FF4D00; --domain-production-text:#C43900; --domain-production-dark:#FF8A4D;
+  --domain-purchasing-loud:#FFB300; --domain-purchasing-text:#8A5A00; --domain-purchasing-dark:#FFC94D;
+  --domain-products-loud:#B026FF;   --domain-products-text:#8B1BCC;   --domain-products-dark:#D08CFF;
+  --domain-logistics-loud:#00C271;  --domain-logistics-text:#00794A;  --domain-logistics-dark:#3EE39B;
+  --domain-audit-loud:#00B9D6;      --domain-audit-text:#00707F;      --domain-audit-dark:#4FDDF2;
+}
+
+/* Scope a subtree to a module: <div data-domain="production">.
+   Components read --accent-loud / --accent-text / --accent-dim / --accent-on.
+   --accent-on is the ink that clears AA on a solid --accent-loud fill:
+   white on the blues/orange/violet, #141413 on amber, mint and aqua. */
+[data-domain]{--accent-loud:var(--brand-1);--accent-text:light-dark(var(--cobalt-600),var(--cobalt-300));--accent-dim:var(--brand-dim);--accent-on:#FFFFFF}
+[data-domain="inventory"]{--accent-loud:var(--domain-inventory-loud);--accent-text:light-dark(var(--domain-inventory-text),var(--domain-inventory-dark));--accent-dim:rgb(58 94 255/.12);--accent-on:#FFFFFF}
+[data-domain="production"]{--accent-loud:var(--domain-production-loud);--accent-text:light-dark(var(--domain-production-text),var(--domain-production-dark));--accent-dim:rgb(255 77 0/.12);--accent-on:#FFFFFF}
+[data-domain="purchasing"]{--accent-loud:var(--domain-purchasing-loud);--accent-text:light-dark(var(--domain-purchasing-text),var(--domain-purchasing-dark));--accent-dim:rgb(255 179 0/.14);--accent-on:#141413}
+[data-domain="products"]{--accent-loud:var(--domain-products-loud);--accent-text:light-dark(var(--domain-products-text),var(--domain-products-dark));--accent-dim:rgb(176 38 255/.12);--accent-on:#FFFFFF}
+[data-domain="logistics"]{--accent-loud:var(--domain-logistics-loud);--accent-text:light-dark(var(--domain-logistics-text),var(--domain-logistics-dark));--accent-dim:rgb(0 194 113/.12);--accent-on:#141413}
+[data-domain="audit"]{--accent-loud:var(--domain-audit-loud);--accent-text:light-dark(var(--domain-audit-text),var(--domain-audit-dark));--accent-dim:rgb(0 185 214/.12);--accent-on:#141413}

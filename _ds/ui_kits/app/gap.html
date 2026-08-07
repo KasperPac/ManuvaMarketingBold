@@ -1,0 +1,50 @@
+<!-- @dsCard group="Manuva App" viewport="1440x980" name="Shipped vs kit — the gap" subtitle="Overview screen, side by side. What the design system changes and what it leaves alone." -->
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Manuva — shipped vs kit</title>
+<link rel="stylesheet" href="../../styles.css">
+<style>body{margin:0;background:var(--bg-page);font-family:var(--font-body)}
+.wrap{max-width:1400px;margin:0 auto;padding:26px}
+.head{display:grid;gap:6px;margin-bottom:22px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+.col{display:grid;gap:9px;min-width:0}
+.tag{display:inline-flex;align-items:center;width:fit-content;padding:5px 11px;border-radius:var(--radius-pill);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.shot{width:100%;display:block;border:1px solid var(--stroke-card);border-radius:var(--radius-2);background:#fff}
+.frame{width:100%;height:436px;border:1px solid var(--stroke-card);border-radius:var(--radius-2);background:#fff;overflow:hidden}
+.frame iframe{width:1440px;height:900px;border:0;transform:scale(.483);transform-origin:0 0}
+.diff{margin-top:26px;border-top:1px solid var(--stroke);padding-top:18px;display:grid;gap:14px}
+table{border-collapse:collapse;width:100%}
+th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);padding:0 12px 8px 0;border-bottom:1px solid var(--stroke-strong)}
+td{font-size:13px;line-height:1.5;color:var(--ink-muted);padding:11px 12px 11px 0;border-bottom:1px solid var(--stroke);vertical-align:top}
+td:first-child{color:var(--ink-strong);font-weight:600;white-space:nowrap}
+.sw{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:5px}
+a{color:var(--brand-2)}a:hover{color:var(--brand-dark)}</style>
+</head><body><div class="wrap">
+<div class="head">
+<span class="mv-eyebrow" style="color:var(--ink-faint)">Overview screen</span>
+<h1 class="mv-headline" style="margin:0;font-size:var(--fs-display-2);color:var(--ink-strong)">What the system changes.</h1>
+<p style="margin:0;max-width:70ch;font-size:15px;line-height:1.6;color:var(--ink-muted);text-wrap:pretty">Left is app.manuva.app as it ships today. Right is the same screen rebuilt on the design system. The structure is deliberately identical — the gap is entirely in colour, type and the one number.</p>
+</div>
+<div class="pair">
+<div class="col">
+<span class="tag" style="background:var(--surface-1);color:var(--ink-muted)">Shipped today</span>
+<img class="shot" src="../../uploads/Screenshot 2026-08-07 090706.png" alt="The shipped Manuva Overview screen">
+</div>
+<div class="col">
+<span class="tag" style="background:var(--brand-dim);color:var(--brand-2)">On the design system</span>
+<div class="frame"><iframe src="index.html" title="The Overview screen rebuilt on the design system" loading="lazy"></iframe></div>
+</div>
+</div>
+<div class="diff">
+<span class="mv-eyebrow" style="color:var(--ink-faint)">The gap, line by line</span>
+<table>
+<tr><th style="width:150px">What</th><th style="width:230px">Shipped</th><th style="width:230px">System</th><th>Why</th></tr>
+<tr><td>Sidebar</td><td><span class="sw" style="background:#101A2E"></span>Navy, centred logo</td><td><span class="sw" style="background:#0E1B2C"></span>Navy, left-aligned logo</td><td>Kept. The navy was already right — it comes from the logo. The lockup moves left so it sits on the same optical axis as the nav labels.</td></tr>
+<tr><td>Primary</td><td><span class="sw" style="background:#4F46E5"></span>Indigo <code class="mv-mono">#4F46E5</code></td><td><span class="sw" style="background:#3A5EFF"></span>Cobalt <code class="mv-mono">#3A5EFF</code></td><td>Indigo is the default tint of the SaaS shelf and goes muddy next to navy. Cobalt is pure blue and pushed brighter so it reads as signal against the substrate, not as more navy.</td></tr>
+<tr><td>Greys</td><td>Blue-slate</td><td>Warm graphite</td><td>Cool navy surfaces against warm mid-greys is the contrast the system is built on. Slate everywhere flattens it.</td></tr>
+<tr><td>KPI row</td><td>7 equal cards, one number each</td><td>Same cards, plus a <strong>StateBand</strong></td><td>Seven equal numbers means no number is the point. The band says the one thing to act on; the cards stay for reference.</td></tr>
+<tr><td>Type</td><td>System sans throughout</td><td>Archivo display, Inter UI</td><td>Numbers are the product. A display face with a width axis lets a metric be 40px and a table cell 13px without them looking like different products.</td></tr>
+<tr><td>Empty states</td><td>“No inventory movements in the last 6 months.”</td><td><strong>EmptyState</strong> with a numeral</td><td>An empty chart is the most common state in a new tenant and currently the least designed one.</td></tr>
+<tr><td>Impersonation</td><td>Amber bar, “Viewing as…”</td><td>Unchanged</td><td>Already correct — full width, undismissable, warning-toned. Lifted into the shell as-is.</td></tr>
+<tr><td>Status colour</td><td>Red <code class="mv-mono">57%</code>, amber “Low stock”</td><td>Same roles, AA values</td><td>Meanings kept exactly. Only the amber darkens to <code class="mv-mono">#8A5200</code>, which the shipped value fails at 11–13px.</td></tr>
+</table>
+</div>
+</div></body></html>

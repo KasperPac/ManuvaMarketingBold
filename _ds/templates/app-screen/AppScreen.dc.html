@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Manuva app screen" description="Product shell: domain-accented sidebar, top bar, metric row and a dense data table." -->
+<helmet>
+<script src="./ds-base.js"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<style>body{margin:0;height:100vh;overflow:hidden;font-family:var(--font-body);background:var(--bg-page)}</style>
+</helmet>
+<div style="display:flex;height:100vh;overflow:hidden;background:var(--bg-page)">
+<nav style="width:236px;flex-shrink:0;display:flex;flex-direction:column;background:var(--bg-card-alt);border-right:1px solid var(--stroke)">
+<div style="padding:12px 16px;border-bottom:1px solid var(--stroke);display:flex;align-items:center;justify-content:space-between;gap:8px">
+<img src="../../assets/logo-lockup.svg" style="height:18px" alt="Manuva">
+<span style="font-size:11px;font-weight:600;color:var(--ink-faint);white-space:nowrap">Ridgeline Mfg</span>
+</div>
+<div style="flex:1;overflow:auto;padding:12px 8px;display:grid;gap:16px;align-content:start">
+<div style="display:grid;gap:1px">
+<span class="mv-key" style="padding:6px 10px 4px">Operate</span>
+<a href="#" style="display:flex;align-items:center;gap:10px;height:30px;padding:0 10px;border-radius:6px;font-size:13px;font-weight:500;color:var(--ink-muted);text-decoration:none"><span style="width:3px;height:14px;border-radius:1px;background:transparent"></span>Dashboard</a>
+<a href="#" data-domain="inventory" style="display:flex;align-items:center;gap:10px;height:30px;padding:0 10px;border-radius:6px;font-size:13px;font-weight:600;color:var(--ink-strong);background:var(--bg-card);box-shadow:inset 0 0 0 1px var(--stroke);text-decoration:none"><span style="width:3px;height:14px;border-radius:1px;background:var(--accent-loud)"></span>Inventory<span style="margin-left:auto;font-size:11px;color:var(--ink-faint)">412</span></a>
+<a href="#" style="display:flex;align-items:center;gap:10px;height:30px;padding:0 10px;border-radius:6px;font-size:13px;font-weight:500;color:var(--ink-muted);text-decoration:none"><span style="width:3px;height:14px;border-radius:1px;background:transparent"></span>Production<span style="margin-left:auto;font-size:11px;color:var(--ink-faint)">26</span></a>
+<a href="#" style="display:flex;align-items:center;gap:10px;height:30px;padding:0 10px;border-radius:6px;font-size:13px;font-weight:500;color:var(--ink-muted);text-decoration:none"><span style="width:3px;height:14px;border-radius:1px;background:transparent"></span>Purchasing<span style="margin-left:auto;font-size:11px;color:var(--ink-faint)">7</span></a>
+</div>
+<div style="display:grid;gap:1px">
+<span class="mv-key" style="padding:6px 10px 4px">Catalogue</span>
+<a href="#" style="display:flex;align-items:center;gap:10px;height:30px;padding:0 10px;border-radius:6px;font-size:13px;font-weight:500;color:var(--ink-muted);text-decoration:none"><span style="width:3px;height:14px;border-radius:1px;background:transparent"></span>Products &amp; BOMs</a>
+<a href="#" style="display:flex;align-items:center;gap:10px;height:30px;padding:0 10px;border-radius:6px;font-size:13px;font-weight:500;color:var(--ink-muted);text-decoration:none"><span style="width:3px;height:14px;border-radius:1px;background:transparent"></span>Logistics</a>
+<a href="#" style="display:flex;align-items:center;gap:10px;height:30px;padding:0 10px;border-radius:6px;font-size:13px;font-weight:500;color:var(--ink-muted);text-decoration:none"><span style="width:3px;height:14px;border-radius:1px;background:transparent"></span>Orders</a>
+</div>
+</div>
+</nav>
+<main data-domain="inventory" style="flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden">
+<header style="background:var(--bg-card);border-bottom:1px solid var(--stroke);display:flex;align-items:center;gap:16px;min-height:52px;padding:10px 24px">
+<div style="display:grid;gap:1px;flex:1;min-width:0">
+<span class="mv-key" style="color:var(--accent-text)">Inventory</span>
+<h1 style="margin:0;font-family:var(--font-display);font-variation-settings:'wdth' 100,'wght' 700;font-size:26px;line-height:1.1;letter-spacing:-0.022em;color:var(--ink-strong)">Stock on hand</h1>
+</div>
+<x-import component-from-global-scope="ManuvaDesignSystem_169665.Button" size="sm" variant="secondary" hint-size="90px,32px">Export</x-import>
+<x-import component-from-global-scope="ManuvaDesignSystem_169665.Button" size="sm" hint-size="120px,32px">Goods inwards</x-import>
+</header>
+<div style="flex:1;overflow:auto;padding:24px;display:grid;gap:16px;align-content:start;max-width:1400px">
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+<div style="background:var(--bg-card);border:1px solid var(--stroke-card);border-radius:8px;overflow:hidden"><div style="height:3px;background:var(--accent-loud)"></div><div style="padding:16px;display:grid;gap:4px"><span class="mv-key">Units on hand</span><span style="display:flex;align-items:baseline;gap:4px"><span class="mv-numeral" style="font-size:40px;color:var(--ink-strong)">67,142</span><span style="font-size:12px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--ink-faint)">ea</span></span></div></div>
+<div style="background:var(--bg-card);border:1px solid var(--stroke-card);border-radius:8px;padding:16px;display:grid;gap:4px"><span class="mv-key">Allocated</span><span style="display:flex;align-items:baseline;gap:4px"><span class="mv-numeral" style="font-size:40px;color:var(--ink-strong)">14,904</span><span style="font-size:12px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--ink-faint)">ea</span></span></div>
+<div style="background:var(--bg-card);border:1px solid var(--stroke-card);border-radius:8px;padding:16px;display:grid;gap:4px"><span class="mv-key">Below reorder</span><span class="mv-numeral" style="font-size:40px;color:var(--danger)">9</span></div>
+<div style="background:var(--bg-card);border:1px solid var(--stroke-card);border-radius:8px;padding:16px;display:grid;gap:4px"><span class="mv-key">Stock value</span><span class="mv-numeral" style="font-size:40px;color:var(--ink-strong)">$412k</span></div>
+</div>
+<div style="background:var(--bg-card);border:1px solid var(--stroke-card);border-radius:8px;overflow:hidden">
+<x-import component-from-global-scope="ManuvaDesignSystem_169665.DataTable" density="compact" columns="{{ columns }}" rows="{{ rows }}" hint-size="100%,280px"></x-import>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const B = (window.ManuvaDesignSystem_169665 && window.ManuvaDesignSystem_169665.Badge) || (() => null);
+    return {
+      columns: [
+        { key: "sku", header: "SKU", mono: true, width: 130 },
+        { key: "name", header: "Product" },
+        { key: "wh", header: "Warehouse", width: 110, muted: true },
+        { key: "oh", header: "On hand", align: "right", width: 90 },
+        { key: "alloc", header: "Allocated", align: "right", width: 90, muted: true },
+        { key: "free", header: "Free", align: "right", width: 90 },
+        { key: "st", header: "Status", width: 130, render: r => React.createElement(B, { tone: r.tone, dot: true }, r.st) }
+      ],
+      rows: [
+        { id: 1, sku: "SKU-4410-B", name: "Bracket, 6mm mild steel", wh: "Kingsgrove", oh: "8,412", alloc: "1,200", free: "7,212", tone: "ok", st: "In stock" },
+        { id: 2, sku: "SKU-2288", name: "Hinge assembly, left", wh: "Kingsgrove", oh: "240", alloc: "240", free: "0", tone: "warn", st: "Low" },
+        { id: 3, sku: "SKU-9014-C", name: "Powder coat, satin black 20L", wh: "Botany", oh: "0", alloc: "480", free: "-480", tone: "danger", st: "Short 480" },
+        { id: 4, sku: "SKU-1102", name: "M6 flange nut, zinc", wh: "Kingsgrove", oh: "54,800", alloc: "12,000", free: "42,800", tone: "ok", st: "In stock" },
+        { id: 5, sku: "SKU-7731", name: "Gas strut 250N", wh: "Botany", oh: "1,180", alloc: "900", free: "280", tone: "warn", st: "Low" },
+        { id: 6, sku: "SKU-3050-A", name: "Panel, 1200×600 alloy", wh: "Kingsgrove", oh: "326", alloc: "120", free: "206", tone: "ok", st: "In stock" }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

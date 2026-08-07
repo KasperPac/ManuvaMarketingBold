@@ -1,0 +1,36 @@
+<!-- @dsCard group="Components" viewport="700x330" name="Navigation" subtitle="PageHeader, SideNav, Tabs, Breadcrumb, HelpLink, TopBar" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{margin:0;padding:20px;background:var(--bg-card);font-family:var(--font-body)}.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.stack{display:grid;gap:14px}</style>
+</head><body><div id="root"></div>
+<script type="text/babel">
+const { PageHeader, SideNav, Tabs, Breadcrumb, HelpLink, Icon, Button, Logo } = window.ManuvaDesignSystem_169665;
+function Demo(){
+const [v,setV]=React.useState('purchasing');const [t,setT]=React.useState('open');
+return (<div style={{display:'flex',border:'1px solid var(--stroke-card)',borderRadius:'var(--radius-xl)',overflow:'hidden',height:290,background:'var(--bg-card)'}}>
+<div style={{background:'var(--bg-sidebar)',padding:'14px 12px','--ink-muted':'#A8A79E','--ink-faint':'#74746C','--surface-hover':'rgba(255,255,255,.07)','--brand-dim':'rgba(139,155,255,.18)','--stroke':'rgba(255,255,255,.09)','--bg-card':'transparent'}}>
+<SideNav value={v} onChange={setV} style={{background:'transparent',border:0,width:200}}
+  header={<Logo variant="lockup" height={20} base="../../" style={{color:'#F8F7F5'}}/>}
+  sections={[
+   {label:'Products',items:[
+     {value:'components',label:'Components',domain:'inventory',icon:<Icon name="package"/>,count:412},
+     {value:'products',label:'Products & BOMs',domain:'products',icon:<Icon name="layers"/>}]},
+   {label:'Operations',items:[
+     {value:'production',label:'Production',domain:'production',icon:<Icon name="factory"/>,count:26},
+     {value:'purchasing',label:'Purchasing',domain:'purchasing',icon:<Icon name="shopping-cart"/>,count:7}]},
+   {label:'Audit',items:[{value:'activity',label:'Activity Log',domain:'audit',icon:<Icon name="history"/>}]}]}/>
+</div>
+<div style={{flex:1,minWidth:0,display:'grid',alignContent:'start',gap:14,padding:'16px 20px'}}>
+<PageHeader eyebrow="Operations" domain="purchasing" title="Purchase Orders"
+  description="Supplier orders, expected receipts and receiving discrepancies."
+  actions={<Button size="sm" variant="accent">New PO</Button>}/>
+<Tabs value={t} onChange={setT} items={[{value:'open',label:'Open',count:7},{value:'rec',label:'Receiving',count:2},{value:'sup',label:'Suppliers'},{value:'d',label:'Drafts',count:1}]}/>
+<Breadcrumb items={[{label:'Purchase Orders',href:'#'},{label:'PO-1042'}]}/>
+<HelpLink slug="purchasing/create-po" label="How do purchase orders work?"/>
+</div></div>);}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script></body></html>
