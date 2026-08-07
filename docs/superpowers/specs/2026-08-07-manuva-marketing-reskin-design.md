@@ -52,6 +52,7 @@ Old page sizes, for parity checking:
 | SEO audit (2026-05-17) | **Deferred** | Pure re-skin this pass. Audit becomes separate follow-up work |
 | Beta-tester strip | **Carried across verbatim** | Offer is current. Sits alongside the 14-day trial as a secondary strip |
 | Icons | **Inlined at build time** | `Icon.jsx` masks from a jsDelivr CDN at runtime. Inlining removes the third-party dependency and per-glyph request while keeping the same glyphs, version and authoring API |
+| Webfonts | **Self-hosted** — see §3.4 | `tokens/fonts.css` `@import`s Google Fonts, which chains three render-blocking round trips. Open question for the design-system author |
 | Mobile drawer | **Ported from `mobile.js`** | Working behaviour with focus trap, Escape handling and reduced-motion support. Worth more than a reimplementation |
 
 ### Facts that must not drift
@@ -83,7 +84,7 @@ src/
   components/
     ds/               Logo, Icon, Button — the three design-system ports
     site/             Nav, Drawer, Footer, Field, Panel, Tile, Pill, Marquee,
-                      Eyebrow, CtaBand, FaqList, PriceCards, FeatureMatrix
+                      CtaBand, FaqList, PriceCards, FeatureMatrix
   pages/
     index.astro, features.astro, pricing.astro, about.astro,
     privacy.astro, terms.astro,
@@ -136,6 +137,38 @@ Domain glyphs are fixed: Inventory `package`, Products `layers`, Production
 `factory`, Purchasing `shopping-cart`, Orders `receipt`, Logistics `truck`,
 Audit `history`, Settings `settings-2`.
 
+### 3.4 Webfonts — open question for the design-system author
+
+`_ds/tokens/fonts.css` loads Archivo, Inter and IBM Plex Mono with a CSS
+`@import` from `fonts.googleapis.com`. Its own comment says this exists so the
+specimen cards and kits render standalone, which is a preview-surface need rather
+than a production directive — the same seam as the reference layouts' missing
+responsive layer and the icon CDN.
+
+In production it costs three serialised round trips on the render-blocking path
+(`styles.css` → parse → `fonts.googleapis.com` → parse → `fonts.gstatic.com`)
+before any text paints. Archivo is also requested as a full variable font across
+`wdth 62..125` and `wght 100..900`. It is additionally a live third-party
+dependency on every page and a recurring GDPR question in the EU.
+
+**Resolution taken here:** self-host. Vendor the three families as subset woff2,
+declare them with `@font-face` and `font-display:swap`, and preload the Archivo
+display face. The token contract is unchanged — `--font-display`, `--font-body`
+and `--font-mono` resolve exactly as before.
+
+This is the one place the site cannot consume `_ds/styles.css` wholly unmodified,
+because the `@import` lives inside it. Preferred fix, in order:
+
+1. The design system ships a `tokens/fonts-selfhost.css` variant, and the site
+   links the token files individually, skipping `fonts.css`. Keeps the fix in
+   the system where it belongs.
+2. Failing that, the site links the nine other token files directly and provides
+   its own `@font-face` layer. Costs the single-`<link>` convenience and means
+   a re-export needs the import list checked.
+
+Either way `_ds/` itself is still never edited in place. **Confirm which before
+implementation begins.**
+
 ---
 
 ## 4. Responsive strategy
@@ -179,13 +212,19 @@ panels share a hue.
 | Route | Copy source | Field sequence |
 |---|---|---|
 | `/` | `index.html` + `llms.txt` | paper → **cobalt** hero panel → **lime** marquee → cobalt *tint* + screenshot → paper, six field tiles → paper, **amber**/**violet** split → **mint** beta strip → **ink** comparison → **flare** CTA → ink footer |
-| `/features` | `features.html`, 11 sections | paper spine, **aqua** opener panel, six field tiles for the domain grid, full-bleed **violet** and **cobalt** punctuation bands at sections 4 and 8, **flare** CTA |
+| `/features` | `features.html`, 10 sections + CTA | **aqua** hero panel → six-tile domain grid → paper spine of 10 detail sections, with full-bleed **violet** after section 3 and **cobalt** after section 7 → **flare** CTA |
 | `/pricing` | `pricing.html` + `llms.txt` | **ink** hero → paper plan cards → paper matrix → paper FAQ → **amber** CTA |
 | `/alternatives/katana` | `alternatives/katana.html` | **violet** hero → paper comparison → paper FAQ → **flare** CTA |
 | `/alternatives/mrpeasy` | `alternatives/mrpeasy.html` | **amber** hero → paper comparison → paper FAQ → **cobalt** CTA |
 | `/about` | `about.html`, 4 sections | **mint** hero → paper → **ink** principles → **flare** CTA |
 | `/privacy` | `privacy.html` | paper only, ink footer |
 | `/terms` | `terms.html` | paper only, ink footer |
+
+`/features` carries ten `<h2>` sections in the source — BOMs, orders, stock
+counts, lot tracking, purchase orders, floor, capacity planning, margin,
+reporting, Shopify — plus a closing CTA. The six-tile domain grid is a summary
+band extended from the landing page and sits above them; it does not replace
+them, and no source section is folded into a tile.
 
 Rationale for the three non-obvious calls:
 
@@ -230,11 +269,25 @@ the source, the source wins.
 
 A script extracts visible text from each old page and its new counterpart,
 normalises whitespace, and diffs them. Content present in the old and missing
-from the new fails the build.
+from the new fails the check.
 
-This turns "do not thin the alternatives pages" from an intention into something
-enforced, and it catches the accidental case — which is the one that actually
-happens.
+**It compares main content only.** Nav, footer, cookie and script content are
+excluded on both sides — the chrome is deliberately different, so including it
+would produce constant false failures and the gate would be ignored within a day.
+Scope is `<main>` on the new page against the equivalent content region on the
+old one.
+
+Expected, allowed differences, declared per page in an ignore list so that each
+is a conscious decision rather than a silent gap:
+
+- The six invented figures listed below.
+- Nav and footer link text.
+- Any string the user explicitly signs off as dropped.
+
+Everything else present in the old and missing from the new fails. The gate runs
+on demand and in CI, not on every dev-server reload. This turns "do not thin the
+alternatives pages" from an intention into something enforced, and it catches the
+accidental case — which is the one that actually happens.
 
 ### Invented numbers
 
@@ -264,8 +317,18 @@ allows GPTBot, ClaudeBot, PerplexityBot, Google-Extended and others),
 `sitemap.xml` and `llms.txt` all carry across. The sitemap changes only if routes
 genuinely change — they do not, so `lastmod` values are the only edit.
 
-Astro builds directory-style URLs, which matches the clean-URL scheme already in
-place.
+### Trailing slashes
+
+The live URLs have no trailing slash (`/features`, not `/features/`). Astro's
+default `build.format: 'directory'` emits `features/index.html`, which Netlify
+serves at both spellings but canonicalises to one. Left unconfigured this
+produces a 301 hop on every internal link — survivable, but it is exactly the
+kind of quiet regression a re-skin is supposed to avoid.
+
+Set `trailingSlash: 'never'` in `astro.config.mjs`, emit
+`netlify.toml` with matching behaviour, and write canonical tags without the
+slash so `sitemap.xml`, canonicals and internal links all agree on one spelling.
+Verify with a crawl before ship: every internal link should be a 200, not a 301.
 
 ---
 
@@ -308,5 +371,8 @@ invent new combinations. `--accent-on` is the ink that clears AA on a solid
 - [ ] Renders correctly at 375, 480, 720, 960 and 1440.
 - [ ] Drawer opens, traps focus, closes on Escape.
 - [ ] `prefers-reduced-motion` leaves all content visible.
-- [ ] No runtime requests to third-party origins.
+- [ ] No runtime requests to third-party origins — no jsDelivr, no
+      `fonts.googleapis.com`, no `fonts.gstatic.com`.
+- [ ] Every internal link returns 200, not a 301 trailing-slash hop.
 - [ ] `_redirects`, `robots.txt`, `sitemap.xml`, `llms.txt` present in build output.
+- [ ] All eight `.html` legacy paths 301 to their clean URLs.
