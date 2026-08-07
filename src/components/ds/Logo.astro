@@ -1,0 +1,31 @@
+---
+export interface Props {
+  variant?: 'lockup' | 'mark' | 'wordmark';
+  height?: number;
+  class?: string;
+}
+const { variant = 'lockup', height = 28, class: className } = Astro.props;
+
+const RATIO = {
+  lockup: 2189.357 / 482.347,
+  mark: 741.242 / 482.347,
+  wordmark: 1361.115 / 243.403,
+} as const;
+
+const src = `/_ds/assets/logo-${variant}.svg`;
+const width = height * RATIO[variant];
+
+const style = [
+  'display:inline-block',
+  `height:${height}px`,
+  `width:${width}px`,
+  'background-color:currentColor',
+  `-webkit-mask-image:url("${src}")`,
+  `mask-image:url("${src}")`,
+  '-webkit-mask-repeat:no-repeat',
+  'mask-repeat:no-repeat',
+  '-webkit-mask-size:contain',
+  'mask-size:contain',
+].join(';');
+---
+<span role="img" aria-label="Manuva" class={className} style={style}></span>

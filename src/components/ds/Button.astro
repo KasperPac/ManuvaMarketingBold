@@ -1,0 +1,60 @@
+---
+export interface Props {
+  as?: 'a' | 'button';
+  href?: string;
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'ink' | 'accent';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  shape?: 'default' | 'pill';
+  block?: boolean;
+  class?: string;
+  [key: string]: unknown;
+}
+const {
+  as: Tag = 'button',
+  variant = 'primary',
+  size = 'md',
+  shape = 'default',
+  block = false,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const SIZES = {
+  sm: { h: 'var(--control-sm)', px: '12px', fs: 'var(--fs-sm)' },
+  md: { h: 'var(--control-md)', px: '18px', fs: 'var(--fs-md)' },
+  lg: { h: 'var(--control-lg)', px: '20px', fs: 'var(--fs-md)' },
+  xl: { h: 'var(--control-xl)', px: '26px', fs: 'var(--fs-lg)' },
+} as const;
+
+const VARIANTS = {
+  primary: 'background:var(--brand-2);color:var(--ink-on-brand);border:1px solid var(--brand-2)',
+  secondary: 'background:var(--bg-card);color:var(--ink-strong);border:1px solid var(--stroke-strong)',
+  ghost: 'background:transparent;color:var(--ink-muted);border:1px solid transparent',
+  danger: 'background:var(--danger-dim);color:var(--danger);border:1px solid var(--danger-dim)',
+  ink: 'background:var(--bg-ink);color:var(--bg-card);border:1px solid var(--bg-ink)',
+  accent: 'background:var(--accent-loud);color:var(--accent-on);border:1px solid var(--accent-loud)',
+} as const;
+
+const s = SIZES[size];
+const style = [
+  block ? 'display:flex;width:100%' : 'display:inline-flex',
+  'align-items:center',
+  'justify-content:center',
+  'gap:6px',
+  `height:${s.h}`,
+  `padding:0 ${s.px}`,
+  'font-family:var(--font-body)',
+  `font-size:${s.fs}`,
+  'font-weight:var(--fw-semibold)',
+  size === 'xl' ? 'letter-spacing:var(--ls-tight)' : 'letter-spacing:0',
+  `border-radius:${shape === 'pill' ? 'var(--radius-pill)' : 'var(--radius-lg)'}`,
+  'cursor:pointer',
+  'white-space:nowrap',
+  'text-decoration:none',
+  'transition:filter var(--dur-fast) ease, background var(--dur-fast) ease, border-color var(--dur-fast) ease',
+  VARIANTS[variant],
+].join(';');
+---
+<Tag class:list={['mv-btn', className]} data-variant={variant} style={style} {...rest}>
+  <slot />
+</Tag>

@@ -13,3 +13,9 @@
 .skip:focus { left: var(--space-4); top: var(--space-4); }
 
 body { background: var(--field-paper); color: var(--ink-strong); }
+
+.mv-btn:hover:not(:disabled) { filter: brightness(1.06); }
+.mv-btn[data-variant='secondary']:hover:not(:disabled),
+.mv-btn[data-variant='ghost']:hover:not(:disabled) { filter: none; background: var(--surface-hover); }
+.mv-btn:active:not(:disabled) { transform: translateY(1px); }
+.mv-btn:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
