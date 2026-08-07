@@ -341,26 +341,61 @@ a.site-tile { color: inherit; }
 .site-feat-heading { font-size: var(--fs-display-2); max-width: 44ch; margin: var(--space-3) 0 var(--space-4); }
 .site-feat-intro { max-width: 64ch; font-size: var(--fs-lg); line-height: var(--lh-normal); opacity: .8; margin: 0 0 var(--space-12); }
 
+/* Literal 1fr 1.1fr, not an mv-cols-* utility: this is a deliberately
+   asymmetric two-column split (image column slightly wider than content),
+   only ever used by the single with-image section (BOMs). No mv-cols-*
+   value expresses an unequal split — same documented-exception category as
+   .site-compare-row's repeat(4,1fr) (Task 7) and .site-matrix-cards'
+   repeat(2,1fr) (Task 8). */
 .site-feat-row-image { display: grid; grid-template-columns: 1fr 1.1fr; gap: var(--space-14); align-items: center; }
 
 .site-feat-grid { gap: var(--space-2) var(--space-8); }
 .site-feat { display: flex; gap: var(--space-3); padding: var(--space-2) 0; }
+/* .site-feat-icon and the base .site-feat-tier below both used to pair an
+   absolute --brand-1 (#3A5EFF) ink with a near-transparent --brand-dim
+   (10% alpha) background — on paper that reads as a light "branded" chip,
+   but --brand-1 is byte-identical to --field-cobalt, so on the Costing
+   section (wrapped in <Field field="cobalt">) the icon/badge text vanished
+   into its own background. color-mix(...currentColor...) derives the chip
+   fill FROM the inherited ink instead of a fixed brand colour, and
+   `color: inherit` makes that inherited ink resolve correctly in both
+   places: --on-{field} inside a coloured Field section, --ink-strong on
+   the eight plain paper ones (Field/body already put the right ink on an
+   ancestor — see Field.astro and body{color} in this file). */
 .site-feat-icon {
   flex: none; width: 28px; height: 28px; border-radius: var(--radius-xs);
-  background: var(--brand-dim); color: var(--brand-1);
+  background: color-mix(in srgb, currentColor 12%, transparent); color: inherit;
   display: grid; place-items: center;
 }
 .site-feat-body { min-width: 0; }
-.site-feat-title { font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--ink-strong); margin: var(--space-1) 0; }
-.site-feat-desc { font-size: var(--fs-sm); color: var(--ink-muted); line-height: var(--lh-normal); margin: 0; }
+.site-feat-title { font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: inherit; margin: var(--space-1) 0; }
+/* opacity, not a second absolute ink token (--ink-muted) — same "muted via
+   opacity on the inherited colour" pattern .site-tile-body already uses,
+   so it degrades correctly against any field instead of only paper. .72
+   approximates --ink-muted's actual contrast against --ink-strong on paper
+   (they're unrelated hex values otherwise), so the eight neutral sections
+   read the same as before. */
+.site-feat-desc { font-size: var(--fs-sm); color: inherit; opacity: .72; line-height: var(--lh-normal); margin: 0; }
 .site-feat-tier {
   display: inline-block; font-size: var(--fs-xs); font-weight: var(--fw-bold);
   padding: 1px var(--space-2); border-radius: var(--radius-pill); letter-spacing: var(--ls-caps);
-  text-transform: uppercase; background: var(--brand-dim); color: var(--brand-1); vertical-align: middle;
+  text-transform: uppercase; background: color-mix(in srgb, currentColor 14%, transparent); color: inherit;
+  vertical-align: middle;
 }
+/* Pro+/Enterprise badges are NOT part of the same bug: --bg-card-2 (#DEDEDA)
+   is an opaque solid, not a translucent tint, so it fully occludes whatever
+   field sits behind it — --ink-strong/--ink-muted text on it has the same
+   real contrast regardless of section colour. Left as absolute tokens
+   deliberately; color-mix would only make them field-tinted for no reason. */
 .site-feat-tier-pro { background: var(--bg-card-2); color: var(--ink-strong); }
 .site-feat-tier-ent { background: var(--bg-card-2); color: var(--ink-muted); }
 
+/* Differentiator callout: same opaque --bg-card-2 reasoning as the Pro+/
+   Enterprise badges above — the box's own solid backing means --ink-muted
+   and the strong lead-in's --ink-strong keep correct contrast on both
+   field and paper sections. --brand-1 on the icon is likewise safe (blue
+   on solid light grey, not on the field), unlike .site-feat-icon's
+   near-transparent chip above. */
 .site-differentiator {
   margin-top: var(--space-8); padding: var(--space-4) var(--space-5);
   background: var(--bg-card-2); border: 1px solid var(--stroke-card); border-radius: var(--radius-md);

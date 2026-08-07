@@ -112,6 +112,15 @@ test('Field declares its fold so hue adjacency can be checked', async () => {
   expect(await render(Field, { field: 'ink' })).toContain('data-fold="ink"');
 });
 
+// Field.astro used to destructure only `field`/`class`, with no `...rest`
+// spread — an `id` passed in (e.g. a section anchor target) was silently
+// dropped, so any in-page `href="#that-id"` pointed at nothing. Panel.astro
+// already spread `...rest` for the same reason; Field didn't (Task 9 review).
+test('an id passed to Field reaches the DOM, so in-page anchors can target it', async () => {
+  const html = await render(Field, { field: 'violet', id: 'lot-tracking' });
+  expect(html).toContain('id="lot-tracking"');
+});
+
 test('Tile never declares a fold — a tile grid is one composed unit, exempt from the rule', async () => {
   const html = await render(Tile, { field: 'cobalt', title: 'Inventory' });
   expect(html).not.toContain('data-fold');

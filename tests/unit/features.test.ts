@@ -40,3 +40,30 @@ test('no two adjacent folds share a hue', () => {
     expect(folds[i], `${folds[i]} repeats at fold ${i}`).not.toBe(folds[i - 1]);
   }
 });
+
+// Field.astro used to drop any `id` prop (no `...rest` spread), so the two
+// sections wrapped in <Field> (lot-tracking, costing) never got their anchor
+// id — the domain grid's #lot-tracking/#costing tiles pointed at nothing.
+// Nothing else checked this (not the gate, which strips <nav> chrome; not
+// the other tests, which check heading text, not ids), so it shipped past
+// review once already (Task 9 code review, fix round 1).
+test('every in-page anchor link resolves to a real id on the page', () => {
+  const h = html();
+  const hrefs = [...h.matchAll(/href="#([a-zA-Z0-9-]+)"/g)].map((m) => m[1]);
+  expect(hrefs.length, 'page should have in-page anchor links to check').toBeGreaterThan(0);
+  const ids = new Set([...h.matchAll(/\sid="([a-zA-Z0-9-]+)"/g)].map((m) => m[1]));
+  for (const href of hrefs) {
+    expect(ids, `href="#${href}" has no matching id anywhere on the page`).toContain(href);
+  }
+});
+
+test('the ten domain-grid links target the ten real section ids, including the two full-bleed Field sections', () => {
+  const h = html();
+  for (const id of [
+    'boms', 'orders', 'inventory', 'lot-tracking', 'purchasing',
+    'production-planning', 'capacity', 'costing', 'reports', 'shopify',
+  ]) {
+    expect(h, `id="${id}" missing`).toContain(`id="${id}"`);
+    expect(h, `href="#${id}" missing`).toContain(`href="#${id}"`);
+  }
+});

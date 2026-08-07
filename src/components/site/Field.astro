@@ -1,12 +1,22 @@
 ---
 import type { FieldName } from '../../site';
-export interface Props { field: FieldName; class?: string }
-const { field, class: className } = Astro.props;
+export interface Props { field: FieldName; class?: string; [key: string]: unknown }
+// No `...rest` spread meant an `id` passed to `<Field>` (e.g. features.astro's
+// section anchors) was silently dropped — the anchor never reached the DOM,
+// so any `href="#id"` pointing at it was dead. Panel.astro already spreads
+// `...rest` for the same reason (its `data-fold` example); Field never got
+// the same treatment. Style merge follows Panel's own pattern too, for the
+// same reason: a second literal `style="..."` attribute would parse as a
+// duplicate, first wins, silently dropping a caller's declaration.
+const { field, class: className, style: callerStyle, ...rest } = Astro.props;
+const ownStyle = `background:var(--field-${field});color:var(--on-${field})`;
+const style = callerStyle ? `${ownStyle};${callerStyle}` : ownStyle;
 ---
 <section
   class:list={['mv-section', className]}
   data-fold={field}
-  style={`background:var(--field-${field});color:var(--on-${field})`}
+  style={style}
+  {...rest}
 >
   <div class="mv-wrap"><slot /></div>
 </section>
