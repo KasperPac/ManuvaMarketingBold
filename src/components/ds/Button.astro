@@ -32,7 +32,11 @@ const VARIANTS = {
   ghost: 'background:transparent;color:var(--ink-muted);border:1px solid transparent',
   danger: 'background:var(--danger-dim);color:var(--danger);border:1px solid var(--danger-dim)',
   ink: 'background:var(--bg-ink);color:var(--bg-card);border:1px solid var(--bg-ink)',
-  accent: 'background:var(--accent-loud);color:var(--accent-on);border:1px solid var(--accent-loud)',
+  // --accent-on only resolves inside a [data-domain] subtree; this site never sets one.
+  // Keep the `, #fff` fallback — without it the var is invalid outside a domain scope
+  // and `color` falls back to the inherited ink, giving near-black text on the loud
+  // fill. Inside a domain scope the token still wins (e.g. #141413 on amber/lime).
+  accent: 'background:var(--accent-loud);color:var(--accent-on, #fff);border:1px solid var(--accent-loud)',
 } as const;
 
 const s = SIZES[size];
