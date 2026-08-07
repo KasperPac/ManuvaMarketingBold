@@ -621,6 +621,19 @@ test('spreads unknown attributes onto the root', async () => {
   const html = await render({ as: 'a', href: '#', 'data-testid': 'cta' });
   expect(html).toContain('data-testid="cta"');
 });
+
+test('merges a caller style rather than replacing its own', async () => {
+  // handoff.md: "Every component takes style and className and merges them."
+  // Pill always passes a style; without the merge, Button loses all geometry.
+  const html = await render({
+    shape: 'pill',
+    size: 'xl',
+    style: 'background:var(--field-lime);color:var(--on-lime)',
+  });
+  expect(html).toContain('background:var(--field-lime)');
+  expect(html).toContain('var(--radius-pill)');
+  expect(html).toContain('var(--control-xl)');
+});
 ```
 
 - [ ] **Step 6: Run it to verify it fails**
@@ -649,6 +662,7 @@ const {
   shape = 'default',
   block = false,
   class: className,
+  style: callerStyle,
   ...rest
 } = Astro.props;
 
@@ -686,7 +700,12 @@ const style = [
   'text-decoration:none',
   'transition:filter var(--dur-fast) ease, background var(--dur-fast) ease, border-color var(--dur-fast) ease',
   VARIANTS[variant],
-].join(';');
+  // The caller's declarations go LAST so they override individual properties
+  // rather than the whole attribute. `_ds/handoff.md`: "Every component takes
+  // style and className and merges them." Without this, any caller passing
+  // style — Pill always does — wipes out Button's radius, height and padding.
+  callerStyle,
+].filter(Boolean).join(';');
 ---
 <Tag class:list={['mv-btn', className]} data-variant={variant} style={style} {...rest}>
   <slot />
