@@ -1,10 +1,400 @@
 ---
 import Base from '../layouts/Base.astro';
+import Field from '../components/site/Field.astro';
+import Panel from '../components/site/Panel.astro';
+import Tile from '../components/site/Tile.astro';
+import Pill from '../components/site/Pill.astro';
+import Marquee from '../components/site/Marquee.astro';
+import CtaBand from '../components/site/CtaBand.astro';
+import Icon from '../components/ds/Icon.astro';
+import Button from '../components/ds/Button.astro';
+import { APP_URL, CONTACT_EMAIL } from '../site';
+
+// The old page's four real pillars (features#inventory/boms/purchasing/capacity),
+// verbatim — titles, body copy and chip tags. Not the six-domain array from the
+// reference layout: that array's blurbs are invented ("Stock, bins and goods
+// inwards — counted once, true everywhere." appears nowhere in the old page or
+// llms.txt), and there is no matching old-page content for a six-way split.
+// `href` matches the old page's own pillar → features.html#anchor mapping
+// verbatim (including "Warehouse & Stock Movement" → #purchasing and
+// "Team & Integrations" → #capacity — the old page's own anchors, not a typo
+// here). It also happens to fix a parity edge case: the old pillars were
+// <a> wrapped, and <a> is not one of extractText()'s boundary-selector tags,
+// which is why "Stocktaking" glues onto the next pillar's icon token in the
+// old page's own extraction. A <div>-rooted Tile always gets a boundary
+// between grid siblings; an <a>-rooted one reproduces the old adjacency.
+const PILLARS = [
+  {
+    icon: 'package',
+    field: 'cobalt',
+    title: 'Inventory & Production',
+    href: '/features#inventory',
+    body: 'From raw materials to finished goods — live stock counts, production orders, manufacturing plans, and stocktakes. Everything that keeps the floor moving.',
+    chips: ['Stock control', 'Production orders', 'Mfg planning', 'Stocktaking'],
+  },
+  {
+    icon: 'wrench',
+    field: 'violet',
+    title: 'Bills of Materials & Costing',
+    href: '/features#boms',
+    body: 'Build multi-level BOMs with versioning, then roll up costs automatically. Know your margin before the job starts, not after.',
+    chips: ['BOM builder', 'Cost management'],
+  },
+  {
+    icon: 'truck',
+    field: 'flare',
+    title: 'Warehouse & Stock Movement',
+    href: '/features#purchasing',
+    body: 'Every delivery receipt, transfer, and adjustment updates your stock automatically. Bin-level locations mean nothing gets lost on the floor.',
+    chips: ['Delivery receipts', 'Stock adjustments', 'Bin locations', 'Transfers'],
+  },
+  {
+    icon: 'zap',
+    field: 'amber',
+    title: 'Team & Integrations',
+    href: '/features#capacity',
+    body: "Plan around your team's capacity, sell through Shopify with inventory synced automatically, and get the reports that matter — on-time rate, scrap, stock turn.",
+    chips: ['Staff capacity', 'Shopify', 'Reporting'],
+  },
+] as const;
+
+const MARQUEE = [
+  'Yield % on every BOM line',
+  'BOM versioning with rollback',
+  'Unlimited users on Growth',
+  'Real-time Shopify webhooks',
+  '14-day free trial',
+];
+
+// Verbatim from the old site's integrations strip — same order.
+const INTEGRATIONS = ['Shopify', 'WooCommerce', 'Amazon', 'Etsy', 'Xero', 'QuickBooks', 'MYOB'];
+
+// Verbatim from the old site's pricing section. Annual is the old page's default
+// toggle state — the only state its own text ever renders, so it's the only one
+// parity can (or needs to) check. Monthly figures live only in the old markup's
+// data-monthly attributes, never in rendered text.
+const TIERS = [
+  {
+    name: 'Starter',
+    tag: null,
+    desc: 'For shops moving off spreadsheets. One site, up to 5 office seats.',
+    price: '$99',
+    sub: 'Billed $1,188/yr',
+    featured: false,
+    featsHd: null,
+    feats: ['Inventory & stock control', 'Single-level BOMs', 'Production orders', 'Unlimited floor users', 'Email support'],
+  },
+  {
+    name: 'Growth',
+    tag: 'Most popular',
+    desc: 'For mid-size manufacturers running multi-step production with real BOMs.',
+    price: '$249',
+    sub: 'Billed $2,988/yr',
+    featured: true,
+    featsHd: 'Everything in Starter, plus',
+    feats: ['Multi-level BOMs & versioning', 'Warehouse & bin locations', 'Cost management', 'Shopify integration', 'Priority support & onboarding'],
+  },
+  {
+    name: 'Pro',
+    tag: null,
+    desc: 'For professional manufacturers needing capacity planning, full costing, and API access.',
+    price: '$499',
+    sub: 'Billed $5,988/yr',
+    featured: false,
+    featsHd: 'Everything in Growth, plus',
+    feats: ['Capacity planning & staffing', 'Financial profitability dashboard', 'Advanced reports + PDF/CSV export', 'API access', 'Priority support (< 4hr)'],
+  },
+] as const;
+
+// Verbatim from the old site's comparison table (#compare). The old markup is a
+// div-based ARIA table, not a <table> — kept the same way here so a colour field
+// never sits behind real tabular markup.
+const COMPARE_ROWS = [
+  ['Real-time inventory', 'yes', 'yes', 'Batch sync', 'no'],
+  ['BOM versioning', 'yes', 'Manual', 'no', 'no'],
+  ['Delivery receipts / goods-in', 'yes', 'yes', 'yes', 'In a tab'],
+  ['Warehouse bin locations', 'yes', 'no', 'Add-on', 'no'],
+  ['Shopify integration', 'yes', 'yes', 'no', 'no'],
+  ['Staff capacity planning', 'yes', 'no', 'Basic', 'no'],
+  ['Cost management', 'yes', 'Basic', 'yes', 'no'],
+  ['Setup time', 'Days', 'Days–weeks', 'Weeks', 'Hours'],
+] as const;
+
+const description =
+  'Inventory, BOMs, work orders, and stock control — connected, live, and built for the floor. The simpler alternative to legacy MRP for Shopify manufacturers.';
 ---
 <Base
   title="Manuva — MRP for Shopify manufacturers"
-  description="Inventory, BOMs, work orders and stock control — connected, live, and built for people standing on a factory floor."
+  description={description}
   canonical="https://manuva.app/"
 >
-  <h1>Manuva</h1>
+  {/* 1 · cobalt hero panel, inset on paper */}
+  <section class="site-hero">
+    <div class="mv-wrap">
+      <Panel field="cobalt" class="site-hero-panel" data-fold="cobalt">
+        {/* Verbatim from the old page's eyebrow, including the zero-width gap
+            between the "New" badge and the text that follows it in the old
+            markup (<span class="pip">New</span>Lot tracking…) — not a typo,
+            the old source really has no space there. "Lot tracking" and
+            "supplier scorecards" aren't in llms.txt, but both are documented
+            in the old features.html (Task 9 carries it across), so this is
+            sourced, not invented. */}
+        <span class="mv-eyebrow site-hero-eyebrow"><span class="site-hero-badge">New</span>Lot tracking &amp; supplier scorecards</span>{' '}
+        <h1 class="mv-display site-hero-title">Manufacturing operations,<br />finally simple.</h1>
+        <p class="site-hero-sub">
+          Manuva replaces the spreadsheets and legacy MRP your team is fighting with. Inventory, BOMs, work
+          orders, and stock control — connected, live, and built for the floor.
+        </p>
+        <div class="mv-cta-stack site-hero-actions">
+          {/* Pill's `field` prop would also stamp border-color:var(--field-lime) —
+              correct as a background/border pairing, but indistinguishable by
+              substring from lime-as-text. Built directly on Button instead, with
+              the border keyed to --on-lime, so lime only ever appears as a fill. */}
+          <Button as="a" href={APP_URL} size="xl" shape="pill" variant="ink" class="mv-press"
+            style="background:var(--field-lime);color:var(--on-lime);border-color:var(--on-lime)">Start free trial</Button>{' '}
+          {/* The old page's "Book a demo" pointed at #contact and prefilled the
+              contact form's message field via JS. The form is gone (see the
+              contact section below), but the anchor is still the closest match
+              to old intent — it lands on the email CTA instead of prefilling. */}
+          <Pill href="#contact" class="site-pill-ghost">Book a demo</Pill>
+        </div>
+        <div class="site-hero-meta">
+          {/* div, not span: div is a parity boundary-selector so each item stays
+              its own isolated segment instead of gluing to its neighbour. */}
+          <div>14 day free trial</div>
+          <div>No credit card</div>
+        </div>
+      </Panel>
+    </div>
+  </section>
+
+  {/* product shot on a cobalt TINT, not a field. Never a field behind a table, and
+      this is the real screenshot, not a mocked DataTable. Old page nests this
+      inside the hero itself; given its own moment here per the original brief. */}
+  <section class="mv-section site-shot">
+    <div class="mv-wrap">
+      <span class="mv-eyebrow">Live, not nightly</span>
+      <h2 class="mv-display">Real-time inventory</h2>
+      <img
+        src="/screen-dashboard.png"
+        width="2080"
+        height="1090"
+        loading="lazy"
+        decoding="async"
+        alt="Manuva dashboard overview with inventory value, fulfilment rate, and open-order counts at the top, inventory trend and order metrics charts in the middle, and a live queue of open orders with low-stock alerts below."
+      />
+    </div>
+  </section>
+
+  {/* lime marquee — lime as a background, never as text */}
+  <Marquee words={MARQUEE} />
+
+  {/* mint beta strip — the offer is current, moves across verbatim */}
+  <Field field="mint" class="site-beta">
+    <p class="site-beta-head"><Icon name="flask-conical" size={20} /> Beta testers get <strong>3 months of Pro — free</strong>.</p>
+    <p class="site-beta-sub">Shape the roadmap with us. Tell us what features your team needs and we'll build them with you.</p>
+    <Pill href={APP_URL} field="ink">Start free trial →</Pill>
+  </Field>
+
+  {/* integrations strip — verbatim from the old site */}
+  <section class="mv-section site-integrations">
+    <div class="mv-wrap">
+      <p class="mv-eyebrow site-integrations-label">Integrates with the tools you already use</p>
+      <div class="site-integrations-logos">
+        {/* Astro emits no whitespace text node between mapped siblings, so each
+            name carries its own trailing space to keep the old page's spaced
+            "Shopify WooCommerce Amazon …" run intact for the parity gate. */}
+        {INTEGRATIONS.map((name) => <span class="site-integrations-name">{name} </span>)}
+      </div>
+    </div>
+  </section>
+
+  {/* four pillars — the old page's real features section, verbatim titles, body
+      copy and chip tags. One composed unit, paper visible between every tile. */}
+  <section class="mv-section">
+    <div class="mv-wrap">
+      {/* Astro drops the whitespace-only text node between block siblings on
+          separate lines, so the old page's glued "eyebrow + heading" run needs
+          an explicit space to survive — {' '} forces a real text node. */}
+      <span class="mv-eyebrow">The platform</span>{' '}
+      <h2 class="mv-display">Everything your shop needs. Nothing it doesn't.</h2>
+      <p class="site-section-sub">
+        One system covering the whole shop floor — from raw materials in to finished goods out. No modules to
+        bolt on, no consultants to hire.
+      </p>
+      <div class="mv-cols-2">
+        {PILLARS.map((p) => (
+          <Tile field={p.field} icon={p.icon} title={p.title} href={p.href}>
+            {p.body}{' '}
+            <span class="site-tile-chips">
+              {p.chips.map((c) => <span class="site-tile-chip">{c} </span>)}
+            </span>
+          </Tile>
+        ))}
+      </div>
+      <p class="site-section-footer"><a href="/features">Explore the full feature set →</a></p>
+    </div>
+  </section>
+
+  {/* amber / violet split — the old page's product-tour showcase rows */}
+  <section class="mv-section">
+    <div class="mv-wrap mv-split" style="--split:1.25fr 1fr">
+      <Panel field="amber" data-fold="amber" class="site-split-panel">
+        <span class="mv-eyebrow">Bills of materials</span>{' '}
+        <h3 class="mv-display site-split-heading">Versioned BOMs that track every change.</h3>
+        <p class="site-split-body">
+          Every time you change a component, swap a supplier, or adjust quantities, Manuva captures it as a new
+          version. Compare side-by-side, see the cost and margin impact, and roll back if you need to.
+        </p>
+        <ul class="site-split-list">
+          <li><Icon name="check" size={16} /> Full version history with timestamps</li>
+          <li><Icon name="check" size={16} /> See added, removed, and changed components at a glance</li>
+          <li><Icon name="check" size={16} /> Automatic cost and margin recalculation</li>
+        </ul>
+        <img
+          src="/screen-variant.png"
+          width="2080"
+          height="1090"
+          loading="lazy"
+          decoding="async"
+          alt="Manuva variant detail showing versioned bills of materials with cost comparison"
+          class="site-split-img"
+        />
+      </Panel>
+      <Panel field="violet" data-fold="violet" class="site-split-panel">
+        <span class="mv-eyebrow">Component library</span>{' '}
+        <h3 class="mv-display site-split-heading">Build BOMs in minutes, not hours.</h3>
+        <p class="site-split-body">
+          Search every component, fastener, and raw material across your library. Add to a BOM with a click —
+          quantities, costs, and supplier links all carry through automatically.
+        </p>
+        <ul class="site-split-list">
+          <li><Icon name="check" size={16} /> Search by name, SKU, supplier, or category</li>
+          <li><Icon name="check" size={16} /> Add multiple components in a single action</li>
+          <li><Icon name="check" size={16} /> Costs and stock levels visible inline</li>
+        </ul>
+        <img
+          src="/screen-components.png"
+          width="2080"
+          height="1090"
+          loading="lazy"
+          decoding="async"
+          alt="Manuva component selection modal with searchable parts library"
+          class="site-split-img"
+        />
+      </Panel>
+    </div>
+  </section>
+
+  {/* pricing — paper, verbatim. Plan cards are data: never a colour field behind
+      them, so no data-fold here, matching the rule that already keeps colour off
+      the product-shot table. */}
+  <section class="mv-section site-pricing">
+    <div class="mv-wrap">
+      <span class="mv-eyebrow">Pricing</span>{' '}
+      <h2 class="mv-display">Simple pricing for manufacturing teams</h2>
+      <p class="site-section-sub">
+        One price per tier. No per-seat fees. No usage meters. Start free for 14 days — no credit card required.
+      </p>
+      <div class="site-pricing-toggle" aria-hidden="true">
+        <span class="site-pricing-toggle-btn">Monthly</span>{' '}
+        <span class="site-pricing-toggle-btn site-pricing-toggle-on">Annual <span class="site-pricing-save">−20%</span></span>
+      </div>
+      <div class="mv-cols-3 site-tier-grid">
+        {TIERS.map((tier) => (
+          <div class:list={['site-tier', { 'site-tier-featured': tier.featured }]}>
+            {tier.tag && <span class="site-tier-tag">{tier.tag}</span>}{' '}
+            <div class="site-tier-name">{tier.name}</div>
+            <p class="site-tier-desc">{tier.desc}</p>
+            <div class="site-tier-price"><span class="site-tier-val">{tier.price}</span> <span class="site-tier-per">/ month</span></div>
+            <div class="site-tier-sub">{tier.sub}</div>
+            <Pill href={APP_URL} field={tier.featured ? 'cobalt' : undefined} class="site-tier-cta">Start free trial</Pill>{' '}
+            {/* No Icon here: the old page's tier-feats checkmarks are raw SVGs
+                with no data-lucide, so they contribute zero text on extraction.
+                Icon always stamps a "[icon:check]" token, which would sit right
+                where the parity gate expects the old page's plain feature text —
+                breaking both the CTA-glued phrase and each isolated fragment
+                ("Single-level BOMs", "Cost management", …). A CSS ::before
+                checkmark gets the same look without the token. */}
+            <ul class="site-tier-feats">
+              {tier.featsHd && <li class="site-tier-feats-hd">{tier.featsHd}</li>}
+              {tier.feats.map((f) => <li>{f}</li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <p class="site-pricing-enterprise">
+        <strong>Enterprise</strong> is available on request — multi-site, SSO/SAML, dedicated CSM, custom SLAs.{' '}
+        <a href="#contact">Contact sales →</a> · <a href="/pricing">See full feature comparison →</a>
+      </p>
+    </div>
+  </section>
+
+  {/* ink comparison — the old page's full 8-row table, verbatim */}
+  <Field field="ink" class="site-compare">
+    <span class="mv-eyebrow">Why Manuva</span>{' '}
+    <h2 class="mv-display">Built for the floor, not for the demo</h2>
+    <p class="site-compare-intro">
+      Other tools either started as accounting software or as Trello-for-factories. Manuva was built from day
+      one for the way real shops run production.
+    </p>
+    <div class="site-compare-table" role="table" aria-label="Feature comparison: Manuva vs competitors">
+      <div class="site-compare-row site-compare-row-head" role="row">
+        <div role="columnheader">Capability</div>
+        <div role="columnheader" class="site-compare-manuva">Manuva</div>
+        <div role="columnheader">Katana</div>
+        <div role="columnheader">MRPEasy</div>
+        <div role="columnheader">Spreadsheets</div>
+      </div>
+      {COMPARE_ROWS.map(([name, manuva, katana, mrpeasy, spreadsheets]) => (
+        <div class="site-compare-row" role="row">
+          <div role="cell" class="site-compare-feat">{name}</div>
+          <div role="cell" class="site-compare-manuva">
+            {manuva === 'yes' ? <Icon name="check" size={16} /> : manuva === 'no' ? <Icon name="x" size={16} /> : manuva}
+          </div>
+          <div role="cell">{katana === 'yes' ? <Icon name="check" size={16} /> : katana === 'no' ? <Icon name="x" size={16} /> : katana}</div>
+          <div role="cell">{mrpeasy === 'yes' ? <Icon name="check" size={16} /> : mrpeasy === 'no' ? <Icon name="x" size={16} /> : mrpeasy}</div>
+          <div role="cell">{spreadsheets === 'yes' ? <Icon name="check" size={16} /> : spreadsheets === 'no' ? <Icon name="x" size={16} /> : spreadsheets}</div>
+        </div>
+      ))}
+    </div>
+    <p class="site-compare-foot">
+      See full comparison:{' '}
+      <a href="/alternatives/katana">Manuva vs Katana</a> · <a href="/alternatives/mrpeasy">Manuva vs MRPeasy</a>
+      <br />
+      <span class="site-compare-caption">Competitor data based on publicly available information. Verify before sharing with prospects.</span>
+    </p>
+  </Field>
+
+  {/* contact — paper, verbatim heading/copy/email. The old 5-field form posts to
+      mailto:...&method=POST, which most browsers either ignore, dump raw
+      key=value text into a mail client from, or silently no-op — shipping that
+      is worse than not shipping a form. Replaced with a direct mailto CTA. */}
+  <section class="mv-section site-contact" id="contact">
+    <div class="mv-wrap site-contact-inner">
+      <h2 class="mv-display">Get in touch</h2>
+      <p class="site-contact-sub">
+        Whether you're ready to start a trial or just want to see how Manuva fits your shop, we'd love to talk.
+      </p>
+      {/* No Icon before the label: it would stamp a "[icon:mail]" token right
+          before "Email", the exact isolated fragment the old page needs, the
+          same way the tier-feats checkmarks did. div, not span, for label/meta
+          so each is its own boundary-isolated segment; the mailto link needs an
+          explicit {' '} before "We reply…" since Astro drops the whitespace-only
+          text node that would otherwise separate them. */}
+      <div class="site-contact-info">
+        <div class="site-contact-label">Email</div>
+        <a href={`mailto:${CONTACT_EMAIL}`} class="site-contact-value">{CONTACT_EMAIL}</a>{' '}
+        <div class="site-contact-meta">We reply within one business day</div>
+      </div>
+      <Pill href={`mailto:${CONTACT_EMAIL}`} field="cobalt">Email us</Pill>
+    </div>
+  </section>
+
+  {/* flare CTA */}
+  <CtaBand
+    field="flare"
+    heading="Manufacturing operations, finally simple."
+    body="14 days free with full Pro access. No credit card required."
+  />
 </Base>

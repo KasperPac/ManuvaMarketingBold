@@ -1,6 +1,14 @@
 {
   "_comment": "Phrases present in the old site that are deliberately absent from the new one. Each entry needs a reason. Matching is substring, case-insensitive.",
-  "/": [],
+  "/_reason": "The old contact form (First name / Last name / Company / Work email / Message / Send message) posted to mailto:hello@manuva.app with method=POST, which most browsers either ignore, dump raw key=value text into a mail client from, or silently no-op on — shipping a form that can silently swallow a message is worse than not shipping one. Author's decision (task-7 ruling): keep the contact section's heading, copy and email details verbatim; drop the form and replace it with a direct mailto CTA. These six field-label/submit-button fragments are the form's only casualties.",
+  "/": [
+    "First name",
+    "Last name",
+    "Company",
+    "Work email",
+    "Message",
+    "Send message"
+  ],
   "/features": [],
   "/pricing": [],
   "/about": [],
