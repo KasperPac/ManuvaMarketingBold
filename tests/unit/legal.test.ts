@@ -80,3 +80,42 @@ test('terms carve-out list under §15 keeps its exact 6 items', () => {
     expect(h, `missing carve-out: ${item}`).toContain(item);
   }
 });
+
+// TOC is real page content per team-lead ruling (an in-document nav aid, not
+// site chrome) — the copy-parity gate strips every <nav> on both sides of
+// the comparison, so it cannot see a TOC that silently drops an entry.
+// Nothing else on the page checks this, same reasoning as Task 9's own
+// anchor-integrity test (features.test.ts), which this follows.
+test.each(pages)('%s every in-page anchor link resolves to a real id on the page', (_n, path) => {
+  const h = readFileSync(path, 'utf8');
+  const hrefs = [...h.matchAll(/href="#([a-zA-Z0-9-]+)"/g)].map((m) => m[1]);
+  expect(hrefs.length, 'page should have in-page anchor links to check').toBeGreaterThan(0);
+  const ids = new Set([...h.matchAll(/\sid="([a-zA-Z0-9-]+)"/g)].map((m) => m[1]));
+  for (const href of hrefs) {
+    expect(ids, `href="#${href}" has no matching id anywhere on the page`).toContain(href);
+  }
+});
+
+// h.indexOf('</nav>') alone would find the SITE nav's own closing tag (Base's
+// <Nav />, which appears earlier in the document than site-doc-toc) rather
+// than this TOC's — the second argument anchors the search to start looking
+// only after the TOC opens.
+test('privacy TOC has exactly 10 entries, one per clause', () => {
+  const h = readFileSync('dist/privacy.html', 'utf8');
+  const tocStart = h.indexOf('site-doc-toc');
+  const toc = h.slice(tocStart, h.indexOf('</nav>', tocStart));
+  const tocLinks = [...toc.matchAll(/<li><a href="#/g)];
+  const clauseNums = [...h.matchAll(/<h2[^>]*>(\d+)\./g)];
+  expect(tocLinks.length).toBe(10);
+  expect(tocLinks.length).toBe(clauseNums.length);
+});
+
+test('terms TOC has exactly 19 entries, one per clause', () => {
+  const h = readFileSync('dist/terms.html', 'utf8');
+  const tocStart = h.indexOf('site-doc-toc');
+  const toc = h.slice(tocStart, h.indexOf('</nav>', tocStart));
+  const tocLinks = [...toc.matchAll(/<li><a href="#/g)];
+  const clauseNums = [...h.matchAll(/<h2[^>]*>(\d+)\./g)];
+  expect(tocLinks.length).toBe(19);
+  expect(tocLinks.length).toBe(clauseNums.length);
+});

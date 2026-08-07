@@ -15,6 +15,17 @@ import Base from './Base.astro';
 // `twitterDescription` likewise isn't in the brief's Props list, but
 // Base.astro gates its whole twitter:card block on it being supplied, and
 // both old pages carry a real Twitter card (Task 10 fix round 2 precedent).
+//
+// `toc` — the old page's "On this page" table of contents. Team-lead ruling:
+// this is content, not chrome — a genuine in-document navigation aid for a
+// 38-48KB document, categorically different from the site nav/drawer that
+// CHROME_SELECTORS targets. The parity gate strips every <nav> on both sides
+// (it can't see this either way), which is exactly why it needed a human
+// call rather than a green gate. `id` values are the old page's own section
+// ids (already used as this document's own heading anchors); `label` is the
+// old TOC's own link text, which is not always identical to the matching
+// h2 (see privacy.astro's own note on the #share entry) — carried across
+// verbatim rather than "corrected" to match.
 export interface Props {
   title: string;
   description: string;
@@ -25,10 +36,11 @@ export interface Props {
   effective: string;
   version: string;
   updated: string;
+  toc: { id: string; label: string }[];
 }
 const {
   title, description, canonical, twitterDescription,
-  heading, sub, effective, version, updated,
+  heading, sub, effective, version, updated, toc,
 } = Astro.props;
 ---
 <Base title={title} description={description} canonical={canonical} twitterDescription={twitterDescription}>
@@ -57,6 +69,14 @@ const {
         <span><strong>Last updated:</strong> {updated}</span>
       </div>
     </div>
+    <nav class="site-doc-toc" aria-label="On this page">
+      <p class="site-doc-toc-title">On this page</p>
+      <ol>
+        {toc.map((item) => (
+          <li><a href={`#${item.id}`}>{item.label}</a></li>
+        ))}
+      </ol>
+    </nav>
     <slot />
   </article>
 </Base>

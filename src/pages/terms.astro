@@ -8,6 +8,32 @@ import { APP_URL } from '../site';
 // though the task brief's Props list didn't have them.
 const description =
   'The agreement between Manuva (operated by Pac Technologies Pty Ltd) and customers who use the Manuva platform.';
+
+// The old page's own "On this page" TOC — ids match this document's own
+// section anchors below; labels are the old TOC's own link text verbatim
+// (several are shortened from the matching h2, e.g. #introduction drops
+// "to these Terms" — the old page's own choice, not an error to fix here).
+const toc = [
+  { id: 'introduction', label: 'Introduction & agreement' },
+  { id: 'service', label: 'The Service' },
+  { id: 'account', label: 'Account, signup & free trial' },
+  { id: 'billing', label: 'Subscription, billing & taxes' },
+  { id: 'customer-data', label: 'Customer Data & ownership' },
+  { id: 'ip', label: 'Intellectual property' },
+  { id: 'aup', label: 'Acceptable use' },
+  { id: 'privacy-dpa', label: 'Security, privacy & data processing' },
+  { id: 'availability', label: 'Service availability' },
+  { id: 'support', label: 'Support' },
+  { id: 'termination', label: 'Suspension & termination' },
+  { id: 'confidentiality', label: 'Confidentiality' },
+  { id: 'warranties', label: 'Warranties & disclaimers' },
+  { id: 'indemnity', label: 'Indemnification' },
+  { id: 'liability', label: 'Limitation of liability' },
+  { id: 'governing-law', label: 'Governing law & disputes' },
+  { id: 'changes', label: 'Changes to these Terms' },
+  { id: 'general', label: 'General provisions' },
+  { id: 'definitions', label: 'Definitions' },
+] as const;
 ---
 <Doc
   title="Terms of Service — Manuva"
@@ -19,6 +45,7 @@ const description =
   effective="12 May 2026"
   version="1.0"
   updated="12 May 2026"
+  toc={toc}
 >
   <section id="introduction">
     <h2>1. Introduction &amp; agreement to these Terms</h2>

@@ -8,6 +8,24 @@ import { APP_URL } from '../site';
 // though the task brief's Props list didn't have them.
 const description =
   'How Manuva collects, uses, discloses, and protects personal information in accordance with the Australian Privacy Principles.';
+
+// The old page's own "On this page" TOC — ids match this document's own
+// section anchors below; labels are the old TOC's own link text verbatim.
+// Note #share: the TOC itself reads "Who we share information with", one
+// word short of the matching h2's "Who we share your information with" —
+// a source inconsistency, carried across as-is rather than corrected.
+const toc = [
+  { id: 'introduction', label: 'Introduction & scope' },
+  { id: 'collect', label: 'Personal information we collect' },
+  { id: 'use', label: 'How & why we use your information' },
+  { id: 'share', label: 'Who we share information with' },
+  { id: 'retention', label: 'Data retention & deletion' },
+  { id: 'rights', label: 'Your rights' },
+  { id: 'security', label: 'Security & data protection' },
+  { id: 'roadmap', label: 'Roadmap & planned changes' },
+  { id: 'contact', label: 'Contact & complaints' },
+  { id: 'definitions', label: 'Definitions' },
+] as const;
 ---
 <Doc
   title="Privacy Policy — Manuva"
@@ -19,6 +37,7 @@ const description =
   effective="12 May 2026"
   version="1.1"
   updated="12 May 2026"
+  toc={toc}
 >
   <section id="introduction">
     <h2>1. Introduction &amp; scope</h2>

@@ -698,6 +698,23 @@ a.site-tile { color: inherit; }
 .site-doc a { color: var(--brand-1); }
 .site-doc hr { margin: var(--space-8) 0; }
 
+/* In-document TOC — a plain list of links to the sections below it, same as
+   the old page's own <nav class="toc">. Kept inside .site-doc's 72ch measure
+   (no width rule of its own), and deliberately not redesigned into anything
+   other than "On this page" + a list of links, per team-lead ruling. Placed
+   after the general `.site-doc ul, .site-doc ol` rule above (same 0,1,1
+   specificity — source order decides), so its 2-column list layout wins over
+   that rule's single-column grid instead of being silently overridden by it. */
+.site-doc-toc { background: var(--bg-card); border: 1px solid var(--stroke-card); border-radius: var(--radius-md); padding: var(--space-5) var(--space-6); margin-bottom: var(--space-8); }
+.site-doc-toc-title { font-family: var(--font-display); font-size: var(--fs-xs); font-weight: var(--fw-bold); letter-spacing: var(--ls-caps); text-transform: uppercase; color: var(--ink-muted); margin: 0 0 var(--space-3); }
+.site-doc-toc ol { margin: 0; padding-left: var(--space-5); columns: 2; column-gap: var(--space-6); display: block; }
+.site-doc-toc li { font-size: var(--fs-sm); color: var(--ink-muted); margin-bottom: var(--space-2); break-inside: avoid; }
+.site-doc-toc a { color: var(--ink-muted); }
+.site-doc-toc a:hover { color: var(--brand-1); }
+@media (max-width: 620px) {
+  .site-doc-toc ol { columns: 1; }
+}
+
 .site-doc-note {
   background: var(--bg-card-2); border: 1px solid var(--stroke-card); border-left: 3px solid var(--brand-1);
   border-radius: var(--radius-sm); padding: var(--space-4); margin: 0 0 var(--space-4); font-size: var(--fs-sm); color: var(--ink-muted);
