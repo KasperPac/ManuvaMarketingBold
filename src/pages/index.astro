@@ -123,8 +123,12 @@ const COMPARE_ROWS = [
 const description =
   'Inventory, BOMs, work orders, and stock control — connected, live, and built for the floor. The simpler alternative to legacy MRP for Shopify manufacturers.';
 ---
+{/* title is the old page's own <title>, verbatim — not Landing.jsx:74's hero
+    eyebrow, which is what shipped here before. On a re-skin whose whole point
+    is preserving rankings, the title tag is the last thing that should
+    drift, and og:title inherits this same value via Base. */}
 <Base
-  title="Manuva — MRP for Shopify manufacturers"
+  title="Manuva — Manufacturing operations, finally simple"
   description={description}
   canonical="https://manuva.app/"
 >
@@ -170,11 +174,12 @@ const description =
 
   {/* product shot on a cobalt TINT, not a field. Never a field behind a table, and
       this is the real screenshot, not a mocked DataTable. Old page nests this
-      inside the hero itself; given its own moment here per the original brief. */}
+      inside the hero itself, with no heading of its own — it's presentational,
+      given its own section here per the original brief, but not a heading we
+      have to invent to justify (both the old eyebrow "Live, not nightly" and
+      h2 "Real-time inventory" were Landing.jsx:116, sourced nowhere else). */}
   <section class="mv-section site-shot">
     <div class="mv-wrap">
-      <span class="mv-eyebrow">Live, not nightly</span>
-      <h2 class="mv-display">Real-time inventory</h2>
       <img
         src="/screen-dashboard.png"
         width="2080"
@@ -224,7 +229,7 @@ const description =
       </p>
       <div class="mv-cols-2">
         {PILLARS.map((p) => (
-          <Tile field={p.field} icon={p.icon} title={p.title} href={p.href}>
+          <Tile field={p.field} icon={p.icon} title={p.title} href={p.href} headingLevel="h3">
             {p.body}{' '}
             <span class="site-tile-chips">
               {p.chips.map((c) => <span class="site-tile-chip">{c} </span>)}

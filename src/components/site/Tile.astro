@@ -1,11 +1,18 @@
 ---
 import Icon from '../ds/Icon.astro';
 import type { FieldName } from '../../site';
-export interface Props { field: FieldName; num?: string; icon?: string; title: string; href?: string }
-const { field, num, icon, title, href } = Astro.props;
+export interface Props {
+  field: FieldName; num?: string; icon?: string; title: string; href?: string;
+  /** Root tag for the title element. Defaults to a plain div; pass a real
+   * heading (e.g. "h3") when the tile stands in for old-page content that
+   * used one, so page-wide heading hierarchy survives the re-skin. */
+  headingLevel?: 'div' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+}
+const { field, num, icon, title, href, headingLevel = 'div' } = Astro.props;
 // href turns the tile into a real link, root tag <a> instead of <div> — an
 // unlinked tile has no reason to be one or the other.
 const Tag = href ? 'a' : 'div';
+const TitleTag = headingLevel;
 ---
 <Tag
   href={href}
@@ -16,6 +23,6 @@ const Tag = href ? 'a' : 'div';
     {icon && <Icon name={icon} size={30} />}
     {num && <span class="mv-score site-tile-num">{num}</span>}
   </div>
-  <div class="site-tile-title">{title}</div>
+  <TitleTag class="site-tile-title">{title}</TitleTag>
   <div class="site-tile-body"><slot /></div>
 </Tag>
