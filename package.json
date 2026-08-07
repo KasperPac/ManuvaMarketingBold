@@ -15,12 +15,15 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "parity": "node scripts/parity/check.js",
-    "parity:strict": "node scripts/parity/check.js --require-all"
+    "parity:strict": "node scripts/parity/check.js --require-all",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "astro": "^7.2.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
+    "@playwright/test": "^1.62.1",
     "cheerio": "^1.2.0",
     "lucide-static": "0.544.0",
     "vitest": "^4.1.10"

@@ -10,12 +10,19 @@ const { href, field, ghost = false, class: className } = Astro.props;
 // `.site-pill-ghost` class relied on exactly that losing battle and was
 // inert everywhere it was used (caught on the home page's own "Book a demo").
 // `color: inherit` picks up whatever ink the surrounding Panel/Field already
-// set — white on a dark field, dark ink on a light one — and
-// color-mix(...currentColor...) derives a correctly-tinted translucent fill
-// and ring from it, so one implementation works on any field colour instead
-// of assuming a dark (cobalt-style) background.
+// set — white on a dark field, dark ink on a light one. The ring still mixes
+// from currentColor (a decorative outline, held to non-text 3:1 contrast,
+// so it can safely tint toward whichever ink is in scope). The fill can't:
+// on a white-ink field, mixing currentColor (white) into the background
+// LIGHTENS it, which is exactly the wrong direction for white text — cobalt
+// and violet's own --on-* pairing already sits close to the 4.5:1 floor
+// (white on #3A5EFF measures ~4.87:1), and 14% white pushed both below AA
+// (Task 14: axe flagged 3.9 on both). Mixing toward black always darkens
+// instead, which helps every white-ink field and, on the four dark-ink
+// fields this button also ships on (aqua, mint — comfortably clear AA to
+// begin with), costs only a little of a margin that was never tight.
 const ghostStyle =
-  'color:inherit;background:color-mix(in srgb, currentColor 14%, transparent);border-color:transparent;' +
+  'color:inherit;background:color-mix(in srgb, black 14%, transparent);border-color:transparent;' +
   'box-shadow:inset 0 0 0 1.5px color-mix(in srgb, currentColor 40%, transparent)';
 const style = field
   ? `background:var(--field-${field});color:var(--on-${field});border-color:var(--field-${field})`

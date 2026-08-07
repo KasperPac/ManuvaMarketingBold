@@ -81,7 +81,14 @@ test('a field-scoped pill keeps its field colours and the button pill radius tog
 test('a ghost pill composes its translucent styling into the inline style, not a dead CSS class', async () => {
   const html = await render(Pill, { href: 'https://app.manuva.app', ghost: true }, 'Book a demo');
   expect(html, 'inherits ink from the surrounding field').toContain('color:inherit');
-  expect(html, 'translucent fill derived from currentColor').toContain('color-mix(in srgb, currentColor 14%, transparent)');
+  // Task 14: the fill mixes toward black, not currentColor — on a white-ink
+  // field (cobalt, violet), mixing currentColor (white) into the background
+  // lightens it, which measured below AA for the white text on top of it
+  // (axe: 3.19-3.9:1 depending on field). The ring is unaffected: it's a
+  // decorative outline, held to non-text 3:1 contrast, so tinting it from
+  // currentColor is still correct and still adapts to whichever ink is in
+  // scope.
+  expect(html, 'translucent fill mixes toward black').toContain('color-mix(in srgb, black 14%, transparent)');
   expect(html, 'translucent ring derived from currentColor').toContain('color-mix(in srgb, currentColor 40%, transparent)');
   expect(html, 'button geometry').toContain('var(--radius-pill)');
   expect(html, 'no leftover class hook').not.toContain('site-pill-ghost');

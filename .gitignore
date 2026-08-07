@@ -2,6 +2,12 @@
 dist/
 .astro/
 
+# playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
 # generated: design-system files copied in for serving
 public/_ds/
 
