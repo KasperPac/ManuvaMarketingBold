@@ -71,6 +71,26 @@ test('a field-scoped pill keeps its field colours and the button pill radius tog
   expect(html.indexOf('var(--radius-pill)')).toBeLessThan(html.indexOf('var(--field-lime)'));
 });
 
+// Task 9: a ghost pill's translucent styling used to live in a `.site-pill-ghost`
+// CSS class, which can never win against Button's own inline style="..." — every
+// shipped usage rendered as the plain "ink" variant instead of a ghost. The fix
+// composes the ghost look into the SAME inline style string Button already writes
+// (the same channel `field` uses above), so this guards the same class of bug
+// Task 5's style-merge regression tests guard: presence isn't enough, the ghost
+// declarations must come after (and therefore win over) Button's own.
+test('a ghost pill composes its translucent styling into the inline style, not a dead CSS class', async () => {
+  const html = await render(Pill, { href: 'https://app.manuva.app', ghost: true }, 'Book a demo');
+  expect(html, 'inherits ink from the surrounding field').toContain('color:inherit');
+  expect(html, 'translucent fill derived from currentColor').toContain('color-mix(in srgb, currentColor 14%, transparent)');
+  expect(html, 'translucent ring derived from currentColor').toContain('color-mix(in srgb, currentColor 40%, transparent)');
+  expect(html, 'button geometry').toContain('var(--radius-pill)');
+  expect(html, 'no leftover class hook').not.toContain('site-pill-ghost');
+  // Order matters, not just presence: the ghost declarations must land after
+  // Button's own computed style (which unconditionally sets color/background
+  // for the ink variant) so they win on conflicting properties.
+  expect(html.indexOf('var(--radius-pill)')).toBeLessThan(html.indexOf('color:inherit'));
+});
+
 test('marquee duplicates its words so the loop is seamless', async () => {
   const words = ['Yield % on every BOM line', '14-day free trial'];
   const html = await render(Marquee, { words });

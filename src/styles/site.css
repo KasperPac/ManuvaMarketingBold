@@ -125,9 +125,9 @@ a.site-tile { color: inherit; }
 .site-hero-meta { display: flex; gap: var(--space-6); font-size: var(--fs-md); opacity: .76; }
 .site-hero-meta div { display: flex; align-items: center; gap: var(--space-2); }
 
-/* A ghost pill needs its own colours, not a field — it sits directly on the
-   cobalt hero panel rather than promoting a fold colour of its own. */
-.site-pill-ghost { background: rgb(255 255 255 / .14); color: var(--on-cobalt); box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / .4); }
+/* Ghost pill styling (Pill's `ghost` prop) is composed into Button's inline
+   style string in Pill.astro itself, not here — a CSS class can't win against
+   the inline style Button always writes. See Pill.astro's comment. */
 
 /* --- home: integrations strip --- */
 .site-integrations { text-align: center; }
@@ -321,6 +321,60 @@ a.site-tile { color: inherit; }
 .site-faq-q { font-size: var(--fs-lg); font-weight: var(--fw-semibold); color: var(--ink-strong); cursor: pointer; list-style: none; }
 .site-faq-q::-webkit-details-marker { display: none; }
 .site-faq-a { font-size: var(--fs-md); color: var(--ink-muted); line-height: var(--lh-normal); margin-top: var(--space-3); }
+
+/* --- features: hero --- */
+.site-features-hero-panel { display: grid; justify-items: center; text-align: center; gap: var(--space-6); padding: var(--space-16); }
+.site-features-hero-title { font-size: var(--fs-display-4); max-width: 20ch; }
+.site-features-hero-sub { margin: 0; max-width: 60ch; font-size: var(--fs-lg); line-height: var(--lh-normal); opacity: .82; text-wrap: pretty; }
+.site-features-hero-actions { margin-top: var(--space-2); }
+
+/* --- features: domain grid (additive summary band, not a replacement for
+   the ten sections below — see features.astro's DOMAINS comment) --- */
+.site-domain-section { text-align: center; }
+.site-domain-grid { margin-top: var(--space-8); }
+.site-domain-tile { min-height: auto; padding: var(--space-5); display: grid; justify-items: center; text-align: center; gap: var(--space-2); }
+.site-domain-tile .site-tile-head { justify-content: center; }
+.site-domain-tile .site-tile-title { font-size: var(--fs-sm); letter-spacing: normal; text-transform: none; }
+.site-domain-tile .site-tile-body { display: none; }
+
+/* --- features: detail sections --- */
+.site-feat-heading { font-size: var(--fs-display-2); max-width: 44ch; margin: var(--space-3) 0 var(--space-4); }
+.site-feat-intro { max-width: 64ch; font-size: var(--fs-lg); line-height: var(--lh-normal); opacity: .8; margin: 0 0 var(--space-12); }
+
+.site-feat-row-image { display: grid; grid-template-columns: 1fr 1.1fr; gap: var(--space-14); align-items: center; }
+
+.site-feat-grid { gap: var(--space-2) var(--space-8); }
+.site-feat { display: flex; gap: var(--space-3); padding: var(--space-2) 0; }
+.site-feat-icon {
+  flex: none; width: 28px; height: 28px; border-radius: var(--radius-xs);
+  background: var(--brand-dim); color: var(--brand-1);
+  display: grid; place-items: center;
+}
+.site-feat-body { min-width: 0; }
+.site-feat-title { font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--ink-strong); margin: var(--space-1) 0; }
+.site-feat-desc { font-size: var(--fs-sm); color: var(--ink-muted); line-height: var(--lh-normal); margin: 0; }
+.site-feat-tier {
+  display: inline-block; font-size: var(--fs-xs); font-weight: var(--fw-bold);
+  padding: 1px var(--space-2); border-radius: var(--radius-pill); letter-spacing: var(--ls-caps);
+  text-transform: uppercase; background: var(--brand-dim); color: var(--brand-1); vertical-align: middle;
+}
+.site-feat-tier-pro { background: var(--bg-card-2); color: var(--ink-strong); }
+.site-feat-tier-ent { background: var(--bg-card-2); color: var(--ink-muted); }
+
+.site-differentiator {
+  margin-top: var(--space-8); padding: var(--space-4) var(--space-5);
+  background: var(--bg-card-2); border: 1px solid var(--stroke-card); border-radius: var(--radius-md);
+  font-size: var(--fs-sm); color: var(--ink-muted); line-height: var(--lh-normal);
+  display: flex; gap: var(--space-3); align-items: flex-start;
+}
+.site-differentiator-icon { flex: none; color: var(--brand-1); display: grid; place-items: center; }
+.site-differentiator strong { color: var(--ink-strong); }
+
+.site-feat-image img { width: 100%; height: auto; display: block; border-radius: var(--radius-tile); box-shadow: var(--shadow-lg); }
+
+@media (max-width: 960px) {
+  .site-feat-row-image { grid-template-columns: 1fr; gap: var(--space-8); }
+}
 
 /* --- home: contact --- */
 .site-contact-inner { display: grid; justify-items: center; text-align: center; gap: var(--space-5); max-width: 60ch; margin-inline: auto; }

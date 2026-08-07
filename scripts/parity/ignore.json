@@ -9,7 +9,10 @@
     "Message",
     "Send message"
   ],
-  "/features": [],
+  "/features_reason": "The old page's Floor board feature (#production-planning) carries data-lucide=\"layout-kanban\", which is not a real Lucide icon name in any version (checked lucide-static@0.544.0's full 1636-icon index and its tag list, not just the pinned build — no match, not even as a deprecated alias). lucide.createIcons() silently skips unrecognised names, so it renders as an empty, invisible icon on the live old site too — a bug in the source, not something this build is failing to port. Substituted the closest real, working glyph (kanban-square) for both that feature and the matching domain-grid tile. Team-lead ruling (task-9): authorised — nothing a reader can see is lost, the \"lost\" content is a broken icon reference.",
+  "/features": [
+    "[icon:layout-kanban]"
+  ],
   "/pricing_reason": "The old page's entire mobile treatment for the feature matrix was this two-sentence note telling the reader to come back on a bigger screen (matrix-section is display:none below 720px with nothing standing in for it but this text). This build ships a real mobile fallback instead (.mv-matrix-cards, the old page's own KEEP-IN-SYNC plan-feats-mobile content, relocated into FeatureMatrix.astro) — so the instruction to leave and open a desktop is obsolete, not lost. Team-lead ruling (task-8): drop the note rather than keep it as a caption above a working mobile view, which would be actively contradictory.",
   "/pricing": [
     "Need every feature side-by-side?",

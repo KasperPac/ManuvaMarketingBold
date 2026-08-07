@@ -1,0 +1,353 @@
+---
+import Base from '../layouts/Base.astro';
+import Field from '../components/site/Field.astro';
+import Panel from '../components/site/Panel.astro';
+import Tile from '../components/site/Tile.astro';
+import Pill from '../components/site/Pill.astro';
+import CtaBand from '../components/site/CtaBand.astro';
+import Icon from '../components/ds/Icon.astro';
+import Button from '../components/ds/Button.astro';
+import { APP_URL } from '../site';
+
+// The old page's own <title>/<meta description>/og:*, verbatim — confirmed
+// identical across <title>, og:title, og:description and twitter:* in the
+// source's <head>. Not assembled, not the reference layout's copy.
+const description =
+  'Inventory, BOMs, production, purchasing, capacity, costing, and reporting — everything Manuva does, in one place.';
+
+// The plan's field sequence calls for a "six-tile domain grid" above the ten
+// detail sections. That grid's content in the plan traced back to
+// Landing.jsx's DOMAINS array, which Task 7 established is invented — none
+// of its blurbs appear in the old site or llms.txt. Per the controller's
+// ruling, rebuilt instead from the old page's own <nav class="jump-nav"
+// aria-label="Feature sections"> — the old page's real same-page index into
+// these same ten sections. That nav has ten entries, not six (forcing an
+// arbitrary six-way split over ten real domains would itself be invention),
+// so this ships as a ten-tile grid. <nav> is stripped as chrome by the parity
+// gate on both sides, so these exact link labels were never part of the old
+// page's measured copy — reusing them here is additive, not a copy fix.
+// Icons are reused from the first feature already listed under each section
+// below (real, already-used glyphs — not new ones invented for this grid).
+const DOMAINS = [
+  { label: 'BOMs & Manufacturing', href: '#boms', icon: 'layers', field: 'cobalt' },
+  { label: 'Orders', href: '#orders', icon: 'shopping-cart', field: 'violet' },
+  { label: 'Inventory', href: '#inventory', icon: 'package', field: 'mint' },
+  { label: 'Lot Tracking', href: '#lot-tracking', icon: 'hash', field: 'amber' },
+  { label: 'Purchasing', href: '#purchasing', icon: 'file-text', field: 'flare' },
+  { label: 'Production', href: '#production-planning', icon: 'kanban-square', field: 'aqua' },
+  { label: 'Capacity & Team', href: '#capacity', icon: 'building-2', field: 'lime' },
+  { label: 'Costing', href: '#costing', icon: 'calculator', field: 'ink' },
+  { label: 'Reports', href: '#reports', icon: 'layout-dashboard', field: 'cobalt' },
+  { label: 'Shopify & Platform', href: '#shopify', icon: 'shopping-bag', field: 'violet' },
+] as const;
+
+// The ten detail sections, verbatim from the old page's own ten <h2> groups,
+// in the old page's own order. Field sequence: paper by default; a full-bleed
+// Field after section 3 (violet, on lot-tracking) and after section 7
+// (cobalt, on costing) — the only two colour breaks in the spine.
+const GROUPS = [
+  {
+    id: 'boms',
+    eyebrow: 'BOMs & Manufacturing',
+    heading: 'Build, version, and run BOMs that keep up with reality.',
+    intro:
+      'From simple kits to multi-level assemblies — track every component, every version, and every change. Cost and margin update automatically.',
+    image: {
+      src: '/screen-variant.png',
+      alt: 'Manuva variant detail showing versioned bills of materials with side-by-side cost comparison',
+    },
+    feats: [
+      { icon: 'layers', title: 'Multi-level / nested BOMs', desc: 'Sub-assemblies, kits, and finished goods all in one tree. Costs roll up automatically.' },
+      { icon: 'percent', title: 'Yield % per BOM line', tier: 'Growth+', desc: 'Set realistic scrap allowances per component. Material requirements reflect what you actually consume.' },
+      { icon: 'git-branch', title: 'BOM versioning', tier: 'Growth+', desc: 'Draft, publish, and roll back. Every change is captured — history never gets overwritten.' },
+      { icon: 'split', title: 'Side-by-side version comparison', tier: 'Growth+', desc: 'See added, removed, and changed components at a glance — with the cost and margin impact spelled out.' },
+      { icon: 'copy', title: 'BOM templates', tier: 'Growth+', desc: 'Reuse common structures across product variants. Update the template once, propagate everywhere.' },
+      { icon: 'hammer', title: 'Production orders', desc: 'Issue work orders, allocate components, and track each run from start to finish.' },
+      { icon: 'boxes', title: 'Component allocation engine', desc: 'Allocates stock to orders automatically. Catches missing components before production starts.' },
+    ],
+    differentiator: { icon: 'zap', lead: 'Unique to Manuva:', text: 'Yield %, BOM versioning with comparison, and templates — none of which Katana offers at any price.' },
+  },
+  {
+    id: 'orders',
+    eyebrow: 'Orders & Fulfilment',
+    heading: 'Every order, from sale to shipment.',
+    intro:
+      "Shopify orders flow in automatically. Manual and B2B orders go in directly. Manuva tracks each line from component allocation through to delivery — so nothing slips.",
+    feats: [
+      { icon: 'shopping-cart', title: 'Order list & pipeline view', desc: "All open orders in one place with live pipeline status — what's in stock, what's in production, and what's shipped. Filter by status, source, or date range." },
+      { icon: 'pen-line', title: 'Manual & B2B orders', desc: "Don't sell through Shopify? Enter orders directly in Manuva. Components allocate, production kicks off, and delivery is tracked — the same as any Shopify order." },
+      { icon: 'boxes', title: 'Automatic component allocation', desc: 'When an order comes in, Manuva allocates the required components from stock against each BOM line. Shortfalls surface immediately — with the earliest open-PO ETA shown.' },
+      { icon: 'link-2', title: 'BOM linked per order line', desc: "Each sales line shows which BOM version it's running from, whether there's a BOM gap, and the planned vs actual margin for that line." },
+      { icon: 'package-check', title: 'Delivery tracking per line', desc: 'Mark individual order lines as shipped independently. Shopify orders auto-update on fulfilment. Partial shipments tracked from day one.' },
+      { icon: 'clock-3', title: 'SLA & target ship dates', desc: 'Set lead times per order source (Shopify, B2B). Manuva calculates the target ship date and flags overdue orders before they become a complaint.' },
+    ],
+  },
+  {
+    id: 'inventory',
+    eyebrow: 'Inventory',
+    heading: 'Stock counts you can actually trust.',
+    intro: 'Every movement logged. Every adjustment tracked. Bin-level locations mean nothing gets lost on the floor.',
+    feats: [
+      { icon: 'package', title: 'Component & raw material tracking', desc: 'From bolts and fasteners to fabric and chemicals — track every input to your products.' },
+      { icon: 'package-2', title: 'Finished goods tracking', desc: 'Stock counts that update automatically as production completes and orders ship.' },
+      { icon: 'arrow-right-left', title: 'Inventory movements ledger', desc: 'A live log of every stock change — receipts, transfers, adjustments, consumption. Nothing disappears into thin air.' },
+      { icon: 'clipboard-list', title: 'Stocktake & cycle counts', desc: 'Run full stocktakes or partial cycle counts. Variance is captured and reconciled with one click.' },
+      { icon: 'history', title: 'Activity log', desc: 'Who did what, when. Audit trail across every change in the system — for compliance and for sanity.' },
+      { icon: 'bell-ring', title: 'Low stock alerts', desc: 'Configurable thresholds per component. Get warned before you run out, not after.' },
+      { icon: 'map-pin', title: 'Bin & aisle locations', tier: 'Growth+', desc: 'Tell your warehouse team exactly where each component lives. No more wandering around looking for stock.' },
+      { icon: 'warehouse', title: 'Multi-warehouse', tier: 'Growth+', desc: 'Run stock across multiple locations — main warehouse, satellite stockroom, 3PL. Move inventory between them with full traceability.' },
+      { icon: 'scan-barcode', title: 'Mobile barcode scanner', tier: 'Growth+', desc: 'A mobile-optimised scanner app for your warehouse team. Scan a barcode and the component resolves instantly — no round-trips to the server.' },
+      { icon: 'clipboard-list', title: 'Scan-to-count', tier: 'Growth+', desc: 'Run stocktakes with a scanner. Open a session, scan components, enter counts. Progress tracked in real time — no paper tally sheets.' },
+      { icon: 'map-pin', title: 'Scan-to-locate', tier: 'Growth+', desc: 'Scan a component barcode and assign it to its bin location on the spot. Batch updates confirmed in one step.' },
+    ],
+  },
+  {
+    id: 'lot-tracking',
+    fold: 'violet',
+    eyebrow: 'Lot tracking & traceability',
+    heading: 'Trace every finished good back to the lot it came from.',
+    intro:
+      'Lot numbers, expiry dates, and end-to-end traceability for brands where provenance, shelf life, or recall preparedness actually matter — food, cosmetics, supplements, electronics, regulated components.',
+    feats: [
+      { icon: 'hash', title: 'Lot & batch numbers', tier: 'Growth+', desc: 'Assign lot or batch numbers at goods receipt. Auto-generate or capture supplier batch codes. Every component instance carries its lot through the system.' },
+      { icon: 'calendar-x', title: 'Expiry dates per lot', tier: 'Growth+', desc: 'Track expiration on perishable or shelf-life-limited components. Get alerts before a lot expires; FEFO (first expired, first out) picking on production allocation.' },
+      { icon: 'git-fork', title: 'End-to-end traceability', tier: 'Growth+', desc: "Supplier → component lot → production order → finished good → customer order. Trace any unit you've shipped back to the raw materials that built it, in seconds." },
+      { icon: 'shield-alert', title: 'Recall reports', tier: 'Pro+', desc: 'A bad lot ships in. Pull a report of every finished good produced from it, and every customer order those units went to. Recall preparedness without a spreadsheet panic.' },
+      { icon: 'clipboard-pen-line', title: 'Lot-level stocktakes', tier: 'Growth+', desc: 'Count by lot, not just by SKU. Reconcile variances per lot to catch substitution errors and miscounts before they corrupt traceability.' },
+      { icon: 'badge-check', title: 'Audit-ready exports', tier: 'Pro+', desc: 'Export lot histories for compliance audits — FDA, TGA, GMP, BRC. CSV and PDF with full chain-of-custody from receipt to shipment.' },
+    ],
+    differentiator: { icon: 'zap', lead: 'Unique to Manuva:', text: "End-to-end lot traceability paired with recall reports at Pro — Katana doesn't ship lot tracking at any tier, and competitors that do typically gate it behind enterprise-only plans." },
+  },
+  {
+    id: 'purchasing',
+    eyebrow: 'Purchasing & Suppliers',
+    heading: 'Purchase orders that close the loop.',
+    intro:
+      "Issue POs, receive deliveries, and surface what your suppliers actually deliver on time. Operational intelligence that competitors don't surface at this price point.",
+    feats: [
+      { icon: 'file-text', title: 'Purchase orders', desc: 'Create POs against suppliers, send them out, and track them through to receipt.' },
+      { icon: 'users', title: 'Supplier management', desc: 'Contacts, payment terms, lead times, and component pricing — all in one supplier record.' },
+      { icon: 'truck', title: 'Goods inwards / receiving', desc: 'Receive deliveries against POs. Capture discrepancies (short delivery, wrong items, damaged stock) the moment they arrive.' },
+      { icon: 'clock-4', title: 'Lead-time tracking', desc: 'Manuva measures promised vs actual lead times on every PO. Know which suppliers are reliable and which slip.' },
+      { icon: 'alert-triangle', title: 'PO variance reporting', desc: 'What you ordered vs what you received vs what you were invoiced. Catches errors before they hit the books.' },
+      { icon: 'bar-chart-3', title: 'Spend by supplier', tier: 'Growth+', desc: 'See your total purchasing volume broken down by supplier, component, and time period.' },
+      { icon: 'award', title: 'Supplier scorecards', tier: 'Pro+', desc: 'A rolled-up rating for every supplier — on-time delivery %, fill rate, price stability, PO accuracy. Sort the suppliers worth doubling down on from the ones costing you money quietly.' },
+    ],
+    differentiator: { icon: 'zap', lead: 'Unique to Manuva:', text: "PO variance, lead-time accuracy reports, and supplier scorecards — operational intelligence that Katana doesn't surface at any tier." },
+  },
+  {
+    id: 'production-planning',
+    eyebrow: 'Production Planning · Pro',
+    heading: 'Run the floor without a whiteboard.',
+    intro:
+      "Schedule jobs, track steps in sequence, and know exactly what's running and what's blocked — across every department, in real time.",
+    feats: [
+      /* Old page's own markup has data-lucide="layout-kanban" here — not a
+         real Lucide icon name in any version (checked lucide-static@0.544.0's
+         full tag index, not just the pinned build: no match, not even as a
+         deprecated alias). lucide.createIcons() silently skips unrecognised
+         names, so this renders as an empty, invisible icon on the live old
+         site too — a bug in the source, not a version-pin gap. Substituted
+         the closest real, working glyph (kanban-square) rather than port
+         the breakage; flagged to the controller since it also means the old
+         page's own extracted text contains a literal "[icon:layout-kanban]"
+         token our build can't reproduce (see task-9 report). */
+      { icon: 'kanban-square', title: 'Floor board', tier: 'Pro+', desc: "A live kanban-style view of every job in the system — what's unstarted, running, queued, and blocked, grouped by department." },
+      { icon: 'list-ordered', title: 'Step-by-step job tracking', tier: 'Pro+', desc: 'Break each production run into routing steps. Start and complete steps individually. Actual start and end times recorded automatically.' },
+      { icon: 'git-merge', title: 'Step dependencies', tier: 'Pro+', desc: 'Block steps until their predecessors finish. Completing step N automatically unlocks everything waiting on it — no manual chasing.' },
+      { icon: 'monitor-check', title: 'Shop floor operator view', tier: 'Pro+', desc: 'A simplified, tablet-friendly view of active and queued steps by department. Operators see only what they need — no admin noise.' },
+      { icon: 'mail-check', title: 'Production milestone notifications', tier: 'Pro+', desc: 'Trigger customer emails automatically when a production step completes — e.g. "your order is out of QC". Configured per BOM, sent once per order.' },
+      { icon: 'calendar-clock', title: 'Job scheduling', tier: 'Pro+', desc: 'Schedule production runs against your staffing calendar. Manuva calculates earliest start windows and flags capacity clashes before they happen.' },
+    ],
+  },
+  {
+    id: 'capacity',
+    eyebrow: 'Capacity & Team · Pro',
+    heading: 'Plan production around the people who actually do the work.',
+    intro:
+      'Departments, staffing levels, hours available, and what each production run actually cost in labour. No competitor in this segment ships this module at this price.',
+    feats: [
+      { icon: 'building-2', title: 'Departments', tier: 'Pro+', desc: 'Model your shop floor by department — assembly, finishing, packing, QC. Each with their own staffing and capacity.' },
+      { icon: 'users-round', title: 'Staffing levels', tier: 'Pro+', desc: 'Set how many people work in each department, their hours, and their cost rates. Manuva builds your capacity from there.' },
+      { icon: 'calendar-range', title: 'Capacity planning', tier: 'Pro+', desc: 'See your production load against available staff hours — week by week, department by department. Spot bottlenecks before they happen.' },
+      { icon: 'timer', title: 'Actual vs planned time', tier: 'Pro+', desc: 'Track time per production order. Compare against estimates. Improve your future planning with real data.' },
+      { icon: 'banknote', title: 'Staff costing', tier: 'Pro+', desc: 'Roll labour costs into production economics. Know what each finished unit actually cost — components and people.' },
+      { icon: 'target', title: 'Utilisation reporting', tier: 'Pro+', desc: "See how much of your team's available time was actually consumed by production. Identify slack and overload." },
+    ],
+    differentiator: { icon: 'award', lead: 'Manuva-only at this price:', text: 'Capacity planning with staff costing for $499/mo flat, unlimited users. MRPeasy charges per-user — a 10-person team hits $490/mo before any other features.' },
+  },
+  {
+    id: 'costing',
+    fold: 'cobalt',
+    eyebrow: 'Costing & Profitability',
+    heading: 'Know your margin before the job starts.',
+    intro: 'Cost up your BOMs automatically. See margin per product. Watch profitability across the whole operation in real time.',
+    feats: [
+      { icon: 'calculator', title: 'Cost per unit', tier: 'Growth+', desc: 'BOM rollup automatically calculates your finished-goods cost from component prices. Updates as supplier prices change.' },
+      { icon: 'trending-up', title: 'Margin tracking per product', tier: 'Growth+', desc: 'Sell price minus cost — for every product, every variant. See which SKUs are actually pulling their weight.' },
+      { icon: 'archive', title: 'Inventory valuation', tier: 'Growth+', desc: 'Live value of stock on hand — by component, by location, in total. The number you give your accountant at month-end.' },
+      { icon: 'receipt', title: 'COGS tracking', tier: 'Growth+', desc: 'Cost of goods sold flows through automatically as orders ship. No spreadsheet reconciliation at month-end.' },
+      { icon: 'line-chart', title: 'Financial profitability dashboard', tier: 'Pro+', desc: 'Revenue, COGS, gross margin, and operating costs in one live view. The CFO summary you can pull up in 10 seconds.' },
+      { icon: 'layers-3', title: 'Multi-cost allocation', tier: 'Pro+', desc: 'Allocate labour, components, and overhead to each production run. True unit economics, not estimates.' },
+    ],
+    differentiator: { icon: 'zap', lead: 'Unique to Manuva:', text: 'The financial profitability dashboard at Pro — Katana has no equivalent at any price.' },
+  },
+  {
+    id: 'reports',
+    eyebrow: 'Reports & Analytics',
+    heading: "Operational intelligence, not last week's spreadsheet.",
+    intro: 'Live data on stock, supplier performance, PO accuracy, and dead stock — the reports that actually drive decisions.',
+    feats: [
+      { icon: 'layout-dashboard', title: 'Real-time dashboard', desc: 'Open orders, components running low, fulfillment rate, and inventory value — all on one screen.' },
+      { icon: 'package-search', title: 'Stock on hand', tier: 'Growth+', desc: 'Current balances across every component and finished good, filterable by location and category.' },
+      { icon: 'arrow-left-right', title: 'Inventory movements', tier: 'Growth+', desc: 'Every stock change over a time range — receipts, consumption, transfers, adjustments.' },
+      { icon: 'wallet', title: 'Spend by supplier', tier: 'Growth+', desc: 'Total purchasing volume broken down by supplier, component, and period.' },
+      { icon: 'alert-octagon', title: 'PO variance', desc: 'Ordered vs received vs invoiced. Surface the gaps your accounts team will catch eventually.' },
+      { icon: 'gauge', title: 'Lead-time accuracy', desc: 'Promised vs actual lead times per supplier. Renegotiate from data, not gut feel.' },
+      { icon: 'snowflake', title: 'Dead stock & slow-movers', desc: "Identify components and finished goods that haven't moved. Free up capital and floor space." },
+      { icon: 'shield-check', title: 'Inventory integrity audit', desc: 'Surfaces phantom stock, negative balances, and reconciliation issues — before they corrupt your numbers.' },
+      { icon: 'clipboard-check', title: 'Stocktake history', desc: 'Every count, every variance, every reconciliation — preserved for audit.' },
+      { icon: 'calendar', title: 'Date range filtering', tier: 'Growth+', desc: 'Every report scoped to any period — month, quarter, fiscal year, custom range.' },
+      { icon: 'file-down', title: 'PDF & CSV export', tier: 'Pro+', desc: 'Every report exportable for board packs, accountants, and ad-hoc analysis.' },
+      { icon: 'filter', title: 'Custom filters & segments', desc: 'Slice every report by category, location, supplier, or any combination.' },
+    ],
+    differentiator: { icon: 'zap', lead: 'Unique to Manuva:', text: "PO variance, lead-time accuracy, and inventory integrity reports — operational intelligence buyers won't find in Katana, Qoblex, or Craftybase." },
+  },
+  {
+    id: 'shopify',
+    eyebrow: 'Shopify & Platform',
+    heading: 'Built around your Shopify store.',
+    intro: 'Real-time webhook sync, not nightly batch imports. Orders drive production. Inventory stays accurate across every channel.',
+    feats: [
+      { icon: 'shopping-bag', title: 'Shopify product & variant sync', desc: 'Products, variants, and inventory levels stay in sync between Manuva and Shopify automatically.' },
+      { icon: 'zap', title: 'Webhook-driven real-time sync', desc: 'Order created in Shopify → Manuva allocates in seconds. No lag, no overnight rebuild.' },
+      { icon: 'arrow-down-up', title: 'Order sync & allocation', desc: 'Every Shopify order flows in, components allocate against stock, and production orders cascade — without anyone touching a spreadsheet.' },
+      { icon: 'store', title: 'Multiple Shopify stores', tier: 'Pro+', desc: 'Run multiple brands or regional stores from a single Manuva account. Stock and orders consolidated.' },
+      { icon: 'book-open-check', title: 'Xero integration', tier: 'Growth+', desc: "Connect your Xero organisation. Manuva pushes bills from delivery receipts directly into Xero — no re-keying supplier invoices." },
+      { icon: 'code-2', title: 'REST API access', tier: 'Pro+', desc: 'Full REST API for custom integrations, dashboards, or pulling Manuva data into your own tools.' },
+      { icon: 'shield', title: 'SSO & advanced security', tier: 'Enterprise', desc: 'Single sign-on, SAML, advanced role permissions, and uptime SLA for teams that need them.' },
+    ],
+  },
+] as const;
+
+const tierClass = (tier: string) =>
+  tier === 'Pro+' ? 'site-feat-tier-pro' : tier === 'Enterprise' ? 'site-feat-tier-ent' : '';
+---
+<Base
+  title="Features — Manuva"
+  description={description}
+  canonical="https://manuva.app/features"
+>
+  {/* 1 · aqua hero panel, inset on paper */}
+  <section class="site-hero site-features-hero">
+    <div class="mv-wrap">
+      <Panel field="aqua" data-fold="aqua" class="site-features-hero-panel">
+        {/* {' '} — Astro drops the whitespace-only text node between these two
+            block siblings on separate source lines; the old page's own
+            eyebrow+h1 glue into one run ("Features Everything you need to
+            run…") since <span> isn't a parity boundary selector. */}
+        <span class="mv-eyebrow">Features</span>{' '}
+        <h1 class="mv-display site-features-hero-title">Everything you need to run manufacturing operations</h1>
+        <p class="site-features-hero-sub">
+          Connected inventory, BOMs, production, purchasing, capacity, costing, and reporting — built specifically
+          for product brands that make what they sell.
+        </p>
+        {/* The old page's own hero has no buttons — these two are moved up
+            from its closing cta-section ("Start free trial" / "Book a demo"),
+            which CtaBand (used below) can't reproduce: CtaBand's second
+            action is fixed to "Talk to us" across every page (Task 5), so
+            "Book a demo" would otherwise be lost entirely. Old markup glues
+            the two button labels into one phrase ("Start free trial Book a
+            demo") since sibling <a> tags aren't parity boundaries either —
+            reproduced the same way here with {' '}. "Book a demo" points at
+            /#contact, matching Task 7's ruling for the identical button
+            elsewhere: the old target (index.html?demo=1#contact) is a
+            same-site contact-form prefill that no longer applies since the
+            form is gone; the home page's contact section is the closest
+            live equivalent. */}
+        <div class="mv-cta-stack site-features-hero-actions">
+          <Button as="a" href={APP_URL} size="xl" shape="pill" variant="ink" class="mv-press"
+            style="background:var(--field-lime);color:var(--on-lime);border-color:var(--on-lime)">Start free trial</Button>{' '}
+          <Pill href="/#contact" ghost>Book a demo</Pill>
+        </div>
+        {/* Sourced from the old page's own CTA-section meta row (cta-meta),
+            relocated here for the same reason as the buttons above — same
+            three fragments, verbatim, just moved up so they aren't lost. */}
+        <div class="site-hero-meta">
+          <div>14-day free trial</div>
+          <div>No credit card</div>
+          <div>Unlimited users from Growth</div>
+        </div>
+      </Panel>
+    </div>
+  </section>
+
+  {/* 2 · domain grid — additive summary band, does not replace the ten
+      sections below. See the DOMAINS comment above for sourcing. */}
+  <section class="mv-section site-domain-section">
+    <div class="mv-wrap">
+      <span class="mv-eyebrow">Feature sections</span>
+      <div class="mv-cols-6 site-domain-grid">
+        {DOMAINS.map((d) => (
+          <Tile field={d.field} icon={d.icon} title={d.label} href={d.href} class="site-domain-tile" />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* 3 · paper spine of ten detail sections, full-bleed violet after section 3
+      and cobalt after section 7 (GROUPS[3].fold / GROUPS[7].fold) */}
+  {GROUPS.map((g) => {
+    const body = (
+      <>
+        <span class="mv-eyebrow">{g.eyebrow}</span>{' '}
+        <h2 class="mv-display site-feat-heading">{g.heading}</h2>
+        <p class="site-feat-intro">{g.intro}</p>
+        <div class:list={['site-feat-row', { 'site-feat-row-image': 'image' in g && g.image }]}>
+          <div class="site-feat-content">
+            <div class="mv-cols-2 site-feat-grid">
+              {g.feats.map((f) => (
+                <div class="site-feat">
+                  <div class="site-feat-icon"><Icon name={f.icon} size={16} /></div>
+                  <div class="site-feat-body">
+                    <p class="site-feat-title">
+                      {f.title}
+                      {'tier' in f && f.tier && <> <span class:list={['site-feat-tier', tierClass(f.tier)]}>{f.tier}</span></>}
+                    </p>
+                    <p class="site-feat-desc">{f.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {'differentiator' in g && g.differentiator && (
+              <div class="site-differentiator">
+                <div class="site-differentiator-icon"><Icon name={g.differentiator.icon} size={20} /></div>
+                <div><strong>{g.differentiator.lead}</strong> {g.differentiator.text}</div>
+              </div>
+            )}
+          </div>
+          {'image' in g && g.image && (
+            <div class="site-feat-image">
+              <img src={g.image.src} width="2080" height="1090" loading="lazy" decoding="async" alt={g.image.alt} />
+            </div>
+          )}
+        </div>
+      </>
+    );
+    return g.fold ? (
+      <Field field={g.fold} id={g.id} class="site-feat-section">{body}</Field>
+    ) : (
+      <section class="mv-section site-feat-section" id={g.id}>
+        <div class="mv-wrap">{body}</div>
+      </section>
+    );
+  })}
+
+  {/* 4 · flare CTA. Heading and body both quote the old page's own closing
+      cta-section verbatim — real sourced sentences, not assembled. */}
+  <CtaBand
+    field="flare"
+    heading="Ready to see it in action?"
+    body="Full Pro access for 14 days. No credit card required. Set up in a day, not a quarter."
+  />
+</Base>

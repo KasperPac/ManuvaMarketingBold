@@ -7,8 +7,12 @@ export interface Props {
    * heading (e.g. "h3") when the tile stands in for old-page content that
    * used one, so page-wide heading hierarchy survives the re-skin. */
   headingLevel?: 'div' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+  /** Extra class(es) merged alongside the tile's own — for size/density
+   * variants (e.g. a compact nav-style grid) scoped by a parent selector,
+   * same pattern as href/headingLevel below: additive, other callers unaffected. */
+  class?: string;
 }
-const { field, num, icon, title, href, headingLevel = 'div' } = Astro.props;
+const { field, num, icon, title, href, headingLevel = 'div', class: className } = Astro.props;
 // href turns the tile into a real link, root tag <a> instead of <div> — an
 // unlinked tile has no reason to be one or the other.
 const Tag = href ? 'a' : 'div';
@@ -16,7 +20,7 @@ const TitleTag = headingLevel;
 ---
 <Tag
   href={href}
-  class="site-tile mv-reveal mv-lift"
+  class:list={['site-tile', 'mv-reveal', 'mv-lift', className]}
   style={`background:var(--field-${field});color:var(--on-${field});border-radius:var(--radius-tile)`}
 >
   <div class="site-tile-head">

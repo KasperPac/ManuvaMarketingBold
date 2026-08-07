@@ -1,11 +1,27 @@
 ---
 import Button from '../ds/Button.astro';
 import type { FieldName } from '../../site';
-export interface Props { href: string; field?: FieldName; class?: string }
-const { href, field, class: className } = Astro.props;
+export interface Props { href: string; field?: FieldName; ghost?: boolean; class?: string }
+const { href, field, ghost = false, class: className } = Astro.props;
+// Composed into Button's inline style string, the same channel `field` uses
+// below — Button.astro always writes its own computed style inline
+// (background/color/border set unconditionally for every variant), which
+// beats an external CSS class rule without !important. A former
+// `.site-pill-ghost` class relied on exactly that losing battle and was
+// inert everywhere it was used (caught on the home page's own "Book a demo").
+// `color: inherit` picks up whatever ink the surrounding Panel/Field already
+// set — white on a dark field, dark ink on a light one — and
+// color-mix(...currentColor...) derives a correctly-tinted translucent fill
+// and ring from it, so one implementation works on any field colour instead
+// of assuming a dark (cobalt-style) background.
+const ghostStyle =
+  'color:inherit;background:color-mix(in srgb, currentColor 14%, transparent);border-color:transparent;' +
+  'box-shadow:inset 0 0 0 1.5px color-mix(in srgb, currentColor 40%, transparent)';
 const style = field
   ? `background:var(--field-${field});color:var(--on-${field});border-color:var(--field-${field})`
-  : undefined;
+  : ghost
+    ? ghostStyle
+    : undefined;
 ---
 <Button as="a" href={href} size="xl" shape="pill" variant="ink" class:list={['mv-press', className]} style={style}>
   <slot />
