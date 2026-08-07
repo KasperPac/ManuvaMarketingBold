@@ -351,42 +351,86 @@ a.site-tile { color: inherit; }
 
 .site-feat-grid { gap: var(--space-2) var(--space-8); }
 .site-feat { display: flex; gap: var(--space-3); padding: var(--space-2) 0; }
-/* .site-feat-icon and the base .site-feat-tier below both used to pair an
-   absolute --brand-1 (#3A5EFF) ink with a near-transparent --brand-dim
-   (10% alpha) background — on paper that reads as a light "branded" chip,
-   but --brand-1 is byte-identical to --field-cobalt, so on the Costing
-   section (wrapped in <Field field="cobalt">) the icon/badge text vanished
-   into its own background. color-mix(...currentColor...) derives the chip
-   fill FROM the inherited ink instead of a fixed brand colour, and
-   `color: inherit` makes that inherited ink resolve correctly in both
-   places: --on-{field} inside a coloured Field section, --ink-strong on
-   the eight plain paper ones (Field/body already put the right ink on an
-   ancestor — see Field.astro and body{color} in this file). */
+/* Base rule is the ORIGINAL paper look: a --brand-dim (10% alpha) chip with
+   --brand-1 blue text/icon — restored here after fix round 1 flattened it
+   to a neutral grey (a real visual regression on the eight paper sections,
+   caught in round 2 review). Computed: brand-1 on brand-dim-over-paper is
+   4.15:1 — below the 4.5:1 TEXT threshold, but this element is a
+   non-text icon glyph (WCAG's 3:1 bar), which it clears comfortably; the
+   base rule is deliberately NOT reused for .site-feat-tier below, which IS
+   text and needs the stricter threshold (see its own comment). Field
+   sections override below, [data-fold] scoped so paper is untouched. */
 .site-feat-icon {
   flex: none; width: 28px; height: 28px; border-radius: var(--radius-xs);
-  background: color-mix(in srgb, currentColor 12%, transparent); color: inherit;
+  background: var(--brand-dim); color: var(--brand-1);
   display: grid; place-items: center;
+}
+/* --brand-1 (#3A5EFF) is byte-identical to --field-cobalt, so the icon
+   vanished into its own background on the Costing section. Field sections
+   only: derive the chip from the inherited on-field ink instead — a
+   lightening currentColor mix is fine here (icon contrast only needs to
+   clear 3:1, not 4.5:1 — see .site-feat-tier's field override below for why
+   the same lightening approach doesn't work for TEXT). Computed: violet
+   4.01:1, cobalt 4.07:1, both > 3:1. */
+[data-fold] .site-feat-icon {
+  background: color-mix(in srgb, currentColor 12%, transparent); color: inherit;
 }
 .site-feat-body { min-width: 0; }
 .site-feat-title { font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: inherit; margin: var(--space-1) 0; }
 /* opacity, not a second absolute ink token (--ink-muted) — same "muted via
-   opacity on the inherited colour" pattern .site-tile-body already uses,
-   so it degrades correctly against any field instead of only paper. .72
-   approximates --ink-muted's actual contrast against --ink-strong on paper
-   (they're unrelated hex values otherwise), so the eight neutral sections
-   read the same as before. */
+   opacity on the inherited colour" pattern .site-tile-body already uses.
+   .72 approximates --ink-muted's actual contrast against --ink-strong on
+   paper (7.26:1 computed, close to the original --ink-muted's 6.65:1 — the
+   eight neutral sections read the same as before, slightly better if
+   anything). Any opacity < 1 fails on a field section: the fields
+   themselves clear 4.5:1 by only a hair at full strength (violet 4.60,
+   cobalt 4.97 — see .site-feat-title above, unchanged since round 1), so
+   muting toward the field colour drops straight below 4.5 (computed 2.98 /
+   3.34 at .72 — this is what round 1 shipped and round 2 review caught).
+   Field sections use full strength instead — same 4.60 / 4.97 as the title. */
 .site-feat-desc { font-size: var(--fs-sm); color: inherit; opacity: .72; line-height: var(--lh-normal); margin: 0; }
+[data-fold] .site-feat-desc { opacity: 1; }
+/* Base rule (paper): a currentColor-derived lightening chip, same shape as
+   .site-feat-icon's field override — kept as-is from round 1, NOT reverted
+   to the original --brand-dim/--brand-1 pairing the icon was: that pairing
+   computes to 4.15:1, which clears the icon's 3:1 non-text bar but fails
+   this element's 4.5:1 TEXT bar (this badge is a "Growth+"/"Pro+" label,
+   not a glyph) — restoring it here would reintroduce a real, if small and
+   pre-existing, AA failure instead of fixing one. Paper's current 14%
+   lightening computes to 12.60:1, comfortably clear. */
 .site-feat-tier {
   display: inline-block; font-size: var(--fs-xs); font-weight: var(--fw-bold);
   padding: 1px var(--space-2); border-radius: var(--radius-pill); letter-spacing: var(--ls-caps);
   text-transform: uppercase; background: color-mix(in srgb, currentColor 14%, transparent); color: inherit;
   vertical-align: middle;
 }
+/* Field sections: the paper rule's LIGHTENING mix is what broke this — on a
+   field, currentColor is white (--on-violet/--on-cobalt), so lightening the
+   chip raises its luminance toward the white text, which can only ever
+   shrink the gap. No lightening percentage clears 4.5:1 here (checked 14%,
+   10%, 8% — 3.90 / 3.90, 4.09 / 4.20, 4.22 / 4.34, all still short); the
+   fields have almost no headroom at full strength to begin with (4.60 /
+   4.97, per .site-feat-title). Darkening toward black instead — the
+   opposite direction from the text colour — only ever widens the gap:
+   black 20% computed to 6.58:1 (violet) / 7.01:1 (cobalt), comfortable
+   margin without reading as a heavy/opaque block. */
+/* :not(...) matters, not just style: an element carries BOTH
+   .site-feat-tier and .site-feat-tier-pro/-ent at once (Pro+/Enterprise
+   badges), and [data-fold] .site-feat-tier's specificity (0,2,0) beats
+   .site-feat-tier-pro/-ent's (0,1,0) — without the exclusion this rule
+   silently overwrote the opaque bg-card-2 badges' background on the two
+   field sections too, which live-measurement in round 2 caught (tier-pro
+   was reporting the SAME ratio as the base badge instead of its own). */
+[data-fold] .site-feat-tier:not(.site-feat-tier-pro):not(.site-feat-tier-ent) {
+  background: color-mix(in srgb, black 20%, transparent); color: inherit;
+}
 /* Pro+/Enterprise badges are NOT part of the same bug: --bg-card-2 (#DEDEDA)
    is an opaque solid, not a translucent tint, so it fully occludes whatever
    field sits behind it — --ink-strong/--ink-muted text on it has the same
-   real contrast regardless of section colour. Left as absolute tokens
-   deliberately; color-mix would only make them field-tinted for no reason. */
+   real contrast regardless of section colour. Reviewer independently
+   verified this in round 2 (bg-card-2 confirmed opaque). Left as absolute
+   tokens deliberately; color-mix would only make them field-tinted for no
+   reason. */
 .site-feat-tier-pro { background: var(--bg-card-2); color: var(--ink-strong); }
 .site-feat-tier-ent { background: var(--bg-card-2); color: var(--ink-muted); }
 
