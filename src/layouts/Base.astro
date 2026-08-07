@@ -8,10 +8,22 @@ export interface Props {
   description: string;
   canonical: string;
   ogImage?: string;
+  /** Old page's og:description/twitter:description are sometimes a shorter,
+   * trimmed variant of the main meta description (e.g. both /alternatives/
+   * pages drop the trailing "14-day free trial…" clause). Optional, additive:
+   * every other page omits it and keeps the previous single-`description`
+   * behaviour untouched. */
+  ogDescription?: string;
+  /** Old page's og:type — "article" for the two /alternatives/ pages,
+   * "website" (the prior hardcoded default) everywhere else so far. */
+  ogType?: string;
   /** JSON-LD nodes. Populated in Task 13; ignored until then. */
   schema?: Record<string, unknown>[];
 }
-const { title, description, canonical, ogImage = '/og-image.png', schema } = Astro.props;
+const {
+  title, description, canonical, ogImage = '/og-image.png',
+  ogDescription = description, ogType = 'website', schema,
+} = Astro.props;
 
 const TOKENS = [
   'fonts', 'colors', 'themes', 'typography', 'spacing',
@@ -32,12 +44,14 @@ const ogImageUrl = Astro.site ? new URL(ogImage, Astro.site) : ogImage;
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:description" content={ogDescription} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImageUrl} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={ogDescription} />
 
     <link rel="icon" href="/favicon-32.png" sizes="32x32" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

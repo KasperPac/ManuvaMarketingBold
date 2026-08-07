@@ -109,6 +109,14 @@ a.site-tile { color: inherit; }
 .site-cta-heading { font-size: var(--fs-display-5); max-width: 26ch; margin: 0; }
 .site-cta-body { margin: 0; font-size: var(--fs-lg); max-width: 38ch; opacity: .84; text-wrap: pretty; }
 .site-cta-actions { display: flex; gap: var(--space-4); }
+/* CtaBand's own div always carries data-fold (see CtaBand.astro) — every
+   instance runs on a field, never paper, so this always applies. .84 measures
+   4.97:1 on cobalt's own full-strength baseline but only 3.98:1 once muted
+   (computed), below 4.5:1 AA at this 16px body size; mrpeasy's CTA is the
+   first use of field="cobalt" on this component (prior pages used flare/
+   amber, both with far more full-strength headroom). Full strength avoids
+   relitigating the exact number per field. */
+[data-fold] .site-cta-body { opacity: 1; }
 
 /* --- home: hero --- */
 .site-hero { padding: 0 var(--gutter) var(--gutter); }
@@ -462,3 +470,107 @@ a.site-tile { color: inherit; }
 .site-contact-label { font-size: var(--fs-xs); font-weight: var(--fw-semibold); text-transform: uppercase; letter-spacing: var(--ls-caps); color: var(--ink-faint); }
 .site-contact-value { font-size: var(--fs-md); font-weight: var(--fw-medium); color: var(--ink-strong); }
 .site-contact-meta { font-size: var(--fs-sm); color: var(--ink-muted); }
+
+/* --- alternatives: hero --- */
+.site-alt-hero-panel { display: grid; justify-items: start; text-align: left; gap: var(--space-5); padding: var(--space-16); }
+.site-alt-hero-title { font-size: var(--fs-display-4); max-width: 26ch; }
+/* No opacity mute, unlike most other hero subheads (site-hero-sub,
+   site-features-hero-sub): katana's hero field is violet, whose full-strength
+   white-on-field contrast is only 4.60:1 (computed, matches the task brief's
+   own figure) — any opacity < 1 at this font-size (16px, below the 18.66px
+   bold / 24px normal "large text" threshold) drops below 4.5:1 AA. Verified:
+   .84 measures 3.61:1 on violet, .76 measures 3.19:1. Full strength is the
+   only value that clears AA on this field; mrpeasy's amber field (dark ink
+   on a bright yellow) would have had huge headroom either way, so dropping
+   the mute here costs nothing there. */
+.site-alt-hero-sub { margin: 0; max-width: 64ch; font-size: var(--fs-lg); line-height: var(--lh-normal); text-wrap: pretty; }
+.site-alt-hero-actions { margin-top: var(--space-2); }
+/* site-hero-meta (shared with / and /features) mutes to .76 by default,
+   which measures 3.55:1 on cobalt and 3.19:1 on violet — both below 4.5:1 AA
+   at this class's 14px. Both alternatives heroes use it on exactly those two
+   fields (katana violet, mrpeasy cobalt/amber via CtaBand elsewhere), so this
+   is scoped to any field section rather than hand-patched per page — same
+   fix also closes a pre-existing, unflagged violation on home's own cobalt
+   hero (Task 7), which uses the identical class. */
+[data-fold] .site-hero-meta { opacity: 1; }
+
+/* --- alternatives: comparison groups (paper — the whole slot, tables included) --- */
+.site-alt-group { padding-block: var(--space-14); border-top: 1px solid var(--stroke); }
+.site-alt-group:first-child { border-top: 0; padding-top: 0; }
+.site-alt-group-head { max-width: 68ch; margin: 0 0 var(--space-8); }
+.site-alt-group-head .mv-eyebrow { color: var(--ink-faint); }
+.site-alt-group-head h2 { font-size: var(--fs-display-2); margin: var(--space-2) 0 var(--space-3); max-width: 50ch; }
+.site-alt-group-head p { margin: 0; font-size: var(--fs-lg); line-height: var(--lh-normal); color: var(--ink-muted); }
+
+/* --- alternatives: gap list (katana's "where it stops short") --- */
+.site-alt-gap-list { display: grid; gap: var(--space-3); }
+.site-alt-gap-item {
+  display: flex; gap: var(--space-4); align-items: flex-start;
+  padding: var(--space-5); background: var(--bg-card); border: 1px solid var(--stroke-card);
+  border-radius: var(--radius-md);
+}
+.site-alt-gap-mark {
+  flex: none; width: 22px; height: 22px; border-radius: var(--radius-pill);
+  background: var(--danger-dim); color: var(--danger);
+  display: grid; place-items: center; font-size: var(--fs-sm); font-weight: var(--fw-bold);
+  margin-top: 1px;
+}
+.site-alt-gap-body { font-size: var(--fs-sm); line-height: var(--lh-normal); color: var(--ink-muted); }
+.site-alt-gap-body strong { color: var(--ink-strong); display: block; margin-bottom: 2px; font-size: var(--fs-sm); }
+
+/* --- alternatives: comparison tables — real <table>, always on paper */
+.site-alt-table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); background: var(--bg-card); border: 1px solid var(--stroke-card); border-radius: var(--radius-md); }
+.site-alt-table th, .site-alt-table td { padding: var(--space-3) var(--space-4); text-align: left; border-bottom: 1px solid var(--stroke); }
+.site-alt-table thead th { background: var(--bg-card-2); color: var(--ink-strong); font-weight: var(--fw-semibold); font-size: var(--fs-xs); }
+.site-alt-table thead th.site-alt-table-manuva { color: var(--brand-1); }
+.site-alt-table tbody tr:last-child td { border-bottom: none; }
+.site-alt-table td:first-child { font-weight: var(--fw-semibold); color: var(--ink-strong); }
+.site-alt-yes { color: var(--ok); font-weight: var(--fw-semibold); }
+.site-alt-no { color: var(--danger); font-weight: var(--fw-semibold); }
+.site-alt-partial { color: var(--warning); font-weight: var(--fw-semibold); font-size: var(--fs-xs); }
+.site-alt-table-foot { margin-top: var(--space-3); font-size: var(--fs-xs); color: var(--ink-faint); }
+
+/* --- alternatives: mrpeasy seat-cost table --- */
+.site-alt-seat-table .site-alt-users { font-weight: var(--fw-semibold); color: var(--ink-strong); }
+.site-alt-seat-table .site-alt-mrp-cell { color: var(--ink-muted); }
+.site-alt-seat-table .site-alt-manuva-cell { color: var(--brand-1); font-weight: var(--fw-semibold); }
+
+/* --- alternatives: katana price columns --- */
+.site-alt-price-cols { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); margin-top: var(--space-2); }
+.site-alt-price-col { padding: var(--space-6); background: var(--bg-card); border: 1px solid var(--stroke-card); border-radius: var(--radius-md); }
+.site-alt-price-featured { border-color: var(--brand-1); box-shadow: var(--shadow-lg); }
+.site-alt-price-col h3 { font-family: var(--font-display); font-size: var(--fs-lg); font-weight: var(--fw-semibold); color: var(--ink-strong); margin: 0 0 var(--space-1); }
+.site-alt-price-sub { font-size: var(--fs-sm); color: var(--ink-muted); margin: 0 0 var(--space-4); }
+.site-alt-price-row { font-size: var(--fs-sm); color: var(--ink-muted); margin: 0 0 var(--space-2); display: flex; justify-content: space-between; align-items: baseline; }
+.site-alt-price-amount { font-family: var(--font-display); font-weight: var(--fw-semibold); color: var(--ink-strong); font-size: var(--fs-lg); }
+.site-alt-price-callout { margin-top: var(--space-4); padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); background: var(--brand-dim); color: var(--brand-1); font-size: var(--fs-xs); line-height: var(--lh-normal); font-weight: var(--fw-medium); }
+
+/* --- alternatives: trial-math callout (both pages) --- */
+.site-alt-trial-callout {
+  margin-top: var(--space-6); padding: var(--space-5) var(--space-6);
+  background: var(--bg-card-2); border-left: 4px solid var(--brand-1); border-radius: var(--radius-sm);
+  font-size: var(--fs-sm); color: var(--ink-strong); line-height: var(--lh-normal);
+}
+.site-alt-trial-callout strong { color: var(--brand-1); }
+
+/* --- alternatives: "what Manuva adds" cards --- */
+.site-alt-adds-grid { margin-top: var(--space-2); }
+.site-alt-add-card { padding: var(--space-6); background: var(--bg-card); border: 1px solid var(--stroke-card); border-radius: var(--radius-md); }
+.site-alt-add-card h3 { font-family: var(--font-display); font-size: var(--fs-md); font-weight: var(--fw-semibold); color: var(--ink-strong); margin: 0 0 var(--space-2); }
+.site-alt-add-card p { font-size: var(--fs-sm); color: var(--ink-muted); line-height: var(--lh-normal); margin: 0; }
+
+/* --- alternatives: FAQ heading + related links --- */
+.site-alt-faq-section h2 { font-size: var(--fs-display-2); margin: var(--space-2) 0 var(--space-8); max-width: 50ch; }
+.site-alt-related { padding: var(--space-14) 0; border-top: 1px solid var(--stroke); text-align: center; }
+.site-alt-related h2 { font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--ink-muted); margin: 0 0 var(--space-5); text-transform: uppercase; letter-spacing: var(--ls-caps); }
+.site-alt-related-links { display: flex; gap: var(--space-3); justify-content: center; flex-wrap: wrap; }
+.site-alt-related-links a {
+  padding: var(--space-2) var(--space-5); background: var(--bg-card); border: 1px solid var(--stroke-strong);
+  border-radius: var(--radius-pill); font-size: var(--fs-sm); font-weight: var(--fw-medium); color: var(--brand-1);
+}
+.site-alt-related-links a:hover { background: var(--brand-dim); }
+
+@media (max-width: 720px) {
+  .site-alt-price-cols { grid-template-columns: 1fr; }
+  .site-alt-hero-panel { padding: var(--space-10); }
+}

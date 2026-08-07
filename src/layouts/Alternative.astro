@@ -1,0 +1,70 @@
+---
+import Base from './Base.astro';
+import Panel from '../components/site/Panel.astro';
+import FaqList from '../components/site/FaqList.astro';
+import CtaBand from '../components/site/CtaBand.astro';
+import type { FieldName } from '../site';
+
+export interface Props {
+  title: string;
+  description: string;
+  canonical: string;
+  competitor: string;
+  heroField: FieldName;
+  ctaField: FieldName;
+  faqs: { q: string; a: string }[];
+  /** Old page's own FAQ <h2>, verbatim — never the generic "Questions" label,
+   * since that real sentence is >=25 chars and the parity gate counts it as a
+   * required phrase. Reused for Task 13's FAQPage JSON-LD alongside `faqs`. */
+  faqHeading: string;
+  ctaHeading: string;
+  ctaBody: string;
+  /** Both old pages' og:description/twitter:description trim the trailing
+   * "14-day free trial…" clause off the main meta description — passed
+   * through to Base's optional ogDescription rather than assumed equal. */
+  ogDescription?: string;
+  schema?: Record<string, unknown>[];
+}
+const {
+  title, description, canonical, competitor, heroField, ctaField, faqs, faqHeading, ctaHeading, ctaBody,
+  ogDescription, schema,
+} = Astro.props;
+---
+{/* Both old /alternatives/ pages carry og:type="article", not Base's
+    "website" default — real head content per the task brief's "check each
+    page's own og:* and match them too". */}
+<Base {title} {description} {canonical} {ogDescription} ogType="article" {schema}>
+  <section class="site-hero site-alt-hero">
+    <div class="mv-wrap">
+      <Panel field={heroField} data-fold={heroField} class="site-alt-hero-panel">
+        {/* Astro drops the whitespace-only text node between block siblings on
+            separate lines — both old pages glue this eyebrow straight into
+            their <h1> with real source whitespace, so {' '} reproduces it. */}
+        <span class="mv-eyebrow">Manuva vs {competitor}</span>{' '}
+        <slot name="hero" />
+      </Panel>
+    </div>
+  </section>
+
+  {/* Comparison runs on paper — never a colour field behind a table. */}
+  <section class="mv-section site-alt-comparison">
+    <div class="mv-wrap"><slot name="comparison" /></div>
+  </section>
+
+  <section class="mv-section site-alt-faq-section">
+    <div class="mv-wrap">
+      <span class="mv-eyebrow">FAQ</span>{' '}
+      <h2 class="mv-display">{faqHeading}</h2>
+      <FaqList items={faqs} />
+    </div>
+  </section>
+
+  <section class="site-alt-related">
+    <div class="mv-wrap">
+      <h2>Explore further</h2>
+      <slot name="related" />
+    </div>
+  </section>
+
+  <CtaBand field={ctaField} heading={ctaHeading} body={ctaBody} />
+</Base>

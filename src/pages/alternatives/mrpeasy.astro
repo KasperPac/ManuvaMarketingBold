@@ -1,0 +1,219 @@
+---
+import Alternative from '../../layouts/Alternative.astro';
+import Pill from '../../components/site/Pill.astro';
+import { APP_URL } from '../../site';
+
+// Verbatim from the old page's own <head>.
+const description =
+  'MRPeasy alternative built around flat-rate pricing, native Shopify webhook sync, and BOM versioning. See how Manuva compares — 14-day free trial.';
+// Old page's own og:description/twitter:description — shorter than the meta
+// description above (drops the trailing "14-day free trial").
+const ogDescription =
+  'MRPeasy alternative built around flat-rate pricing, native Shopify webhook sync, and BOM versioning. See how Manuva compares.';
+
+// Verbatim from the old page's <table class="seat-table"> — 5 rows.
+const SEAT_ROWS: [string, string, string, string][] = [
+  ['3 users', '~$147/mo', '$249/mo', '$499/mo'],
+  ['5 users', '~$245/mo', '$249/mo', '$499/mo'],
+  ['10 users', '~$490/mo', '$249/mo −$241', '$499/mo'],
+  ['15 users', '~$735/mo', '$249/mo −$486', '$499/mo −$236'],
+  ['25 users', '~$1,225/mo', '$249/mo −$976', '$499/mo −$726'],
+];
+
+// Verbatim from the old page's <table class="compare-tbl"> — 11 data rows.
+const COMPARE_ROWS: [string, string, string][] = [
+  ['Pricing model', 'Flat per account', 'Per user'],
+  ['Native Shopify webhook sync', 'Yes', 'Batch connector'],
+  ['BOM versioning with comparison', 'Yes', 'No'],
+  ['Yield % per BOM line', 'Yes', 'Limited'],
+  ['Capacity planning with staff costing', 'Yes (Pro)', 'Basic'],
+  ['PO variance reporting', 'Yes', 'No'],
+  ['Lead-time accuracy by supplier', 'Yes', 'Limited'],
+  ['Multi-warehouse + bin locations', 'Yes (Growth)', 'Yes'],
+  ['Financial profitability dashboard', 'Yes (Pro)', 'No'],
+  ['Free trial', '14 days, full Pro', '15 days'],
+  ['Setup time', 'Hours to days', 'Days to weeks'],
+];
+
+// Verbatim from the old page's <div class="adds-grid">.
+const ADDS = [
+  {
+    title: 'Native Shopify webhook sync',
+    body: 'Orders, products, and inventory move in real time. Place an order in Shopify → Manuva allocates components and cascades to production in seconds. No batch jobs, no manual refresh, no overnight catch-up.',
+  },
+  {
+    title: 'BOM versioning with diff',
+    body: 'Every change to a bill of materials is captured as a numbered version with timestamp. Compare any two versions side-by-side to see added, removed, and changed components with cost and margin impact. Roll back with one click.',
+  },
+  {
+    title: 'Flat-rate unlimited users',
+    body: 'Growth at $249/mo and Pro at $499/mo include unlimited users — office staff and shop floor. No seat audit at renewal. No surprise bill when you hire. Predictable economics through every growth stage.',
+  },
+];
+
+// Verbatim from the old page's <script type="application/ld+json"> FAQPage —
+// same text as the visible <div class="faq-item"> answers.
+const FAQS = [
+  {
+    q: 'Does Manuva have a per-user pricing tier like MRPeasy?',
+    a: 'No. Manuva uses flat per-account pricing across every tier. The Starter plan covers up to 5 office seats; Growth and Pro include unlimited users — office and shop floor — at $249/mo and $499/mo respectively. There is no scenario where adding a team member raises your bill.',
+  },
+  {
+    q: "How does Manuva's Shopify sync compare to MRPeasy?",
+    a: 'Manuva uses Shopify webhooks for real-time sync: an order placed in Shopify is allocated and cascades to production orders within seconds. MRPeasy provides a Shopify connector, but stock and order sync runs on a batch schedule rather than instantly per webhook. For brands where production capacity is tight or inventory is shared across channels, the latency difference matters.',
+  },
+  {
+    q: 'Can I migrate from MRPeasy to Manuva without downtime?',
+    a: "Yes. Export your components, BOMs, suppliers, purchase orders, and stock balances from MRPeasy as CSV. Run Manuva alongside MRPeasy during the 14-day trial — switch your Shopify webhook from MRPeasy to Manuva only when you're satisfied. The Manuva team will handle the data import for you on Growth and above.",
+  },
+  {
+    q: 'What MRPeasy features does Manuva not yet have?',
+    a: "MRPeasy ships some manufacturing-resource-planning capabilities aimed at industrial operations that Manuva does not currently match — for example, deeper MRP run scheduling, longer-horizon material requirements planning, and certain accounting integrations targeted at MRPeasy's broader industrial customer base. Manuva's focus is product brands selling through Shopify and adjacent channels; for that profile, Manuva's BOM versioning, capacity planning with staff costing, and PO variance reporting cover the gaps that matter most.",
+  },
+];
+---
+<Alternative
+  title="MRPeasy Alternative — Flat-Rate MRP for Shopify Manufacturers | Manuva"
+  description={description}
+  ogDescription={ogDescription}
+  canonical="https://manuva.app/alternatives/mrpeasy"
+  competitor="MRPeasy"
+  heroField="amber"
+  ctaField="cobalt"
+  faqs={FAQS}
+  faqHeading="Switching from MRPeasy — common questions"
+  ctaHeading="Try Manuva free for 14 days"
+  ctaBody="Full Pro access. No credit card required. Run it alongside MRPeasy during the trial — switch your Shopify webhook only when you're satisfied."
+>
+  <Fragment slot="hero">
+    <h1 class="mv-display site-alt-hero-title">MRPeasy Alternative: Flat-Rate Manufacturing Software for Growing Teams</h1>
+    <p class="site-alt-hero-sub">
+      MRPeasy is broad — it serves industrial manufacturers, distributors, and product brands alike. If you're a
+      Shopify-first brand running production, that breadth shows up as per-seat pricing, batch Shopify sync, and a
+      feature set you're paying for but mostly don't use. Manuva is the focused alternative: native Shopify
+      webhooks, flat-rate pricing, capacity planning built for product brands.
+    </p>
+    {/* Relocated from the old page's closing cta-section, same reasoning as
+        the katana page: CtaBand's second action is fixed to "Talk to us", so
+        "Book a demo" has nowhere else to land. {' '} reproduces the old
+        markup's glued "Start free trial Book a demo" run (sibling <a> tags,
+        not parity boundaries). /#contact per the project-wide ruling on
+        /?demo=1#contact (Task 7). */}
+    <div class="mv-cta-stack site-alt-hero-actions">
+      <Pill href={APP_URL}>Start free trial</Pill>{' '}
+      <Pill href="/#contact" ghost>Book a demo</Pill>
+    </div>
+    <div class="site-hero-meta">
+      <div>14-day free trial</div>
+      <div>No credit card</div>
+      <div>Unlimited users from Growth</div>
+    </div>
+  </Fragment>
+
+  <Fragment slot="comparison">
+    <div class="site-alt-group">
+      <div class="site-alt-group-head">
+        <span class="mv-eyebrow">The per-seat problem</span>{' '}
+        <h2 class="mv-display">MRPeasy pricing scales with headcount, not capability</h2>
+        <p>
+          MRPeasy advertises four tiers — Starter, Professional, Enterprise, Unlimited — each priced{' '}
+          <strong>per user, per month</strong>. The unit economics work fine for a 3-person operation. They get
+          progressively painful as the team grows. The shop floor is where most manufacturing teams add headcount,
+          and you don't want a software bill that scales linearly with it.
+        </p>
+      </div>
+      <div class="mv-table-scroll">
+        <table class="site-alt-table site-alt-seat-table" aria-label="MRPeasy per-user cost vs Manuva flat tiers by team size">
+          <thead>
+            <tr>
+              <th scope="col">Team size</th>
+              <th scope="col">MRPeasy Professional (per-user)</th>
+              <th scope="col" class="site-alt-table-manuva">Manuva Growth (flat)</th>
+              <th scope="col" class="site-alt-table-manuva">Manuva Pro (flat)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {SEAT_ROWS.map(([users, mrp, growth, pro]) => (
+              <tr>
+                <td class="site-alt-users">{users}</td>
+                <td class="site-alt-mrp-cell">{mrp}</td>
+                <td class="site-alt-manuva-cell">{growth}</td>
+                <td class="site-alt-manuva-cell">{pro}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="site-alt-table-foot">
+        MRPeasy Professional list pricing as of May 2026 (~$49/user/month, billed annually). Verify on MRPeasy's
+        site before sharing externally. Manuva's Growth and Pro tiers include unlimited users on all plans above
+        Starter.
+      </p>
+      <div class="site-alt-trial-callout">
+        <strong>The break-even is around 5 users.</strong> Below that, MRPeasy can be cheaper. From the 5-user mark
+        onward, Manuva Growth wins on flat-rate alone — and you still haven't priced in capacity planning, BOM
+        versioning, or the financial profitability dashboard.
+      </div>
+    </div>
+
+    <div class="site-alt-group">
+      <div class="site-alt-group-head">
+        <span class="mv-eyebrow">Head to head</span>{' '}
+        <h2 class="mv-display">Manuva vs MRPeasy — feature comparison</h2>
+        <p>The areas where the two products diverge most sharply for a Shopify-first manufacturer.</p>
+      </div>
+      <div class="mv-table-scroll">
+        <table class="site-alt-table" aria-label="Manuva vs MRPeasy feature comparison">
+          <thead>
+            <tr>
+              <th scope="col">Capability</th>
+              <th scope="col" class="site-alt-table-manuva">Manuva</th>
+              <th scope="col">MRPeasy</th>
+            </tr>
+          </thead>
+          <tbody>
+            {COMPARE_ROWS.map(([name, manuva, mrpeasy]) => (
+              <tr>
+                <td>{name}</td>
+                <td class="site-alt-yes">{manuva}</td>
+                <td class={mrpeasy === 'Yes' ? 'site-alt-yes' : mrpeasy === 'No' ? 'site-alt-no' : 'site-alt-partial'}>{mrpeasy}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="site-alt-table-foot">
+        Comparison based on MRPeasy's publicly documented feature set as of May 2026. We re-check competitor claims
+        quarterly. <a href="mailto:hello@manuva.app">Spot something out of date?</a>
+      </p>
+    </div>
+
+    <div class="site-alt-group">
+      <div class="site-alt-group-head">
+        <span class="mv-eyebrow">What Manuva adds</span>{' '}
+        <h2 class="mv-display">What you get that MRPeasy doesn't offer in this segment</h2>
+        <p>Three capabilities where Manuva is built specifically for Shopify-first product brands.</p>
+      </div>
+      <div class="mv-cols-3 site-alt-adds-grid">
+        {ADDS.map((a) => (
+          <div class="site-alt-add-card">
+            <h3>{a.title}</h3>
+            <p>{a.body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </Fragment>
+
+  <Fragment slot="related">
+    {/* <a> isn't a boundary selector, and the old page's own sibling links
+        are separated only by real source whitespace — {' '} reproduces it
+        so the four labels don't glue into one run. */}
+    <div class="site-alt-related-links">
+      <a href="/features">Full feature list</a>{' '}
+      <a href="/pricing">Pricing &amp; plans</a>{' '}
+      <a href="/alternatives/katana">vs Katana</a>{' '}
+      <a href="/#compare">Comparison overview</a>
+    </div>
+  </Fragment>
+</Alternative>
