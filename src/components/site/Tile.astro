@@ -1,0 +1,17 @@
+---
+import Icon from '../ds/Icon.astro';
+import type { FieldName } from '../../site';
+export interface Props { field: FieldName; num?: string; icon?: string; title: string }
+const { field, num, icon, title } = Astro.props;
+---
+<div
+  class="site-tile mv-reveal mv-lift"
+  style={`background:var(--field-${field});color:var(--on-${field});border-radius:var(--radius-tile)`}
+>
+  <div class="site-tile-head">
+    {icon && <Icon name={icon} size={30} />}
+    {num && <span class="mv-score site-tile-num">{num}</span>}
+  </div>
+  <span class="site-tile-title">{title}</span>
+  <span class="site-tile-body"><slot /></span>
+</div>

@@ -1,0 +1,10 @@
+---
+export interface Props { words: string[] }
+const { words } = Astro.props;
+---
+<div class="mv-field-lime site-marquee">
+  <div class="mv-marquee-track">
+    {words.map((w) => <span class="site-marquee-word">{w}<i aria-hidden="true"></i></span>)}
+    {words.map((w) => <span class="site-marquee-word" aria-hidden="true">{w}<i aria-hidden="true"></i></span>)}
+  </div>
+</div>

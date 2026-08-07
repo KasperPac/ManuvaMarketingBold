@@ -1,0 +1,19 @@
+---
+import Pill from './Pill.astro';
+import type { FieldName } from '../../site';
+import { APP_URL, CONTACT_EMAIL } from '../../site';
+export interface Props { field: FieldName; heading: string; body: string }
+const { field, heading, body } = Astro.props;
+---
+<section class="mv-section site-cta">
+  <div class="mv-wrap">
+    <div class="mv-panel site-cta-inner" data-fold={field} style={`background:var(--field-${field});color:var(--on-${field})`}>
+      <h2 class="mv-display site-cta-heading">{heading}</h2>
+      <p class="site-cta-body">{body}</p>
+      <div class="mv-cta-stack site-cta-actions">
+        <Pill href={APP_URL}>Start free</Pill>
+        <Pill href={`mailto:${CONTACT_EMAIL}`}>Talk to us</Pill>
+      </div>
+    </div>
+  </div>
+</section>

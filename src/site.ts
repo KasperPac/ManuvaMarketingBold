@@ -1,6 +1,11 @@
 export const APP_URL = 'https://app.manuva.app';
 export const CONTACT_EMAIL = 'hello@manuva.app';
 
+export const FIELDS = [
+  'cobalt', 'flare', 'amber', 'violet', 'mint', 'aqua', 'lime', 'ink', 'paper',
+] as const;
+export type FieldName = (typeof FIELDS)[number];
+
 export const NAV_LINKS = [
   { href: '/features', label: 'Features' },
   { href: '/pricing', label: 'Pricing' },
