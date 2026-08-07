@@ -277,3 +277,21 @@ Round 3 (residual):
 1. **The font prerequisite (above) — blocking.** Do not ship with fonts loading from Google. Not touched by rounds 2 or 3.
 2. **Judgment call flagged for confirmation, not blocking:** round 2 removed "Start free trial"/"Book a demo" from the hero on `/features`, `/about`, `/alternatives/katana`, `/alternatives/mrpeasy`, since those buttons only existed there as a workaround for CtaBand's now-fixed limitation, and none of the source pages' heroes have buttons. `/`'s hero keeps its own "Book a demo" — that one is real source content, not a relocation (round 3 confirmed this directly against source). If a hero CTA is actually preferred over strict source fidelity on the other four pages, that's a one-line revert per page.
 3. Everything else in this report is closed: 176 unit tests, the parity gate, and 96 e2e tests are all green together on the current `dist/` build. Per-route "Book a demo" counts verified against the built output: `/` 1, `/features` 1, `/pricing` 0, `/about` 1, both `/alternatives/` 1 — matching source exactly.
+
+---
+
+## Operational note — stale preview server produces phantom e2e failures
+
+`playwright.config.ts` sets `reuseExistingServer: !process.env.CI`. If a preview
+server from an earlier run is still listening on port 4321, Playwright reuses it
+rather than starting a fresh one — and that server keeps serving whatever `dist/`
+it was started with.
+
+Observed during the final merge verification: three tests failed at exactly 30.1s
+each (`routes.spec.ts` internal-link crawl, `/features` horizontal overflow,
+`/features` axe) against a tree that was byte-identical to one where all 96 had
+just passed. Killing the stale listener and re-running gave 96/96.
+
+The signature to recognise: several failures at an identical ~30s timeout rather
+than assertion messages. Check for a listener on 4321 before investigating the
+code.
