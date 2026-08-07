@@ -12,7 +12,8 @@
 
 - **Node 20+.** Astro 5 requires it.
 - **`_ds/` is never edited.** Issues found there are reported, not patched. It is replaced wholesale on re-export.
-- **No token is redeclared site-side.** No hardcoded colour, size, spacing, radius or duration value that a token already names.
+- **No token is redeclared site-side.** No hardcoded colour, size, spacing, radius or duration value **that a token already names**. Site-specific geometry no token names — nav height, tile min-height, burger bar dimensions, drawer width — is legitimately a raw value in `site.css`, and is not a violation. The scrim `rgb(20 20 19 / .5)` and footer ink `rgb(255 255 255 / .62)` are lifted from the design system's own `Landing.jsx`, which uses the same values; they are sanctioned, not site inventions. What is forbidden is writing `#2C6BED` where `--field-cobalt` exists, or `16px` where `--space-4` exists.
+- **Fold-level colour is marked with `data-fold`.** `Field` and `CtaBand` emit it automatically; add it by hand to a fold-level `Panel` such as a page hero. Tiles never emit it — a tile grid is one composed unit with paper between every tile, so it is exempt from the adjacency rule. The hue-adjacency tests read `data-fold` and nothing else.
 - **Copy moves verbatim.** No rewording, summarising or reordering of argument. The two `/alternatives/` pages especially — 32KB and 28KB of ranking content.
 - **Nothing is invented.** Every factual claim traces to `llms.txt` or an existing page. Unsourceable facts become a visible `TODO` and are reported, never a plausible-looking number.
 - **Trial is 14 days, full Pro access, no credit card.** Not 30 days. Not free forever.
@@ -1154,6 +1155,15 @@ test('marquee uses the design system track class so reduced motion stops it', as
   const html = await render(Marquee, { words: ['a phrase'] });
   expect(html).toContain('mv-marquee-track');
 });
+
+test('Field declares its fold so hue adjacency can be checked', async () => {
+  expect(await render(Field, { field: 'ink' })).toContain('data-fold="ink"');
+});
+
+test('Tile never declares a fold — a tile grid is one composed unit, exempt from the rule', async () => {
+  const html = await render(Tile, { field: 'cobalt', title: 'Inventory' });
+  expect(html).not.toContain('data-fold');
+});
 ```
 
 - [ ] **Step 3: Run it to verify it fails**
@@ -1173,6 +1183,7 @@ const { field, class: className } = Astro.props;
 ---
 <section
   class:list={['mv-section', className]}
+  data-fold={field}
   style={`background:var(--field-${field});color:var(--on-${field})`}
 >
   <div class="mv-wrap"><slot /></div>
@@ -1184,12 +1195,13 @@ const { field, class: className } = Astro.props;
 ```astro
 ---
 import type { FieldName } from '../../site';
-export interface Props { field: FieldName; class?: string }
-const { field, class: className } = Astro.props;
+export interface Props { field: FieldName; class?: string; [key: string]: unknown }
+const { field, class: className, ...rest } = Astro.props;
 ---
 <div
   class:list={['mv-panel', className]}
   style={`background:var(--field-${field});color:var(--on-${field});border-radius:var(--radius-panel)`}
+  {...rest}
 >
   <slot />
 </div>
@@ -1261,7 +1273,7 @@ const { field, heading, body } = Astro.props;
 ---
 <section class="mv-section site-cta">
   <div class="mv-wrap">
-    <div class="mv-panel site-cta-inner" style={`background:var(--field-${field});color:var(--on-${field})`}>
+    <div class="mv-panel site-cta-inner" data-fold={field} style={`background:var(--field-${field});color:var(--on-${field})`}>
       <h2 class="mv-display site-cta-heading">{heading}</h2>
       <p class="site-cta-body">{body}</p>
       <div class="mv-cta-stack site-cta-actions">
@@ -1573,10 +1585,13 @@ test('lime is never used as a text colour', () => {
   expect(h).not.toMatch(/color:\s*#C8FF2E/i);
 });
 
-test('no two adjacent full-bleed sections share a hue', () => {
-  const fields = [...html().matchAll(/background:var\(--field-([a-z]+)\)/g)].map((m) => m[1]);
-  for (let i = 1; i < fields.length; i++) {
-    expect(fields[i], `field ${fields[i]} repeats at position ${i}`).not.toBe(fields[i - 1]);
+test('no two adjacent folds share a hue', () => {
+  // data-fold marks fold-level colour only. Tiles are exempt: a tile grid is one
+  // composed unit with paper between every tile, so its hues never "touch".
+  const folds = [...html().matchAll(/data-fold="([a-z]+)"/g)].map((m) => m[1]);
+  expect(folds.length, 'page should declare its folds').toBeGreaterThan(2);
+  for (let i = 1; i < folds.length; i++) {
+    expect(folds[i], `${folds[i]} repeats at fold ${i}`).not.toBe(folds[i - 1]);
   }
 });
 ```
@@ -1636,7 +1651,7 @@ const MARQUEE = [
   {/* 1 · cobalt hero panel, inset on paper */}
   <section class="site-hero">
     <div class="mv-wrap">
-      <Panel field="cobalt" class="site-hero-panel">
+      <Panel field="cobalt" class="site-hero-panel" data-fold="cobalt">
         <span class="mv-eyebrow">MRP for Shopify manufacturers</span>
         <h1 class="mv-display site-hero-title">{/* headline, verbatim */}</h1>
         <p class="site-hero-sub">{/* subhead, verbatim */}</p>
@@ -1909,10 +1924,12 @@ test('uses collapse utilities rather than fixed column counts', () => {
   expect(h).not.toMatch(/grid-template-columns:\s*repeat\(\d,\s*1fr\)/);
 });
 
-test('no adjacent full-bleed sections share a hue', () => {
-  const fields = [...html().matchAll(/background:var\(--field-([a-z]+)\)/g)].map((m) => m[1]);
-  for (let i = 1; i < fields.length; i++) {
-    expect(fields[i]).not.toBe(fields[i - 1]);
+test('no two adjacent folds share a hue', () => {
+  // See Task 7 — data-fold marks fold-level colour; the six-tile grid is exempt.
+  const folds = [...html().matchAll(/data-fold="([a-z]+)"/g)].map((m) => m[1]);
+  expect(folds.length, 'page should declare its folds').toBeGreaterThan(2);
+  for (let i = 1; i < folds.length; i++) {
+    expect(folds[i], `${folds[i]} repeats at fold ${i}`).not.toBe(folds[i - 1]);
   }
 });
 ```
@@ -2319,15 +2336,9 @@ Routes have not changed, so the only edit to `sitemap.xml` is `lastmod`. Do not 
 
 [build.environment]
   NODE_VERSION = "20"
-
-# Astro emits features.html; serve it at /features with no trailing slash,
-# matching the live URL spelling and the canonical tags.
-[[redirects]]
-  from = "/*/"
-  to = "/:splat"
-  status = 301
-  force = true
 ```
+
+Deliberately **no** trailing-slash redirect rule. `from = "/*/"` with `force = true` matches `/` with an empty splat and redirects it to itself — an infinite loop on the home page. Astro's `trailingSlash: 'never'` plus `build.format: 'file'` emits `features.html`, and Netlify's default pretty-URL handling serves it at `/features` and canonicalises away the slash. `public/_redirects` still handles the eight legacy `.html` paths.
 
 - [ ] **Step 3: Write the failing test**
 
