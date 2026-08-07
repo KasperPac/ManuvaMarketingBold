@@ -22,8 +22,13 @@ import { NAV_LINKS, APP_URL } from '../../site';
 
     const open = () => {
       lastFocused = document.activeElement as HTMLElement;
+      // Measure before locking scroll: once overflow is hidden the scrollbar
+      // disappears and clientWidth grows, so the gap has to be captured first.
+      // 0 on overlay-scrollbar platforms (mobile), so this is safe everywhere.
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
       drawer.hidden = false;
       document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
       burger.setAttribute('aria-expanded', 'true');
       drawer.querySelector<HTMLElement>(FOCUSABLE)?.focus();
     };
@@ -31,6 +36,7 @@ import { NAV_LINKS, APP_URL } from '../../site';
     const close = () => {
       drawer.hidden = true;
       document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
       burger.setAttribute('aria-expanded', 'false');
       lastFocused?.focus();
     };

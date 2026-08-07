@@ -12,6 +12,7 @@ const hrefsIn = (html: string) =>
 
 test('every nav link points at a route that exists', async () => {
   const internal = hrefsIn(await renderNav()).filter((h) => h.startsWith('/') && h !== '#main');
+  expect(internal.length, 'nav rendered no internal links to check').toBeGreaterThan(0);
   for (const href of internal) {
     expect(ALL_ROUTES, `${href} is not a real route`).toContain(href);
   }
@@ -19,6 +20,7 @@ test('every nav link points at a route that exists', async () => {
 
 test('every footer link points at a route that exists', async () => {
   const internal = hrefsIn(await renderFooter()).filter((h) => h.startsWith('/'));
+  expect(internal.length, 'footer rendered no internal links to check').toBeGreaterThan(0);
   for (const href of internal) {
     expect(ALL_ROUTES, `${href} is not a real route`).toContain(href);
   }
