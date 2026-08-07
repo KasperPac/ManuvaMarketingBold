@@ -52,7 +52,7 @@ Old page sizes, for parity checking:
 | SEO audit (2026-05-17) | **Deferred** | Pure re-skin this pass. Audit becomes separate follow-up work |
 | Beta-tester strip | **Carried across verbatim** | Offer is current. Sits alongside the 14-day trial as a secondary strip |
 | Icons | **Inlined at build time** | `Icon.jsx` masks from a jsDelivr CDN at runtime. Inlining removes the third-party dependency and per-glyph request while keeping the same glyphs, version and authoring API |
-| Webfonts | **Self-hosted** — see §3.4 | `tokens/fonts.css` `@import`s Google Fonts, which chains three render-blocking round trips. Open question for the design-system author |
+| Webfonts | **Self-hosted via a new `tokens/fonts-selfhost.css`** — see §3.4 | `tokens/fonts.css` `@import`s Google Fonts, which chains three render-blocking round trips. Fix belongs in the design system; the file is a prerequisite input |
 | Mobile drawer | **Ported from `mobile.js`** | Working behaviour with focus trap, Escape handling and reduced-motion support. Worth more than a reimplementation |
 
 ### Facts that must not drift
@@ -100,9 +100,11 @@ _ds/                  vendored, never edited
 
 ### The design system is a vendored dependency
 
-One `<link>` to `_ds/styles.css` in `Base.astro` pulls all ten token files.
-When the system is re-exported, `_ds/` is replaced wholesale and nothing under
-`src/` changes.
+`Base.astro` links the token files in the order `_ds/styles.css` establishes,
+substituting `fonts-selfhost.css` for `fonts.css` (§3.4). Everything else is
+consumed exactly as exported. When the system is re-exported, `_ds/` is replaced
+wholesale and the only thing to re-check is that the import list still matches
+`styles.css`.
 
 **No token is ever redeclared site-side.** If a needed value is missing, that is
 a design-system change, raised as such — not patched locally. `site.css` exists
@@ -157,17 +159,33 @@ display face. The token contract is unchanged — `--font-display`, `--font-body
 and `--font-mono` resolve exactly as before.
 
 This is the one place the site cannot consume `_ds/styles.css` wholly unmodified,
-because the `@import` lives inside it. Preferred fix, in order:
+because the `@import` lives inside it.
 
-1. The design system ships a `tokens/fonts-selfhost.css` variant, and the site
-   links the token files individually, skipping `fonts.css`. Keeps the fix in
-   the system where it belongs.
-2. Failing that, the site links the nine other token files directly and provides
-   its own `@font-face` layer. Costs the single-`<link>` convenience and means
-   a re-export needs the import list checked.
+**Decided:** the design system ships a `tokens/fonts-selfhost.css` variant
+declaring the three families with `@font-face` against vendored woff2 files. The
+site links the token files individually and substitutes `fonts-selfhost.css` for
+`fonts.css`; the other nine are linked in the order `styles.css` already
+establishes. The fix lives in the system, so the app and the kits get it too.
 
-Either way `_ds/` itself is still never edited in place. **Confirm which before
-implementation begins.**
+`_ds/` is still never edited in place — the variant arrives with the next export.
+
+**Prerequisite.** `tokens/fonts-selfhost.css` and its woff2 files do not exist
+yet. Until they land the site links `styles.css` as-is and loads fonts from the
+Google CDN, which is acceptable in development and **must not ship**. The
+verification checklist gates on it.
+
+Requirements for the variant, so the site can rely on it:
+
+- Archivo (display), Inter (body), IBM Plex Mono (mono) as woff2.
+- Latin subset at minimum; variable axes trimmed to what the system uses rather
+  than the full `wdth 62..125` / `wght 100..900` range.
+- `font-display: swap`.
+- Same three token names out the other side: `--font-display`, `--font-body`,
+  `--font-mono`. No consumer changes.
+- Paths relative to the token file, so the folder stays relocatable.
+
+The site preloads the Archivo display face itself — that is a page-level
+decision, not a system one.
 
 ---
 
