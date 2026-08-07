@@ -180,3 +180,55 @@ test('evaluateRoute folds table results in alongside the phrase and fragment tie
   expect(result.changedRows).toEqual([]);
   expect(result.columnCountChanges).toEqual([]);
 });
+
+// --- Fix round 3: duplicate row names last-write-win, and zero-verdict dividers false-fail ---
+
+test('diffTableRows catches a deleted row even when another row shares its exact name and verdicts', () => {
+  // Regression: a one-to-one Map keyed by name is last-write-wins, so two old "Free trial"
+  // rows reading "14 days" against a single surviving new one previously reported nothing —
+  // the survivor silently answered for the deleted row.
+  const oldRows = [
+    { name: 'Free trial', verdicts: ['14 days'] },
+    { name: 'Free trial', verdicts: ['14 days'] },
+  ];
+  const newRows = [{ name: 'Free trial', verdicts: ['14 days'] }];
+  const { missingRows } = diffTableRows(oldRows, newRows);
+  expect(missingRows).toEqual([{ name: 'Free trial', oldVerdicts: ['14 days'] }]);
+});
+
+test('diffTableRows does not fire when duplicate-named rows are merely reordered relative to each other', () => {
+  const oldRows = [
+    { name: 'Free trial', verdicts: ['14 days'] },
+    { name: 'Free trial', verdicts: ['30 days'] },
+  ];
+  const newRows = [
+    { name: 'Free trial', verdicts: ['30 days'] },
+    { name: 'Free trial', verdicts: ['14 days'] },
+  ];
+  const result = diffTableRows(oldRows, newRows);
+  expect(result.missingRows).toEqual([]);
+  expect(result.changedRows).toEqual([]);
+});
+
+test('diffTableRows does not report a missing row for a zero-verdict divider/label row', () => {
+  // The old pricing matrix has 9 <tr class="module-row"><td colspan="5">Section Name</td></tr>
+  // rows with a single spanning cell and no verdicts. Task 8 renders that section heading as
+  // an <h3> outside the table, which is a legitimate restructuring, not content loss — the
+  // divider's own text still flows through toShortFragments() independently (verified against
+  // the real page: all 9 divider strings appear there, unrelated to the table tier).
+  const oldRows = [
+    { name: 'Shopify Integration', verdicts: [] },
+    { name: 'Product sync', verdicts: ['Yes', 'Yes'] },
+  ];
+  const newRows = [{ name: 'Product sync', verdicts: ['Yes', 'Yes'] }];
+  const result = diffTableRows(oldRows, newRows);
+  expect(result.missingRows).toEqual([]);
+  expect(result.changedRows).toEqual([]);
+});
+
+test('a zero-verdict row that gains verdicts in the new build is not reported as changed, only as content that appeared', () => {
+  const oldRows = [{ name: 'Shopify Integration', verdicts: [] }];
+  const newRows = [{ name: 'Shopify Integration', verdicts: ['Yes'] }];
+  const result = diffTableRows(oldRows, newRows);
+  expect(result.changedRows).toEqual([]);
+});
