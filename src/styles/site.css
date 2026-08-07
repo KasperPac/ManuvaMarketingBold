@@ -630,3 +630,45 @@ a.site-tile { color: inherit; }
   .site-alt-price-cols { grid-template-columns: 1fr; }
   .site-alt-hero-panel { padding: var(--space-10); }
 }
+
+/* --- about: hero --- */
+.site-about-hero-panel { padding: var(--space-24) var(--space-16) var(--space-16); display: grid; gap: var(--space-8); justify-items: start; text-align: left; }
+.site-about-hero-title { font-size: var(--fs-display-4); max-width: 22ch; }
+/* No opacity mute, same reasoning as .site-alt-hero-sub: on-mint (near-black
+   on a bright mint field) has huge headroom, but the rule this project
+   settled on is full strength on any field, not a per-field contrast audit. */
+.site-about-hero-sub { margin: 0; max-width: 62ch; font-size: var(--fs-lg); line-height: var(--lh-normal); text-wrap: pretty; }
+.site-about-hero-actions { margin-top: var(--space-2); }
+
+/* --- about: shared group head/heading/lede (build, principles, company) --- */
+.site-about-group-head { max-width: 68ch; margin: 0 0 var(--space-8); }
+.site-about-heading { font-size: var(--fs-display-2); max-width: 42ch; margin: var(--space-2) 0 var(--space-3); }
+/* Paper default: old page's own .group-head p { color: var(--ink-muted) }.
+   Only the principles group-head sits inside Field field="ink" — never set
+   an absolute ink inside a Field, so that one instance inherits on-ink white
+   from the section instead via the [data-fold] override below. */
+.site-about-lede { margin: var(--space-3) 0 0; max-width: 62ch; font-size: var(--fs-lg); line-height: var(--lh-normal); color: var(--ink-muted); }
+[data-fold] .site-about-lede { color: inherit; }
+
+/* --- about: "what we build" prose (paper, no field behind long-form copy) --- */
+.site-about-body { max-width: 72ch; font-size: var(--fs-lg); line-height: var(--lh-normal); color: var(--ink-muted); margin: 0 0 var(--space-4); }
+.site-about-body strong { color: var(--ink-strong); }
+
+/* --- about: principles (ink field) reuses .site-feat-* and .mv-cols-2 as-is --- */
+.site-about-principles .site-feat-grid { margin-top: var(--space-2); }
+
+/* --- about: company info card (paper, never a field behind this table-like data) --- */
+.site-about-company {
+  margin-top: var(--space-2); padding: var(--space-8);
+  background: var(--bg-card); border: 1px solid var(--stroke-card); border-radius: var(--radius-lg);
+}
+.site-about-company.mv-cols-2 { gap: var(--space-6) var(--space-8); }
+.site-about-company-row { display: flex; flex-direction: column; gap: var(--space-1); }
+.site-about-company-label { font-size: var(--fs-xs); font-weight: var(--fw-semibold); text-transform: uppercase; letter-spacing: var(--ls-caps); color: var(--brand-1); }
+.site-about-company-value { font-size: var(--fs-md); color: var(--ink-strong); line-height: var(--lh-snug); }
+.site-about-company-value a { color: var(--brand-1); font-weight: var(--fw-medium); }
+
+@media (max-width: 720px) {
+  .site-about-hero-panel { padding: var(--space-10); }
+  .site-about-company { padding: var(--space-6); }
+}
