@@ -58,4 +58,8 @@ test('merges a caller-supplied style with its own computed style, rather than re
   const html = await render({ shape: 'pill', style: 'background:red' });
   expect(html, 'caller declaration').toContain('background:red');
   expect(html, 'own geometry').toContain('var(--radius-pill)');
+  // Order matters, not just presence: the caller's declaration must land after
+  // Button's own so it wins on conflicting properties (CSS: last one wins).
+  // A `toContain`-only check can't tell a correct merge from a reversed one.
+  expect(html.indexOf('var(--radius-pill)')).toBeLessThan(html.indexOf('background:red'));
 });

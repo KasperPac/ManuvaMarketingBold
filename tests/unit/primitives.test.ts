@@ -29,6 +29,19 @@ test('panels use the panel radius token, tiles the tile radius token', async () 
   expect(await render(Tile, { field: 'mint', title: 'Logistics' })).toContain('var(--radius-tile)');
 });
 
+test('panel merges a caller-supplied style with its own, rather than emitting a duplicate style attribute', async () => {
+  const html = await render(Panel, { field: 'cobalt', style: 'padding:99px' });
+  expect(html, 'caller declaration').toContain('padding:99px');
+  expect(html, 'panel radius').toContain('var(--radius-panel)');
+  // A duplicate `style="..."` attribute parses with the first occurrence winning
+  // and the second silently dropped — that would discard the caller's style
+  // entirely rather than merge it.
+  expect(html.match(/style="/g)?.length, 'exactly one style attribute').toBe(1);
+  // Order matters, not just presence: the caller's declaration must land after
+  // Panel's own so it wins on conflicting properties.
+  expect(html.indexOf('var(--radius-panel)')).toBeLessThan(html.indexOf('padding:99px'));
+});
+
 test('primitives hardcode no colour, radius or spacing value', async () => {
   for (const [C, props] of [
     [Field, { field: 'ink' }],
@@ -53,6 +66,9 @@ test('a field-scoped pill keeps its field colours and the button pill radius tog
   expect(html, 'field background').toContain('var(--field-lime)');
   expect(html, 'field ink').toContain('var(--on-lime)');
   expect(html, 'button geometry').toContain('var(--radius-pill)');
+  // Order matters, not just presence: the field's declarations must land after
+  // Button's own computed style so they win on conflicting properties.
+  expect(html.indexOf('var(--radius-pill)')).toBeLessThan(html.indexOf('var(--field-lime)'));
 });
 
 test('marquee duplicates its words so the loop is seamless', async () => {
