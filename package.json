@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "cheerio": "^1.2.0",
-    "lucide-static": "^0.544.0",
+    "lucide-static": "0.544.0",
     "vitest": "^4.1.10"
   }
 }
