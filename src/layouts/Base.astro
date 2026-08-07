@@ -58,9 +58,14 @@ const ogImageUrl = Astro.site ? new URL(ogImage, Astro.site) : ogImage;
     <meta property="og:description" content={ogDescription} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImageUrl} />
-    <meta name="twitter:card" content="summary_large_image" />
+    {/* Whole block conditional together, not just title/description under an
+        unconditional twitter:card — a lone twitter:card with no title/body
+        is a half-populated card. Tasks 11-12 (/about, /privacy, /terms) are
+        the pages most likely to omit twitterDescription next; this way
+        omitting it drops the whole card, not a broken remainder of one. */}
     {twitterDescription && (
       <>
+        <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={twitterDescription} />
       </>

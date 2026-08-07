@@ -56,16 +56,22 @@ test('provides a skip link as the first focusable element', async () => {
 // which silently emitted the long meta description as the Twitter card body
 // on / and /pricing — both real pages carry a shorter Twitter variant Base
 // had never read before. twitterDescription has no fallback of its own on
-// purpose: omit it and the whole pair is omitted, exactly like before this
+// purpose: omit it and the whole triple is omitted, exactly like before this
 // file grew a Twitter card at all.
-test('omits twitter:title/twitter:description entirely when twitterDescription is not supplied', async () => {
+//
+// Fix round 2: twitter:card was left unconditional while title/description
+// were gated on twitterDescription, so a page that omits it (as /about,
+// /privacy, /terms are likely to, next) would ship a lone twitter:card with
+// no title or body — a half-populated card. All three tags are now gated
+// together.
+test('omits the entire twitter:card/title/description triple when twitterDescription is not supplied', async () => {
   const html = await render();
-  expect(html).toContain('name="twitter:card"');
+  expect(html).not.toContain('name="twitter:card"');
   expect(html).not.toContain('name="twitter:title"');
   expect(html).not.toContain('name="twitter:description"');
 });
 
-test('emits twitter:title/twitter:description only when twitterDescription is explicitly supplied, using its own value', async () => {
+test('emits twitter:card/title/description together only when twitterDescription is explicitly supplied, using its own value', async () => {
   const c = await AstroContainer.create();
   const html = await c.renderToString(Base, {
     props: {
@@ -76,6 +82,7 @@ test('emits twitter:title/twitter:description only when twitterDescription is ex
     },
     slots: { default: '<p>body content</p>' },
   });
+  expect(html).toContain('name="twitter:card" content="summary_large_image"');
   expect(html).toContain('name="twitter:title" content="Manuva — MRP for Shopify manufacturers"');
   expect(html).toContain('name="twitter:description" content="The short Twitter variant."');
   expect(html).not.toContain('name="twitter:description" content="The long meta description, never the Twitter one."');

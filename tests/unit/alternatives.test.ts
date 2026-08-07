@@ -206,6 +206,39 @@ test('verdict colour lives on a non-text marker, not the word itself', () => {
   }
 });
 
+// Fix round 2 Critical: the marker fix above shipped as `display: inline-flex`
+// directly on .site-alt-yes/-no/-partial, which sit on <td> elements — that
+// takes the cell out of table layout entirely. Per CSS table fixup, the run
+// of now-non-cell siblings collapses into one anonymous cell, so both tables
+// rendered two columns under a three-column header: the competitor column
+// went visually blank and its verdict ran on under "Manuva" instead — a
+// worse misreading than the colour bug this replaced, and invisible to every
+// other test here since the DOM/text is unchanged, only layout broke.
+// Node can't compute real browser layout, but it can assert the actual
+// invariant that matters: no rule targeting these three classes touches
+// `display` at all, so <td>'s UA-default `table-cell` is never overridden.
+test('verdict classes never override <td> display (would break table column layout)', () => {
+  const css = readFileSync('src/styles/site.css', 'utf8');
+  const noComments = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const ruleRe = /([^{}]+)\{([^{}]*)\}/g;
+  let m: RegExpExecArray | null;
+  let checked = 0;
+  while ((m = ruleRe.exec(noComments))) {
+    const selectors = m[1].split(',').map((s) => s.trim());
+    const body = m[2];
+    // Only the bare .site-alt-yes/-no/-partial selector — the one that
+    // targets the <td> itself. The ::before pseudo-element rules legitimately
+    // set `display: inline-block` on the marker dot, which isn't the cell.
+    if (selectors.some((s) => /^\.site-alt-(yes|no|partial)$/.test(s))) {
+      checked++;
+      expect(body, `rule "${m[1].trim()}" must not set display`).not.toMatch(/display\s*:/);
+    }
+  }
+  // Sanity check on the scan itself: fails loudly if the selectors ever
+  // change shape and this stops finding anything to check.
+  expect(checked, 'no site-alt-yes/no/partial rules found to check').toBeGreaterThan(0);
+});
+
 test('flare CtaBand ink is overridden to near-black, not the token default white', () => {
   // --on-flare (#FFFFFF) on flare (#FF4D00) measures 3.33:1, below 4.5:1 AA
   // for CtaBand's 16px body text — katana's CTA is on flare. Design-system

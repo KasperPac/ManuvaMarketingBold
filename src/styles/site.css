@@ -556,12 +556,21 @@ a.site-tile { color: inherit; }
    as data and keeping colour off the text removes both problems at once.
    Non-text figures: --danger 5.74:1, --warning 6.39:1, both comfortably
    clear 3:1 too. */
+/* These classes sit directly on <td> — NOT display:inline-flex (fix round 1
+   shipped that and broke both tables' column structure: overriding a <td>'s
+   display takes it out of table layout, so the CSS table-fixup algorithm
+   wraps the run of consecutive non-cell siblings into one anonymous cell.
+   Both comparison tables rendered two columns under a three-column header
+   as a result — the competitor column visually vanished and its verdict
+   ran on under "Manuva", a worse misreading than the colour bug this
+   replaced. <td> keeps its default table-cell display; the ::before marker
+   is inline-block + vertical-align instead of a flex child. */
 .site-alt-yes, .site-alt-no, .site-alt-partial {
-  display: inline-flex; align-items: center; gap: var(--space-2);
   color: var(--ink-strong); font-weight: var(--fw-semibold);
 }
 .site-alt-yes::before, .site-alt-no::before, .site-alt-partial::before {
-  content: ''; flex: none; width: 8px; height: 8px; border-radius: var(--radius-pill);
+  content: ''; display: inline-block; vertical-align: middle;
+  width: 8px; height: 8px; margin-right: var(--space-2); border-radius: var(--radius-pill);
 }
 .site-alt-yes::before { background: var(--ok); }
 .site-alt-no::before { background: var(--danger); }
