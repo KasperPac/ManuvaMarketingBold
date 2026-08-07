@@ -1,0 +1,34 @@
+---
+import Logo from '../ds/Logo.astro';
+import Button from '../ds/Button.astro';
+import Drawer from './Drawer.astro';
+import { NAV_LINKS, APP_URL } from '../../site';
+---
+<header class="site-nav">
+  <div class="mv-wrap site-nav-inner">
+    <a href="/" aria-label="Manuva home" class="site-nav-logo">
+      <Logo variant="lockup" height={24} />
+    </a>
+
+    <nav class="mv-nav-links site-nav-links" aria-label="Primary">
+      {NAV_LINKS.map((l) => <a href={l.href}>{l.label}</a>)}
+    </nav>
+
+    <a href={APP_URL} class="site-nav-signin mv-nav-links">Sign in</a>
+    <Button as="a" href={APP_URL} size="lg" shape="pill" variant="ink" class="mv-press site-nav-cta">
+      Start free trial
+    </Button>
+
+    <button
+      type="button"
+      class="mv-nav-burger site-burger"
+      aria-label="Open menu"
+      aria-expanded="false"
+      aria-controls="site-drawer"
+    >
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </button>
+  </div>
+</header>
+<Drawer />

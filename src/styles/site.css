@@ -1,0 +1,985 @@
+/* Site-only geometry. Tokens live in _ds/. Nothing here redeclares one. */
+
+/* Single source of truth for the sticky nav's own height, so anything that
+   needs to compensate for it (in-page anchor scroll targets — see
+   .site-doc section below) tracks the same value instead of duplicating a
+   magic number that can drift out of sync with .site-nav-inner's own
+   height. Overridden at the same 960px breakpoint the nav's own layout
+   already switches at. */
+:root { --nav-h: 88px; }
+@media (max-width: 960px) { :root { --nav-h: 64px; } }
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: var(--space-3) var(--space-5);
+  background: var(--bg-card);
+  color: var(--ink-strong);
+  border-radius: var(--radius-lg);
+}
+.skip:focus { left: var(--space-4); top: var(--space-4); }
+
+body { background: var(--field-paper); color: var(--ink-strong); }
+
+.mv-btn:hover:not(:disabled) { filter: brightness(1.06); }
+.mv-btn[data-variant='secondary']:hover:not(:disabled),
+.mv-btn[data-variant='ghost']:hover:not(:disabled) { filter: none; background: var(--surface-hover); }
+.mv-btn:active:not(:disabled) { transform: translateY(1px); }
+.mv-btn:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+
+/* --- nav --- */
+.site-nav { position: sticky; top: 0; z-index: 40; background: var(--field-paper); }
+.site-nav-inner { display: flex; align-items: center; gap: var(--space-10); height: var(--nav-h); }
+.site-nav-logo { color: var(--ink-strong); flex: none; display: inline-flex; }
+/* display lives in its own min-width rule, not on the bare selector — the
+   ds's own responsive.css already toggles `.mv-nav-links` between
+   `display:none` (<=960px) and no rule at all (>960px, left to the consumer)
+   via `@media (max-width:960px)`. A bare, unconditional `display:flex` here
+   has equal specificity (one class each) and loads later in the cascade
+   (Base's own stylesheet is the last <link> in <head>, after every _ds token
+   file), so it silently won this fight at every width, keeping the full nav
+   link row on screen below the 960px breakpoint alongside the burger it was
+   supposed to replace (Task 14, caught by measuring `.site-nav-links`
+   visibility directly rather than reading the CSS and assuming the cascade
+   resolved the way the two rules' authors each intended). Gating this
+   declaration to the same >960px condition responsive.css already uses for
+   `.mv-nav-burger`'s counterpart rule lets `.mv-nav-links{display:none}`
+   apply uncontested below it. */
+.site-nav-links { gap: var(--space-6); flex: 1; }
+@media (min-width: 961px) { .site-nav-links { display: flex; } }
+/* Old site's own mobile.css hides both nav-bar CTAs ("Sign in" and "Start
+   free trial") below 960px with the comment "both live in the drawer" — the
+   drawer already carries both (Drawer.astro), so hiding this one doesn't
+   lose anything, it removes a duplicate. site-nav-signin already disappears
+   at this width via its own `mv-nav-links` class; site-nav-cta had no
+   equivalent and was the one nav element still trying to fit logo + CTA +
+   burger into a phone-width bar with nothing giving way, which overflowed
+   the viewport by ~11px at 375px (Task 14, measured). !important is needed
+   because Button.astro sets `display:inline-flex` as an inline style prop
+   (Astro.props spread, not a class) — inline style beats any stylesheet
+   selector's specificity outright, media-scoped or not. */
+@media (max-width: 960px) { .site-nav-cta { display: none !important; } }
+.site-nav-links a, .site-nav-signin {
+  font-size: var(--fs-md); font-weight: var(--fw-semibold);
+  color: var(--ink-strong); text-decoration: none; white-space: nowrap;
+}
+.site-burger {
+  background: none; border: 0; cursor: pointer; padding: var(--space-3);
+  flex-direction: column; gap: 5px; align-items: center; justify-content: center;
+}
+.site-burger > span { display: block; width: 22px; height: 2px; background: var(--ink-strong); }
+
+/* --- drawer --- */
+.site-drawer { position: fixed; inset: 0; z-index: 60; background: rgb(20 20 19 / .5); }
+.site-drawer[hidden] { display: none; }
+.site-drawer-panel {
+  position: absolute; inset-block: 0; right: 0; width: min(320px, 86vw);
+  background: var(--bg-card); padding: var(--space-8);
+  display: grid; align-content: start; gap: var(--space-6);
+}
+.site-drawer-panel nav { display: grid; gap: var(--space-5); }
+.site-drawer-panel a { color: var(--ink-strong); text-decoration: none; font-size: var(--fs-lg); }
+.site-drawer-close {
+  justify-self: end; background: none; border: 0; cursor: pointer;
+  font-size: 28px; line-height: 1; color: var(--ink-muted);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .site-drawer-panel { animation: drawer-in var(--dur-fast) var(--ease-out); }
+  @keyframes drawer-in { from { transform: translateX(8px); opacity: 0; } }
+}
+
+/* --- footer --- */
+.site-footer-grid {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: var(--space-10); padding-block: var(--space-16);
+}
+.site-footer-brand { display: grid; gap: var(--space-5); align-content: start; color: #fff; }
+.site-footer-brand p { margin: 0; max-width: 28ch; color: rgb(255 255 255 / .62); }
+.site-footer-col { display: grid; gap: var(--space-3); align-content: start; }
+.site-footer-col .mv-eyebrow { color: var(--field-amber); }
+.site-footer a { color: rgb(255 255 255 / .62); text-decoration: none; }
+.site-footer a:hover { color: #fff; }
+.site-footer-base { border-top: 1px solid rgb(255 255 255 / .12); }
+/* .42 measured 3.64:1 on the footer's navy ink (Task 14, axe) — below the
+   4.5:1 small-text floor. .62 matches `.site-footer a` just above, already
+   proven safe at this same size/background. */
+.site-footer-base .mv-wrap {
+  display: flex; justify-content: space-between;
+  padding-block: var(--space-5); font-size: var(--fs-xs); color: rgb(255 255 255 / .62);
+}
+@media (max-width: 720px) {
+  .site-footer-grid { grid-template-columns: 1fr 1fr; }
+  .site-footer-brand { grid-column: 1 / -1; }
+}
+@media (max-width: 480px) { .site-footer-grid { grid-template-columns: 1fr; } }
+
+/* --- primitives: field / panel / tile / marquee / cta --- */
+.site-tile {
+  padding: var(--space-8); min-height: 280px;
+  display: grid; grid-template-rows: auto auto 1fr; gap: var(--space-6);
+}
+/* An <a>-rooted tile (Tile's `href` prop) would otherwise pick up the global
+   a{color:var(--brand-1)} reset instead of its own field ink. */
+a.site-tile { color: inherit; }
+.site-tile-head { display: flex; align-items: flex-start; justify-content: space-between; }
+.site-tile-num { font-size: var(--fs-display-1); opacity: .34; }
+.site-tile-title {
+  font-family: var(--font-display); font-weight: 800;
+  font-size: var(--fs-display-1); line-height: 1.02; letter-spacing: var(--ls-mega);
+}
+/* Unconditional, not [data-fold]-scoped — unlike Field/Panel/CtaBand, Tile
+   sets its own field background as an inline style and never carries
+   data-fold, so a field-scoped override can't reach it. Every tile is
+   always on a colour field (Tile has no paper variant), so opacity: .82
+   here was never actually safe: it measured as low as 2.64:1 on flare and
+   this same muting compounds into the chips nested inside (Task 14, axe —
+   .site-tile-body itself down to 3.5:1, its .site-tile-chip children down
+   to 2.23:1, worst case flare + cobalt + violet all flagged). */
+.site-tile-body { font-size: var(--fs-md); line-height: 1.5; opacity: 1; text-wrap: pretty; align-self: start; }
+/* Undoing the opacity mute only got the flare pillar tile (Warehouse & Stock
+   Movement, index.astro's PILLARS) to 3.32:1 — white-on-flare's own ceiling
+   at body-copy size (see the domain-tile fix above for the fuller
+   explanation). Same dark-ink remedy, scoped the same way: by this tile's
+   own href, the only hook available since Tile carries no data-fold. */
+a[href$="features#purchasing"] .site-tile-body { color: #141413 !important; }
+/* .site-tile-chip's own black-mix background (above) exists to darken a
+   field for *white* text — this tile just switched to dark-ink text, for
+   which the same darkened chip reads dark-on-dark (3.57:1, Task 14, axe:
+   the black mix plus flare's own hue composited to #c73c00, closer to the
+   ink than the original field). Dark text needs the opposite direction. */
+a[href$="features#purchasing"] .site-tile-chip { background: rgb(255 255 255 / .35) !important; }
+
+.site-marquee { overflow: hidden; padding-block: var(--space-5); }
+.site-marquee-word {
+  display: flex; align-items: center; gap: var(--space-8);
+  padding-inline: var(--space-8); white-space: nowrap;
+  font-family: var(--font-display); font-weight: 700; font-size: var(--fs-lg);
+}
+.site-marquee-word > i { width: 9px; height: 9px; border-radius: 50%; background: var(--on-lime); flex: none; }
+
+.site-cta-inner { display: grid; justify-items: center; text-align: center; gap: var(--space-8); }
+/* max-width widened from 12ch: CtaBand headings must quote a real sentence
+   from the page verbatim (never an assembled tagline), and those run longer
+   than a short marketing line — text-wrap:balance (mv-display) still keeps
+   the wrap even across pages with very different heading lengths. */
+.site-cta-heading { font-size: var(--fs-display-5); max-width: 26ch; margin: 0; }
+.site-cta-body { margin: 0; font-size: var(--fs-lg); max-width: 38ch; opacity: .84; text-wrap: pretty; }
+.site-cta-actions { display: flex; gap: var(--space-4); }
+/* CtaBand's own div always carries data-fold (see CtaBand.astro), so this
+   rule reaches EVERY CtaBand on the site, not just mrpeasy's: /, /features
+   and /pricing's flare/amber CTAs also lose the .84 mute, in addition to
+   mrpeasy's cobalt one. Full strength is never a contrast regression on any
+   field (it can only raise a ratio, never lower one), so this is safe
+   everywhere it applies — but it IS a real, site-wide behaviour change from
+   a single rule, not something scoped to this task's two pages; flagging
+   the full reach explicitly here (and in the task report) rather than
+   describing only the case that motivated it.
+   The number that motivated it: .84 measures 4.97:1 on cobalt's own
+   full-strength baseline but only 3.98:1 once muted (computed), below
+   4.5:1 AA at this 16px body size — mrpeasy's CTA is the first use of
+   field="cobalt" on this component. */
+[data-fold] .site-cta-body { opacity: 1; }
+/* --on-flare (#FFFFFF) on flare (#FF4D00) measures 3.33:1 (computed),
+   below 4.5:1 AA for this same 16px CtaBand body text (also affects the
+   heading, though its larger display size clears WCAG's "large text" 3:1
+   bar regardless) — a token-level pairing gap, not a site-side bug, and
+   flagged to Kasper as a design-system issue rather than fixed by editing
+   _ds/. Design-system ruling: override the custom property's cascaded
+   VALUE at this specific scope instead of touching the token file — CSS
+   custom properties resolve against whatever's cascaded at the element
+   they're read on, so redeclaring --on-flare here changes what
+   `color:var(--on-flare)` (CtaBand's own inline style) resolves to for
+   every flare CtaBand site-wide (/, /features, /alternatives/katana),
+   without altering the token itself for anything else that reads it.
+   Near-black measures 5.54:1 (computed), comfortably clears 4.5:1. */
+[data-fold="flare"] { --on-flare: #141413; }
+
+/* --- home: hero --- */
+.site-hero { padding: 0 var(--gutter) var(--gutter); }
+/* grid-template-columns is explicit (a single definite track) rather than
+   left implicit/`auto` — an implicit `auto` column sizes itself from its
+   items' own content, which makes its resolved size indefinite at the point
+   an item's own percentage width needs to resolve against it (the two are
+   circular). `.site-hero-title`'s `width: min(14ch, 100%)` needs that `100%`
+   to resolve against a definite grid area; with an implicit column it fell
+   back to the item's unconstrained content width instead (Task 14, measured:
+   the heading's own box came out wider than `.site-hero-panel` itself at
+   every width below the point its 14ch cap stops binding). `minmax(0, 1fr)`
+   is one column, filling the container exactly as the implicit column did
+   visually, just no longer content-sized. */
+.site-hero-panel { padding: var(--space-24) var(--space-16) var(--space-16); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-8); justify-items: start; }
+.site-hero-eyebrow { display: inline-flex; align-items: center; opacity: .9; }
+/* .9 opacity on white-on-cobalt measured 4.33:1 (Task 14, axe) — cobalt is
+   the tightest of the seven fields for white text to begin with (~4.87:1 at
+   full strength), so muting it at all was enough to drop below 4.5. */
+[data-fold] .site-hero-eyebrow { opacity: 1; }
+.site-hero-badge {
+  display: inline-flex; align-items: center; margin-right: var(--space-2);
+  /* A *lighter* translucent overlay (mixing toward white) pushes a field
+     that's already marginal for white text even closer to white — this
+     measured 3.19:1 on cobalt (Task 14, axe). Mixing toward black instead
+     always darkens the fill, which only ever helps white text, on cobalt or
+     any other field this badge might sit on. */
+  padding: 2px var(--space-2); background: rgb(0 0 0 / .2); color: var(--on-cobalt);
+  border-radius: var(--radius-pill);
+}
+/* Old site carried the same "Manufacturing operations,<br/>finally simple."
+   break at the same max-width: 14ch (verified against
+   origin/master:index.html) but at a lighter weight and tighter (negative)
+   tracking that never hit this width; the new display type (weight 800,
+   expanded variation, --ls-mega tracking) renders noticeably wider per
+   character, so the forced first line ("Manufacturing operations,") no
+   longer fits inside 14ch at several viewports and pushed the panel — and
+   the whole document — into horizontal overflow (Task 14, measured via
+   Playwright: document.documentElement.scrollWidth exceeded clientWidth by
+   up to 140px). `max-width` alone doesn't stop this: as a grid item under
+   `.site-hero-panel`'s `justify-items: start`, the heading is sized to its
+   own content, and `text-wrap: balance`'s content-based sizing reports the
+   same width whether asked for its minimum or maximum — so `min-width: 0`
+   and swapping `text-wrap` both left it unchanged in testing. A definite
+   `width` (not max-width) forces a real box the browser must lay text out
+   inside instead of around; `overflow-wrap: break-word` is the fallback for
+   the rare case a single unbroken word still doesn't fit that width — a
+   no-op everywhere it currently does. `min(14ch, 100%)` keeps the original
+   14ch ceiling on wide screens (confirmed unchanged there) while capping it
+   at the container's real width below that. */
+.site-hero-title { font-size: var(--fs-display-6); width: min(14ch, 100%); overflow-wrap: break-word; }
+.site-hero-sub { margin: 0; max-width: 46ch; font-size: var(--fs-xl); line-height: var(--lh-normal); opacity: .82; text-wrap: pretty; }
+/* Same fix as .site-hero-meta below (already unmuted under a field) —
+   .82 on white-on-cobalt measured 3.87:1 (Task 14, axe). */
+[data-fold] .site-hero-sub { opacity: 1; }
+.site-hero-actions { margin-top: var(--space-2); }
+.site-hero-meta { display: flex; gap: var(--space-6); font-size: var(--fs-md); opacity: .76; }
+.site-hero-meta div { display: flex; align-items: center; gap: var(--space-2); }
+
+/* Ghost pill styling (Pill's `ghost` prop) is composed into Button's inline
+   style string in Pill.astro itself, not here — a CSS class can't win against
+   the inline style Button always writes. See Pill.astro's comment. */
+
+/* --- home: integrations strip --- */
+.site-integrations { text-align: center; }
+.site-integrations-label { margin: 0 0 var(--space-8); color: var(--ink-faint); }
+.site-integrations-logos { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: var(--space-8) var(--space-10); }
+.site-integrations-name { font-family: var(--font-display); font-size: var(--fs-xl); font-weight: var(--fw-semibold); color: var(--ink-muted); }
+
+/* --- home: product shot --- */
+.site-shot { background: var(--tint-cobalt); display: grid; justify-items: center; text-align: center; }
+.site-shot img { width: 100%; height: auto; display: block; border-radius: var(--radius-tile); box-shadow: var(--shadow-lg); }
+
+.site-section-sub { max-width: 60ch; font-size: var(--fs-lg); line-height: var(--lh-normal); opacity: .8; margin: var(--space-4) 0 var(--space-12); }
+.site-section-footer { text-align: center; margin: var(--space-10) 0 0; }
+.site-section-footer a { font-size: var(--fs-lg); font-weight: var(--fw-semibold); color: var(--brand-1); }
+
+/* --- home: amber / violet split --- */
+.site-split-panel { display: grid; gap: var(--space-5); align-content: start; }
+.site-split-heading { font-size: var(--fs-display-2); max-width: 14ch; }
+.site-split-body { margin: 0; font-size: var(--fs-lg); line-height: var(--lh-normal); opacity: .84; text-wrap: pretty; }
+/* .84 on white-on-violet measured 3.6:1 (Task 14, axe). */
+[data-fold] .site-split-body { opacity: 1; }
+.site-split-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.site-split-list li { display: flex; align-items: flex-start; gap: var(--space-2); font-size: var(--fs-md); }
+.site-split-img { width: 100%; height: auto; display: block; border-radius: var(--radius-tile); margin-top: var(--space-5); }
+
+/* --- home: beta strip --- */
+.site-beta { text-align: center; display: grid; justify-items: center; gap: var(--space-4); }
+.site-beta-head { display: flex; align-items: center; gap: var(--space-2); font-size: var(--fs-xl); margin: 0; }
+.site-beta-sub { margin: 0 0 var(--space-2); max-width: 52ch; font-size: var(--fs-md); opacity: .8; }
+
+/* --- home: comparison --- */
+.site-compare { display: grid; gap: var(--space-5); }
+.site-compare-intro { margin: 0; max-width: 60ch; font-size: var(--fs-lg); line-height: var(--lh-normal); opacity: .7; }
+.site-compare-table { margin-top: var(--space-8); border-radius: var(--radius-tile); overflow: hidden; background: rgb(255 255 255 / .04); }
+.site-compare-row { display: grid; grid-template-columns: 1.6fr repeat(4, 1fr); align-items: center; }
+.site-compare-row + .site-compare-row { border-top: 1px solid rgb(255 255 255 / .1); }
+.site-compare-row > div { padding: var(--space-4) var(--space-5); font-size: var(--fs-md); text-align: center; opacity: .7; }
+.site-compare-row .site-compare-feat { text-align: left; opacity: 1; font-weight: var(--fw-medium); }
+.site-compare-row-head > div { font-family: var(--font-display); font-weight: var(--fw-semibold); opacity: 1; }
+.site-compare-manuva { background: rgb(255 255 255 / .08); opacity: 1 !important; font-weight: var(--fw-semibold); }
+.site-compare-foot { margin: var(--space-4) 0 0; text-align: center; font-size: var(--fs-md); opacity: .7; }
+/* Unmuting the opacity fixed the ancestor's contribution but not the link's
+   own colour: unstyled, it still falls through to the ds's global
+   `a{color:var(--brand-1)}` (_ds/tokens/base.css), and --brand-1 on this
+   field's dark ink measures only 2.67:1 even at full opacity (Task 14,
+   axe) — cobalt-500 was never meant to sit directly on navy as text.
+   --on-ink matches the surrounding caption's own ink. */
+.site-compare-foot a { font-weight: var(--fw-semibold); color: var(--on-ink); }
+.site-compare-caption { display: inline-block; margin-top: var(--space-2); font-size: var(--fs-sm); opacity: .6; }
+/* .7/.6 on white-on-ink measured 1.99:1 (the katana/mrpeasy links) and
+   3.64:1 respectively (Task 14, axe) — opacity on an ancestor composites
+   the whole subtree, including the two `<a>`s inside .site-compare-foot, so
+   there's no way to unmute just the links without unmuting the element
+   carrying the opacity itself. */
+[data-fold] .site-compare-foot,
+[data-fold] .site-compare-caption { opacity: 1; }
+
+@media (max-width: 720px) {
+  .site-compare-row { grid-template-columns: 1.3fr repeat(4, minmax(0, 1fr)); }
+  .site-compare-row > div { padding: var(--space-3) var(--space-2); font-size: var(--fs-sm); }
+}
+
+/* --- home: pillar tile chips --- */
+.site-tile-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
+.site-tile-chip {
+  display: inline-flex; padding: var(--space-1) var(--space-3); border-radius: var(--radius-pill);
+  font-size: var(--fs-xs); font-weight: var(--fw-semibold);
+  /* Same fix as .site-hero-badge above: a *lighter* overlay on a field that's
+     already marginal for white text (worst case, flare, only clears 3.33:1
+     at full strength) measured as low as 2.23:1 (Task 14, axe). */
+  background: rgb(0 0 0 / .22);
+}
+
+/* --- home: pricing --- */
+/* .site-pricing-toggle/-btn/-on/-save are reused verbatim by the class name
+   on /pricing's own toggle below (different markup, different meaning: this
+   one is a static, aria-hidden decorative preview; that one is a real
+   annual/monthly toggle with its own field background). Two rule blocks
+   sharing one class name applied everywhere on both pages, colliding
+   silently whenever either one changed a property the other relied on
+   (Task 14, team-lead review — this was the actual mechanism behind two
+   contrast bugs a first pass patched with [data-fold]/:not() overrides
+   instead of fixing at the root). Scoped under each page's own existing
+   section class (.site-pricing here, .site-pricing-hero below) instead —
+   the two blocks can no longer reach each other's elements at all. */
+.site-pricing .site-pricing-toggle { display: flex; justify-content: center; gap: var(--space-2); margin: var(--space-8) 0 var(--space-10); }
+.site-pricing .site-pricing-toggle-btn {
+  padding: var(--space-2) var(--space-4); border-radius: var(--radius-pill); font-size: var(--fs-sm);
+  font-weight: var(--fw-medium); color: var(--ink-muted); background: transparent;
+}
+.site-pricing .site-pricing-toggle-on { background: var(--bg-card); color: var(--ink-strong); box-shadow: var(--shadow-sm); }
+/* --ok as text on --ok-dim's tint reads as a soft "success" pill, but the
+   pairing itself is short of AA (Task 14, axe: 3.01-3.49:1 depending on the
+   surface behind the tint) — darkening the text, not the tint, keeps the
+   pill's look and clears it. Same fix reused by .site-plan-chip-ok below. */
+.site-pricing .site-pricing-save { margin-left: var(--space-1); font-size: var(--fs-xs); font-weight: var(--fw-bold); color: color-mix(in srgb, var(--ok) 70%, black); }
+
+.site-tier-grid { align-items: stretch; }
+.site-tier {
+  background: var(--bg-card-2); border: 1px solid var(--stroke-card); border-radius: var(--radius-lg);
+  padding: var(--space-8); display: grid; align-content: start; gap: var(--space-2); position: relative;
+}
+.site-tier-featured { border-color: var(--brand-1); box-shadow: var(--shadow-lg); }
+.site-tier-tag {
+  position: absolute; top: calc(var(--space-3) * -1); right: var(--space-6); background: var(--brand-1);
+  color: var(--ink-on-brand); font-size: var(--fs-xs); font-weight: var(--fw-bold); letter-spacing: var(--ls-caps);
+  text-transform: uppercase; padding: var(--space-1) var(--space-3); border-radius: var(--radius-xs);
+}
+.site-tier-name { font-family: var(--font-display); font-size: var(--fs-lg); font-weight: var(--fw-semibold); }
+.site-tier-desc { margin: var(--space-1) 0 0; font-size: var(--fs-sm); color: var(--ink-muted); line-height: var(--lh-snug); }
+.site-tier-price { margin-top: var(--space-5); display: flex; align-items: baseline; gap: var(--space-1); }
+.site-tier-val { font-family: var(--font-display); font-size: var(--fs-display-1); font-weight: var(--fw-semibold); }
+/* --ink-faint is documented AA "on --bg-card" (#FFFFFF) specifically — every
+   .site-tier sits on --bg-card-2 (#DEDEDA), a visibly darker card surface,
+   where the same token measured 3.49:1 (Task 14, axe). --ink-muted clears
+   it there too (~4.9:1, computed). */
+.site-tier-per { font-size: var(--fs-sm); color: var(--ink-muted); }
+.site-tier-sub { font-size: var(--fs-sm); color: var(--ink-muted); margin-bottom: var(--space-5); }
+.site-tier-cta { width: 100%; justify-content: center; }
+.site-tier-feats {
+  list-style: none; margin: var(--space-6) 0 0; padding-top: var(--space-5); border-top: 1px solid var(--stroke);
+  display: grid; gap: var(--space-3);
+}
+/* content: '✓' is CSS paint, not DOM text — invisible to the parity extractor,
+   unlike an <Icon>, which always stamps a real "[icon:check]" text token. */
+.site-tier-feats li { display: flex; align-items: flex-start; gap: var(--space-2); font-size: var(--fs-sm); }
+.site-tier-feats li::before { content: '✓'; color: var(--ok); font-weight: var(--fw-bold); flex: none; }
+/* Same --bg-card-2 / --ink-faint mismatch as .site-tier-per above. */
+.site-tier-feats-hd {
+  font-size: var(--fs-xs); font-weight: var(--fw-semibold); text-transform: uppercase; letter-spacing: var(--ls-caps);
+  color: var(--ink-muted);
+}
+.site-pricing-enterprise { text-align: center; margin: var(--space-10) 0 0; font-size: var(--fs-md); color: var(--ink-muted); }
+.site-pricing-enterprise a { font-weight: var(--fw-semibold); color: var(--brand-1); }
+
+@media (max-width: 720px) {
+  .site-tier-featured { box-shadow: none; }
+}
+
+/* --- pricing: hero --- */
+.site-pricing-hero-panel { display: grid; justify-items: center; text-align: center; gap: var(--space-6); padding: var(--space-16); }
+.site-pricing-hero-eyebrow { opacity: .72; }
+.site-pricing-hero-title { font-size: var(--fs-display-4); max-width: 18ch; }
+.site-pricing-hero-sub { margin: 0; max-width: 46ch; font-size: var(--fs-lg); line-height: var(--lh-normal); opacity: .82; text-wrap: pretty; }
+/* Scoped under .site-pricing-hero — see the home-page block's own comment
+   above for why (Task 14, team-lead review). Specificity does the rest:
+   .site-pricing-hero-toggle-btn.site-pricing-toggle-on (below) is one
+   compound selector combining both classes on the same element, which
+   outranks the plain -toggle-btn rule regardless of source order — no
+   :not() needed once the two pages can't reach each other's rules at all. */
+.site-pricing-hero .site-pricing-toggle { display: flex; align-items: center; gap: var(--space-3); }
+.site-pricing-hero .site-pricing-toggle-pill { display: flex; background: rgb(255 255 255 / .14); border-radius: var(--radius-pill); padding: 3px; }
+/* --ink-muted (this class's un-scoped ancestor rule) is a light-theme dark
+   grey — wrong for this page's ink field regardless of opacity, which is
+   what caused the 1.15:1 this page's toggle measured before scoping
+   (Task 14, axe). --on-ink is this field's own real ink. */
+.site-pricing-hero .site-pricing-toggle-btn { padding: var(--space-2) var(--space-5); border-radius: var(--radius-pill); font-size: var(--fs-md); font-weight: var(--fw-medium); color: var(--on-ink); opacity: .8; }
+.site-pricing-hero .site-pricing-toggle-btn.site-pricing-toggle-on { background: var(--bg-card); color: var(--on-paper); opacity: 1; font-weight: var(--fw-semibold); }
+/* Same --ok-on-tint pairing as the home instance above, but on a dark field
+   instead of paper — lightening (not darkening) is what a dark background
+   needs (Task 14, axe: undarkened --ok measured 3.49:1 here). */
+.site-pricing-hero .site-pricing-save { display: inline-flex; align-items: center; padding: var(--space-1) var(--space-3); background: var(--ok-dim); color: color-mix(in srgb, var(--ok) 55%, white); border-radius: var(--radius-pill); font-size: var(--fs-sm); font-weight: var(--fw-bold); }
+
+/* --- pricing: plan cards --- */
+.site-plan-grid { align-items: stretch; }
+.site-plan {
+  position: relative; background: var(--bg-card); border: 1px solid var(--stroke-card); border-radius: var(--radius-lg);
+  padding: var(--space-8) var(--space-6); display: grid; align-content: start; gap: var(--space-1);
+}
+.site-plan-featured { border-color: var(--brand-1); border-width: 2px; box-shadow: var(--shadow-lg); }
+.site-plan-enterprise { background: var(--brand-dim); }
+.site-plan-badge {
+  position: absolute; top: calc(var(--space-3) * -1); left: 50%; transform: translateX(-50%);
+  background: var(--brand-1); color: var(--ink-on-brand); font-size: var(--fs-sm); font-weight: var(--fw-semibold);
+  padding: var(--space-1) var(--space-4); border-radius: var(--radius-pill); box-shadow: var(--shadow-sm); white-space: nowrap;
+}
+.site-plan-name { font-family: var(--font-display); font-size: var(--fs-lg); font-weight: var(--fw-semibold); margin-top: var(--space-2); }
+.site-plan-tagline { min-height: 38px; font-size: var(--fs-sm); color: var(--ink-muted); line-height: var(--lh-snug); margin: var(--space-1) 0 0; }
+.site-plan-price { margin-top: var(--space-5); display: flex; align-items: baseline; gap: var(--space-1); }
+.site-plan-price-val { font-family: var(--font-display); font-size: var(--fs-display-1); font-weight: var(--fw-semibold); }
+.site-plan-price-per { font-size: var(--fs-sm); color: var(--ink-faint); }
+.site-plan-note { font-size: var(--fs-sm); color: var(--ink-muted); margin: var(--space-1) 0 0; }
+.site-plan-monthly { font-size: var(--fs-xs); color: var(--ink-faint); margin: var(--space-1) 0 var(--space-5); }
+.site-plan-cta { width: 100%; margin-top: var(--space-2); }
+.site-plan-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: var(--space-5) 0 var(--space-5); }
+.site-plan-chip {
+  display: inline-flex; padding: var(--space-1) var(--space-3); border-radius: var(--radius-pill);
+  font-size: var(--fs-xs); font-weight: var(--fw-medium); background: var(--bg-card-2); color: var(--ink-muted);
+}
+/* Same --ok-on-tint pairing as .site-pricing-save; measured 2.54-3.01:1
+   across the plain and --brand-dim-tinted (enterprise) card backgrounds
+   (Task 14, axe). */
+.site-plan-chip-ok { background: var(--ok-dim); color: color-mix(in srgb, var(--ok) 70%, black); }
+.site-plan-divider { border: 0; border-top: 1px solid var(--stroke); margin: 0 0 var(--space-4); }
+.site-plan-feats { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
+.site-plan-feats li { display: flex; align-items: flex-start; gap: var(--space-2); font-size: var(--fs-sm); color: var(--ink-muted); line-height: var(--lh-snug); }
+.site-plan-feats li svg { color: var(--ok); flex: none; margin-top: 2px; }
+.site-plans-note { text-align: center; font-size: var(--fs-sm); color: var(--ink-faint); margin: var(--space-8) 0 0; }
+.site-plans-monthly-note { text-align: center; font-size: var(--fs-sm); color: var(--ink-faint); margin: var(--space-2) 0 0; }
+
+@media (max-width: 720px) {
+  .site-plan-featured { box-shadow: none; }
+}
+
+/* --- pricing: feature matrix --- */
+.site-matrix-heading { font-size: var(--fs-display-2); text-align: center; margin: 0 0 var(--space-10); }
+.site-matrix-table { width: 100%; border-collapse: collapse; font-size: var(--fs-base); }
+.site-matrix-table thead th {
+  padding: var(--space-3) var(--space-4); text-align: center; font-weight: var(--fw-semibold);
+  color: var(--ink-muted); border-bottom: 2px solid var(--stroke-strong); font-size: var(--fs-base);
+}
+.site-matrix-table thead th:first-child { text-align: left; color: var(--ink-strong); }
+.site-matrix-divider td {
+  padding: var(--space-3) var(--space-4); background: var(--bg-card-2); font-size: var(--fs-xs); font-weight: var(--fw-bold);
+  letter-spacing: var(--ls-caps); text-transform: uppercase; color: var(--ink-muted); border-top: 1px solid var(--stroke);
+}
+.site-matrix-table tbody tr:not(.site-matrix-divider) td { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--stroke); vertical-align: middle; }
+.site-matrix-table td:first-child { color: var(--ink-strong); }
+.site-matrix-table td:not(:first-child) { text-align: center; color: var(--ink-muted); }
+.site-matrix-table tbody tr:not(.site-matrix-divider):hover td { background: var(--bg-card-2); }
+.site-matrix-table svg { color: var(--ok); }
+
+/* Not .mv-cols-2: that utility's own 720px breakpoint collapses it to a single
+   column, but responsive.css only ever displays .mv-matrix-cards AT ≤720px
+   (it's display:none above that) — using .mv-cols-2 here would mean this grid
+   is always in its single-column collapsed state and never actually shows the
+   intended 2-up card layout. The literal repeat(2,1fr) + hand-rolled 480px
+   collapse is deliberate, not a missed utility. */
+.site-matrix-cards { grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
+.site-matrix-card { background: var(--bg-card); border: 1px solid var(--stroke-card); border-radius: var(--radius-lg); padding: var(--space-5); }
+.site-matrix-card-name { font-family: var(--font-display); font-weight: var(--fw-semibold); font-size: var(--fs-md); margin-bottom: var(--space-3); }
+.site-matrix-card-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.site-matrix-card-list li { display: flex; justify-content: space-between; align-items: baseline; font-size: var(--fs-sm); }
+.site-matrix-card-list li svg { color: var(--ok); }
+.site-matrix-card-label { color: var(--ink-muted); }
+
+@media (max-width: 480px) {
+  .site-matrix-cards { grid-template-columns: 1fr; }
+}
+
+/* --- pricing: FAQ --- */
+.site-faq-section h2 { font-size: var(--fs-display-2); text-align: center; margin: 0 0 var(--space-10); }
+.site-faq { max-width: 720px; margin: 0 auto; }
+.site-faq-item { border-top: 1px solid var(--stroke); padding: var(--space-6) 0; }
+.site-faq-item:last-child { border-bottom: 1px solid var(--stroke); }
+.site-faq-q { font-size: var(--fs-lg); font-weight: var(--fw-semibold); color: var(--ink-strong); cursor: pointer; list-style: none; }
+.site-faq-q::-webkit-details-marker { display: none; }
+.site-faq-a { font-size: var(--fs-md); color: var(--ink-muted); line-height: var(--lh-normal); margin-top: var(--space-3); }
+
+/* --- features: hero --- */
+.site-features-hero-panel { display: grid; justify-items: center; text-align: center; gap: var(--space-6); padding: var(--space-16); }
+.site-features-hero-title { font-size: var(--fs-display-4); max-width: 20ch; }
+.site-features-hero-sub { margin: 0; max-width: 60ch; font-size: var(--fs-lg); line-height: var(--lh-normal); opacity: .82; text-wrap: pretty; }
+.site-features-hero-actions { margin-top: var(--space-2); }
+
+/* --- features: domain grid (additive summary band, not a replacement for
+   the ten sections below — see features.astro's DOMAINS comment) --- */
+.site-domain-section { text-align: center; }
+.site-domain-grid { margin-top: var(--space-8); }
+.site-domain-tile { min-height: auto; padding: var(--space-5); display: grid; justify-items: center; text-align: center; gap: var(--space-2); }
+.site-domain-tile .site-tile-head { justify-content: center; }
+.site-domain-tile .site-tile-title { font-size: var(--fs-sm); letter-spacing: normal; text-transform: none; }
+.site-domain-tile .site-tile-body { display: none; }
+/* White-on-flare is only AA at large text (24px, or 18.66px+ bold) — pure
+   white already maximises the distance from flare's own luminance, so there
+   is no lighter shade left to reach for; the field itself just isn't safe
+   for text this small (--fs-sm, 12px). Measured 3.32:1 (Task 14, axe). Same
+   remedy the design already ships for CtaBand's flare instance
+   ([data-fold="flare"] above): dark ink instead of white. Scoped to the
+   Purchasing tile specifically (the only flare domain tile — see features.astro's
+   DOMAINS) rather than every .site-domain-tile, since Tile has no data-fold
+   hook to key a field-scoped override off and the other domain colours
+   don't have this problem at this size. !important is required: Tile.astro
+   sets colour as part of its own inline style, which outranks any external
+   class rule without it. */
+a[href$="#purchasing"] .site-tile-title { color: #141413 !important; }
+
+/* --- features: detail sections --- */
+.site-feat-heading { font-size: var(--fs-display-2); max-width: 44ch; margin: var(--space-3) 0 var(--space-4); }
+.site-feat-intro { max-width: 64ch; font-size: var(--fs-lg); line-height: var(--lh-normal); opacity: .8; margin: 0 0 var(--space-12); }
+/* .8 measured 3.4:1 (violet) and 3.76:1 (cobalt) — same fix as the other
+   opacity-muted body copy above (Task 14, axe). */
+[data-fold] .site-feat-intro { opacity: 1; }
+
+/* Literal 1fr 1.1fr, not an mv-cols-* utility: this is a deliberately
+   asymmetric two-column split (image column slightly wider than content),
+   only ever used by the single with-image section (BOMs). No mv-cols-*
+   value expresses an unequal split — same documented-exception category as
+   .site-compare-row's repeat(4,1fr) (Task 7) and .site-matrix-cards'
+   repeat(2,1fr) (Task 8). */
+/* --space-14 doesn't exist in the design system's scale (1,2,3,4,5,6,8,10,
+   12,16,20,24,32 — it skips 14), so this declaration was invalid at
+   computed-value time and fell back to its initial value: gap: 0, the BOMs
+   screenshot butting straight against its feature text (Task 14, team-lead
+   review, measured in Chrome). Old source's own gap here is 56px, exactly
+   between --space-12 (48px) and --space-16 (64px) — checked rendered, not
+   picked by arithmetic: --space-12 keeps the 1.1fr image column from
+   crowding the text column at this section's own width. */
+.site-feat-row-image { display: grid; grid-template-columns: 1fr 1.1fr; gap: var(--space-12); align-items: center; }
+
+.site-feat-grid { gap: var(--space-2) var(--space-8); }
+.site-feat { display: flex; gap: var(--space-3); padding: var(--space-2) 0; }
+/* Base rule is the ORIGINAL paper look: a --brand-dim (10% alpha) chip with
+   --brand-1 blue text/icon — restored here after fix round 1 flattened it
+   to a neutral grey (a real visual regression on the eight paper sections,
+   caught in round 2 review). Computed: brand-1 on brand-dim-over-paper is
+   4.15:1 — below the 4.5:1 TEXT threshold, but this element is a
+   non-text icon glyph (WCAG's 3:1 bar), which it clears comfortably; the
+   base rule is deliberately NOT reused for .site-feat-tier below, which IS
+   text and needs the stricter threshold (see its own comment). Field
+   sections override below, [data-fold] scoped so paper is untouched. */
+.site-feat-icon {
+  flex: none; width: 28px; height: 28px; border-radius: var(--radius-xs);
+  background: var(--brand-dim); color: var(--brand-1);
+  display: grid; place-items: center;
+}
+/* --brand-1 (#3A5EFF) is byte-identical to --field-cobalt, so the icon
+   vanished into its own background on the Costing section. Field sections
+   only: derive the chip from the inherited on-field ink instead — a
+   lightening currentColor mix is fine here (icon contrast only needs to
+   clear 3:1, not 4.5:1 — see .site-feat-tier's field override below for why
+   the same lightening approach doesn't work for TEXT). Computed: violet
+   4.01:1, cobalt 4.07:1, both > 3:1. */
+[data-fold] .site-feat-icon {
+  background: color-mix(in srgb, currentColor 12%, transparent); color: inherit;
+}
+.site-feat-body { min-width: 0; }
+.site-feat-title { font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: inherit; margin: var(--space-1) 0; }
+/* opacity, not a second absolute ink token (--ink-muted) — same "muted via
+   opacity on the inherited colour" pattern .site-tile-body already uses.
+   .72 approximates --ink-muted's actual contrast against --ink-strong on
+   paper (7.26:1 computed, close to the original --ink-muted's 6.65:1 — the
+   eight neutral sections read the same as before, slightly better if
+   anything). Any opacity < 1 fails on a field section: the fields
+   themselves clear 4.5:1 by only a hair at full strength (violet 4.60,
+   cobalt 4.97 — see .site-feat-title above, unchanged since round 1), so
+   muting toward the field colour drops straight below 4.5 (computed 2.98 /
+   3.34 at .72 — this is what round 1 shipped and round 2 review caught).
+   Field sections use full strength instead — same 4.60 / 4.97 as the title. */
+.site-feat-desc { font-size: var(--fs-sm); color: inherit; opacity: .72; line-height: var(--lh-normal); margin: 0; }
+[data-fold] .site-feat-desc { opacity: 1; }
+/* Base rule (paper): a currentColor-derived lightening chip, same shape as
+   .site-feat-icon's field override — kept as-is from round 1, NOT reverted
+   to the original --brand-dim/--brand-1 pairing the icon was: that pairing
+   computes to 4.15:1, which clears the icon's 3:1 non-text bar but fails
+   this element's 4.5:1 TEXT bar (this badge is a "Growth+"/"Pro+" label,
+   not a glyph) — restoring it here would reintroduce a real, if small and
+   pre-existing, AA failure instead of fixing one. Paper's current 14%
+   lightening computes to 12.60:1, comfortably clear. */
+.site-feat-tier {
+  display: inline-block; font-size: var(--fs-xs); font-weight: var(--fw-bold);
+  padding: 1px var(--space-2); border-radius: var(--radius-pill); letter-spacing: var(--ls-caps);
+  text-transform: uppercase; background: color-mix(in srgb, currentColor 14%, transparent); color: inherit;
+  vertical-align: middle;
+}
+/* Field sections: the paper rule's LIGHTENING mix is what broke this — on a
+   field, currentColor is white (--on-violet/--on-cobalt), so lightening the
+   chip raises its luminance toward the white text, which can only ever
+   shrink the gap. No lightening percentage clears 4.5:1 here (checked 14%,
+   10%, 8% — 3.90 / 3.90, 4.09 / 4.20, 4.22 / 4.34, all still short); the
+   fields have almost no headroom at full strength to begin with (4.60 /
+   4.97, per .site-feat-title). Darkening toward black instead — the
+   opposite direction from the text colour — only ever widens the gap:
+   black 20% computed to 6.58:1 (violet) / 7.01:1 (cobalt), comfortable
+   margin without reading as a heavy/opaque block. */
+/* :not(...) matters, not just style: an element carries BOTH
+   .site-feat-tier and .site-feat-tier-pro/-ent at once (Pro+/Enterprise
+   badges), and [data-fold] .site-feat-tier's specificity (0,2,0) beats
+   .site-feat-tier-pro/-ent's (0,1,0) — without the exclusion this rule
+   silently overwrote the opaque bg-card-2 badges' background on the two
+   field sections too, which live-measurement in round 2 caught (tier-pro
+   was reporting the SAME ratio as the base badge instead of its own). */
+[data-fold] .site-feat-tier:not(.site-feat-tier-pro):not(.site-feat-tier-ent) {
+  background: color-mix(in srgb, black 20%, transparent); color: inherit;
+}
+/* Pro+/Enterprise badges are NOT part of the same bug: --bg-card-2 (#DEDEDA)
+   is an opaque solid, not a translucent tint, so it fully occludes whatever
+   field sits behind it — --ink-strong/--ink-muted text on it has the same
+   real contrast regardless of section colour. Reviewer independently
+   verified this in round 2 (bg-card-2 confirmed opaque). Left as absolute
+   tokens deliberately; color-mix would only make them field-tinted for no
+   reason. */
+.site-feat-tier-pro { background: var(--bg-card-2); color: var(--ink-strong); }
+.site-feat-tier-ent { background: var(--bg-card-2); color: var(--ink-muted); }
+
+/* Differentiator callout: same opaque --bg-card-2 reasoning as the Pro+/
+   Enterprise badges above — the box's own solid backing means --ink-muted
+   and the strong lead-in's --ink-strong keep correct contrast on both
+   field and paper sections. --brand-1 on the icon is likewise safe (blue
+   on solid light grey, not on the field), unlike .site-feat-icon's
+   near-transparent chip above. */
+.site-differentiator {
+  margin-top: var(--space-8); padding: var(--space-4) var(--space-5);
+  background: var(--bg-card-2); border: 1px solid var(--stroke-card); border-radius: var(--radius-md);
+  font-size: var(--fs-sm); color: var(--ink-muted); line-height: var(--lh-normal);
+  display: flex; gap: var(--space-3); align-items: flex-start;
+}
+.site-differentiator-icon { flex: none; color: var(--brand-1); display: grid; place-items: center; }
+.site-differentiator strong { color: var(--ink-strong); }
+
+.site-feat-image img { width: 100%; height: auto; display: block; border-radius: var(--radius-tile); box-shadow: var(--shadow-lg); }
+
+@media (max-width: 960px) {
+  .site-feat-row-image { grid-template-columns: 1fr; gap: var(--space-8); }
+}
+
+/* --- home: contact --- */
+.site-contact-inner { display: grid; justify-items: center; text-align: center; gap: var(--space-5); max-width: 60ch; margin-inline: auto; }
+.site-contact-sub { margin: 0; font-size: var(--fs-lg); line-height: var(--lh-normal); opacity: .8; text-wrap: pretty; }
+.site-contact-info { display: grid; gap: var(--space-1); justify-items: center; }
+.site-contact-label { font-size: var(--fs-xs); font-weight: var(--fw-semibold); text-transform: uppercase; letter-spacing: var(--ls-caps); color: var(--ink-faint); }
+.site-contact-value { font-size: var(--fs-md); font-weight: var(--fw-medium); color: var(--ink-strong); }
+.site-contact-meta { font-size: var(--fs-sm); color: var(--ink-muted); }
+
+/* --- alternatives: hero --- */
+.site-alt-hero-panel { display: grid; justify-items: start; text-align: left; gap: var(--space-5); padding: var(--space-16); }
+.site-alt-hero-title { font-size: var(--fs-display-4); max-width: 26ch; }
+/* No opacity mute, unlike most other hero subheads (site-hero-sub,
+   site-features-hero-sub): katana's hero field is violet, whose full-strength
+   white-on-field contrast is only 4.60:1 (computed, matches the task brief's
+   own figure) — any opacity < 1 at this font-size (16px, below the 18.66px
+   bold / 24px normal "large text" threshold) drops below 4.5:1 AA. Verified:
+   .84 measures 3.61:1 on violet, .76 measures 3.19:1. Full strength is the
+   only value that clears AA on this field; mrpeasy's amber field (dark ink
+   on a bright yellow) would have had huge headroom either way, so dropping
+   the mute here costs nothing there. */
+.site-alt-hero-sub { margin: 0; max-width: 64ch; font-size: var(--fs-lg); line-height: var(--lh-normal); text-wrap: pretty; }
+.site-alt-hero-actions { margin-top: var(--space-2); }
+/* site-hero-meta (shared with / and /features) mutes to .76 by default,
+   which measures 3.55:1 on cobalt and 3.19:1 on violet — both below 4.5:1 AA
+   at this class's 14px. Both alternatives heroes use it on exactly those two
+   fields (katana violet, mrpeasy cobalt/amber via CtaBand elsewhere), so this
+   is scoped to any field section rather than hand-patched per page — same
+   fix also closes a pre-existing, unflagged violation on home's own cobalt
+   hero (Task 7), which uses the identical class. */
+[data-fold] .site-hero-meta { opacity: 1; }
+
+/* --- alternatives: comparison groups (paper — the whole slot, tables included) --- */
+/* --space-14 doesn't exist (see .site-feat-row-image above for the full
+   explanation) — this fell back to padding-block: 0, every group's
+   border-top divider sitting flush against the preceding paragraph on both
+   /alternatives/ pages (Task 14, team-lead review, measured in Chrome: 0px
+   on every group). Old source's own value here is 72px; --space-16 (64px)
+   is the closer of the two real neighbours and reads right at this
+   section's own generous vertical rhythm. */
+.site-alt-group { padding-block: var(--space-16); border-top: 1px solid var(--stroke); }
+.site-alt-group:first-child { border-top: 0; padding-top: 0; }
+.site-alt-group-head { max-width: 68ch; margin: 0 0 var(--space-8); }
+.site-alt-group-head .mv-eyebrow { color: var(--ink-faint); }
+.site-alt-group-head h2 { font-size: var(--fs-display-2); margin: var(--space-2) 0 var(--space-3); max-width: 50ch; }
+.site-alt-group-head p { margin: 0; font-size: var(--fs-lg); line-height: var(--lh-normal); color: var(--ink-muted); }
+
+/* --- alternatives: gap list (katana's "where it stops short") --- */
+.site-alt-gap-list { display: grid; gap: var(--space-3); }
+.site-alt-gap-item {
+  display: flex; gap: var(--space-4); align-items: flex-start;
+  padding: var(--space-5); background: var(--bg-card); border: 1px solid var(--stroke-card);
+  border-radius: var(--radius-md);
+}
+.site-alt-gap-mark {
+  flex: none; width: 22px; height: 22px; border-radius: var(--radius-pill);
+  background: var(--danger-dim); color: var(--danger);
+  display: grid; place-items: center; font-size: var(--fs-sm); font-weight: var(--fw-bold);
+  margin-top: 1px;
+}
+.site-alt-gap-body { font-size: var(--fs-sm); line-height: var(--lh-normal); color: var(--ink-muted); }
+.site-alt-gap-body strong { color: var(--ink-strong); display: block; margin-bottom: 2px; font-size: var(--fs-sm); }
+
+/* --- alternatives: comparison tables — real <table>, always on paper */
+.site-alt-table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); background: var(--bg-card); border: 1px solid var(--stroke-card); border-radius: var(--radius-md); }
+.site-alt-table th, .site-alt-table td { padding: var(--space-3) var(--space-4); text-align: left; border-bottom: 1px solid var(--stroke); }
+.site-alt-table thead th { background: var(--bg-card-2); color: var(--ink-strong); font-weight: var(--fw-semibold); font-size: var(--fs-xs); }
+/* --brand-1 is the loud fill colour, not the AA-safe text one (themes.css:
+   "--brand-2 ... AA-safe with white type on top" — it's also the value that
+   clears AA used as text). Measured 3.68:1 on --bg-card-2 (Task 14, axe);
+   --brand-2 computes to ~5.95:1 there. */
+.site-alt-table thead th.site-alt-table-manuva { color: var(--brand-2); }
+.site-alt-table tbody tr:last-child td { border-bottom: none; }
+.site-alt-table td:first-child { font-weight: var(--fw-semibold); color: var(--ink-strong); }
+/* Verdict text is always --ink-strong (18.43:1 on --bg-card, comfortably
+   clears 4.5:1 AA) — the ok/danger/warning colour survives only as a small
+   non-text dot before the word, where WCAG's lower 3:1 "non-text contrast"
+   bar applies instead of 4.5:1. A first pass coloured the WORDS themselves
+   (--ok #12A150 on white measures 3.37:1, below 4.5:1 text AA), which also
+   meant a text-matching ternary deriving colour from the verdict string was
+   the mechanism that shipped the two katana/mrpeasy verdict-class bugs (see
+   the COMPARE_ROWS comments in each page) — carrying the source's own class
+   as data and keeping colour off the text removes both problems at once.
+   Non-text figures: --danger 5.74:1, --warning 6.39:1, both comfortably
+   clear 3:1 too. */
+/* These classes sit directly on <td> — NOT display:inline-flex (fix round 1
+   shipped that and broke both tables' column structure: overriding a <td>'s
+   display takes it out of table layout, so the CSS table-fixup algorithm
+   wraps the run of consecutive non-cell siblings into one anonymous cell.
+   Both comparison tables rendered two columns under a three-column header
+   as a result — the competitor column visually vanished and its verdict
+   ran on under "Manuva", a worse misreading than the colour bug this
+   replaced. <td> keeps its default table-cell display; the ::before marker
+   is inline-block + vertical-align instead of a flex child. */
+.site-alt-yes, .site-alt-no, .site-alt-partial {
+  color: var(--ink-strong); font-weight: var(--fw-semibold);
+}
+.site-alt-yes::before, .site-alt-no::before, .site-alt-partial::before {
+  content: ''; display: inline-block; vertical-align: middle;
+  width: 8px; height: 8px; margin-right: var(--space-2); border-radius: var(--radius-pill);
+}
+.site-alt-yes::before { background: var(--ok); }
+.site-alt-no::before { background: var(--danger); }
+.site-alt-partial::before { background: var(--warning); }
+.site-alt-partial { font-size: var(--fs-xs); }
+.site-alt-table-foot { margin-top: var(--space-3); font-size: var(--fs-xs); color: var(--ink-faint); }
+/* Unstyled, this link falls through to the ds's own global `a{color:var(--brand-1)}`
+   (_ds/tokens/base.css) — the loud fill blue, not AA-safe as text, with no
+   underline to separate it from the sentence around it either (Task 14, axe
+   flagged both color-contrast against the page and link-in-text-block
+   against the surrounding --ink-faint text). Same fix as .site-doc a. */
+.site-alt-table-foot a { color: var(--brand-2); text-decoration: underline; }
+
+/* --- alternatives: mrpeasy seat-cost table --- */
+.site-alt-seat-table .site-alt-users { font-weight: var(--fw-semibold); color: var(--ink-strong); }
+.site-alt-seat-table .site-alt-mrp-cell { color: var(--ink-muted); }
+.site-alt-seat-table .site-alt-manuva-cell { color: var(--brand-1); font-weight: var(--fw-semibold); }
+/* Source's own de-emphasis for the per-row saving figure (13px, --ink-faint,
+   normal weight against the cell's own bold --brand-1 amount) — a first
+   pass flattened amount + delta into one plain-text string, which kept the
+   text but lost this visual distinction. --fs-base is the token that
+   actually matches the source's literal 13px; --ink-faint is confirmed AA
+   (4.71:1 on --bg-card; the design system's own token comment already
+   states 4.9:1, independently reconfirmed here). */
+.site-alt-delta { font-size: var(--fs-base); font-weight: var(--fw-regular); color: var(--ink-faint); margin-left: var(--space-1); }
+
+/* --- alternatives: katana price columns --- */
+.site-alt-price-cols { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); margin-top: var(--space-2); }
+.site-alt-price-col { padding: var(--space-6); background: var(--bg-card); border: 1px solid var(--stroke-card); border-radius: var(--radius-md); }
+.site-alt-price-featured { border-color: var(--brand-1); box-shadow: var(--shadow-lg); }
+.site-alt-price-col h3 { font-family: var(--font-display); font-size: var(--fs-lg); font-weight: var(--fw-semibold); color: var(--ink-strong); margin: 0 0 var(--space-1); }
+.site-alt-price-sub { font-size: var(--fs-sm); color: var(--ink-muted); margin: 0 0 var(--space-4); }
+.site-alt-price-row { font-size: var(--fs-sm); color: var(--ink-muted); margin: 0 0 var(--space-2); display: flex; justify-content: space-between; align-items: baseline; }
+.site-alt-price-amount { font-family: var(--font-display); font-weight: var(--fw-semibold); color: var(--ink-strong); font-size: var(--fs-lg); }
+/* Same --brand-1-as-text issue as .site-alt-table-manuva above — 4.33:1 on
+   --brand-dim's tint (Task 14, axe), just short of 4.5. */
+.site-alt-price-callout { margin-top: var(--space-4); padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); background: var(--brand-dim); color: var(--brand-2); font-size: var(--fs-xs); line-height: var(--lh-normal); font-weight: var(--fw-medium); }
+
+/* --- alternatives: trial-math callout (both pages) --- */
+.site-alt-trial-callout {
+  margin-top: var(--space-6); padding: var(--space-5) var(--space-6);
+  background: var(--bg-card-2); border-left: 4px solid var(--brand-1); border-radius: var(--radius-sm);
+  font-size: var(--fs-sm); color: var(--ink-strong); line-height: var(--lh-normal);
+}
+/* Same --brand-1-as-text issue, on --bg-card-2 this time — 3.68:1 (Task 14, axe). */
+.site-alt-trial-callout strong { color: var(--brand-2); }
+
+/* --- alternatives: "what Manuva adds" cards --- */
+.site-alt-adds-grid { margin-top: var(--space-2); }
+.site-alt-add-card { padding: var(--space-6); background: var(--bg-card); border: 1px solid var(--stroke-card); border-radius: var(--radius-md); }
+.site-alt-add-card h3 { font-family: var(--font-display); font-size: var(--fs-md); font-weight: var(--fw-semibold); color: var(--ink-strong); margin: 0 0 var(--space-2); }
+.site-alt-add-card p { font-size: var(--fs-sm); color: var(--ink-muted); line-height: var(--lh-normal); margin: 0; }
+
+/* --- alternatives: FAQ heading + related links --- */
+.site-alt-faq-section h2 { font-size: var(--fs-display-2); margin: var(--space-2) 0 var(--space-8); max-width: 50ch; }
+/* --space-14 doesn't exist (see .site-feat-row-image above) — fell back to
+   padding: 0, this section's whole padding lost (Task 14, team-lead
+   review). Old source's own value is 56px, between --space-12 (48px) and
+   --space-16 (64px); --space-12 reads right here and keeps this closing
+   "Explore further" strip visibly lighter than .site-alt-group's own
+   64px above it, matching the old page's own 72px→56px step down. */
+.site-alt-related { padding: var(--space-12) 0; border-top: 1px solid var(--stroke); text-align: center; }
+.site-alt-related h2 { font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--ink-muted); margin: 0 0 var(--space-5); text-transform: uppercase; letter-spacing: var(--ls-caps); }
+.site-alt-related-links { display: flex; gap: var(--space-3); justify-content: center; flex-wrap: wrap; }
+.site-alt-related-links a {
+  padding: var(--space-2) var(--space-5); background: var(--bg-card); border: 1px solid var(--stroke-strong);
+  border-radius: var(--radius-pill); font-size: var(--fs-sm); font-weight: var(--fw-medium); color: var(--brand-1);
+}
+.site-alt-related-links a:hover { background: var(--brand-dim); }
+
+@media (max-width: 720px) {
+  .site-alt-price-cols { grid-template-columns: 1fr; }
+  .site-alt-hero-panel { padding: var(--space-10); }
+}
+
+/* --- about: hero --- */
+.site-about-hero-panel { padding: var(--space-24) var(--space-16) var(--space-16); display: grid; gap: var(--space-8); justify-items: start; text-align: left; }
+.site-about-hero-title { font-size: var(--fs-display-4); max-width: 22ch; }
+/* No opacity mute, same reasoning as .site-alt-hero-sub: on-mint (near-black
+   on a bright mint field) has huge headroom, but the rule this project
+   settled on is full strength on any field, not a per-field contrast audit. */
+.site-about-hero-sub { margin: 0; max-width: 62ch; font-size: var(--fs-lg); line-height: var(--lh-normal); text-wrap: pretty; }
+.site-about-hero-actions { margin-top: var(--space-2); }
+
+/* --- about: shared group head/heading/lede (build, principles, company) --- */
+.site-about-group-head { max-width: 68ch; margin: 0 0 var(--space-8); }
+.site-about-heading { font-size: var(--fs-display-2); max-width: 42ch; margin: var(--space-2) 0 var(--space-3); }
+/* Paper default: old page's own .group-head p { color: var(--ink-muted) }.
+   Only the principles group-head sits inside Field field="ink" — never set
+   an absolute ink inside a Field, so that one instance inherits on-ink white
+   from the section instead via the [data-fold] override below. */
+.site-about-lede { margin: var(--space-3) 0 0; max-width: 62ch; font-size: var(--fs-lg); line-height: var(--lh-normal); color: var(--ink-muted); }
+[data-fold] .site-about-lede { color: inherit; }
+
+/* --- about: "what we build" prose (paper, no field behind long-form copy) --- */
+.site-about-body { max-width: 72ch; font-size: var(--fs-lg); line-height: var(--lh-normal); color: var(--ink-muted); margin: 0 0 var(--space-4); }
+.site-about-body strong { color: var(--ink-strong); }
+
+/* --- about: principles (ink field) reuses .site-feat-* and .mv-cols-2 as-is --- */
+.site-about-principles .site-feat-grid { margin-top: var(--space-2); }
+
+/* --- about: company info card (paper, never a field behind this table-like data) --- */
+.site-about-company {
+  margin-top: var(--space-2); padding: var(--space-8);
+  background: var(--bg-card); border: 1px solid var(--stroke-card); border-radius: var(--radius-lg);
+}
+.site-about-company.mv-cols-2 { gap: var(--space-6) var(--space-8); }
+.site-about-company-row { display: flex; flex-direction: column; gap: var(--space-1); }
+.site-about-company-label { font-size: var(--fs-xs); font-weight: var(--fw-semibold); text-transform: uppercase; letter-spacing: var(--ls-caps); color: var(--brand-1); }
+.site-about-company-value { font-size: var(--fs-md); color: var(--ink-strong); line-height: var(--lh-snug); }
+.site-about-company-value a { color: var(--brand-1); font-weight: var(--fw-medium); }
+
+@media (max-width: 720px) {
+  .site-about-hero-panel { padding: var(--space-10); }
+  .site-about-company { padding: var(--space-6); }
+}
+
+/* --- privacy / terms: plain document layout (Doc.astro) ---
+   Paper only, no field — the design system forbids colour behind long-form
+   copy, and these are the longest-form pages on the site. 72ch keeps the
+   measure readable across 38-48KB of legal text; nothing here sets `display`
+   on anything cell-like (Task 10's collapsed-table lesson) or an absolute ink
+   inside a Field (there is no Field on these two pages at all). */
+.site-doc { max-width: 72ch; margin-inline: auto; padding-inline: var(--gutter); padding-block: var(--section-y); }
+
+/* Source's own `.prose > section { scroll-margin-top: 88px }`, carried
+   across via the shared --nav-h custom property instead of a hardcoded
+   88px — the sticky nav (.site-nav-inner) sits on top of every page and is
+   exactly what this compensates for: without it, jumping to any of the 31
+   in-page anchors here (10 privacy TOC entries, 19 terms, plus privacy's
+   own #roadmap/#retention body links) lands the target heading's top edge
+   directly under the nav, invisible rather than merely mis-scrolled. Team
+   lead's review caught this — confirmed missing in-browser (elementFromPoint
+   at a jumped-to heading returned the nav's own inner div) before fixing. */
+.site-doc section { scroll-margin-top: var(--nav-h); }
+
+.site-doc-head { margin-bottom: var(--space-10); padding-bottom: var(--space-8); border-bottom: 1px solid var(--stroke); }
+.site-doc-eyebrow { color: var(--ink-faint); margin-bottom: var(--space-4); }
+.site-doc-title { font-size: var(--fs-display-3); margin: 0 0 var(--space-4); }
+.site-doc-sub { margin: 0 0 var(--space-5); max-width: 60ch; font-size: var(--fs-lg); line-height: var(--lh-normal); color: var(--ink-muted); text-wrap: pretty; }
+.site-doc-meta { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-6); font-size: var(--fs-sm); color: var(--ink-faint); }
+.site-doc-meta strong { color: var(--ink-muted); font-weight: var(--fw-semibold); }
+
+.site-doc h2 { font-family: var(--font-display); font-size: var(--fs-display-1); color: var(--ink-strong); margin: var(--space-10) 0 var(--space-4); }
+.site-doc h3 { font-size: var(--fs-lg); font-weight: var(--fw-semibold); color: var(--ink-strong); margin: var(--space-8) 0 var(--space-3); }
+/* 15px literal, not a token: the scale jumps --fs-md (14px) to --fs-lg
+   (16px) with nothing at 15px, and the source's own `.prose` is 15px —
+   matched exactly rather than rounded to the nearest step, since legal
+   prose readability was the reason this got flagged in review (round 1
+   shipped --fs-md, one step small at both this and the 720px breakpoint
+   below). Not a value any existing token already names, so a literal here
+   doesn't conflict with the "no hardcoded value a token already names"
+   rule. */
+.site-doc p, .site-doc li { font-size: 15px; line-height: var(--lh-normal); color: var(--ink-muted); }
+.site-doc p { margin: 0 0 var(--space-4); }
+.site-doc ul, .site-doc ol { margin: 0 0 var(--space-4); padding-left: var(--space-6); display: grid; gap: var(--space-2); }
+.site-doc li { margin: 0; }
+.site-doc strong { color: var(--ink-strong); font-weight: var(--fw-semibold); }
+/* --brand-1 (#3A5EFF) is the loud fill colour, not the text one — themes.css
+   documents --brand-2 as "AA-safe with white type on top" but it's also the
+   one that clears AA as text on light backgrounds (~8:1 on paper, ~6:1 on
+   the --ink-muted-toned page tints these links land on); --brand-1 measured
+   3.68-4.15 (Task 14, axe). underline is required alongside the colour fix,
+   not instead of it: axe's link-in-text-block separately checks the link's
+   contrast against its *surrounding body text* (both are dark-ish colours,
+   so no text colour clears that 3:1 either) and a non-colour cue is the
+   documented remedy for exactly that case. */
+.site-doc a { color: var(--brand-2); text-decoration: underline; }
+.site-doc hr { margin: var(--space-8) 0; }
+
+/* In-document TOC — a plain list of links to the sections below it, same as
+   the old page's own <nav class="toc">. Kept inside .site-doc's 72ch measure
+   (no width rule of its own), and deliberately not redesigned into anything
+   other than "On this page" + a list of links, per team-lead ruling.
+   `ol`/`li`/`a` are qualified with the `.site-doc` ancestor (not just
+   `.site-doc-toc`) so each has strictly higher specificity — (0,2,1) vs the
+   general `.site-doc ul/ol/li/a` rules' (0,1,1) — than what they override.
+   Round 1 relied on source order alone (equal specificity, TOC block placed
+   after the general rules); review correctly flagged that a stylesheet
+   reorder would silently flatten the TOC back to the generic single-column
+   list styling with no error anywhere. */
+.site-doc-toc { background: var(--bg-card); border: 1px solid var(--stroke-card); border-radius: var(--radius-md); padding: var(--space-5) var(--space-6); margin-bottom: var(--space-8); }
+.site-doc-toc-title { font-family: var(--font-display); font-size: var(--fs-xs); font-weight: var(--fw-bold); letter-spacing: var(--ls-caps); text-transform: uppercase; color: var(--ink-muted); margin: 0 0 var(--space-3); }
+.site-doc .site-doc-toc ol { margin: 0; padding-left: var(--space-5); columns: 2; column-gap: var(--space-6); display: block; }
+.site-doc .site-doc-toc li { font-size: var(--fs-sm); color: var(--ink-muted); margin-bottom: var(--space-2); break-inside: avoid; }
+.site-doc .site-doc-toc a { color: var(--ink-muted); }
+.site-doc-toc a:hover { color: var(--brand-1); }
+@media (max-width: 620px) {
+  /* Same qualified selector as the desktop rule above — (0,1,1) here would
+     never win against that rule's (0,2,1), media query or not; specificity
+     is decided independent of where a rule sits, not by "this one's in a
+     more specific media condition". */
+  .site-doc .site-doc-toc ol { columns: 1; }
+}
+
+.site-doc-note {
+  background: var(--bg-card-2); border: 1px solid var(--stroke-card); border-left: 3px solid var(--brand-1);
+  border-radius: var(--radius-sm); padding: var(--space-4); margin: 0 0 var(--space-4); font-size: var(--fs-sm); color: var(--ink-muted);
+}
+.site-doc-note strong { color: var(--ink-strong); }
+
+.site-doc-table { width: 100%; border-collapse: collapse; font-size: var(--fs-base); background: var(--bg-card); border: 1px solid var(--stroke-card); border-radius: var(--radius-sm); overflow: hidden; margin: 0 0 var(--space-4); }
+.site-doc-table th, .site-doc-table td { padding: var(--space-3) var(--space-4); text-align: left; border-bottom: 1px solid var(--stroke); vertical-align: top; }
+.site-doc-table thead th { background: var(--bg-card-2); color: var(--ink-strong); font-weight: var(--fw-semibold); font-size: var(--fs-xs); }
+.site-doc-table tbody td { color: var(--ink-muted); }
+.site-doc-table tbody tr:last-child td { border-bottom: none; }
+
+.site-doc-contact { background: var(--brand-dim); border-radius: var(--radius-lg); padding: var(--space-6); margin-top: var(--space-6); }
+.site-doc-contact h3 { margin: 0 0 var(--space-2); }
+.site-doc-contact p { margin: 0; font-size: var(--fs-sm); color: var(--ink-strong); }
+.site-doc-contact a { font-weight: var(--fw-semibold); }
+
+.site-doc-footnote { font-size: var(--fs-base); color: var(--ink-faint); margin-top: var(--space-6); }
+
+@media (max-width: 720px) {
+  .site-doc-head { margin-bottom: var(--space-8); padding-bottom: var(--space-6); }
+  /* 14.5px literal, matching the source's own `.prose` mobile override
+     exactly — not on the token scale (nearest is --fs-base at 13px, which
+     review correctly flagged as too small for legal prose on a phone). */
+  .site-doc p, .site-doc li { font-size: 14.5px; }
+}

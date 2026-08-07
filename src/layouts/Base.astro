@@ -1,0 +1,101 @@
+---
+import '../styles/site.css';
+import Nav from '../components/site/Nav.astro';
+import Footer from '../components/site/Footer.astro';
+
+export interface Props {
+  title: string;
+  description: string;
+  canonical: string;
+  ogImage?: string;
+  /** Old page's og:description/twitter:description are sometimes a shorter,
+   * trimmed variant of the main meta description (e.g. both /alternatives/
+   * pages drop the trailing "14-day free trial…" clause). Optional, additive:
+   * every other page omits it and keeps the previous single-`description`
+   * behaviour untouched. */
+  ogDescription?: string;
+  /** Old page's og:type — "article" for the two /alternatives/ pages,
+   * "website" (the prior hardcoded default) everywhere else so far. */
+  ogType?: string;
+  /** Genuinely optional, no fallback to `description` or `ogDescription`:
+   * a first pass wired twitter:title/twitter:description unconditionally
+   * off `ogDescription`'s default, which silently emitted the long meta
+   * description as the Twitter card body on / and /pricing — both old
+   * pages carry a shorter Twitter variant Base had never read. Every page
+   * that wants a Twitter card must supply the real value from its own old
+   * page's <head>; pages that don't pass this get no twitter:title/
+   * description at all, same as before Task 10 touched this file. */
+  twitterDescription?: string;
+  /** JSON-LD nodes. Populated in Task 13; ignored until then. */
+  schema?: Record<string, unknown>[];
+}
+const {
+  title, description, canonical, ogImage = '/og-image.png',
+  ogDescription = description, ogType = 'website', twitterDescription, schema,
+} = Astro.props;
+
+const TOKENS = [
+  'fonts', 'colors', 'themes', 'typography', 'spacing',
+  'shape', 'marketing', 'responsive', 'motion', 'base',
+];
+
+// Astro.site is undefined when this layout is rendered through the container
+// API (astro/container) without an astroConfig, e.g. in unit tests. Fall back
+// to the raw path there; dev/build always have `site` set in astro.config.mjs.
+const ogImageUrl = Astro.site ? new URL(ogImage, Astro.site) : ogImage;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={ogDescription} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    {/* All four fixed, identical across all eight source pages (verified by
+        reading each page's own raw <head>, not assumed from one) — the
+        og-image asset itself never varies per page, so neither does its own
+        width/height/alt. Dropped entirely until Task 14 (team-lead review):
+        Base.astro's og:* block was written in Task 1 and never revisited
+        once later tasks added real per-page og:title/description. */}
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Manuva — Manufacturing operations, finally simple" />
+    <meta property="og:site_name" content="Manuva" />
+    {/* Whole block conditional together, not just title/description under an
+        unconditional twitter:card — a lone twitter:card with no title/body
+        is a half-populated card. Tasks 11-12 (/about, /privacy, /terms) are
+        the pages most likely to omit twitterDescription next; this way
+        omitting it drops the whole card, not a broken remainder of one. */}
+    {twitterDescription && (
+      <>
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={twitterDescription} />
+        <meta name="twitter:image" content={ogImageUrl} />
+      </>
+    )}
+
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" />
+    <link rel="icon" href="/favicon-16.png" sizes="16x16" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    {TOKENS.map((t) => <link rel="stylesheet" href={`/_ds/tokens/${t}.css`} />)}
+
+    {schema && schema.length > 0 && (
+      <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    )}
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <Nav />
+    <main id="main"><slot /></main>
+    <Footer />
+  </body>
+</html>

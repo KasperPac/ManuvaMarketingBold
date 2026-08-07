@@ -1,0 +1,20 @@
+---
+export interface Props { items: { q: string; a: string }[] }
+const { items } = Astro.props;
+---
+<div class="site-faq">
+  {items.map((item) => (
+    <details class="site-faq-item">
+      {/* <summary> isn't a parity boundary-selector tag (unlike the old
+          pages' own h3/p FAQ markup, which is), so Astro dropping the
+          whitespace-only text node between summary and the answer div would
+          otherwise glue them with zero separator — invisible for a long
+          answer, but it silently merges an answer's own leading short
+          fragment (e.g. "Yes." / "No.") into the question text and erases it
+          from the short-fragment count. {' '} restores the real space the
+          old page's own boundary tags guaranteed. */}
+      <summary class="site-faq-q">{item.q}</summary>{' '}
+      <div class="site-faq-a">{item.a}</div>
+    </details>
+  ))}
+</div>

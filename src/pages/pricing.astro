@@ -1,0 +1,138 @@
+---
+import Base from '../layouts/Base.astro';
+import Panel from '../components/site/Panel.astro';
+import PriceCards from '../components/site/PriceCards.astro';
+import FeatureMatrix from '../components/site/FeatureMatrix.astro';
+import FaqList from '../components/site/FaqList.astro';
+import CtaBand from '../components/site/CtaBand.astro';
+
+// Verbatim from the old page's five FAQ items — llms.txt only carries four of
+// these (it drops "Can I change tiers after signing up?"); the old page has
+// more, and the old page wins per the task brief.
+const FAQS = [
+  {
+    q: 'What counts as a warehouse location?',
+    a: "A location is any physical place you store components or finished goods — a warehouse, a storage room, a third-party facility. Bin/aisle areas within a single location don't count as additional locations.",
+  },
+  {
+    q: 'What do I get during the free trial?',
+    a: 'Full Pro-level access for 14 days — no credit card required. At the end of the trial, your account downgrades to the tier you selected at sign-up. You can add a card and upgrade at any time during or after the trial.',
+  },
+  {
+    q: 'Can I change tiers after signing up?',
+    a: 'Yes — you can upgrade or downgrade at any time. Upgrades take effect immediately. Downgrades take effect at the next billing cycle.',
+  },
+  {
+    q: 'Is pricing per seat or per account?',
+    a: 'Flat per-account pricing — no per-seat fees. Growth and above include unlimited team members.',
+  },
+  {
+    q: 'Do you offer discounts for annual billing?',
+    a: 'Annual billing saves you around 20% compared to paying month-to-month. The toggle above shows you both options.',
+  },
+];
+
+// The old page's own <title>/<meta description>, verbatim — not the reference
+// layout's copy, which invents its own tagline ("Flat pricing. Unlimited
+// users.") for the hero and never states this page's real head values at all.
+const description =
+  'Simple pricing for manufacturing teams. One price per tier, no per-seat fees, no usage meters. Start free for 14 days.';
+// Old page's own twitter:description — identical to its og:description,
+// both shorter than the meta description above (they drop the trailing
+// "Start free for 14 days." clause). Base.astro's og:description still
+// defaults to the long `description` (unchanged, not part of this fix);
+// this only supplies the Twitter pair, which previously leaked the long
+// description onto this page.
+const twitterDescription =
+  'Simple pricing for manufacturing teams. One price per tier, no per-seat fees, no usage meters.';
+
+// The old page's own <script type="application/ld+json"> — a BreadcrumbList
+// plus a FAQPage. The FAQPage is built from FAQS above (not retyped) so the
+// visible <FaqList> and the markup can never drift apart.
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://manuva.app/' },
+      { '@type': 'ListItem', position: 2, name: 'Pricing', item: 'https://manuva.app/pricing' },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQS.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+<Base title="Pricing — Manuva" description={description} twitterDescription={twitterDescription} canonical="https://manuva.app/pricing" {schema}>
+  {/* 1 · ink hero, inset on paper */}
+  <section class="site-hero site-pricing-hero">
+    <div class="mv-wrap">
+      <Panel field="ink" data-fold="ink" class="site-pricing-hero-panel">
+        {/* old page's own eyebrow is a <div>, not a <span> — that's what isolates
+            "Pricing" as its own short fragment on the old page (a boundary
+            div followed by the h1), so this keeps the same tag, not the mv-eyebrow
+            span pattern the home hero used for a differently-shaped old eyebrow. */}
+        <div class="mv-eyebrow site-pricing-hero-eyebrow">Pricing</div>
+        <h1 class="mv-display site-pricing-hero-title">Simple pricing for manufacturing teams</h1>
+        <p class="site-pricing-hero-sub">
+          One price per tier. No per-seat fees. No usage meters. Start free for 14 days — no credit card required.
+        </p>
+        {/* Old page's two toggle <button>s sit inside one wrapping div with no
+            boundary tag between them, so their text joins into one "Annual
+            Monthly" run (real whitespace from the old file's own indentation) —
+            reproduced here with spans, not divs, plus an explicit {' '} since
+            Astro drops the whitespace-only text node a raw space would leave. */}
+        <div class="site-pricing-toggle" aria-hidden="true">
+          <div class="site-pricing-toggle-pill">
+            <span class="site-pricing-toggle-btn site-pricing-toggle-on">Annual</span>{' '}
+            <span class="site-pricing-toggle-btn">Monthly</span>
+          </div>
+          <span class="site-pricing-save">Save ~20%</span>
+        </div>
+      </Panel>
+    </div>
+  </section>
+
+  {/* 2 · paper plan cards — data, never a field behind it */}
+  <section class="mv-section site-plans">
+    <div class="mv-wrap">
+      <PriceCards />
+    </div>
+  </section>
+
+  {/* 3 · paper matrix — data, never a field behind it */}
+  <section class="mv-section site-matrix-section">
+    <div class="mv-wrap">
+      <FeatureMatrix />
+    </div>
+  </section>
+
+  {/* 4 · paper FAQ */}
+  <section class="mv-section site-faq-section">
+    <div class="mv-wrap">
+      <h2 class="mv-display">Frequently asked questions</h2>
+      <FaqList items={FAQS} />
+    </div>
+  </section>
+
+  {/* 5 · amber CTA. Heading is a verbatim quote, not an assembled tagline —
+      the old page's own <meta name="description"> sentence (not body copy,
+      but real old-page text all the same): "Simple pricing for manufacturing
+      teams. One price per tier, no per-seat fees, no usage meters. Start
+      free for 14 days." — the middle sentence is the one that fits a CTA.
+      No secondActionHref: pricing.html has no closing cta-section at all
+      (confirmed by reading the raw source, not assumed) — "Start free
+      trial" alone, not a "Book a demo" invented to match every other
+      page's pattern. */}
+  <CtaBand
+    field="amber"
+    heading="One price per tier, no per-seat fees, no usage meters."
+    body="14 days free with full Pro access. No credit card required."
+  />
+</Base>

@@ -1,0 +1,18 @@
+---
+import type { FieldName } from '../../site';
+export interface Props { field: FieldName; class?: string; [key: string]: unknown }
+const { field, class: className, style: callerStyle, ...rest } = Astro.props;
+const ownStyle = `background:var(--field-${field});color:var(--on-${field});border-radius:var(--radius-panel)`;
+// Caller declarations are appended, not substituted, so they override individual
+// properties while the rest of Panel's own style survives. A second `style={...}`
+// attribute here would parse as a literal duplicate — first wins, caller's is
+// silently dropped — so it must be merged into one string, not spread separately.
+const style = callerStyle ? `${ownStyle};${callerStyle}` : ownStyle;
+---
+<div
+  class:list={['mv-panel', className]}
+  style={style}
+  {...rest}
+>
+  <slot />
+</div>

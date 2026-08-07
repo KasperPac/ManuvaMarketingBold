@@ -1,0 +1,74 @@
+# Manuva
+
+> Manuva is a manufacturing operations and MRP platform built specifically for Shopify-first product brands — small to mid-size manufacturers who make what they sell. It replaces spreadsheets and legacy MRP with connected inventory, bills of materials, production orders, purchasing, capacity planning, costing, and reporting in a single web application.
+
+Operated by: Pac Technologies Pty Ltd (Australia)
+Contact: hello@manuva.app
+App: https://app.manuva.app
+Trial: 14-day free trial, full Pro access, no credit card required
+
+## What Manuva does
+
+Manuva connects every part of a physical manufacturing operation:
+
+- **Inventory & stock control** — real-time component and finished-goods tracking, movements ledger, stocktake, bin/aisle locations, multi-warehouse
+- **Bills of Materials (BOMs)** — multi-level assemblies, yield % per line, versioning with draft/publish/rollback, side-by-side version comparison, BOM templates
+- **Production orders** — issue work orders, allocate components, track runs from start to finish, shop floor view
+- **Purchasing & suppliers** — purchase orders, goods inwards, supplier management, lead-time tracking, PO variance reporting
+- **Capacity & team (Pro)** — department modelling, staffing levels, capacity planning, actual-vs-planned time, staff costing
+- **Costing & profitability** — automatic BOM cost rollup, margin per product, inventory valuation, COGS tracking, financial profitability dashboard (Pro)
+- **Reports** — real-time dashboard, dead stock, PO variance, lead-time accuracy, inventory integrity audit, PDF/CSV export (Pro)
+- **Shopify integration** — webhook-driven real-time sync, multi-store support (Pro), order-to-production cascade
+
+## Differentiators vs named competitors
+
+- **vs Katana** — Manuva adds yield % per BOM line, BOM versioning with side-by-side comparison, BOM templates, PO variance reporting, lead-time accuracy reports, and a financial profitability dashboard — none of which Katana offers at any price tier.
+- **vs MRPeasy** — Manuva's Pro plan ($499/mo flat, unlimited users) includes capacity planning with staff costing. MRPeasy charges per user — a 10-person team reaches $490/mo before advanced features.
+- **vs Qoblex, Craftybase, Cin7** — Manuva offers PO variance, lead-time accuracy, and inventory integrity reports that these tools do not surface.
+- **vs Spreadsheets** — Manuva provides real-time inventory, automated BOM cost rollup, production-order tracking, and Shopify sync — none of which spreadsheets support natively.
+
+## Pricing (USD, annual billing)
+
+| Plan | Price | Key limits | Highlights |
+|---|---|---|---|
+| Starter | $99/mo ($1,188/yr) | 1 location, up to 5 office seats | Inventory, single-level BOM, production orders, POs, stocktake |
+| Growth | $249/mo ($2,988/yr) | Multi-location, unlimited users | Multi-level BOMs, versioning, costing, reports, Shopify sync |
+| Pro | $499/mo ($5,988/yr) | Unlimited locations & users | Capacity planning, profitability dashboard, API, priority support |
+| Enterprise | Custom | Unlimited | Multi-site, SSO/SAML, dedicated CSM, custom SLAs |
+
+Monthly pricing: Starter $119, Growth $299, Pro $599. Annual saves approximately 20%.
+
+All plans include a 14-day free trial with full Pro access. No credit card required.
+
+## Key pages
+
+- Home: https://manuva.app/
+- Features: https://manuva.app/features
+- Pricing & FAQ: https://manuva.app/pricing
+- About / company: https://manuva.app/about
+- Manuva vs Katana (alternative): https://manuva.app/alternatives/katana
+- Manuva vs MRPeasy (alternative): https://manuva.app/alternatives/mrpeasy
+- Privacy policy: https://manuva.app/privacy
+- Terms of service: https://manuva.app/terms
+- Sign in / start trial: https://app.manuva.app
+
+## Integrations
+
+Shopify, WooCommerce, Amazon, Etsy, Xero, QuickBooks, MYOB
+
+## Frequently asked questions
+
+**What counts as a warehouse location?**
+A location is any physical place you store components or finished goods — a warehouse, a storage room, a third-party facility. Bin/aisle areas within a single location do not count as additional locations.
+
+**Is pricing per seat?**
+No. Manuva uses flat per-account pricing. Growth and above include unlimited team members.
+
+**What do I get during the free trial?**
+Full Pro-level access for 14 days. No credit card required. At the end of the trial, the account downgrades to the tier selected at sign-up.
+
+**What is BOM versioning?**
+BOM versioning in Manuva means every change to a bill of materials is saved as a numbered version with a timestamp. Users can draft changes, publish when ready, compare any two versions side-by-side to see added, removed, and modified components with cost and margin impact, and roll back to any previous version. No other tool in the Shopify-first MRP segment offers this feature.
+
+**What is yield % per BOM line?**
+Yield % lets manufacturers set a scrap or loss allowance on each component in a bill of materials. If a process consumes 10% more fabric than the nominal quantity, setting yield to 90% causes Manuva to automatically increase material requirements for production orders — so purchasing and stock planning reflect real consumption rather than theoretical quantities.

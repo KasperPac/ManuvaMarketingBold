@@ -1,0 +1,86 @@
+---
+import Base from './Base.astro';
+
+// Shared shell for the two long-form legal pages (/privacy, /terms). Both old
+// pages share identical chrome around different body copy: an eyebrow, an H1,
+// a one/two-sentence dek, and an "Effective / Version / Last updated" meta
+// line, all inside <section class="doc-hero"> — real page content, not nav
+// chrome, so it must survive the copy-parity gate same as the prose below it.
+//
+// `sub`/`effective`/`version` aren't in the task brief's Props list (title,
+// description, canonical, heading, updated only) — added because the old
+// page's doc-hero carries all three as real, page-specific text the brief's
+// slimmer interface had no field for. Old page wins per the task brief.
+//
+// `twitterDescription` likewise isn't in the brief's Props list, but
+// Base.astro gates its whole twitter:card block on it being supplied, and
+// both old pages carry a real Twitter card (Task 10 fix round 2 precedent).
+//
+// `toc` — the old page's "On this page" table of contents. Team-lead ruling:
+// this is content, not chrome — a genuine in-document navigation aid for a
+// 38-48KB document, categorically different from the site nav/drawer that
+// CHROME_SELECTORS targets. The parity gate strips every <nav> on both sides
+// (it can't see this either way), which is exactly why it needed a human
+// call rather than a green gate. `id` values are the old page's own section
+// ids (already used as this document's own heading anchors); `label` is the
+// old TOC's own link text, which is not always identical to the matching
+// h2 (see privacy.astro's own note on the #share entry) — carried across
+// verbatim rather than "corrected" to match.
+export interface Props {
+  title: string;
+  description: string;
+  canonical: string;
+  twitterDescription: string;
+  heading: string;
+  sub: string;
+  effective: string;
+  version: string;
+  updated: string;
+  toc: { id: string; label: string }[];
+  /** JSON-LD nodes, passed straight through to Base — mirrors Alternative.astro's
+   * existing passthrough (Task 10). Neither old legal page carries anything
+   * beyond a BreadcrumbList, so this is the only node Task 13 supplies here. */
+  schema?: Record<string, unknown>[];
+}
+const {
+  title, description, canonical, twitterDescription,
+  heading, sub, effective, version, updated, toc, schema,
+} = Astro.props;
+---
+<Base title={title} description={description} canonical={canonical} twitterDescription={twitterDescription} {schema}>
+  <article class="site-doc">
+    {/* A <div>, not the semantic <header> the task brief sketches — the parity
+        extractor's CHROME_SELECTORS strips every <header> element anywhere in
+        the tree (it's written for the page's own site-wide header, but
+        cheerio's selector isn't scoped to top-level), which would silently
+        delete the H1, eyebrow, dek and meta line from both sides of the
+        comparison. Confirmed by reading scripts/parity/extract.js before
+        writing this, not discovered by a failed gate run. */}
+    <div class="site-doc-head">
+      <div class="mv-eyebrow site-doc-eyebrow">Legal</div>
+      <h1 class="mv-display site-doc-title">{heading}</h1>
+      <p class="site-doc-sub">{sub}</p>
+      {/* Old page's three meta fields are <span>s with no boundary tag between
+          them — cheerio glues their text into one run with only the source's
+          own whitespace as a separator. Reproduced with spans + explicit
+          {' '} (Astro drops the whitespace-only text node between elements on
+          separate lines), matching about.astro's company-row precedent for
+          the same reason: a div here would insert a parity-breaking "|"
+          mid-run that the old page's own markup never had. */}
+      <div class="site-doc-meta">
+        <span><strong>Effective:</strong> {effective}</span>{' '}
+        <span><strong>Version:</strong> {version}</span>{' '}
+        <span><strong>Last updated:</strong> {updated}</span>
+      </div>
+    </div>
+    <nav class="site-doc-toc" aria-label="On this page">
+      <p class="site-doc-toc-title">On this page</p>
+      <ol>
+        {toc.map((item) => (
+          <li><a href={`#${item.id}`}>{item.label}</a></li>
+        ))}
+      </ol>
+    </nav>
+    <slot />
+  </article>
+</Base>

@@ -1,0 +1,61 @@
+---
+import { NAV_LINKS, APP_URL } from '../../site';
+---
+<div id="site-drawer" class="site-drawer" hidden>
+  <div class="site-drawer-panel" role="dialog" aria-modal="true" aria-label="Menu">
+    <button type="button" class="site-drawer-close" aria-label="Close menu">&times;</button>
+    <nav aria-label="Mobile">
+      {NAV_LINKS.map((l) => <a href={l.href}>{l.label}</a>)}
+      <a href={APP_URL}>Sign in</a>
+      <a href={APP_URL} class="site-drawer-cta">Start free trial</a>
+    </nav>
+  </div>
+</div>
+
+<script>
+  const drawer = document.getElementById('site-drawer');
+  const burger = document.querySelector('.site-burger');
+  const closeBtn = drawer?.querySelector('.site-drawer-close');
+  if (drawer && burger) {
+    const FOCUSABLE = 'a[href], button:not([disabled])';
+    let lastFocused: HTMLElement | null = null;
+
+    const open = () => {
+      lastFocused = document.activeElement as HTMLElement;
+      // Measure before locking scroll: once overflow is hidden the scrollbar
+      // disappears and clientWidth grows, so the gap has to be captured first.
+      // 0 on overlay-scrollbar platforms (mobile), so this is safe everywhere.
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      drawer.hidden = false;
+      document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+      burger.setAttribute('aria-expanded', 'true');
+      drawer.querySelector<HTMLElement>(FOCUSABLE)?.focus();
+    };
+
+    const close = () => {
+      drawer.hidden = true;
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+      burger.setAttribute('aria-expanded', 'false');
+      lastFocused?.focus();
+    };
+
+    burger.addEventListener('click', open);
+    closeBtn?.addEventListener('click', close);
+    drawer.addEventListener('click', (e) => { if (e.target === drawer) close(); });
+
+    document.addEventListener('keydown', (e) => {
+      if (drawer.hidden) return;
+      if (e.key === 'Escape') { close(); return; }
+      if (e.key !== 'Tab') return;
+
+      const items = [...drawer.querySelectorAll<HTMLElement>(FOCUSABLE)];
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
+  }
+</script>

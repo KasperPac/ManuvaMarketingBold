@@ -1,0 +1,149 @@
+---
+import Icon from '../ds/Icon.astro';
+import Button from '../ds/Button.astro';
+import { APP_URL } from '../../site';
+
+// Verbatim from the old pricing page's four plan cards (annual figures are the
+// old page's default toggle state; monthly figures only ever lived in the old
+// markup's data-monthly attributes, invisible without JS — shown here as a
+// permanent small note instead, since this build has no client-side toggle).
+// KEEP IN SYNC with FeatureMatrix.astro's DIFFERENTIATORS — both come from the
+// old page's own `<!-- KEEP IN SYNC -->`-tagged plan-feats-mobile lists.
+const PLANS = [
+  {
+    name: 'Starter',
+    tag: null,
+    tagline: 'Small brands getting started with manufacturing ops',
+    price: '$99',
+    annualNote: 'Billed $1,188/yr',
+    monthlyPrice: '$119',
+    custom: false,
+    chips: [{ text: '1 location', ok: false }, { text: '3 users', ok: false }],
+    ctaLabel: 'Start free trial →',
+    ctaHref: APP_URL,
+    ctaVariant: 'secondary' as const,
+    featured: false,
+    enterprise: false,
+    feats: [
+      'Inventory management',
+      'Basic BOM builder',
+      'Production orders',
+      'Purchase orders + suppliers',
+      'Stocktake',
+      'Email support',
+    ],
+  },
+  {
+    name: 'Growth',
+    tag: 'Most Popular',
+    tagline: 'Scaling brands with multi-location and deeper workflows',
+    price: '$249',
+    annualNote: 'Billed $2,988/yr',
+    monthlyPrice: '$299',
+    custom: false,
+    chips: [{ text: '5 locations', ok: false }, { text: 'Unlimited users', ok: true }],
+    ctaLabel: 'Start free trial →',
+    ctaHref: APP_URL,
+    ctaVariant: 'primary' as const,
+    featured: true,
+    enterprise: false,
+    feats: [
+      'Everything in Starter',
+      'Multi-location + bin management',
+      'Advanced BOM (yield %, versions)',
+      'Costing module',
+      'Reports suite',
+    ],
+  },
+  {
+    name: 'Pro',
+    tag: null,
+    tagline: 'Professional manufacturers needing capacity, costing & API',
+    price: '$499',
+    annualNote: 'Billed $5,988/yr',
+    monthlyPrice: '$599',
+    custom: false,
+    chips: [{ text: 'Unlimited locations', ok: true }, { text: 'Unlimited users', ok: true }],
+    ctaLabel: 'Start free trial →',
+    ctaHref: APP_URL,
+    ctaVariant: 'secondary' as const,
+    featured: false,
+    enterprise: false,
+    feats: [
+      'Everything in Growth',
+      'Capacity planning + staffing',
+      'Financial profitability',
+      'Advanced reports + PDF/CSV export',
+      'API access',
+      'Priority support (< 4hr)',
+    ],
+  },
+  {
+    name: 'Enterprise',
+    tag: null,
+    tagline: 'Large operations, custom requirements, dedicated support',
+    price: 'Custom',
+    annualNote: 'Annual contract · custom onboarding',
+    monthlyPrice: null,
+    custom: true,
+    chips: [{ text: 'Unlimited locations', ok: true }, { text: 'Unlimited users', ok: true }],
+    // The old page's own href="/contact" is a dead link on the live site —
+    // no contact.html exists and "/contact" isn't in the sitemap. The old
+    // page's own nav and footer use "index.html#contact" instead, which is
+    // the working convention (and the home page now has a real #contact
+    // section, Task 7) — so this points there rather than porting the 404.
+    ctaLabel: 'Contact sales →',
+    ctaHref: '/#contact',
+    ctaVariant: 'ink' as const,
+    featured: false,
+    enterprise: true,
+    feats: [
+      'Everything in Pro',
+      'Dedicated account manager',
+      'Custom onboarding + training',
+      'SSO / advanced security',
+      'SLA + uptime guarantee',
+    ],
+  },
+];
+---
+<div class="mv-cols-4 site-plan-grid">
+  {PLANS.map((plan) => (
+    <div class:list={['site-plan', { 'site-plan-featured': plan.featured, 'site-plan-enterprise': plan.enterprise }]}>
+      {/* Old page's badge is a <span class="most-popular-badge"> sibling of the
+          card, gluing (via real source whitespace) into "Most Popular Growth" as
+          one short fragment — {' '} reproduces that same join across the two. */}
+      {plan.tag && <span class="site-plan-badge">{plan.tag}</span>}{' '}
+      <div class="site-plan-name">{plan.name}</div>
+      <p class="site-plan-tagline">{plan.tagline}</p>
+      <div class="site-plan-price">
+        <span class="site-plan-price-val">{plan.price}</span>
+        {!plan.custom && <span class="site-plan-price-per">/mo</span>}
+      </div>
+      <p class="site-plan-note">{plan.annualNote}</p>
+      {plan.monthlyPrice && <p class="site-plan-monthly">or {plan.monthlyPrice}/mo billed monthly</p>}
+      {/* Old page's CTA <a> and the chips <div> that follows it are separated
+          only by real source whitespace, joining into one "Start free trial →
+          1 location 3 users" phrase — {' '} plus a trailing space per chip
+          reproduces the same run since <a> and <span> aren't boundary tags. */}
+      <Button as="a" href={plan.ctaHref} variant={plan.ctaVariant} size="lg" shape="pill" block
+        class="site-plan-cta mv-press" aria-label={`${plan.ctaLabel.replace(' →', '')} — ${plan.name} plan`}>
+        {plan.ctaLabel}
+      </Button>{' '}
+      <div class="site-plan-chips">
+        {plan.chips.map((chip) => (
+          <span class:list={['site-plan-chip', { 'site-plan-chip-ok': chip.ok }]}>{chip.text} </span>
+        ))}
+      </div>
+      <hr class="site-plan-divider" />
+      <ul class="site-plan-feats">
+        {plan.feats.map((f) => <li><Icon name="check" size={14} /> {f}</li>)}
+      </ul>
+    </div>
+  ))}
+</div>
+<p class="site-plans-note">All plans include a 14-day free trial · No credit card required</p>
+{/* Sourced from llms.txt's own summary line, since the old page's monthly
+    figures only ever existed inside data-monthly attributes (invisible text,
+    JS-toggle only) — this makes them real, permanent copy instead. */}
+<p class="site-plans-monthly-note">Monthly pricing: Starter $119, Growth $299, Pro $599. Annual saves approximately 20%.</p>

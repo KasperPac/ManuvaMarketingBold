@@ -2,6 +2,18 @@
 dist/
 .astro/
 
+# playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# generated: design-system files copied in for serving
+public/_ds/
+
+# subagent-driven-development scratch (ledger, briefs, review packages)
+.superpowers/
+
 # dependencies
 node_modules/
 

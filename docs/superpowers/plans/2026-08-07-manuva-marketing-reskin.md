@@ -12,7 +12,8 @@
 
 - **Node 20+.** Astro 5 requires it.
 - **`_ds/` is never edited.** Issues found there are reported, not patched. It is replaced wholesale on re-export.
-- **No token is redeclared site-side.** No hardcoded colour, size, spacing, radius or duration value that a token already names.
+- **No token is redeclared site-side.** No hardcoded colour, size, spacing, radius or duration value **that a token already names**. Site-specific geometry no token names — nav height, tile min-height, burger bar dimensions, drawer width — is legitimately a raw value in `site.css`, and is not a violation. The scrim `rgb(20 20 19 / .5)` and footer ink `rgb(255 255 255 / .62)` are lifted from the design system's own `Landing.jsx`, which uses the same values; they are sanctioned, not site inventions. What is forbidden is writing `#2C6BED` where `--field-cobalt` exists, or `16px` where `--space-4` exists.
+- **Fold-level colour is marked with `data-fold`.** `Field` and `CtaBand` emit it automatically; add it by hand to a fold-level `Panel` such as a page hero. Tiles never emit it — a tile grid is one composed unit with paper between every tile, so it is exempt from the adjacency rule. The hue-adjacency tests read `data-fold` and nothing else.
 - **Copy moves verbatim.** No rewording, summarising or reordering of argument. The two `/alternatives/` pages especially — 32KB and 28KB of ranking content.
 - **Nothing is invented.** Every factual claim traces to `llms.txt` or an existing page. Unsourceable facts become a visible `TODO` and are reported, never a plausible-looking number.
 - **Trial is 14 days, full Pro access, no credit card.** Not 30 days. Not free forever.
@@ -73,13 +74,18 @@
 
 - [ ] **Step 1: Scaffold the project**
 
+> **Corrected during execution.** `create-astro@5.2.3` does not offer a yes/no
+> confirm on a non-empty directory — it asks for an *alternate directory name*,
+> and `--yes` silently redirects the scaffold into a random sibling directory
+> rather than using `.`. Verified with `--dry-run`. Hand-author the files below
+> instead; they match what a real scaffold produces.
+
 ```bash
-npm create astro@latest . -- --template minimal --no-install --no-git --typescript strict --skip-houston
 npm install
 npm install -D vitest cheerio
 ```
 
-Answer "y" if it warns the directory is not empty — `_ds/`, `docs/` and `CLAUDE.md` must survive. Verify afterwards with `ls _ds docs CLAUDE.md`.
+`_ds/`, `docs/`, `CLAUDE.md` and `.gitignore` must survive whatever route you take. Verify afterwards with `ls -d _ds docs CLAUDE.md .gitignore`, and confirm `git diff --stat -- _ds/` is empty. If any approach threatens the vendored design system, stop — it is the project's single irreplaceable input.
 
 - [ ] **Step 2: Configure Astro**
 
@@ -313,7 +319,7 @@ Expected: build completes, `dist/index.html` exists, `dist/_ds/tokens/colors.css
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): scaffold Astro, wire design-system tokens, add Base layout"
+git commit -m "feat(MVBOLD-4): scaffold Astro, wire design-system tokens, add Base layout"
 ```
 
 ---
@@ -442,7 +448,7 @@ Expected: PASS, 6 tests.
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): add Icon with Lucide glyphs inlined at build time"
+git commit -m "feat(MVBOLD-4): add Icon with Lucide glyphs inlined at build time"
 ```
 
 ---
@@ -615,6 +621,19 @@ test('spreads unknown attributes onto the root', async () => {
   const html = await render({ as: 'a', href: '#', 'data-testid': 'cta' });
   expect(html).toContain('data-testid="cta"');
 });
+
+test('merges a caller style rather than replacing its own', async () => {
+  // handoff.md: "Every component takes style and className and merges them."
+  // Pill always passes a style; without the merge, Button loses all geometry.
+  const html = await render({
+    shape: 'pill',
+    size: 'xl',
+    style: 'background:var(--field-lime);color:var(--on-lime)',
+  });
+  expect(html).toContain('background:var(--field-lime)');
+  expect(html).toContain('var(--radius-pill)');
+  expect(html).toContain('var(--control-xl)');
+});
 ```
 
 - [ ] **Step 6: Run it to verify it fails**
@@ -643,6 +662,7 @@ const {
   shape = 'default',
   block = false,
   class: className,
+  style: callerStyle,
   ...rest
 } = Astro.props;
 
@@ -680,7 +700,12 @@ const style = [
   'text-decoration:none',
   'transition:filter var(--dur-fast) ease, background var(--dur-fast) ease, border-color var(--dur-fast) ease',
   VARIANTS[variant],
-].join(';');
+  // The caller's declarations go LAST so they override individual properties
+  // rather than the whole attribute. `_ds/handoff.md`: "Every component takes
+  // style and className and merges them." Without this, any caller passing
+  // style — Pill always does — wipes out Button's radius, height and padding.
+  callerStyle,
+].filter(Boolean).join(';');
 ---
 <Tag class:list={['mv-btn', className]} data-variant={variant} style={style} {...rest}>
   <slot />
@@ -706,7 +731,7 @@ Expected: PASS — Base 5, Icon 6, Logo 5, Button 8.
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): port Logo and Button from the design system"
+git commit -m "feat(MVBOLD-4): port Logo and Button from the design system"
 ```
 
 ---
@@ -1051,7 +1076,7 @@ Expected: PASS — 30 tests across five files.
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): add site chrome with drawer ported from mobile.js"
+git commit -m "feat(MVBOLD-4): add site chrome with drawer ported from mobile.js"
 ```
 
 ---
@@ -1154,6 +1179,15 @@ test('marquee uses the design system track class so reduced motion stops it', as
   const html = await render(Marquee, { words: ['a phrase'] });
   expect(html).toContain('mv-marquee-track');
 });
+
+test('Field declares its fold so hue adjacency can be checked', async () => {
+  expect(await render(Field, { field: 'ink' })).toContain('data-fold="ink"');
+});
+
+test('Tile never declares a fold — a tile grid is one composed unit, exempt from the rule', async () => {
+  const html = await render(Tile, { field: 'cobalt', title: 'Inventory' });
+  expect(html).not.toContain('data-fold');
+});
 ```
 
 - [ ] **Step 3: Run it to verify it fails**
@@ -1173,6 +1207,7 @@ const { field, class: className } = Astro.props;
 ---
 <section
   class:list={['mv-section', className]}
+  data-fold={field}
   style={`background:var(--field-${field});color:var(--on-${field})`}
 >
   <div class="mv-wrap"><slot /></div>
@@ -1184,12 +1219,13 @@ const { field, class: className } = Astro.props;
 ```astro
 ---
 import type { FieldName } from '../../site';
-export interface Props { field: FieldName; class?: string }
-const { field, class: className } = Astro.props;
+export interface Props { field: FieldName; class?: string; [key: string]: unknown }
+const { field, class: className, ...rest } = Astro.props;
 ---
 <div
   class:list={['mv-panel', className]}
   style={`background:var(--field-${field});color:var(--on-${field});border-radius:var(--radius-panel)`}
+  {...rest}
 >
   <slot />
 </div>
@@ -1261,7 +1297,7 @@ const { field, heading, body } = Astro.props;
 ---
 <section class="mv-section site-cta">
   <div class="mv-wrap">
-    <div class="mv-panel site-cta-inner" style={`background:var(--field-${field});color:var(--on-${field})`}>
+    <div class="mv-panel site-cta-inner" data-fold={field} style={`background:var(--field-${field});color:var(--on-${field})`}>
       <h2 class="mv-display site-cta-heading">{heading}</h2>
       <p class="site-cta-body">{body}</p>
       <div class="mv-cta-stack site-cta-actions">
@@ -1311,7 +1347,7 @@ Expected: PASS — all files green.
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): add field, panel, tile, pill, marquee and CTA primitives"
+git commit -m "feat(MVBOLD-4): add field, panel, tile, pill, marquee and CTA primitives"
 ```
 
 ---
@@ -1502,7 +1538,7 @@ Expected: `/` reports either a pass or a list of missing phrases against the pla
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): add copy-parity gate against the old site"
+git commit -m "feat(MVBOLD-4): add copy-parity gate against the old site"
 ```
 
 ---
@@ -1573,10 +1609,13 @@ test('lime is never used as a text colour', () => {
   expect(h).not.toMatch(/color:\s*#C8FF2E/i);
 });
 
-test('no two adjacent full-bleed sections share a hue', () => {
-  const fields = [...html().matchAll(/background:var\(--field-([a-z]+)\)/g)].map((m) => m[1]);
-  for (let i = 1; i < fields.length; i++) {
-    expect(fields[i], `field ${fields[i]} repeats at position ${i}`).not.toBe(fields[i - 1]);
+test('no two adjacent folds share a hue', () => {
+  // data-fold marks fold-level colour only. Tiles are exempt: a tile grid is one
+  // composed unit with paper between every tile, so its hues never "touch".
+  const folds = [...html().matchAll(/data-fold="([a-z]+)"/g)].map((m) => m[1]);
+  expect(folds.length, 'page should declare its folds').toBeGreaterThan(2);
+  for (let i = 1; i < folds.length; i++) {
+    expect(folds[i], `${folds[i]} repeats at fold ${i}`).not.toBe(folds[i - 1]);
   }
 });
 ```
@@ -1636,7 +1675,7 @@ const MARQUEE = [
   {/* 1 · cobalt hero panel, inset on paper */}
   <section class="site-hero">
     <div class="mv-wrap">
-      <Panel field="cobalt" class="site-hero-panel">
+      <Panel field="cobalt" class="site-hero-panel" data-fold="cobalt">
         <span class="mv-eyebrow">MRP for Shopify manufacturers</span>
         <h1 class="mv-display site-hero-title">{/* headline, verbatim */}</h1>
         <p class="site-hero-sub">{/* subhead, verbatim */}</p>
@@ -1724,7 +1763,7 @@ Expected: `+ / N phrases present`. If phrases are reported missing, move that co
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): build the home page on the field system"
+git commit -m "feat(MVBOLD-4): build the home page on the field system"
 ```
 
 ---
@@ -1842,7 +1881,7 @@ Expected: `+ /pricing N phrases present`.
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): build the pricing page with matrix and card fallback"
+git commit -m "feat(MVBOLD-4): build the pricing page with matrix and card fallback"
 ```
 
 ---
@@ -1909,10 +1948,12 @@ test('uses collapse utilities rather than fixed column counts', () => {
   expect(h).not.toMatch(/grid-template-columns:\s*repeat\(\d,\s*1fr\)/);
 });
 
-test('no adjacent full-bleed sections share a hue', () => {
-  const fields = [...html().matchAll(/background:var\(--field-([a-z]+)\)/g)].map((m) => m[1]);
-  for (let i = 1; i < fields.length; i++) {
-    expect(fields[i]).not.toBe(fields[i - 1]);
+test('no two adjacent folds share a hue', () => {
+  // See Task 7 — data-fold marks fold-level colour; the six-tile grid is exempt.
+  const folds = [...html().matchAll(/data-fold="([a-z]+)"/g)].map((m) => m[1]);
+  expect(folds.length, 'page should declare its folds').toBeGreaterThan(2);
+  for (let i = 1; i < folds.length; i++) {
+    expect(folds[i], `${folds[i]} repeats at fold ${i}`).not.toBe(folds[i - 1]);
   }
 });
 ```
@@ -1938,7 +1979,7 @@ Expected: `+ /features N phrases present`.
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): build the features page"
+git commit -m "feat(MVBOLD-4): build the features page"
 ```
 
 ---
@@ -2087,7 +2128,7 @@ Expected: both report all phrases present. **If either reports missing phrases, 
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): build both alternatives pages with copy intact"
+git commit -m "feat(MVBOLD-4): build both alternatives pages with copy intact"
 ```
 
 ---
@@ -2162,7 +2203,7 @@ Expected: all phrases present.
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): build the about page"
+git commit -m "feat(MVBOLD-4): build the about page"
 ```
 
 ---
@@ -2277,7 +2318,7 @@ Expected: all phrases present on both.
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): build privacy and terms on a plain document layout"
+git commit -m "feat(MVBOLD-4): build privacy and terms on a plain document layout"
 ```
 
 ---
@@ -2319,15 +2360,9 @@ Routes have not changed, so the only edit to `sitemap.xml` is `lastmod`. Do not 
 
 [build.environment]
   NODE_VERSION = "20"
-
-# Astro emits features.html; serve it at /features with no trailing slash,
-# matching the live URL spelling and the canonical tags.
-[[redirects]]
-  from = "/*/"
-  to = "/:splat"
-  status = 301
-  force = true
 ```
+
+Deliberately **no** trailing-slash redirect rule. `from = "/*/"` with `force = true` matches `/` with an empty splat and redirects it to itself — an infinite loop on the home page. Astro's `trailingSlash: 'never'` plus `build.format: 'file'` emits `features.html`, and Netlify's default pretty-URL handling serves it at `/features` and canonicalises away the slash. `public/_redirects` still handles the eight legacy `.html` paths.
 
 - [ ] **Step 3: Write the failing test**
 
@@ -2469,7 +2504,7 @@ Expected: PASS, 7 tests.
 
 ```bash
 git add -A
-git commit -m "feat(MVBOLD-2): carry SEO assets across and add structured data"
+git commit -m "feat(MVBOLD-4): carry SEO assets across and add structured data"
 ```
 
 ---
@@ -2658,7 +2693,7 @@ Collect and report to the user:
 
 ```bash
 git add -A
-git commit -m "test(MVBOLD-2): add end-to-end route, accessibility and responsive coverage"
+git commit -m "test(MVBOLD-4): add end-to-end route, accessibility and responsive coverage"
 ```
 
 ---

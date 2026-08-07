@@ -1,0 +1,189 @@
+---
+import Icon from '../ds/Icon.astro';
+
+// Verbatim from the old pricing page's 43-row / 9-category comparison table.
+// true = a check icon, false = an em-dash ("not on this tier"), a string = the
+// literal cell text (e.g. "Basic", "Unlimited"). Column order is always
+// [Starter, Growth, Pro, Enterprise], matching the old table's <thead>.
+const CATEGORIES = [
+  {
+    label: 'Plan Limits',
+    rows: [
+      { name: 'Warehouse locations', v: ['1', '5', 'Unlimited', 'Unlimited'] },
+      { name: 'Team members', v: ['3', 'Unlimited', 'Unlimited', 'Unlimited'] },
+      { name: 'SKUs / components', v: ['Unlimited', 'Unlimited', 'Unlimited', 'Unlimited'] },
+    ],
+  },
+  {
+    label: 'Shopify Integration',
+    rows: [
+      { name: 'Product + variant sync', v: [true, true, true, true] },
+      { name: 'Order sync + allocation', v: [true, true, true, true] },
+      { name: 'Webhook-driven real-time sync', v: [true, true, true, true] },
+      { name: 'Multiple Shopify stores', v: [false, false, true, true] },
+    ],
+  },
+  {
+    label: 'Inventory Management',
+    rows: [
+      { name: 'Component inventory + balances', v: [true, true, true, true] },
+      { name: 'Inventory movements ledger', v: [true, true, true, true] },
+      { name: 'Stocktake', v: [true, true, true, true] },
+      { name: 'Activity log', v: [true, true, true, true] },
+      { name: 'Low stock alerts', v: [true, true, true, true] },
+      { name: 'Bin / aisle locations', v: [false, true, true, true] },
+    ],
+  },
+  {
+    label: 'BOM & Manufacturing',
+    rows: [
+      { name: 'BOM builder', v: ['Basic', true, true, true] },
+      { name: 'Production orders', v: [true, true, true, true] },
+      { name: 'Component allocation engine', v: [true, true, true, true] },
+      { name: 'Yield % per BOM line', v: [false, true, true, true] },
+      { name: 'BOM versioning + draft/publish', v: [false, true, true, true] },
+      { name: 'BOM version comparison', v: [false, true, true, true] },
+      { name: 'BOM templates', v: [false, true, true, true] },
+    ],
+  },
+  {
+    label: 'Purchasing',
+    rows: [
+      { name: 'Purchase orders', v: [true, true, true, true] },
+      { name: 'Supplier management', v: [true, true, true, true] },
+      { name: 'Goods inwards / receiving', v: [true, true, true, true] },
+    ],
+  },
+  {
+    label: 'Costing & Finance',
+    rows: [
+      { name: 'Cost per unit (BOM rollup)', v: [false, true, true, true] },
+      { name: 'Margin tracking per product', v: [false, true, true, true] },
+      { name: 'Inventory valuation', v: [false, true, true, true] },
+      { name: 'Financial profitability dashboard', v: [false, false, true, true] },
+    ],
+  },
+  {
+    label: 'Reports',
+    rows: [
+      { name: 'Dashboard overview', v: [true, true, true, true] },
+      { name: 'Inventory reports (stock on hand, movements)', v: [false, true, true, true] },
+      { name: 'Purchasing reports (PO summary, spend by supplier)', v: [false, true, true, true] },
+      { name: 'Date range filtering', v: [false, true, true, true] },
+      { name: 'PDF + CSV export', v: [false, false, true, true] },
+    ],
+  },
+  {
+    label: 'Capacity & Staffing',
+    rows: [
+      { name: 'Departments + staffing levels', v: [false, false, true, true] },
+      { name: 'Capacity planning', v: [false, false, true, true] },
+      { name: 'Actual vs planned time tracking', v: [false, false, true, true] },
+    ],
+  },
+  {
+    label: 'Platform & Support',
+    rows: [
+      { name: 'API access', v: [false, false, true, true] },
+      { name: 'Email support', v: [true, true, true, true] },
+      { name: 'Priority support (< 4hr response)', v: [false, false, true, true] },
+      { name: 'Dedicated account manager', v: [false, false, false, true] },
+      { name: 'Custom onboarding + training', v: [false, false, false, true] },
+      { name: 'SSO / advanced security', v: [false, false, false, true] },
+      { name: 'SLA + uptime guarantee', v: [false, false, false, true] },
+      { name: 'Custom integrations', v: [false, false, false, true] },
+    ],
+  },
+];
+
+// The old page's mobile fallback for this table was a "come back on desktop"
+// note (matrix-mobile-note) — the design system forbids that cop-out, so this
+// build ships a real per-plan differentiator card instead (.mv-matrix-cards,
+// switched in by responsive.css below 720px). This is the old page's own
+// `<!-- KEEP IN SYNC: plan-feats-mobile ↔ matrix rows -->` content, verbatim,
+// relocated from inside each plan card to here — same claims, same source.
+// The old "Open this page on desktop" note is deliberately dropped, not
+// carried across: it told mobile users to leave because no mobile matrix
+// existed, and one exists now, so the instruction is obsolete rather than
+// lost. Ruled on and cleared via scripts/parity/ignore.json (not this file).
+const DIFFERENTIATORS = [
+  { plan: 'Starter', rows: [
+    { label: 'Locations', v: '1' },
+    { label: 'BOM versions', v: false },
+    { label: 'Production orders', v: true },
+    { label: 'Variants', v: true },
+    { label: 'API access', v: false },
+    { label: 'Support', v: 'Email' },
+  ] },
+  { plan: 'Growth', rows: [
+    { label: 'Locations', v: '5' },
+    { label: 'BOM versions', v: true },
+    { label: 'Production orders', v: true },
+    { label: 'Variants', v: true },
+    { label: 'API access', v: false },
+    { label: 'Support', v: 'Email' },
+  ] },
+  { plan: 'Pro', rows: [
+    { label: 'Locations', v: 'Unlimited' },
+    { label: 'BOM versions', v: true },
+    { label: 'Production orders', v: true },
+    { label: 'Variants', v: true },
+    { label: 'API access', v: true },
+    { label: 'Support', v: 'Priority' },
+  ] },
+  { plan: 'Enterprise', rows: [
+    { label: 'Locations', v: 'Unlimited' },
+    { label: 'BOM versions', v: true },
+    { label: 'Production orders', v: true },
+    { label: 'Variants', v: true },
+    { label: 'API access', v: true },
+    { label: 'Support', v: 'Dedicated' },
+  ] },
+];
+---
+<h2 id="matrix-heading" class="mv-display site-matrix-heading">Compare plans</h2>
+
+<div class="mv-table-scroll">
+  <table class="mv-matrix site-matrix-table" aria-labelledby="matrix-heading">
+    <thead>
+      <tr>
+        <th scope="col">Feature</th>
+        <th scope="col">Starter</th>
+        <th scope="col">Growth</th>
+        <th scope="col">Pro</th>
+        <th scope="col">Enterprise</th>
+      </tr>
+    </thead>
+    <tbody>
+      {CATEGORIES.map((cat) => (
+        <>
+          <tr class="site-matrix-divider"><td colspan="5">{cat.label}</td></tr>
+          {cat.rows.map((row) => (
+            <tr>
+              <td>{row.name}</td>
+              {row.v.map((cell) => (
+                <td>{cell === true ? <Icon name="check" size={16} /> : cell === false ? '—' : cell}</td>
+              ))}
+            </tr>
+          ))}
+        </>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<div class="mv-matrix-cards site-matrix-cards">
+  {DIFFERENTIATORS.map((d) => (
+    <div class="site-matrix-card">
+      <div class="site-matrix-card-name">{d.plan}</div>
+      <ul class="site-matrix-card-list">
+        {d.rows.map((r) => (
+          <li>
+            <span class="site-matrix-card-label">{r.label}:</span>{' '}
+            <strong>{r.v === true ? <Icon name="check" size={14} /> : r.v === false ? '—' : r.v}</strong>
+          </li>
+        ))}
+      </ul>
+    </div>
+  ))}
+</div>

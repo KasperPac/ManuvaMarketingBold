@@ -1,0 +1,12 @@
+# Cloudflare Pages / Netlify _redirects
+# Collapse .html variants into clean URLs (consolidates duplicate indexation).
+# 301 = permanent; passes link equity.
+
+/index.html                       /                       301
+/features.html                    /features               301
+/pricing.html                     /pricing                301
+/privacy.html                     /privacy                301
+/terms.html                       /terms                  301
+/about.html                       /about                  301
+/alternatives/katana.html         /alternatives/katana    301
+/alternatives/mrpeasy.html        /alternatives/mrpeasy   301
