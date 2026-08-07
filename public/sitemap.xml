@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Core commercial pages -->
+  <url>
+    <loc>https://manuva.app/</loc>
+    <lastmod>2026-08-08</lastmod>
+  </url>
+  <url>
+    <loc>https://manuva.app/features</loc>
+    <lastmod>2026-08-08</lastmod>
+  </url>
+  <url>
+    <loc>https://manuva.app/pricing</loc>
+    <lastmod>2026-08-08</lastmod>
+  </url>
+
+  <!-- About / company -->
+  <url>
+    <loc>https://manuva.app/about</loc>
+    <lastmod>2026-08-08</lastmod>
+  </url>
+
+  <!-- Competitor alternatives -->
+  <url>
+    <loc>https://manuva.app/alternatives/katana</loc>
+    <lastmod>2026-08-08</lastmod>
+  </url>
+  <url>
+    <loc>https://manuva.app/alternatives/mrpeasy</loc>
+    <lastmod>2026-08-08</lastmod>
+  </url>
+
+  <!-- Legal — included for completeness, low crawl value -->
+  <url>
+    <loc>https://manuva.app/privacy</loc>
+    <lastmod>2026-08-08</lastmod>
+  </url>
+  <url>
+    <loc>https://manuva.app/terms</loc>
+    <lastmod>2026-08-08</lastmod>
+  </url>
+
+</urlset>

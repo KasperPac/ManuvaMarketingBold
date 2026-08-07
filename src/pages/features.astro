@@ -232,6 +232,20 @@ const GROUPS = [
 
 const tierClass = (tier: string) =>
   tier === 'Pro+' ? 'site-feat-tier-pro' : tier === 'Enterprise' ? 'site-feat-tier-ent' : '';
+
+// The old page's own <script type="application/ld+json"> is a single
+// BreadcrumbList — no FAQPage/Product data on this page in the source, so
+// that's all this carries.
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://manuva.app/' },
+      { '@type': 'ListItem', position: 2, name: 'Features', item: 'https://manuva.app/features' },
+    ],
+  },
+];
 ---
 {/* twitter:description reuses `description` directly — old page's own
     twitter:description is identical to its og:description and meta
@@ -242,6 +256,7 @@ const tierClass = (tier: string) =>
   description={description}
   twitterDescription={description}
   canonical="https://manuva.app/features"
+  {schema}
 >
   {/* 1 · aqua hero panel, inset on paper */}
   <section class="site-hero site-features-hero">

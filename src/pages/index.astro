@@ -130,6 +130,74 @@ const description =
 // Twitter pair, which previously leaked the long description onto this page.
 const twitterDescription =
   'Inventory, BOMs, work orders, and stock control — connected, live, and built for the floor.';
+
+// The old page's own <script type="application/ld+json"> (a single
+// Organization+WebSite+SoftwareApplication @graph), flattened into the
+// independent-node array Base.astro's `schema` prop expects — every field
+// carried across, not reconstructed from memory. `logo`/`sameAs`/
+// `contactPoint`/the WebSite node aren't in the task brief's example, but
+// they're real content on the source page (confirmed by reading
+// index.html's own <head>, not assumed); dropping them would be a content
+// loss same as dropping copy. `offers` reuses TIERS' own annual per-month
+// prices below rather than repeating the literals a second time.
+// `contactPoint.url` points at #contact, this page's own real anchor
+// (the mailto CTA section, id="contact", further down this file).
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': 'https://manuva.app/#org',
+    name: 'Manuva',
+    legalName: 'Pac Technologies Pty Ltd',
+    url: 'https://manuva.app/',
+    logo: { '@type': 'ImageObject', url: 'https://manuva.app/logo.png', width: 799, height: 179 },
+    sameAs: ['https://app.manuva.app'],
+    address: { '@type': 'PostalAddress', addressCountry: 'AU' },
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      email: CONTACT_EMAIL,
+      availableLanguage: ['English'],
+      url: 'https://manuva.app/#contact',
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': 'https://manuva.app/#website',
+    url: 'https://manuva.app/',
+    name: 'Manuva',
+    publisher: { '@id': 'https://manuva.app/#org' },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'Manuva',
+    applicationCategory: 'BusinessApplication',
+    applicationSubCategory: 'Manufacturing operations / MRP',
+    operatingSystem: 'Web',
+    description,
+    url: 'https://manuva.app/',
+    image: 'https://manuva.app/og-image.png',
+    publisher: { '@id': 'https://manuva.app/#org' },
+    // No aggregateRating/review — none exist in the source; inventing one
+    // is both a project rule and a Google structured-data policy violation.
+    offers: TIERS.map((t) => ({
+      '@type': 'Offer',
+      name: t.name,
+      price: t.price.replace('$', ''),
+      priceCurrency: 'USD',
+      priceSpecification: {
+        '@type': 'UnitPriceSpecification',
+        price: t.price.replace('$', ''),
+        priceCurrency: 'USD',
+        unitText: 'MONTH',
+      },
+      availability: 'https://schema.org/OnlineOnly',
+      url: 'https://manuva.app/pricing',
+    })),
+  },
+];
 ---
 {/* title is the old page's own <title>, verbatim — not Landing.jsx:74's hero
     eyebrow, which is what shipped here before. On a re-skin whose whole point
@@ -140,6 +208,7 @@ const twitterDescription =
   description={description}
   twitterDescription={twitterDescription}
   canonical="https://manuva.app/"
+  {schema}
 >
   {/* 1 · cobalt hero panel, inset on paper */}
   <section class="site-hero">

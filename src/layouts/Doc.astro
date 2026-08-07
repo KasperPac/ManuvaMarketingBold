@@ -37,13 +37,17 @@ export interface Props {
   version: string;
   updated: string;
   toc: { id: string; label: string }[];
+  /** JSON-LD nodes, passed straight through to Base — mirrors Alternative.astro's
+   * existing passthrough (Task 10). Neither old legal page carries anything
+   * beyond a BreadcrumbList, so this is the only node Task 13 supplies here. */
+  schema?: Record<string, unknown>[];
 }
 const {
   title, description, canonical, twitterDescription,
-  heading, sub, effective, version, updated, toc,
+  heading, sub, effective, version, updated, toc, schema,
 } = Astro.props;
 ---
-<Base title={title} description={description} canonical={canonical} twitterDescription={twitterDescription}>
+<Base title={title} description={description} canonical={canonical} twitterDescription={twitterDescription} {schema}>
   <article class="site-doc">
     {/* A <div>, not the semantic <header> the task brief sketches — the parity
         extractor's CHROME_SELECTORS strips every <header> element anywhere in

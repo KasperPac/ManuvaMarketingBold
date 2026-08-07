@@ -45,8 +45,31 @@ const description =
 // description onto this page.
 const twitterDescription =
   'Simple pricing for manufacturing teams. One price per tier, no per-seat fees, no usage meters.';
+
+// The old page's own <script type="application/ld+json"> — a BreadcrumbList
+// plus a FAQPage. The FAQPage is built from FAQS above (not retyped) so the
+// visible <FaqList> and the markup can never drift apart.
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://manuva.app/' },
+      { '@type': 'ListItem', position: 2, name: 'Pricing', item: 'https://manuva.app/pricing' },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQS.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
 ---
-<Base title="Pricing — Manuva" description={description} twitterDescription={twitterDescription} canonical="https://manuva.app/pricing">
+<Base title="Pricing — Manuva" description={description} twitterDescription={twitterDescription} canonical="https://manuva.app/pricing" {schema}>
   {/* 1 · ink hero, inset on paper */}
   <section class="site-hero site-pricing-hero">
     <div class="mv-wrap">

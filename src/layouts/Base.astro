@@ -75,6 +75,10 @@ const ogImageUrl = Astro.site ? new URL(ogImage, Astro.site) : ogImage;
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     {TOKENS.map((t) => <link rel="stylesheet" href={`/_ds/tokens/${t}.css`} />)}
+
+    {schema && schema.length > 0 && (
+      <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    )}
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>

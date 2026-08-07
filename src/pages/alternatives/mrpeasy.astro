@@ -88,12 +88,40 @@ const FAQS = [
     a: "MRPeasy ships some manufacturing-resource-planning capabilities aimed at industrial operations that Manuva does not currently match — for example, deeper MRP run scheduling, longer-horizon material requirements planning, and certain accounting integrations targeted at MRPeasy's broader industrial customer base. Manuva's focus is product brands selling through Shopify and adjacent channels; for that profile, Manuva's BOM versioning, capacity planning with staff costing, and PO variance reporting cover the gaps that matter most.",
   },
 ];
+
+// The old page's own <script type="application/ld+json"> — a three-level
+// BreadcrumbList (its middle crumb, "Alternatives" → /alternatives, isn't a
+// route this site builds; carried across as-is rather than dropped, since
+// it's the live page's own real structured data, not something invented
+// here) plus a FAQPage built from FAQS above so the visible <FaqList> and
+// the markup can never drift apart.
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://manuva.app/' },
+      { '@type': 'ListItem', position: 2, name: 'Alternatives', item: 'https://manuva.app/alternatives' },
+      { '@type': 'ListItem', position: 3, name: 'MRPeasy', item: 'https://manuva.app/alternatives/mrpeasy' },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQS.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
 ---
 <Alternative
   title="MRPeasy Alternative — Flat-Rate MRP for Shopify Manufacturers | Manuva"
   description={description}
   ogDescription={ogDescription}
   canonical="https://manuva.app/alternatives/mrpeasy"
+  {schema}
   competitor="MRPeasy"
   heroField="amber"
   ctaField="cobalt"
