@@ -1,6 +1,6 @@
 import type { FieldName } from '../site';
 
-export interface Domain {
+interface DomainBase {
   slug: string;
   name: string;
   field: FieldName;
@@ -10,17 +10,23 @@ export interface Domain {
   source: 'llms.txt' | 'features.html';
   /** Set when the category video is uploaded. Until then the card shows a still. */
   youtubeId?: string;
-  /** Optional: not every domain has a screenshot that genuinely shows its
-   * own screen. Author's ruling (post-review): a proxy screenshot under a
-   * heading it doesn't depict is the visual equivalent of an invented
-   * blurb — this project has refused to invent copy in every task across
-   * two passes, and a mismatched image is the same failure in a different
-   * medium. Omit poster/posterAlt entirely rather than show one; the card
-   * renders colour, icon, name and blurb only. Purchasing and Audit have
-   * no matching screen among the three existing product screenshots. */
-  poster?: string;
-  posterAlt?: string;
 }
+
+/** poster/posterAlt are tied — both present or both absent, never one
+ * without the other. A poster without an alt is inaccessible; an alt
+ * without a poster describes an image that isn't there. Not every domain
+ * has a screenshot that genuinely shows its own screen: author's ruling
+ * (post-review) is that a proxy screenshot under a heading it doesn't
+ * depict is the visual equivalent of an invented blurb — this project has
+ * refused to invent copy in every task across two passes, and a mismatched
+ * image is the same failure in a different medium. Purchasing and Audit
+ * have no matching screen among the three existing product screenshots, so
+ * they carry neither field and the card renders colour, icon, name and
+ * blurb only. Modelled as a union rather than two independent optionals so
+ * the compiler — not just today's data — enforces the pairing; see
+ * product.astro's card, which narrows on `d.poster` with no assertion. */
+export type Domain = DomainBase &
+  ({ poster: string; posterAlt: string } | { poster?: undefined; posterAlt?: undefined });
 
 // Five cards, not six. "Logistics" is zero occurrences across llms.txt,
 // features.html and index.html (checked logistics/despatch/dispatch/

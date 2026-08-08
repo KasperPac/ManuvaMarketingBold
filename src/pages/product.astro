@@ -27,9 +27,17 @@ const SHOTS = [
 // description and og:/twitter: values are byte-identical to the old page.
 // This route has no old counterpart, so these are written rather than moved
 // and must be read as copy during review, not checked against a source.
+//
+// DESCRIPTION and the lede below were both rewritten post-review: the
+// originals claimed "real screens" for all five domains listed by name.
+// Ruling 1 (dropping Purchasing's and Audit's mismatched posters) made
+// that false for two of the five — a reader hits the domains section one
+// scroll down and finds no screen for either. Rewritten so "real screens"
+// only names the three domains that have one; Purchasing and the audit
+// trail are still named, just not as things you'll see a screen of.
 const TITLE = 'Product Tour — Manuva';
 const DESCRIPTION =
-  'See Manuva in action — real screens for inventory, BOMs, production, purchasing, and the audit trail behind all of it.';
+  'See Manuva in action — real screens for inventory, BOMs and production, plus purchasing and the audit trail behind every change.';
 
 // BreadcrumbList — not in the brief's page skeleton (which passed no
 // `schema` prop to <Base> at all), added because tests/unit/seo.test.ts
@@ -61,8 +69,8 @@ const schema = [
     <div class="mv-wrap">
       <h1 class="mv-display">The product. Not a pitch.</h1>
       <p class="site-product-lede">
-        Real screens from a real account — inventory, bills of materials, production orders, purchasing, and the
-        audit trail behind every change.
+        Real screens from a real account — inventory, bills of materials and production, exactly as they run.
+        Purchasing and the audit trail live here too, underneath every change.
       </p>
     </div>
   </section>
@@ -113,7 +121,7 @@ const schema = [
             <Icon name={d.icon} size={30} />
             <h3 class="site-domain-name">{d.name}</h3>
             <p class="site-domain-blurb">{d.blurb}</p>
-            {d.poster && <Video poster={d.poster} alt={d.posterAlt!} youtubeId={d.youtubeId} title={d.name} caption={false} />}
+            {d.poster && <Video poster={d.poster} alt={d.posterAlt} youtubeId={d.youtubeId} title={d.name} caption={false} />}
           </article>
         ))}
       </div>
