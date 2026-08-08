@@ -196,6 +196,20 @@ a[href$="features#purchasing"] .site-tile-chip { background: rgb(255 255 255 / .
    Near-black measures 5.54:1 (computed), comfortably clears 4.5:1. */
 [data-fold="flare"] { --on-flare: #141413; }
 
+/* --- section division ------------------------------------------------
+   Paper sections alternate paper / card so a boundary is always visible.
+   Four consecutive sections on the home page previously ran 3,380px with
+   no division at all, and /pricing plus both /alternatives/ pages ran five.
+
+   `of :not([data-fold])` counts only paper sections, so field bands neither
+   break the alternation nor consume a position. CSS cannot restart a
+   positional count mid-list, so the alternation is global per page rather
+   than resetting at each band — deterministic, and every boundary still
+   shows. Needs Chrome 111 / Firefox 113 / Safari 9 for the `of S` syntax. */
+main > section:not([data-fold]) { background: var(--field-paper); }
+main > section:nth-child(even of :not([data-fold])) { background: var(--bg-card); }
+main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px solid var(--stroke); }
+
 /* --- home: hero --- */
 .site-hero { padding: 0 var(--gutter) var(--gutter); }
 /* grid-template-columns is explicit (a single definite track) rather than

@@ -183,3 +183,27 @@ for (const width of HERO_MARK_WIDTHS) {
     expect(rectCount, `.site-hero-mark painted ${rectCount} rects at ${width}px, expected 1`).toBe(1);
   });
 }
+
+// --- section division ---------------------------------------------------
+//
+// All-white-background paper sections made it hard to tell where one section
+// ended and the next began — the home page ran 3,380px across four
+// consecutive sections with zero visual division, and /pricing plus both
+// /alternatives/ pages each ran five consecutive paper sections. Scoped to
+// marketing routes only: /privacy and /terms wrap everything in
+// <article class="site-doc">, so `main > section` matches nothing there, and
+// the design-system author has ruled those two pages keep their current
+// clause/heading/TOC-driven navigation instead.
+const MARKETING_ROUTES = ALL_ROUTES.filter((r) => r !== '/privacy' && r !== '/terms');
+
+for (const route of MARKETING_ROUTES) {
+  test(`${route} — no two consecutive sections share a background`, async ({ page }) => {
+    await page.goto(route);
+    const bgs = await page.$$eval('main > section', (els) =>
+      els.map((e) => getComputedStyle(e).backgroundColor));
+    expect(bgs.length).toBeGreaterThan(1);
+    for (let i = 1; i < bgs.length; i++) {
+      expect(bgs[i], `sections ${i - 1} and ${i} share ${bgs[i]}`).not.toBe(bgs[i - 1]);
+    }
+  });
+}

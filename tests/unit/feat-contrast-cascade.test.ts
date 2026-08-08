@@ -51,41 +51,95 @@ function parseRules(source: string): Rule[] {
   return rules;
 }
 
-// One "compound part" of a selector: base classes/attrs it requires present,
-// and classes required ABSENT via :not(.class). Enough for this file's
-// selectors — no tag names, no combinators other than descendant (space),
-// no :not() arguments beyond a single class.
-interface CompoundPart { requiredClasses: string[]; requiredAttrs: string[]; excludedClasses: string[] }
+// One "compound part" of a selector: an optional leading tag name, base
+// classes/attrs it requires present, and classes/attrs required ABSENT via
+// :not(.class) / :not([attr]). Enough for this file's selectors — no
+// combinators other than descendant/child/sibling (all collapsed to "some
+// ancestor" — see splitCompounds), no :not() arguments beyond a single
+// class or attribute.
+interface CompoundPart {
+  tag: string | null;
+  requiredClasses: string[];
+  requiredAttrs: string[];
+  excludedClasses: string[];
+  excludedAttrs: string[];
+}
+
+// Splits a selector into compound parts on combinator whitespace only — NOT
+// on whitespace nested inside a pseudo-class argument. Task 4 added
+// `:nth-child(even of :not([data-fold]))`, whose own argument contains real
+// spaces ("even of ..."); a bare `.split(/\s+/)` tears that into unrelated
+// fragments ("of", ":not([data-fold]))", ...) that each vacuously match any
+// element (no tag/class/attr left to check), silently producing a
+// plausible-looking but wrong cascade result — exactly the failure mode
+// `matches()`'s own "fail loudly rather than silently no-op" rule exists to
+// prevent, just via a different mechanism than the throw below. Depth-
+// tracking `(`/`)` keeps any parenthesised argument, however many nested
+// functional pseudo-classes deep, inside one token; ">"/"+"/"~" combinators
+// are dropped rather than modelled, collapsing to the same "some ancestor"
+// treatment a descendant combinator already gets, since nothing in this
+// file needs to tell them apart.
+function splitCompounds(selector: string): string[] {
+  const parts: string[] = [];
+  let depth = 0;
+  let current = '';
+  for (const ch of selector.trim()) {
+    if (ch === '(') depth++;
+    if (ch === ')') depth--;
+    if (/\s/.test(ch) && depth === 0) {
+      if (current) parts.push(current);
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  if (current) parts.push(current);
+  return parts.filter((p) => p !== '>' && p !== '+' && p !== '~');
+}
 
 function parseCompound(part: string): CompoundPart {
   const excludedClasses: string[] = [];
-  const withoutNots = part.replace(/:not\(\.([\w-]+)\)/g, (_m, cls) => {
+  const excludedAttrs: string[] = [];
+  let withoutNots = part.replace(/:not\(\.([\w-]+)\)/g, (_m, cls) => {
     excludedClasses.push(cls);
+    return '';
+  });
+  // Task 4's own new rules wrap an attribute, not a class, in :not() —
+  // `section:not([data-fold])` — which the class-only regex above leaves
+  // untouched. Left unhandled, the bracket falls straight through to the
+  // requiredAttrs match below and gets misread as a plain [data-fold]
+  // requirement on the compound itself — the opposite of what :not() means,
+  // and what previously tripped the "unsupported target attribute" throw.
+  withoutNots = withoutNots.replace(/:not\(\[([\w-]+)\]\)/g, (_m, attr) => {
+    excludedAttrs.push(attr);
     return '';
   });
   const requiredClasses = [...withoutNots.matchAll(/\.([\w-]+)/g)].map((mm) => mm[1]);
   const requiredAttrs = [...withoutNots.matchAll(/\[([\w-]+)\]/g)].map((mm) => mm[1]);
-  return { requiredClasses, requiredAttrs, excludedClasses };
+  const tagMatch = withoutNots.match(/^([a-zA-Z][\w-]*)/);
+  return { tag: tagMatch ? tagMatch[1] : null, requiredClasses, requiredAttrs, excludedClasses, excludedAttrs };
 }
 
-interface VirtualEl { classes: string[]; ancestorAttrs?: string[] }
+interface VirtualEl { tag?: string; classes: string[]; ownAttrs?: string[]; ancestorAttrs?: string[] }
 
 // Does `selector` (a descendant-combinator chain of compound parts, e.g.
 // "[data-fold] .site-feat-desc") match `el`? The LAST compound part must
 // match the element itself; every earlier part must match at least one
 // ancestor (this file's fixtures only ever need a single ancestor level).
 function matches(selector: string, el: VirtualEl): boolean {
-  const parts = selector.trim().split(/\s+/).map(parseCompound);
+  const parts = splitCompounds(selector).map(parseCompound);
   const target = parts[parts.length - 1];
-  // None of this file's selectors put an [attr] on the TARGET (rightmost)
-  // compound part — attributes only ever appear on an ancestor part (e.g.
-  // "[data-fold] .site-feat-desc") — so a target part requiring one would
-  // indicate an untested selector shape; fail loudly rather than silently
-  // treat it as a no-op match.
+  // None of this file's selectors put a bare (non-:not()) [attr] on the
+  // TARGET (rightmost) compound part — attributes only ever appear on an
+  // ancestor part (e.g. "[data-fold] .site-feat-desc") — so a target part
+  // requiring one would indicate an untested selector shape; fail loudly
+  // rather than silently treat it as a no-op match.
   if (target.requiredAttrs.length) throw new Error(`unsupported: attribute on target compound "${selector}"`);
   const targetOk =
+    (target.tag === null || target.tag === el.tag) &&
     target.requiredClasses.every((c) => el.classes.includes(c)) &&
-    target.excludedClasses.every((c) => !el.classes.includes(c));
+    target.excludedClasses.every((c) => !el.classes.includes(c)) &&
+    target.excludedAttrs.every((a) => !(el.ownAttrs ?? []).includes(a));
   if (!targetOk) return false;
   const ancestorParts = parts.slice(0, -1);
   return ancestorParts.every(
@@ -98,11 +152,16 @@ function matches(selector: string, el: VirtualEl): boolean {
 
 // CSS specificity as (id, class-or-attribute-or-:not-argument, type). :not()
 // contributes its argument's specificity per the Selectors spec — each
-// excludedClasses entry counts the same as a requiredClasses entry.
+// excludedClasses/excludedAttrs entry counts the same as a required one.
+// Tag names are deliberately not counted (this file's stylesheet never ties
+// a cascade outcome to the type-selector column), matching the pre-Task-4
+// behaviour for every selector that has no tag qualifier.
 function specificity(selector: string): [number, number, number] {
-  const parts = selector.trim().split(/\s+/).map(parseCompound);
+  const parts = splitCompounds(selector).map(parseCompound);
   let classLike = 0;
-  for (const p of parts) classLike += p.requiredClasses.length + p.requiredAttrs.length + p.excludedClasses.length;
+  for (const p of parts) {
+    classLike += p.requiredClasses.length + p.requiredAttrs.length + p.excludedClasses.length + p.excludedAttrs.length;
+  }
   return [0, classLike, 0];
 }
 
