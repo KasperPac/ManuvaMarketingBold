@@ -1,0 +1,85 @@
+---
+export interface Props {
+  /** Self-hosted still, always used. Never a third-party thumbnail URL. */
+  poster: string;
+  alt: string;
+  /** Self-hosted mode. Mutually exclusive with youtubeId. */
+  src?: string;
+  /** Facade mode. Mutually exclusive with src. */
+  youtubeId?: string;
+  title?: string;
+  class?: string;
+}
+const { poster, alt, src, youtubeId, title, class: className } = Astro.props;
+
+if (src && youtubeId) {
+  throw new Error(
+    'Video: both `src` and `youtubeId` were supplied. Pick one — self-hosted or facade.',
+  );
+}
+
+const label = title ? `Play video: ${title}` : 'Play video';
+const mode = src ? 'self' : youtubeId ? 'facade' : 'still';
+---
+<figure class:list={['site-video', className]} data-mode={mode}>
+  {mode === 'self' && (
+    <>
+      <video class="site-video-el" preload="none" poster={poster} controls playsinline>
+        <source src={src} type="video/mp4" />
+      </video>
+      <button type="button" class="site-video-play" aria-label={label}>
+        <span aria-hidden="true">▶</span>
+      </button>
+      <img class="site-video-poster" src={poster} alt={alt} loading="lazy" decoding="async" />
+    </>
+  )}
+
+  {mode === 'facade' && (
+    <>
+      <img class="site-video-poster" src={poster} alt={alt} loading="lazy" decoding="async" />
+      <button type="button" class="site-video-play" aria-label={label}
+              data-youtube-id={youtubeId} data-youtube-title={title ?? ''}>
+        <span aria-hidden="true">▶</span>
+      </button>
+    </>
+  )}
+
+  {mode === 'still' && (
+    <img class="site-video-poster" src={poster} alt={alt} loading="lazy" decoding="async" />
+  )}
+
+  {title && <figcaption class="site-video-caption">{title}</figcaption>}
+</figure>
+
+<script>
+  document.querySelectorAll('.site-video').forEach((fig) => {
+    const btn = fig.querySelector<HTMLButtonElement>('.site-video-play');
+    if (!btn) return;
+
+    const ytId = btn.dataset.youtubeId;
+
+    btn.addEventListener('click', () => {
+      if (ytId) {
+        // First contact with YouTube happens here, on an explicit click — never on load.
+        const iframe = document.createElement('iframe');
+        iframe.src = `https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&rel=0`;
+        iframe.title = btn.dataset.youtubeTitle || 'Video';
+        iframe.allow = 'accelerometer; autoplay; encrypted-media; picture-in-picture';
+        iframe.setAttribute('allowfullscreen', '');
+        iframe.className = 'site-video-el';
+        fig.querySelector('.site-video-poster')?.remove();
+        btn.remove();
+        fig.prepend(iframe);
+        iframe.focus();
+        return;
+      }
+
+      const video = fig.querySelector<HTMLVideoElement>('video');
+      if (!video) return;
+      fig.querySelector('.site-video-poster')?.remove();
+      btn.remove();
+      video.play();
+      video.focus();
+    });
+  });
+</script>

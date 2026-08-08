@@ -16,7 +16,8 @@
     "test:watch": "vitest",
     "parity": "node scripts/parity/check.js",
     "parity:strict": "node scripts/parity/check.js --require-all",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "poster": "node scripts/extract-poster.mjs"
   },
   "dependencies": {
     "astro": "^7.2.0"
