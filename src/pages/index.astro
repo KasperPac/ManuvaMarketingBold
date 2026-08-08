@@ -226,7 +226,23 @@ const schema = [
             in the old features.html (Task 9 carries it across), so this is
             sourced, not invented. */}
         <span class="mv-eyebrow site-hero-eyebrow"><span class="site-hero-badge">New</span>Lot tracking &amp; supplier scorecards</span>{' '}
-        <h1 class="mv-display site-hero-title">Manufacturing operations,<br />finally simple.</h1>
+        <h1 class="mv-display site-hero-title">
+          Make it.{' '}
+          {/* Inline style, not a class-only background: the copy-parity/lime
+              tests read dist/index.html as a string and can't see an external
+              stylesheet rule, only markup — same reason the lime CTA button
+              above is built with an inline style instead of Pill's `field`
+              prop. .site-hero-mark still carries the shape (padding, radius,
+              box-decoration-break); only the fill moves inline. */}
+          <span class="site-hero-mark" style={`background:var(--field-lime);color:var(--on-lime)`}>Track it.</span>{' '}
+          Ship it.
+        </h1>
+        {/* Same <br/> the old page's own h1 had at this exact point (verified
+            against origin/master:index.html) — carried across verbatim, not
+            just the words. Preserving it also keeps "finally simple." as its
+            own isolated short fragment for the copy-parity gate, exactly as
+            it was when this text was the h1. */}
+        <p class="site-hero-lede">Manufacturing operations,<br />finally simple.</p>
         <p class="site-hero-sub">
           Manuva replaces the spreadsheets and legacy MRP your team is fighting with. Inventory, BOMs, work
           orders, and stock control — connected, live, and built for the floor.
@@ -254,6 +270,9 @@ const schema = [
     </div>
   </section>
 
+  {/* lime marquee — lime as a background, never as text */}
+  <Marquee words={MARQUEE} />
+
   {/* product shot on a cobalt TINT, not a field. Never a field behind a table, and
       this is the real screenshot, not a mocked DataTable. Old page nests this
       inside the hero itself, with no heading of its own — it's presentational,
@@ -273,11 +292,14 @@ const schema = [
     </div>
   </section>
 
-  {/* lime marquee — lime as a background, never as text */}
-  <Marquee words={MARQUEE} />
-
-  {/* mint beta strip — the offer is current, moves across verbatim */}
-  <Field field="mint" class="site-beta">
+  {/* beta strip, recoloured from mint to aqua. The marquee's move to right
+      after the hero puts it back in the fold sequence ahead of this strip
+      (site-shot between them carries no data-fold of its own) — mint would
+      have repeated lime's green, the same defect one position along. Violet
+      is also out: the split panels directly above this strip are amber and
+      violet, so violet would repeat the hue of the panel above it instead.
+      Aqua is the only field left unspoken-for on this page. */}
+  <Field field="aqua" class="site-beta">
     <p class="site-beta-head"><Icon name="flask-conical" size={20} /> Beta testers get <strong>3 months of Pro — free</strong>.</p>
     <p class="site-beta-sub">Shape the roadmap with us. Tell us what features your team needs and we'll build them with you.</p>
     <Pill href={APP_URL} field="ink">Start free trial →</Pill>

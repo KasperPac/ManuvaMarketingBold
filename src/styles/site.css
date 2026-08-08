@@ -246,6 +246,33 @@ a[href$="features#purchasing"] .site-tile-chip { background: rgb(255 255 255 / .
    14ch ceiling on wide screens (confirmed unchanged there) while capping it
    at the container's real width below that. */
 .site-hero-title { font-size: var(--fs-display-6); width: min(14ch, 100%); overflow-wrap: break-word; }
+/* Fill (background/color) is set inline in index.astro, not here — the
+   copy-parity/lime tests read dist/index.html as a string and can't see an
+   external stylesheet rule. This class only carries the shape: padding,
+   radius, and the box-decoration-break that keeps the highlight intact when
+   the headline wraps. */
+.site-hero-mark {
+  padding: 0 .12em .06em;
+  border-radius: var(--radius-lg);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+/* The keyword line, demoted from h1 to lede but kept high on the page. Unlike
+   site-hero-sub below, this opacity mute is safe unconditionally: it's set in
+   display type (--fs-display-2, 26-40px), which clears WCAG's 24px large-text
+   threshold, where 3:1 is the bar, not 4.5:1 — cobalt's full-strength white is
+   4.97:1, and .82 measures 3.87:1 here (same figure as site-hero-sub's own
+   measured mute, Task 14), comfortably above 3:1. No [data-fold] override
+   needed the way site-hero-sub and site-hero-meta below require one. */
+.site-hero-lede {
+  font-family: var(--font-display);
+  font-size: var(--fs-display-2);
+  line-height: var(--lh-display);
+  letter-spacing: var(--ls-mega);
+  margin: var(--space-4) 0 0;
+  color: inherit;
+  opacity: .82;
+}
 .site-hero-sub { margin: 0; max-width: 46ch; font-size: var(--fs-xl); line-height: var(--lh-normal); opacity: .82; text-wrap: pretty; }
 /* Same fix as .site-hero-meta below (already unmuted under a field) —
    .82 on white-on-cobalt measured 3.87:1 (Task 14, axe). */

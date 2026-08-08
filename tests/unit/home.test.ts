@@ -46,3 +46,53 @@ test('no two adjacent folds share a hue', () => {
     expect(folds[i], `${folds[i]} repeats at fold ${i}`).not.toBe(folds[i - 1]);
   }
 });
+
+test('the hero leads with the design system punchline', () => {
+  const h = html();
+  const h1 = (h.match(/<h1[^>]*>([\s\S]*?)<\/h1>/) || [])[1] || '';
+  expect(h1).toContain('Make it.');
+  expect(h1).toContain('Track it.');
+  expect(h1).toContain('Ship it.');
+});
+
+test('the keyword line survives as the lede, not the h1', () => {
+  const h = html();
+  expect(h).toContain('Manufacturing operations,');
+  const h1 = (h.match(/<h1[^>]*>([\s\S]*?)<\/h1>/) || [])[1] || '';
+  expect(h1).not.toContain('Manufacturing operations');
+});
+
+test('title and description are still byte-identical to the old page', () => {
+  const h = html();
+  expect(h).toContain('<title>Manuva — Manufacturing operations, finally simple</title>');
+  expect(h).toContain(
+    'Inventory, BOMs, work orders, and stock control — connected, live, and built for the floor. The simpler alternative to legacy MRP for Shopify manufacturers.',
+  );
+});
+
+test('lime highlights the middle clause as a background, never as text colour', () => {
+  const h = html();
+  const h1 = (h.match(/<h1[^>]*>([\s\S]*?)<\/h1>/) || [])[1] || '';
+  expect(h1).toContain('var(--field-lime)');
+  expect(h1).not.toMatch(/color:\s*var\(--field-lime\)/);
+});
+
+test('the marquee declares its fold so adjacency checks can see it', () => {
+  expect(html()).toMatch(/data-fold="lime"/);
+});
+
+test('no two adjacent folds share a hue, marquee included', () => {
+  const folds = [...html().matchAll(/data-fold="([a-z]+)"/g)].map((m) => m[1]);
+  expect(folds.length).toBeGreaterThan(4);
+  for (let i = 1; i < folds.length; i++) {
+    expect(folds[i], `${folds[i]} repeats at fold ${i}`).not.toBe(folds[i - 1]);
+  }
+});
+
+test('lime never touches mint again', () => {
+  const folds = [...html().matchAll(/data-fold="([a-z]+)"/g)].map((m) => m[1]);
+  for (let i = 1; i < folds.length; i++) {
+    const pair = [folds[i - 1], folds[i]].sort().join('+');
+    expect(pair, `greens touching at fold ${i}`).not.toBe('lime+mint');
+  }
+});
