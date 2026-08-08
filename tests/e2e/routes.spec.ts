@@ -86,3 +86,44 @@ test('every cross-page "/path#id" anchor resolves to a real id on its target rou
   }
   expect(failures, `dead cross-page anchor(s): ${failures.join(', ')}`).toEqual([]);
 });
+
+// --- third-party isolation on load ------------------------------------------
+//
+// Nothing on this site should phone home to a third party before a visitor
+// has interacted with it. fonts.googleapis.com/fonts.gstatic.com is the one
+// known, currently-live exception — Base.astro still loads Google Fonts
+// because _ds/tokens/fonts-selfhost.css (MVBOLD-3) hasn't landed yet — and
+// it's reported as a blocking item in task-6-report.md, not silently waved
+// through here. Any other cross-origin request on load is a regression this
+// suite should catch (e.g. a YouTube facade firing its iframe eagerly
+// instead of on click, or an analytics/CDN script sneaking back in).
+test.describe('no third-party contact before interaction', () => {
+  for (const route of ALL_ROUTES) {
+    test(`${route} makes no cross-origin request on load`, async ({ page }) => {
+      const external: string[] = [];
+      page.on('request', (r) => {
+        const url = new URL(r.url());
+        if (!['localhost', '127.0.0.1'].includes(url.hostname)) external.push(r.url());
+      });
+      await page.goto(route, { waitUntil: 'networkidle' });
+      // fonts.googleapis.com is the known, accepted gap until fonts-selfhost.css
+      // lands (MVBOLD-3). Everything else is a regression.
+      const unexpected = external.filter((u) => !/fonts\.(googleapis|gstatic)\.com/.test(u));
+      expect(unexpected, `unexpected third-party requests: ${unexpected.join(', ')}`).toEqual([]);
+    });
+  }
+});
+
+// The home page's explainer video is self-hosted (mode "self", not a
+// YouTube facade), so its regression shape is different: not a cross-origin
+// leak, but the browser eagerly fetching the same-origin .mp4's bytes before
+// a visitor has asked for them. <video preload="none"> plus the poster
+// still-frame is what's supposed to prevent that.
+test('the home page transfers no video bytes until play', async ({ page }) => {
+  const videoReqs: string[] = [];
+  page.on('request', (r) => { if (/\.mp4/.test(r.url())) videoReqs.push(r.url()); });
+  await page.goto('/', { waitUntil: 'networkidle' });
+  expect(videoReqs, 'video fetched on load').toEqual([]);
+  await page.locator('.site-video-play').first().click();
+  await expect.poll(() => videoReqs.length).toBeGreaterThan(0);
+});

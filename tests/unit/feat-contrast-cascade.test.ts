@@ -114,6 +114,25 @@ function parseCompound(part: string): CompoundPart {
     excludedAttrs.push(attr);
     return '';
   });
+  // Task 6 (verification pass), documenting a gap left by Task 4 rather than
+  // fixing it: `main > section:nth-child(even of :not([data-fold]))` (site.css)
+  // parses without throwing, but only by accident, and NOT because this
+  // function understands `:nth-child(An+B of S)`. The `:not([attr])` regex
+  // above matches `:not([data-fold])` WHEREVER it appears in the compound,
+  // including nested inside `:nth-child(even of ...)` — it doesn't know it's
+  // inside a different pseudo-class's argument. That strips the same
+  // "data-fold" token this regex would strip from a bare
+  // `section:not([data-fold])`, leaving `section:nth-child(even of )` behind,
+  // which then parses to the exact same { tag: 'section', excludedAttrs:
+  // ['data-fold'] } shape as the unconditional rule beside it — the "even"
+  // positional condition (only every second matching sibling) is silently
+  // discarded, not modelled. `resolve()` therefore cannot distinguish this
+  // rule from `main > section:not([data-fold])` at all: both match every
+  // fold-less section, not just the even ones, so a future test that
+  // actually resolves a <section> background under this rule would get a
+  // false pass/fail indistinguishable from the unconditional sibling rule.
+  // Harmless today only because no existing test resolves a background
+  // through this specific selector — extend with care.
   const requiredClasses = [...withoutNots.matchAll(/\.([\w-]+)/g)].map((mm) => mm[1]);
   const requiredAttrs = [...withoutNots.matchAll(/\[([\w-]+)\]/g)].map((mm) => mm[1]);
   const tagMatch = withoutNots.match(/^([a-zA-Z][\w-]*)/);

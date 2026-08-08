@@ -35,9 +35,18 @@ const SHOTS = [
 // scroll down and finds no screen for either. Rewritten so "real screens"
 // only names the three domains that have one; Purchasing and the audit
 // trail are still named, just not as things you'll see a screen of.
+//
+// Task 6 (verification pass): DESCRIPTION originally joined both halves
+// with ", plus" into one sentence — "real screens for inventory, BOMs and
+// production, plus purchasing and the audit trail behind every change." A
+// SERP snippet skim reads left to right with no visual break, so that
+// clause reads as one flat list of five things under "real screens", the
+// exact claim Ruling 1 already fixed once in the lede below (which uses a
+// full stop for the same split, not a comma). Given a hard break here too,
+// matching the lede's own second-sentence wording.
 const TITLE = 'Product Tour — Manuva';
 const DESCRIPTION =
-  'See Manuva in action — real screens for inventory, BOMs and production, plus purchasing and the audit trail behind every change.';
+  'See Manuva in action — real screens for inventory, BOMs and production. Purchasing and the audit trail live here too.';
 
 // BreadcrumbList — not in the brief's page skeleton (which passed no
 // `schema` prop to <Base> at all), added because tests/unit/seo.test.ts
