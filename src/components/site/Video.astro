@@ -22,31 +22,45 @@ const label = title ? `Play video: ${title}` : 'Play video';
 const mode = src ? 'self' : youtubeId ? 'facade' : 'still';
 ---
 <figure class:list={['site-video', className]} data-mode={mode}>
-  {mode === 'self' && (
-    <>
-      <video class="site-video-el" preload="none" poster={poster} controls playsinline>
-        <source src={src} type="video/mp4" />
-      </video>
-      <img class="site-video-poster" src={poster} alt={alt} loading="lazy" decoding="async" />
-      <button type="button" class="site-video-play" aria-label={label}>
-        <span aria-hidden="true">▶</span>
-      </button>
-    </>
-  )}
+  {/* .site-video-frame, not the outer <figure>, is the positioning context for
+      poster/play — see .site-video-frame in site.css. The poster is
+      position:absolute; inset:0; height:100%, sized to its containing block's
+      own content height. When the containing block was the figure itself, a
+      <figcaption> sibling stretched that content height past the video's own,
+      and the poster (being out-of-flow) covered the extra space the caption
+      sat in — painting over it regardless of DOM order, since CSS's painting
+      order puts positioned elements after non-positioned in-flow siblings no
+      matter where either sits in the source (Task 3 fix round; caught by
+      measuring real elementFromPoint() hits, not by reading the opacity the
+      cascade resolved). Scoping the frame to just the visual elements makes
+      that geometrically impossible instead of relying on stacking order. */}
+  <div class="site-video-frame">
+    {mode === 'self' && (
+      <>
+        <video class="site-video-el" preload="none" poster={poster} controls playsinline>
+          <source src={src} type="video/mp4" />
+        </video>
+        <img class="site-video-poster" src={poster} alt={alt} loading="lazy" decoding="async" />
+        <button type="button" class="site-video-play" aria-label={label}>
+          <span aria-hidden="true">▶</span>
+        </button>
+      </>
+    )}
 
-  {mode === 'facade' && (
-    <>
-      <img class="site-video-poster" src={poster} alt={alt} loading="lazy" decoding="async" />
-      <button type="button" class="site-video-play" aria-label={label}
-              data-youtube-id={youtubeId} data-youtube-title={title ?? ''}>
-        <span aria-hidden="true">▶</span>
-      </button>
-    </>
-  )}
+    {mode === 'facade' && (
+      <>
+        <img class="site-video-poster" src={poster} alt={alt} loading="lazy" decoding="async" />
+        <button type="button" class="site-video-play" aria-label={label}
+                data-youtube-id={youtubeId} data-youtube-title={title ?? ''}>
+          <span aria-hidden="true">▶</span>
+        </button>
+      </>
+    )}
 
-  {mode === 'still' && (
-    <img class="site-video-poster" src={poster} alt={alt} loading="lazy" decoding="async" />
-  )}
+    {mode === 'still' && (
+      <img class="site-video-poster" src={poster} alt={alt} loading="lazy" decoding="async" />
+    )}
+  </div>
 
   {title && <figcaption class="site-video-caption">{title}</figcaption>}
 </figure>
@@ -55,6 +69,11 @@ const mode = src ? 'self' : youtubeId ? 'facade' : 'still';
   document.querySelectorAll('.site-video').forEach((fig) => {
     const btn = fig.querySelector<HTMLButtonElement>('.site-video-play');
     if (!btn) return;
+    // .site-video-frame, not the figure, holds the visual (video/poster/
+    // button) elements — see the markup comment above. Replacements go into
+    // it, not the figure, so a caption sibling never ends up back inside the
+    // positioned frame.
+    const frame = fig.querySelector('.site-video-frame') ?? fig;
 
     const ytId = btn.dataset.youtubeId;
 
@@ -67,9 +86,9 @@ const mode = src ? 'self' : youtubeId ? 'facade' : 'still';
         iframe.allow = 'accelerometer; autoplay; encrypted-media; picture-in-picture';
         iframe.setAttribute('allowfullscreen', '');
         iframe.className = 'site-video-el';
-        fig.querySelector('.site-video-poster')?.remove();
+        frame.querySelector('.site-video-poster')?.remove();
         btn.remove();
-        fig.prepend(iframe);
+        frame.prepend(iframe);
         iframe.focus();
         return;
       }
