@@ -201,11 +201,14 @@ a[href$="features#purchasing"] .site-tile-chip { background: rgb(255 255 255 / .
    Four consecutive sections on the home page previously ran 3,380px with
    no division at all, and /pricing plus both /alternatives/ pages ran five.
 
-   `of :not([data-fold])` counts only paper sections, so field bands neither
-   break the alternation nor consume a position. CSS cannot restart a
-   positional count mid-list, so the alternation is global per page rather
-   than resetting at each band — deterministic, and every boundary still
-   shows. Needs Chrome 111 / Firefox 113 / Safari 9 for the `of S` syntax. */
+   `of :not([data-fold])` counts every `main` child matching that selector —
+   in practice every non-field section, since every direct child of `main`
+   on the marketing routes is a `<section>` (true today, not guaranteed by
+   the selector itself) — so field bands neither break the alternation nor
+   consume a position. CSS cannot restart a positional count mid-list, so
+   the alternation is global per page rather than resetting at each band —
+   deterministic, and every boundary still shows. Needs Chrome 111 /
+   Firefox 113 / Safari 9 for the `of S` syntax. */
 main > section:not([data-fold]) { background: var(--field-paper); }
 main > section:nth-child(even of :not([data-fold])) { background: var(--bg-card); }
 main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px solid var(--stroke); }
@@ -353,10 +356,6 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
 .site-integrations-label { margin: 0 0 var(--space-8); color: var(--ink-faint); }
 .site-integrations-logos { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: var(--space-8) var(--space-10); }
 .site-integrations-name { font-family: var(--font-display); font-size: var(--fs-xl); font-weight: var(--fw-semibold); color: var(--ink-muted); }
-
-/* --- home: product shot --- */
-.site-shot { background: var(--tint-cobalt); display: grid; justify-items: center; text-align: center; }
-.site-shot img { width: 100%; height: auto; display: block; border-radius: var(--radius-tile); box-shadow: var(--shadow-lg); }
 
 .site-section-sub { max-width: 60ch; font-size: var(--fs-lg); line-height: var(--lh-normal); opacity: .8; margin: var(--space-4) 0 var(--space-12); }
 .site-section-footer { text-align: center; margin: var(--space-10) 0 0; }

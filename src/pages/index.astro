@@ -286,10 +286,17 @@ const schema = [
     <div class="site-explainer-inner">
       <span class="mv-eyebrow">See it in 32 seconds</span>
       <h2 class="mv-display site-explainer-title">What Manuva actually does.</h2>
+      {/* alt describes the poster image itself (title card, black background,
+          "MANUFACTURING OPERATIONS SOFTWARE / What is Manuva?"), not the
+          video's own 32-second content — the two aren't the same thing, and
+          alt text on a poster <img> is read before anyone presses play.
+          Written against the brief's assumed 3s frame, which showed product
+          screens mid-fade; never revisited when the real extraction moved to
+          1s (Task 1) for a clean title card instead (review round 3, I3). */}
       <Video
         src="/video/explainer.mp4"
         poster="/video/explainer-poster.jpg"
-        alt="Manuva's dashboard, inventory list and production board in sequence"
+        alt="Manuva title card reading Manufacturing operations software — What is Manuva?"
         title="What is Manuva"
         class="site-explainer-video"
       />

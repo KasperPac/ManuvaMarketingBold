@@ -44,9 +44,16 @@ const SHOTS = [
 // exact claim Ruling 1 already fixed once in the lede below (which uses a
 // full stop for the same split, not a comma). Given a hard break here too,
 // matching the lede's own second-sentence wording.
+//
+// Review round 3 (C1, Critical): "production" was still in the "real
+// screens" clause here and in the lede below. Its own card poster was a
+// crop of the dashboard's Orders queue (sales orders), not a production
+// board — no screenshot of Production Planning exists among the three
+// shots. Corrected the card (domains.ts) and this copy together: only
+// inventory and BOMs have a real screen now.
 const TITLE = 'Product Tour — Manuva';
 const DESCRIPTION =
-  'See Manuva in action — real screens for inventory, BOMs and production. Purchasing and the audit trail live here too.';
+  'See Manuva in action — real screens for inventory and BOMs. Production, purchasing and the audit trail live here too.';
 
 // BreadcrumbList — not in the brief's page skeleton (which passed no
 // `schema` prop to <Base> at all), added because tests/unit/seo.test.ts
@@ -78,8 +85,8 @@ const schema = [
     <div class="mv-wrap">
       <h1 class="mv-display">The product. Not a pitch.</h1>
       <p class="site-product-lede">
-        Real screens from a real account — inventory, bills of materials and production, exactly as they run.
-        Purchasing and the audit trail live here too, underneath every change.
+        Real screens of inventory and bills of materials, exactly as they run. Production, purchasing and the
+        audit trail live here too, underneath every change.
       </p>
     </div>
   </section>
@@ -100,10 +107,13 @@ const schema = [
   {/* Five domain cards. Each blurb is lifted from the source named in its
       `source` field — nothing composed. A card shows its video when one is
       uploaded and its still until then; a card with no matching screenshot
-      (Purchasing, Audit) shows no image at all rather than a proxy one —
-      author's ruling, post-review: a screenshot that doesn't depict what
-      its heading claims is the visual equivalent of an invented blurb, the
-      exact failure class this project has refused twice already. No
+      (Production, Purchasing, Audit) shows no image at all rather than a
+      proxy one — author's ruling, post-review: a screenshot that doesn't
+      depict what its heading claims is the visual equivalent of an
+      invented blurb, the exact failure class this project has refused
+      three times now (Production's own card shipped a sales-orders crop
+      under this same rule until review round 3 caught it — see
+      domains.ts). No
       caption on any card either — the heading already names the domain;
       `title` is still passed to Video for the play button's accessible
       name (relevant once a real category video exists), `caption={false}`

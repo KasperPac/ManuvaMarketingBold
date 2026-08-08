@@ -29,16 +29,30 @@ test('Logistics does not appear — it has no source', () => {
   expect(DOMAINS.map((d) => d.slug)).not.toContain('logistics');
 });
 
-test('every domain blurb traces to its declared source', () => {
+test('every domain blurb is a literal substring of its declared source, not recombined vocabulary', () => {
+  // Review round 3, I4: the original version of this test only checked that
+  // each individual word of length > 5 appeared SOMEWHERE in the source —
+  // a bag-of-words membership check. Any recombination of words already
+  // present in llms.txt/features.html (an invented blurb built from
+  // recycled vocabulary, e.g. "Multi-warehouse stocktake with bin/aisle
+  // ledger tracking") would pass that version even though it was never
+  // written by anyone at the source. The blurbs really are exact lifts —
+  // that was established by a reviewer reading them, which belongs in the
+  // suite, not just in a report. This version asserts the actual claim:
+  // the whole blurb (normalised for case and whitespace only — no
+  // word-level reconstruction) is a literal run of text from the source.
   const sources = {
-    'llms.txt': oldSrc('llms.txt').toLowerCase(),
-    'features.html': oldSrc('features.html').toLowerCase().replace(/<[^>]*>/g, ' '),
+    'llms.txt': oldSrc('llms.txt').toLowerCase().replace(/\s+/g, ' '),
+    'features.html': oldSrc('features.html').toLowerCase().replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' '),
   };
   for (const d of DOMAINS) {
-    // Every content word of length > 5 must appear somewhere in the declared source.
-    const words = d.blurb.toLowerCase().match(/[a-z]{6,}/g) || [];
-    const missing = words.filter((w) => !sources[d.source].includes(w));
-    expect(missing, `${d.name}: ${missing.join(', ')} not in ${d.source}`).toEqual([]);
+    // Strip a single trailing period (added to every llms.txt-sourced blurb
+    // to read as a complete sentence; the source's own bullet fragments
+    // don't end in one) — harmless for the one features.html blurb, whose
+    // own sentence does end in a period in the source: a shorter substring
+    // is still found wherever the longer one is.
+    const normalized = d.blurb.toLowerCase().replace(/\s+/g, ' ').replace(/\.$/, '');
+    expect(sources[d.source], `${d.name}: not a literal substring of ${d.source}`).toContain(normalized);
   }
 });
 
@@ -75,12 +89,16 @@ test('a domain with a poster but no video renders a still and no play control', 
   expect(stills).toBe(withPosterNoVideo.length);
 });
 
-test('Purchasing and Audit render with no image — no proxy screenshot standing in for a screen that was never captured', () => {
+test('Production, Purchasing and Audit render with no image — no proxy screenshot standing in for a screen that was never captured', () => {
+  // Review round 3, C1: Production joined this list. Its own poster had
+  // been a crop of the dashboard's Orders queue (sales orders) — a real
+  // screenshot, but not of production, the exact defect this rule exists
+  // to catch. Corrected in domains.ts rather than excused as "close enough".
   const withoutPoster = DOMAINS.filter((d) => !d.poster).map((d) => d.slug);
-  expect(withoutPoster).toEqual(['purchasing', 'audit']);
+  expect(withoutPoster).toEqual(['production', 'purchasing', 'audit']);
   const h = html();
   // Exactly one <figure class="site-video"> per domain that has a poster —
-  // none for the two that don't.
+  // none for the three that don't.
   const videoFigures = (h.match(/class="site-video"/g) || []).length;
   expect(videoFigures).toBe(DOMAINS.filter((d) => d.poster).length);
 });
@@ -93,7 +111,12 @@ test('no domain card shows a visible caption — its own heading already names i
 });
 
 test('no page markup references youtube before a click', () => {
-  expect(html()).not.toMatch(/(src|href)="[^"]*youtu/);
+  // Broadened to match video.test.ts's own guard (review round 3 minor):
+  // (src|href) only checks two attribute names, so e.g. a stray
+  // poster="https://img.youtube.com/..." would slip past this version
+  // while still being a real pre-click YouTube reference. Any attribute
+  // value containing "youtu" is the actual invariant.
+  expect(html()).not.toMatch(/="[^"]*youtu[^"]*"/);
 });
 
 test('the head values are present and authored deliberately', () => {

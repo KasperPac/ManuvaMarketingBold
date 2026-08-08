@@ -19,12 +19,15 @@ interface DomainBase {
  * (post-review) is that a proxy screenshot under a heading it doesn't
  * depict is the visual equivalent of an invented blurb — this project has
  * refused to invent copy in every task across two passes, and a mismatched
- * image is the same failure in a different medium. Purchasing and Audit
- * have no matching screen among the three existing product screenshots, so
- * they carry neither field and the card renders colour, icon, name and
- * blurb only. Modelled as a union rather than two independent optionals so
- * the compiler — not just today's data — enforces the pairing; see
- * product.astro's card, which narrows on `d.poster` with no assertion. */
+ * image is the same failure in a different medium. Production, Purchasing
+ * and Audit have no matching screen among the three existing product
+ * screenshots (review round 3 corrected Production's own entry, which had
+ * shipped a sales-orders crop under this exact rule — see its own comment
+ * below), so they carry neither field and the card renders colour, icon,
+ * name and blurb only. Modelled as a union rather than two independent
+ * optionals so the compiler — not just today's data — enforces the
+ * pairing; see product.astro's card, which narrows on `d.poster` with no
+ * assertion. */
 export type Domain = DomainBase &
   ({ poster: string; posterAlt: string } | { poster?: undefined; posterAlt?: undefined });
 
@@ -46,7 +49,12 @@ export const DOMAINS: Domain[] = [
       'Real-time component and finished-goods tracking, movements ledger, stocktake, bin/aisle locations, multi-warehouse.',
     source: 'llms.txt',
     poster: '/video/poster-inventory.jpg',
-    posterAlt: 'Manuva inventory list showing stock on hand across warehouses',
+    // Describes what the crop actually shows — the dashboard Overview (KPI
+    // tiles, trend charts, low-stock alerts), not a list and not scoped to
+    // a warehouse. The old alt described content the image never had
+    // (review round 3, I2); this card's own screen doesn't literally show
+    // a "list" any more than it shows "warehouses", so neither survives.
+    posterAlt: 'Manuva dashboard overview showing inventory value, fulfilment rate, and low-stock alerts',
   },
   {
     slug: 'boms',
@@ -72,8 +80,14 @@ export const DOMAINS: Domain[] = [
     blurb:
       'Issue work orders, allocate components, track runs from start to finish, shop floor view.',
     source: 'llms.txt',
-    poster: '/video/poster-production.jpg',
-    posterAlt: 'Manuva production board showing work orders in progress',
+    // No poster (review round 3, C1 — corrected, not merely reworded): the
+    // crop this card originally shipped was the dashboard's "Live Queue /
+    // Open orders" panel — real order numbers (#AC-1178 etc.), but sales
+    // orders from the Orders module, not production runs. The sidebar in
+    // that same screenshot lists "Orders" and "Production Planning" as
+    // separate nav items; no screenshot among the three shows the latter.
+    // Joins Purchasing and Audit under the same ruling — see the Domain
+    // interface comment.
   },
   {
     slug: 'purchasing',
