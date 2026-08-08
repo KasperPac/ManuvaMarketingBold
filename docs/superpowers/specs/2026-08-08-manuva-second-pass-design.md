@@ -194,10 +194,19 @@ load, defeating the facade.
 Consecutive paper sections alternate `--field-paper` `#FAFAF9` and `--bg-card`
 `#FFFFFF`, with a `--stroke` hairline at each boundary.
 
-**The alternation restarts at each field band, and the first paper section after one
-takes `--field-paper`.** So a run reads paper, card, paper, card. Stated explicitly
-because "alternate" alone does not say which end it starts from, and two pages
-starting on opposite feet would look like a bug.
+**Amended during planning.** The original wording said the alternation restarts at
+each field band. CSS cannot reset a positional count mid-list — there is no
+mechanism for "start counting again here" — so that would have required either a
+per-page class assignment or a chain of sibling selectors of unbounded length.
+
+The rule is therefore **global alternation across each page's paper sections**,
+using `:nth-child(… of :not([data-fold]))`. The first paper section on a page takes
+`--field-paper`, the next `--bg-card`, and so on, ignoring where field bands fall
+between them. Deterministic, one rule, and it meets the intent — every section
+boundary is visible.
+
+Browser floor: the `of S` syntax needs Chrome 111, Firefox 113 or Safari 9. All
+well past.
 
 The hairline sits on the **top** edge of each paper section except the first in a
 run — a rule on every boundary including the one against a field band would draw a
