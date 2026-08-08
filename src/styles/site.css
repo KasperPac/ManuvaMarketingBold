@@ -245,15 +245,64 @@ a[href$="features#purchasing"] .site-tile-chip { background: rgb(255 255 255 / .
    no-op everywhere it currently does. `min(14ch, 100%)` keeps the original
    14ch ceiling on wide screens (confirmed unchanged there) while capping it
    at the container's real width below that. */
-.site-hero-title { font-size: var(--fs-display-6); width: min(14ch, 100%); overflow-wrap: break-word; }
+/* Round 2 (team-lead review, reproduced at 1918px): the three-clause punchline
+   ("Make it. Track it. Ship it.") replaced the old two-clause headline this
+   14ch/100% budget was tuned for, and was never revisited. Two distinct
+   defects, both from the same root cause — `min(14ch, 100%)` almost always
+   resolves to the *100%* branch (measured: the "14ch" ceiling only binds, and
+   only ties with 100%, at the very widest breakpoints once `.mv-wrap`'s own
+   max-width caps growth) — so raising the ch count alone is a no-op; the
+   container's real available width has to grow instead.
+     - Wide screens (1280-1920px): the balance point `text-wrap: balance`
+       picked, given only that container width, fell inside .site-hero-mark
+       ("Track it."), and box-decoration-break: clone painted two disconnected
+       lime pills on a diagonal. Fixed by .site-hero-mark's own
+       `white-space: nowrap` below — makes the span one atomic token the
+       line-breaker can place but never split, independent of this width.
+     - Narrow screens (measured at 320px): .site-hero-panel's own padding
+       (--space-16 each side) leaves only 128px of real content width at this
+       viewport — less than "Make" alone needs (135px, measured directly via
+       an offscreen probe span using the h1's real computed font/variation/
+       tracking, not estimated), so overflow-wrap: break-word split the word
+       itself ("Mak" / "e it.", photographed). nowrap doesn't touch this —
+       "Make it." isn't inside the mark. The `+ var(--space-8)` bleed below
+       reclaims 32px of the panel's own right-side padding for the title only
+       (grid's `minmax(0, ...)` track sizing means an item wider than its
+       column overflows the column, not the reverse, so this doesn't disturb
+       any other hero element's layout) — 128px + 32px = 160px, comfortably
+       above the 135px "Make" needs, still nowhere near the 288px it'd take
+       to reach the panel's own outer edge. Verified empirically (not just
+       computed) across 320/360/375/414/768/1024/1280/1440/1920px: no
+       mid-word breaks, .site-hero-mark reports exactly one client rect at
+       every width, and the extra 32px never reintroduces page-level
+       horizontal overflow (tests/e2e/responsive.spec.ts covers both). */
+.site-hero-title {
+  font-size: var(--fs-display-6);
+  width: calc(min(14ch, 100%) + var(--space-8));
+  overflow-wrap: break-word;
+}
 /* Fill (background/color) is set inline in index.astro, not here — the
    copy-parity/lime tests read dist/index.html as a string and can't see an
    external stylesheet rule. This class only carries the shape: padding,
    radius, and the box-decoration-break that keeps the highlight intact when
    the headline wraps. */
+/* white-space: nowrap is the actual fix for the split-pill defect (team-lead
+   review, round 2, reproduced and photographed at 1918px: two disconnected
+   lime rects on a diagonal, "Make it. Track / it. Ship it."). text-wrap:
+   balance (from .mv-display) picks its break point from container width
+   alone, with no awareness that this span is one visual unit — at several
+   widths the balance point landed inside "Track it.", and
+   box-decoration-break: clone faithfully painted both fragments as separate
+   pills. nowrap makes the browser treat the whole span as a single
+   unbreakable token: the line-breaker can still put it on whichever line
+   fits, it just can never split inside it. This is viewport-independent —
+   it doesn't depend on tuning any width to the right number — verified by
+   tests/e2e/responsive.spec.ts asserting getClientRects().length === 1 at
+   320/375/414/768/1024/1280/1440/1920px. */
 .site-hero-mark {
   padding: 0 .12em .06em;
   border-radius: var(--radius-lg);
+  white-space: nowrap;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }

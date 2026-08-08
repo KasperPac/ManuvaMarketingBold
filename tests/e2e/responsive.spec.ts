@@ -157,3 +157,29 @@ for (const { route, id } of ANCHOR_CASES) {
     });
   }
 }
+
+// --- hero highlight integrity ------------------------------------------------
+//
+// The regression this guards: .site-hero-title's width: min(14ch, 100%) was
+// tuned for the old two-clause headline and never revisited for the new
+// three-clause punchline. text-wrap: balance picks its break point from
+// nothing but that container width, with no awareness that one span inside
+// the heading (.site-hero-mark, "Track it.") is a single visual unit — so at
+// several widths the balance point landed inside the span, and
+// box-decoration-break: clone faithfully painted two disconnected lime pills
+// on a diagonal instead of one. Unit tests can't see this at all: the markup
+// and CSS text are unchanged, only where the browser actually lays it out.
+// getClientRects() is the one measurement that tells the truth — a span
+// broken across a line always reports more than one rect.
+const HERO_MARK_WIDTHS = [320, 375, 414, 768, 1024, 1280, 1440, 1920];
+
+for (const width of HERO_MARK_WIDTHS) {
+  test(`/ — the hero highlight never splits across a line break at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    const rectCount = await page.evaluate(
+      () => document.querySelector('.site-hero-mark')!.getClientRects().length,
+    );
+    expect(rectCount, `.site-hero-mark painted ${rectCount} rects at ${width}px, expected 1`).toBe(1);
+  });
+}

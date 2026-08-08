@@ -39,9 +39,12 @@ test('lime is never used as a text colour', () => {
 
 test('no two adjacent folds share a hue', () => {
   // data-fold marks fold-level colour only. Tiles are exempt: a tile grid is one
-  // composed unit with paper between every tile, so its hues never "touch".
+  // composed unit with paper between every tile, so its hues never "touch". Threshold
+  // covers the marquee's own data-fold too (cobalt, lime, aqua, amber, violet, ink,
+  // flare = 7) — this and the old "marquee included" variant were the same assertion
+  // with two different length floors, collapsed into one (team-lead review, round 2).
   const folds = [...html().matchAll(/data-fold="([a-z]+)"/g)].map((m) => m[1]);
-  expect(folds.length, 'page should declare its folds').toBeGreaterThan(2);
+  expect(folds.length, 'page should declare its folds').toBeGreaterThan(4);
   for (let i = 1; i < folds.length; i++) {
     expect(folds[i], `${folds[i]} repeats at fold ${i}`).not.toBe(folds[i - 1]);
   }
@@ -79,14 +82,6 @@ test('lime highlights the middle clause as a background, never as text colour', 
 
 test('the marquee declares its fold so adjacency checks can see it', () => {
   expect(html()).toMatch(/data-fold="lime"/);
-});
-
-test('no two adjacent folds share a hue, marquee included', () => {
-  const folds = [...html().matchAll(/data-fold="([a-z]+)"/g)].map((m) => m[1]);
-  expect(folds.length).toBeGreaterThan(4);
-  for (let i = 1; i < folds.length; i++) {
-    expect(folds[i], `${folds[i]} repeats at fold ${i}`).not.toBe(folds[i - 1]);
-  }
 });
 
 test('lime never touches mint again', () => {
