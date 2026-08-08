@@ -6,6 +6,7 @@ import Tile from '../components/site/Tile.astro';
 import Pill from '../components/site/Pill.astro';
 import Marquee from '../components/site/Marquee.astro';
 import CtaBand from '../components/site/CtaBand.astro';
+import Video from '../components/site/Video.astro';
 import Icon from '../components/ds/Icon.astro';
 import Button from '../components/ds/Button.astro';
 import { APP_URL, CONTACT_EMAIL } from '../site';
@@ -273,32 +274,36 @@ const schema = [
   {/* lime marquee — lime as a background, never as text */}
   <Marquee words={MARQUEE} />
 
-  {/* product shot on a cobalt TINT, not a field. Never a field behind a table, and
-      this is the real screenshot, not a mocked DataTable. Old page nests this
-      inside the hero itself, with no heading of its own — it's presentational,
-      given its own section here per the original brief, but not a heading we
-      have to invent to justify (both the old eyebrow "Live, not nightly" and
-      h2 "Real-time inventory" were Landing.jsx:116, sourced nowhere else). */}
-  <section class="mv-section site-shot">
-    <div class="mv-wrap">
-      <img
-        src="/screen-dashboard.png"
-        width="2080"
-        height="1090"
-        loading="lazy"
-        decoding="async"
-        alt="Manuva dashboard overview with inventory value, fulfilment rate, and open-order counts at the top, inventory trend and order metrics charts in the middle, and a live queue of open orders with low-stock alerts below."
+  {/* The explainer takes the slot the dashboard screenshot held. A static shot of
+      a UI the reader has no context for is weak work in the page's second beat;
+      a 32-second "what is Manuva" is the strongest asset available. The screenshot
+      moves to /product, where someone has chosen to look at the product.
+      Eyebrow and heading are authored here — the old page had no video section,
+      so there is nothing to move across. "32 seconds" matches the asset's real
+      runtime (public/video/explainer.mp4 probes at 32.3s via its mvhd atom); the
+      brief's own draft said "30 seconds", which doesn't match the file. */}
+  <Field field="ink" class="site-explainer">
+    <div class="site-explainer-inner">
+      <span class="mv-eyebrow">See it in 32 seconds</span>
+      <h2 class="mv-display site-explainer-title">What Manuva actually does.</h2>
+      <Video
+        src="/video/explainer.mp4"
+        poster="/video/explainer-poster.jpg"
+        alt="Manuva's dashboard, inventory list and production board in sequence"
+        title="What is Manuva"
+        class="site-explainer-video"
       />
     </div>
-  </section>
+  </Field>
 
   {/* beta strip, recoloured from mint to aqua. The marquee's move to right
       after the hero puts it back in the fold sequence ahead of this strip
-      (site-shot between them carries no data-fold of its own) — mint would
-      have repeated lime's green, the same defect one position along. Violet
-      is also out: the split panels directly above this strip are amber and
-      violet, so violet would repeat the hue of the panel above it instead.
-      Aqua is the only field left unspoken-for on this page. */}
+      (Task 3's ink explainer band now sits between them, so lime and this
+      strip are never adjacent either way) — mint would have repeated lime's
+      green, the same defect one position along. Violet is also out: the
+      split panels directly above this strip are amber and violet, so violet
+      would repeat the hue of the panel above it instead. Aqua is the only
+      field left unspoken-for on this page. */}
   <Field field="aqua" class="site-beta">
     <p class="site-beta-head"><Icon name="flask-conical" size={20} /> Beta testers get <strong>3 months of Pro — free</strong>.</p>
     <p class="site-beta-sub">Shape the roadmap with us. Tell us what features your team needs and we'll build them with you.</p>

@@ -1059,3 +1059,29 @@ a[href$="#purchasing"] .site-tile-title { color: #141413 !important; }
      review correctly flagged as too small for legal prose on a phone). */
   .site-doc p, .site-doc li { font-size: 14.5px; }
 }
+
+/* --- explainer band (Task 3) --- */
+.site-explainer-inner { display: grid; justify-items: center; text-align: center; gap: var(--space-5); }
+.site-explainer-title { font-size: var(--fs-display-3); margin: 0; max-width: 18ch; }
+.site-explainer-video { width: 100%; max-width: 900px; margin-top: var(--space-6); }
+
+.site-video { position: relative; margin: 0; border-radius: var(--radius-tile); overflow: hidden; }
+.site-video-el, .site-video-poster { display: block; width: 100%; height: auto; }
+.site-video-poster { position: absolute; inset: 0; height: 100%; object-fit: cover; }
+.site-video-play {
+  position: absolute; inset: 0; margin: auto;
+  width: 72px; height: 72px; border-radius: var(--radius-pill);
+  display: grid; place-items: center;
+  background: var(--field-lime); color: var(--on-lime);
+  border: 0; cursor: pointer; font-size: var(--fs-lg);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.site-video-play:hover { transform: scale(1.06); }
+.site-video-play:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+.site-video-caption { margin-top: var(--space-3); font-size: var(--fs-sm); color: inherit; opacity: .72; }
+/* Never opacity-mute small text on a field: same cascade fix already applied
+   to .site-feat-desc (see tests/unit/feat-contrast-cascade.test.ts) and
+   .site-compare-caption above. The explainer's own caption sits inside the
+   ink Field, so the base .72 above must not be its final value there. */
+[data-fold] .site-video-caption { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .site-video-play { transition: none; } }

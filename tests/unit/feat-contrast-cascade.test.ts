@@ -147,6 +147,18 @@ test('.site-feat-desc resolves to full opacity under a data-fold ancestor, and i
   expect(resolve(rules, onField, 'opacity'), 'under a data-fold ancestor').toBe('1');
 });
 
+// Task 3: the explainer video's <figcaption> ("What is Manuva") is the same
+// small text as .site-feat-desc, and it renders inside the ink Field the
+// video sits in — the exact case the field-opacity rule above exists for.
+// Reusing .site-video-caption's own general opacity:.72 unguarded here would
+// repeat the defect .site-feat-desc already fixed.
+test('.site-video-caption resolves to full opacity under a data-fold ancestor, and its muted value without one', () => {
+  const onPaper: VirtualEl = { classes: ['site-video-caption'], ancestorAttrs: [] };
+  const onField: VirtualEl = { classes: ['site-video-caption'], ancestorAttrs: ['data-fold'] };
+  expect(resolve(rules, onPaper, 'opacity'), 'paper (no data-fold ancestor)').toBe('.72');
+  expect(resolve(rules, onField, 'opacity'), 'under a data-fold ancestor').toBe('1');
+});
+
 test('a Pro+ tier badge keeps its --bg-card-2 backing under a data-fold ancestor, not the darkening override', () => {
   const proOnPaper: VirtualEl = { classes: ['site-feat-tier', 'site-feat-tier-pro'], ancestorAttrs: [] };
   const proOnField: VirtualEl = { classes: ['site-feat-tier', 'site-feat-tier-pro'], ancestorAttrs: ['data-fold'] };

@@ -21,10 +21,15 @@ test('ships none of the invented reference figures', () => {
   }
 });
 
-test('the product section is the screenshot, not a mocked data table', () => {
-  const h = html();
-  expect(h).toContain('screen-dashboard.png');
-  expect(h).not.toContain('mv-cell');
+// Superseded by Task 3: this test used to assert the dashboard screenshot's
+// presence in the page's second beat. That screenshot moved to /product —
+// the section it lived in is now the explainer video band (see the
+// ink-band tests below) — so asserting its presence here would directly
+// contradict 'the dashboard screenshot has left the home page for /product'.
+// The `mv-cell` invariant (never a mocked data table standing in for a real
+// screenshot) still holds project-wide, so it's kept rather than dropped.
+test('the home page never falls back to a mocked data table', () => {
+  expect(html()).not.toContain('mv-cell');
 });
 
 test('CTAs point at the app', () => {
@@ -90,4 +95,25 @@ test('lime never touches mint again', () => {
     const pair = [folds[i - 1], folds[i]].sort().join('+');
     expect(pair, `greens touching at fold ${i}`).not.toBe('lime+mint');
   }
+});
+
+test('the explainer band sits on ink directly after the hero', () => {
+  const folds = [...html().matchAll(/data-fold="([a-z]+)"/g)].map((m) => m[1]);
+  expect(folds.slice(0, 3)).toEqual(['cobalt', 'lime', 'ink']);
+});
+
+test('the explainer is self-hosted and preloads nothing', () => {
+  const h = html();
+  expect(h).toContain('/video/explainer.mp4');
+  expect(h).toContain('preload="none"');
+});
+
+test('the dashboard screenshot has left the home page for /product', () => {
+  expect(html()).not.toContain('screen-dashboard.png');
+});
+
+test('the other two product shots stay where they are', () => {
+  const h = html();
+  expect(h).toContain('screen-variant.png');
+  expect(h).toContain('screen-components.png');
 });
