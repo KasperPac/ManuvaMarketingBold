@@ -7,6 +7,7 @@ export const FIELDS = [
 export type FieldName = (typeof FIELDS)[number];
 
 export const NAV_LINKS = [
+  { href: '/product', label: 'Product' },
   { href: '/features', label: 'Features' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/alternatives/katana', label: 'Compare' },
@@ -15,6 +16,7 @@ export const NAV_LINKS = [
 
 export const FOOTER_GROUPS = [
   { heading: 'Product', links: [
+    { href: '/product', label: 'Product tour' },
     { href: '/features', label: 'Features' },
     { href: '/pricing', label: 'Pricing' },
   ] },
@@ -30,6 +32,6 @@ export const FOOTER_GROUPS = [
 ] as const;
 
 export const ALL_ROUTES = [
-  '/', '/features', '/pricing', '/about',
+  '/', '/product', '/features', '/pricing', '/about',
   '/alternatives/katana', '/alternatives/mrpeasy', '/privacy', '/terms',
 ] as const;

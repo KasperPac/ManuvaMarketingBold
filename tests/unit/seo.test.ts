@@ -46,10 +46,13 @@ test('redirects still collapse every .html variant', () => {
   }
 });
 
-test('sitemap lists exactly the eight routes, no more, no fewer', () => {
+test('sitemap lists exactly ALL_ROUTES, no more, no fewer', () => {
+  // Was hardcoded to 8 pre-Task-5; /product (no old counterpart) makes 9.
+  // Asserting ALL_ROUTES.length rather than a new literal so this stops
+  // needing a manual bump on every future route addition.
   const s = readFileSync('dist/sitemap.xml', 'utf8');
   const locs = [...s.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-  expect(locs).toHaveLength(8);
+  expect(locs).toHaveLength(ALL_ROUTES.length);
   for (const route of ALL_ROUTES) {
     expect(locs, `${canonicalFor(route)} missing from sitemap`).toContain(canonicalFor(route));
   }

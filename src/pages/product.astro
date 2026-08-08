@@ -1,0 +1,125 @@
+---
+import Base from '../layouts/Base.astro';
+import Video from '../components/site/Video.astro';
+import Icon from '../components/ds/Icon.astro';
+import CtaBand from '../components/site/CtaBand.astro';
+import { DOMAINS } from '../content/domains';
+
+const SHOTS = [
+  {
+    src: '/screen-dashboard.png',
+    alt: 'Manuva dashboard overview with inventory value, fulfilment rate, and open orders',
+    caption: 'Everything worth checking each morning, on one screen.',
+  },
+  {
+    src: '/screen-variant.png',
+    alt: 'Manuva variant detail showing versioned bills of materials with cost comparison',
+    caption: 'Two BOM versions, compared line by line.',
+  },
+  {
+    src: '/screen-components.png',
+    alt: 'Manuva component selection modal with searchable parts library',
+    caption: 'Every component, searchable, added in a click.',
+  },
+];
+
+// THE ONLY AUTHORED HEAD VALUES ON THE SITE. Every other route's title,
+// description and og:/twitter: values are byte-identical to the old page.
+// This route has no old counterpart, so these are written rather than moved
+// and must be read as copy during review, not checked against a source.
+const TITLE = 'Product Tour — Manuva';
+const DESCRIPTION =
+  'See Manuva in action — real screens for inventory, BOMs, production, purchasing, and the audit trail behind all of it.';
+
+// BreadcrumbList — not in the brief's page skeleton (which passed no
+// `schema` prop to <Base> at all), added because tests/unit/seo.test.ts
+// runs two checks unconditionally across every entry in ALL_ROUTES: "every
+// route emits at least one valid, parseable JSON-LD block" and "every route
+// except home carries a BreadcrumbList whose last crumb is its own
+// canonical URL". Without this, both fail the moment /product joins
+// ALL_ROUTES. Same shape as features.astro's own schema, the simplest
+// precedent (no FAQ/pricing data of its own to carry).
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://manuva.app/' },
+      { '@type': 'ListItem', position: 2, name: 'Product', item: 'https://manuva.app/product' },
+    ],
+  },
+];
+---
+<Base
+  title={TITLE}
+  description={DESCRIPTION}
+  twitterDescription={DESCRIPTION}
+  canonical="https://manuva.app/product"
+  {schema}
+>
+  <section class="mv-section site-product-hero">
+    <div class="mv-wrap">
+      <h1 class="mv-display">The product. Not a pitch.</h1>
+      <p class="site-product-lede">
+        Real screens from a real account — inventory, bills of materials, production orders, purchasing, and the
+        audit trail behind every change.
+      </p>
+    </div>
+  </section>
+
+  {/* The screenshots, at a size where the interface is legible. This is where
+      the dashboard belongs — someone here has chosen to look at the product. */}
+  <section class="mv-section site-product-shots">
+    <div class="mv-wrap">
+      {SHOTS.map((s) => (
+        <figure class="site-product-shot">
+          <img src={s.src} alt={s.alt} width="2080" height="1090" loading="lazy" decoding="async" />
+          <figcaption>{s.caption}</figcaption>
+        </figure>
+      ))}
+    </div>
+  </section>
+
+  {/* Five domain cards. Each blurb is lifted from the source named in its
+      `source` field — nothing composed. A card shows its video when one is
+      uploaded and its still until then.
+      data-fold={d.field}, in addition to the inline background/color style:
+      not in the brief's literal markup, but required for the card's own ink
+      to resolve correctly. Two concrete failures without it: (1) --on-flare
+      defaults to #FFFFFF (3.33:1 on flare, fails AA) and only the existing
+      [data-fold="flare"] rule (site.css, primitives section) redeclares it
+      to #141413 (5.54:1) — Tile.astro hits this same gap and works around it
+      with a manual href-scoped override because it has no data-fold hook;
+      this card does have one, so it gets the real fix instead of another
+      one-off override. (2) Video's own .site-video-caption (rendered here
+      since `title` is passed, for the play button's accessible name) is
+      opacity:.72 by default and only un-mutes under [data-fold] — exactly
+      the "never opacity-mute small text on a field" failure this brief
+      itself warns about (Task 9, first pass). */}
+  <section class="mv-section site-product-domains">
+    <div class="mv-wrap">
+      <h2 class="mv-display">Five systems. One account.</h2>
+      <div class="mv-cols-3">
+        {DOMAINS.map((d) => (
+          <article class="site-domain-card" data-fold={d.field} style={`background:var(--field-${d.field});color:var(--on-${d.field})`}>
+            <Icon name={d.icon} size={30} />
+            <h3 class="site-domain-name">{d.name}</h3>
+            <p class="site-domain-blurb">{d.blurb}</p>
+            <Video poster={d.poster} alt={d.posterAlt} youtubeId={d.youtubeId} title={d.name} />
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* heading quotes the hero h1 above verbatim — same convention as the home
+      page's own closing CtaBand, which quotes its lede. This page's copy is
+      authored, so quoting one of its own lines rather than composing a
+      second is the established way to satisfy "CtaBand's heading must quote
+      a real sentence that exists on the page, exactly". */}
+  <CtaBand
+    field="flare"
+    heading="The product. Not a pitch."
+    body="14 days free with full Pro access. No credit card required."
+  />
+</Base>

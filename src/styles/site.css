@@ -1110,3 +1110,34 @@ a[href$="#purchasing"] .site-tile-title { color: #141413 !important; }
    ink Field, so the base .72 above must not be its final value there. */
 [data-fold] .site-video-caption { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .site-video-play { transition: none; } }
+
+/* Still and facade modes render only absolutely-positioned children inside
+   .site-video-frame (.site-video-poster / .site-video-play) — unlike self
+   mode, where the in-flow <video> establishes the frame's own height from
+   its real intrinsic aspect ratio. With no in-flow content and no explicit
+   height anywhere on .site-video-frame, height:auto collapses to 0 and the
+   poster (position:absolute) never becomes visible. Never exercised before
+   Task 5: every prior <Video> use (the home page's explainer) is self mode.
+   Scoped to the two modes that actually lack in-flow content — self mode
+   already renders correctly today and is untouched. 16/9 matches both the
+   explainer's own real video (1920x1080, measured from its poster) and
+   every poster this task ships. */
+[data-mode="still"] .site-video-frame,
+[data-mode="facade"] .site-video-frame { aspect-ratio: 16 / 9; }
+
+/* --- product tour (Task 5) --- */
+.site-product-hero { text-align: center; }
+.site-product-lede { max-width: 60ch; margin: var(--space-4) auto 0; font-size: var(--fs-lg); line-height: var(--lh-normal); opacity: .82; text-wrap: pretty; }
+
+.site-product-shots .mv-wrap { display: flex; flex-direction: column; gap: var(--space-12); max-width: 960px; }
+.site-product-shot { margin: 0; }
+.site-product-shot img { width: 100%; height: auto; display: block; border-radius: var(--radius-tile); box-shadow: var(--shadow-lg); }
+.site-product-shot figcaption { margin-top: var(--space-3); text-align: center; font-size: var(--fs-sm); color: var(--ink-muted); }
+
+.site-product-domains { text-align: center; }
+.site-domain-card { padding: var(--space-6); border-radius: var(--radius-tile); display: grid; gap: var(--space-3); align-content: start; text-align: left; }
+.site-domain-name { font-size: var(--fs-lg); margin: 0; }
+/* Never opacity-mute — see the card comment in product.astro: full-strength
+   white clears AA by a hair on violet and cobalt, so any muting fails. */
+.site-domain-blurb { font-size: var(--fs-sm); color: inherit; line-height: var(--lh-normal); margin: 0; }
+.site-domain-card .site-video { margin-top: var(--space-2); }
