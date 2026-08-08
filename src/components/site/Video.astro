@@ -27,10 +27,10 @@ const mode = src ? 'self' : youtubeId ? 'facade' : 'still';
       <video class="site-video-el" preload="none" poster={poster} controls playsinline>
         <source src={src} type="video/mp4" />
       </video>
+      <img class="site-video-poster" src={poster} alt={alt} loading="lazy" decoding="async" />
       <button type="button" class="site-video-play" aria-label={label}>
         <span aria-hidden="true">▶</span>
       </button>
-      <img class="site-video-poster" src={poster} alt={alt} loading="lazy" decoding="async" />
     </>
   )}
 
