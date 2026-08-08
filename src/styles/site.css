@@ -1134,16 +1134,32 @@ a[href$="#purchasing"] .site-tile-title { color: #141413 !important; }
 .site-product-shot figcaption { margin-top: var(--space-3); text-align: center; font-size: var(--fs-sm); color: var(--ink-muted); }
 
 .site-product-domains { text-align: center; }
-/* align-content: center, not start — Purchasing and Audit carry no poster
-   (see domains.ts), so their card has less content than its row-mates.
-   CSS Grid still stretches every card in a shared row to the row's tallest
-   member by default (no align-self override on .mv-cols-3's own items);
-   top-packing the shorter card's own content inside that taller box would
-   leave dead space below the blurb, reading as broken rather than
-   deliberate. Centring distributes the surplus evenly instead — reviewed
-   live at the 2-column breakpoint, the one width where an image card and a
-   non-image card actually share a row. */
-.site-domain-card { padding: var(--space-6); border-radius: var(--radius-tile); display: grid; gap: var(--space-3); align-content: center; text-align: left; }
+/* review round 4, N2: 0px between the heading and the grid — descenders
+   touched the card tops. Every comparable heading-to-grid pairing on
+   /features measures 115px (measured: .site-feat-heading's own
+   margin-bottom, then a full .site-feat-intro paragraph, then ITS
+   margin-bottom — three stacked things). This section has no intro
+   paragraph between the heading and the grid, so there's nothing to give
+   that space for free; --space-24 is the nearest real token to the same
+   neighbourhood as a single margin. */
+.site-product-domains h2 { margin-bottom: var(--space-24); }
+/* review round 4, N1 (author's ruling, replaces round 3's align-content:
+   center): measured Production's card at 1280px+ (3 columns, so it shares
+   a row with the two image cards) — 115px of real content inside a
+   397-404px card, ~280px of dead flare. Centring the content only moved
+   where the empty space sat; it didn't remove it, and a card that's 70%
+   empty colour still reads as failed-to-load rather than deliberate.
+   align-self: start drops the default cross-axis stretch a grid item gets
+   from its row, so every card sizes to its own content instead — the
+   image-less cards are simply shorter, which is already how row 2 (both
+   currently image-less) renders with no fix at all. Row 1 goes ragged
+   (two tall, one short) instead of uniform, and every card is honestly
+   sized. NOTE: the mixed-row breakpoint moved since round 3's version of
+   this comment — after the poster removals, 3 columns (the default
+   desktop width) is the one width where an image card and a non-image
+   card actually share a row; 2 columns no longer does (both cards in its
+   one populated row-2 slot are now image-less). */
+.site-domain-card { padding: var(--space-6); border-radius: var(--radius-tile); display: grid; gap: var(--space-3); align-self: start; text-align: left; }
 .site-domain-name { font-size: var(--fs-lg); margin: 0; }
 /* Never opacity-mute — see the card comment in product.astro: full-strength
    white clears AA by a hair on violet and cobalt, so any muting fails. */
