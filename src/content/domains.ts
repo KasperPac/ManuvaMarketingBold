@@ -10,8 +10,16 @@ export interface Domain {
   source: 'llms.txt' | 'features.html';
   /** Set when the category video is uploaded. Until then the card shows a still. */
   youtubeId?: string;
-  poster: string;
-  posterAlt: string;
+  /** Optional: not every domain has a screenshot that genuinely shows its
+   * own screen. Author's ruling (post-review): a proxy screenshot under a
+   * heading it doesn't depict is the visual equivalent of an invented
+   * blurb — this project has refused to invent copy in every task across
+   * two passes, and a mismatched image is the same failure in a different
+   * medium. Omit poster/posterAlt entirely rather than show one; the card
+   * renders colour, icon, name and blurb only. Purchasing and Audit have
+   * no matching screen among the three existing product screenshots. */
+  poster?: string;
+  posterAlt?: string;
 }
 
 // Five cards, not six. "Logistics" is zero occurrences across llms.txt,
@@ -71,8 +79,9 @@ export const DOMAINS: Domain[] = [
     blurb:
       'Purchase orders, goods inwards, supplier management, lead-time tracking, PO variance reporting.',
     source: 'llms.txt',
-    poster: '/video/poster-purchasing.jpg',
-    posterAlt: 'Manuva purchase order list with supplier lead times',
+    // No poster: none of the three product screenshots shows a PO or
+    // supplier screen. The nearest available shot (the component picker
+    // modal) doesn't depict purchasing — see the Domain interface comment.
   },
   {
     slug: 'audit',
@@ -85,7 +94,9 @@ export const DOMAINS: Domain[] = [
     blurb:
       'Audit trail across every change in the system — for compliance and for sanity.',
     source: 'features.html',
-    poster: '/video/poster-audit.jpg',
-    posterAlt: 'Manuva activity log showing a chronological record of changes',
+    // No poster: none of the three product screenshots shows the activity
+    // log / audit trail itself. The nearest available shot (a revenue
+    // chart plus a low-stock panel) doesn't depict it — see the Domain
+    // interface comment.
   },
 ];

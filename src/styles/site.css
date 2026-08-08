@@ -1135,7 +1135,16 @@ a[href$="#purchasing"] .site-tile-title { color: #141413 !important; }
 .site-product-shot figcaption { margin-top: var(--space-3); text-align: center; font-size: var(--fs-sm); color: var(--ink-muted); }
 
 .site-product-domains { text-align: center; }
-.site-domain-card { padding: var(--space-6); border-radius: var(--radius-tile); display: grid; gap: var(--space-3); align-content: start; text-align: left; }
+/* align-content: center, not start — Purchasing and Audit carry no poster
+   (see domains.ts), so their card has less content than its row-mates.
+   CSS Grid still stretches every card in a shared row to the row's tallest
+   member by default (no align-self override on .mv-cols-3's own items);
+   top-packing the shorter card's own content inside that taller box would
+   leave dead space below the blurb, reading as broken rather than
+   deliberate. Centring distributes the surplus evenly instead — reviewed
+   live at the 2-column breakpoint, the one width where an image card and a
+   non-image card actually share a row. */
+.site-domain-card { padding: var(--space-6); border-radius: var(--radius-tile); display: grid; gap: var(--space-3); align-content: center; text-align: left; }
 .site-domain-name { font-size: var(--fs-lg); margin: 0; }
 /* Never opacity-mute — see the card comment in product.astro: full-strength
    white clears AA by a hair on violet and cobalt, so any muting fails. */

@@ -75,3 +75,21 @@ test('supplying both src and youtubeId fails loudly rather than picking one', as
   await expect(render({ ...BASE, src: '/v.mp4', youtubeId: 'abc' }))
     .rejects.toThrow(/both/i);
 });
+
+// caption vs title: separate concerns. `title` always feeds the play
+// button's accessible name whenever there's a control to press; `caption`
+// controls only whether that same name also renders as a visible
+// <figcaption>. Task 5's product domain cards want the former without the
+// latter (the heading above already names the card; a repeated caption
+// under the poster was a real defect a reviewer caught). The home page's
+// explainer wants both, unchanged — hence caption defaulting to true.
+test('caption=false suppresses the visible figcaption but keeps the accessible name', async () => {
+  const html = await render({ ...BASE, src: '/video/explainer.mp4', title: 'What is Manuva', caption: false });
+  expect(html).not.toContain('site-video-caption');
+  expect(html).toMatch(/aria-label="Play video: What is Manuva"/);
+});
+
+test('caption defaults to true — every caller before Task 5 keeps its existing output', async () => {
+  const html = await render({ ...BASE, src: '/video/explainer.mp4', title: 'What is Manuva' });
+  expect(html).toContain('<figcaption class="site-video-caption">What is Manuva</figcaption>');
+});

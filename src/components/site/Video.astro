@@ -7,10 +7,23 @@ export interface Props {
   src?: string;
   /** Facade mode. Mutually exclusive with src. */
   youtubeId?: string;
+  /** Names the video for the play button's accessible name ("Play video:
+   * {title}") whenever there's a control to press — self and facade modes
+   * only; still mode has no button. Independent of `caption` below: a
+   * video with a control always needs an accessible name, but doesn't
+   * always want that same name repeated visibly under the poster (Task 5:
+   * product.astro's domain cards already carry the name as their own
+   * heading immediately above the video — a visible caption there just
+   * duplicated it. The home page's explainer has no such heading and
+   * wants the caption). */
   title?: string;
+  /** Whether `title` also renders as a visible <figcaption>. Defaults to
+   * true so every caller that predates this prop (the home page's
+   * explainer) keeps its exact existing output unchanged. */
+  caption?: boolean;
   class?: string;
 }
-const { poster, alt, src, youtubeId, title, class: className } = Astro.props;
+const { poster, alt, src, youtubeId, title, caption = true, class: className } = Astro.props;
 
 if (src && youtubeId) {
   throw new Error(
@@ -62,7 +75,7 @@ const mode = src ? 'self' : youtubeId ? 'facade' : 'still';
     )}
   </div>
 
-  {title && <figcaption class="site-video-caption">{title}</figcaption>}
+  {title && caption && <figcaption class="site-video-caption">{title}</figcaption>}
 </figure>
 
 <script>

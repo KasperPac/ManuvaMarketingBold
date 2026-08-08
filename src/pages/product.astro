@@ -82,7 +82,15 @@ const schema = [
 
   {/* Five domain cards. Each blurb is lifted from the source named in its
       `source` field — nothing composed. A card shows its video when one is
-      uploaded and its still until then.
+      uploaded and its still until then; a card with no matching screenshot
+      (Purchasing, Audit) shows no image at all rather than a proxy one —
+      author's ruling, post-review: a screenshot that doesn't depict what
+      its heading claims is the visual equivalent of an invented blurb, the
+      exact failure class this project has refused twice already. No
+      caption on any card either — the heading already names the domain;
+      `title` is still passed to Video for the play button's accessible
+      name (relevant once a real category video exists), `caption={false}`
+      just stops it from also rendering as visible text under the poster.
       data-fold={d.field}, in addition to the inline background/color style:
       not in the brief's literal markup, but required for the card's own ink
       to resolve correctly. Two concrete failures without it: (1) --on-flare
@@ -91,11 +99,11 @@ const schema = [
       to #141413 (5.54:1) — Tile.astro hits this same gap and works around it
       with a manual href-scoped override because it has no data-fold hook;
       this card does have one, so it gets the real fix instead of another
-      one-off override. (2) Video's own .site-video-caption (rendered here
-      since `title` is passed, for the play button's accessible name) is
-      opacity:.72 by default and only un-mutes under [data-fold] — exactly
-      the "never opacity-mute small text on a field" failure this brief
-      itself warns about (Task 9, first pass). */}
+      one-off override. (2) Video's own .site-video-caption is opacity:.72
+      by default and only un-mutes under [data-fold] — moot now that no card
+      shows a caption, but the fix stays: any future field-scoped Video text
+      here (the alt text, the caption if a domain's copy ever needs one)
+      inherits the same correct behaviour for free. */}
   <section class="mv-section site-product-domains">
     <div class="mv-wrap">
       <h2 class="mv-display">Five systems. One account.</h2>
@@ -105,7 +113,7 @@ const schema = [
             <Icon name={d.icon} size={30} />
             <h3 class="site-domain-name">{d.name}</h3>
             <p class="site-domain-blurb">{d.blurb}</p>
-            <Video poster={d.poster} alt={d.posterAlt} youtubeId={d.youtubeId} title={d.name} />
+            {d.poster && <Video poster={d.poster} alt={d.posterAlt!} youtubeId={d.youtubeId} title={d.name} caption={false} />}
           </article>
         ))}
       </div>
