@@ -554,7 +554,7 @@ git commit -m "feat(MVBOLD-5): explainer video takes the home page's second beat
 
 ---
 
-### Task 4: Section division, site-wide
+### Task 4: Section division across the marketing routes
 
 **Files:**
 - Modify: `src/styles/site.css`
@@ -564,14 +564,29 @@ git commit -m "feat(MVBOLD-5): explainer video takes the home page's second beat
 - Consumes: nothing.
 - Produces: nothing.
 
+**Must run after Task 3.** `.site-shot` sets `background: var(--tint-cobalt)` at
+specificity (0,1,0); this task's `main > section:not([data-fold])` is (0,1,1) and
+would override it, silently flattening the product-shot section's tint to paper.
+Task 3 removes that section entirely, so running in order avoids the collision.
+It is the only section-level background set by a class — every other
+`background:` in `site.css` is on an inner element the rule cannot reach.
+
 - [ ] **Step 1: Write the failing test**
 
 Append to `tests/e2e/responsive.spec.ts`:
 
+**Scope: marketing routes only.** `/privacy` and `/terms` put everything inside
+`<article class="site-doc">`, so `main > section` matches nothing on them and this
+test would fail with zero elements. They are documents — they navigate by clause
+number, heading and the table of contents — and the design-system author has ruled
+they keep their current treatment. Do not widen the rule to reach them.
+
 ```ts
 import { ALL_ROUTES } from '../../src/site';
 
-for (const route of ALL_ROUTES) {
+const MARKETING_ROUTES = ALL_ROUTES.filter((r) => r !== '/privacy' && r !== '/terms');
+
+for (const route of MARKETING_ROUTES) {
   test(`${route} — no two consecutive sections share a background`, async ({ page }) => {
     await page.goto(route);
     const bgs = await page.$$eval('main > section', (els) =>
