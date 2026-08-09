@@ -211,3 +211,133 @@ plus a scrim) and Set B by an opaque label bar, so problems are unlikely rather
 than impossible. If a title gets hard to read over any photo, that photo is too
 busy or too light — re-roll it rather than adjusting the CSS, which would weaken
 the treatment for all eight.
+
+---
+
+# Ready to paste
+
+Every prompt below is already assembled — subject, style anchor and treatment
+note in one block. Nothing to concatenate. Subject leads, because most models
+weight earlier tokens more heavily and the subject is the part that must not
+drift.
+
+Filenames are the ones the build looks for. A typo means that tile quietly has
+no photo rather than a broken image.
+
+## Set A — platform tiles (8)
+
+Near-monochrome texture. These sit at 16% opacity under a colour field.
+
+**1. `platform-inventory.jpg`** — Inventory & Production
+```
+Steel shelving racked with labelled parts bins and stacked components, receding in perspective. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail. No text, no signage, no logos, no brand marks, no recognisable faces.
+```
+
+**2. `platform-boms.jpg`** — Bills of Materials & Costing
+```
+The component parts of a single product laid out flat on a workbench in an exploded arrangement, evenly spaced, shot from above. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, shallow depth of field. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail. No text, no signage, no logos, no brand marks, no recognisable faces.
+```
+
+**3. `platform-warehouse.jpg`** — Warehouse & Stock Movement
+```
+Cardboard cartons stacked on a pallet at a goods-in bay, a pair of hands steadying the top carton. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail. No text, no signage, no logos, no brand marks, no recognisable faces.
+```
+
+**4. `platform-team.jpg`** — Team & Integrations
+```
+Two people working side by side at a long assembly bench, seen from behind and to one side, faces not visible. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail. No text, no signage, no logos, no brand marks, no recognisable faces.
+```
+
+**5. `platform-orders.jpg`** — Orders & Fulfilment
+```
+Sealed cartons staged in rows for despatch beside a roller conveyor. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail. Shipping labels are blank and unprinted. No text, no signage, no logos, no brand marks, no recognisable faces.
+```
+
+**6. `platform-production.jpg`** — Production Planning
+```
+A production bench mid-run, part-finished work and hand tools in use, movement blurred in the background. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail. No text, no signage, no logos, no brand marks, no recognisable faces.
+```
+
+**7. `platform-reports.jpg`** — Reports & Analytics
+```
+A laptop open on a desk at the edge of a workshop floor, stock shelving out of focus behind it, screen dark and unreadable. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail. No text, no signage, no logos, no brand marks, no recognisable faces, no user interface visible on the screen.
+```
+
+**8. `platform-shopify.jpg`** — Shopify & Platform
+```
+A finished product and its plain retail packaging on a clean bench, ready to ship. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail. Packaging is unbranded and unprinted. No text, no signage, no logos, no brand marks, no recognisable faces.
+```
+
+## Set B — sector cards (7)
+
+Full colour, seen at full strength. Do these first and to a higher standard.
+Subject high in the frame — the bottom of the card is covered by a label bar.
+
+**1. `sector-furniture.jpg`** — Furniture
+```
+A timber chair frame part-assembled on a joinery bench, shavings and clamps around it, subject high in the frame. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Full colour, rich but natural saturation, tactile materials, crafted. No text, no signage, no logos, no brand marks, no recognisable faces.
+```
+
+**2. `sector-food.jpg`** — Food
+```
+Small-batch food production, filled glass jars being sealed by hand on a stainless steel bench, subject high in the frame. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Full colour, rich but natural saturation, tactile materials, appetising and crafted. Jars are unlabelled. No text, no signage, no logos, no brand marks, no recognisable faces.
+```
+
+**3. `sector-cosmetics.jpg`** — Cosmetics
+```
+Cosmetic jars and bottles being filled and capped in a small clean production room, subject high in the frame. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Full colour, rich but natural saturation, tactile materials, crafted. Containers are unlabelled. No text, no signage, no logos, no brand marks, no recognisable faces.
+```
+
+**4. `sector-supplements.jpg`** — Supplements
+```
+Supplement powder being weighed on a bench scale beside plain tubs on a small production line, subject high in the frame. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Full colour, rich but natural saturation, tactile materials, crafted. Tubs are unlabelled and the scale display is blank. No text, no signage, no logos, no brand marks, no recognisable faces.
+```
+
+**5. `sector-apparel.jpg`** — Apparel
+```
+Folded finished garments stacked beside an industrial sewing machine and rolls of fabric, subject high in the frame. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Full colour, rich but natural saturation, tactile materials, crafted. Garments carry no printed graphics or labels. No text, no signage, no logos, no brand marks, no recognisable faces.
+```
+
+**6. `sector-hardware.jpg`** — Hardware
+```
+Machined metal fittings and fasteners sorted into compartment trays on a workshop bench, subject high in the frame. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Full colour, rich but natural saturation, tactile materials, crafted. No text, no signage, no logos, no brand marks, no recognisable faces.
+```
+
+**7. `sector-electronics.jpg`** — Electronics
+```
+Populated circuit boards in an anti-static tray on a bench with fine tools and tweezers, subject high in the frame. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Full colour, rich but natural saturation, tactile materials, crafted. Boards carry no printed markings. No text, no signage, no logos, no brand marks, no recognisable faces.
+```
+
+## Nano Banana continuation form
+
+On the recommended route only the first prompt of a set is used in full.
+Generate `sector-furniture.jpg` from Set B #1 above, then for each of the
+remaining six stay in the same conversation and send:
+
+```
+Same workshop, same lighting, same camera and lens, same colour grade, same
+level of wear. Now show: <first sentence of the next prompt>
+```
+
+The first sentence is the subject — everything before "Documentary editorial
+photograph". The rest is already established by the image you are continuing
+from, and restating it invites drift rather than preventing it.
+
+If a negative slips — lettering appears on a jar, a face turns toward camera —
+add back only the one that broke:
+
+```
+Keep everything the same, but the jars are unlabelled.
+```
+
+## Why some prompts carry extra negatives
+
+Six of the fifteen have a negative beyond the shared set: blank shipping labels,
+unprinted packaging, a dark laptop screen, unlabelled jars and tubs, unmarked
+boards, garments with no printed graphics.
+
+Those are the shots where a generator is most likely to invent lettering or an
+interface, and both are real problems here. Garbled text is visible even at 16%
+opacity. A rendered UI on that laptop would be a screenshot of a product that
+does not exist — the mismatch defect this build has already paid for three
+times, and the one thing no test in this repo can catch.
