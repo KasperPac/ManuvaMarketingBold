@@ -83,15 +83,24 @@ const schema = [
         <p class="site-pricing-hero-sub">
           One price per tier. No per-seat fees. No usage meters. Start free for 14 days — no credit card required.
         </p>
-        {/* Old page's two toggle <button>s sit inside one wrapping div with no
+{/* This was <span>s inside an aria-hidden div with no script anywhere — a
+            picture of a control. It looked interactive, invited a click and did
+            nothing, and screen readers skipped it entirely. Now real buttons.
+
+            Old page's two toggle <button>s sit inside one wrapping div with no
             boundary tag between them, so their text joins into one "Annual
             Monthly" run (real whitespace from the old file's own indentation) —
-            reproduced here with spans, not divs, plus an explicit {' '} since
-            Astro drops the whitespace-only text node a raw space would leave. */}
-        <div class="site-pricing-toggle" aria-hidden="true">
-          <div class="site-pricing-toggle-pill">
-            <span class="site-pricing-toggle-btn site-pricing-toggle-on">Annual</span>{' '}
-            <span class="site-pricing-toggle-btn">Monthly</span>
+            the explicit {' '} reproduces that, since Astro drops the
+            whitespace-only text node a raw space would leave. Buttons are not
+            boundary tags either, so the join survives the change from spans.
+
+            aria-pressed rather than a radiogroup: two mutually exclusive
+            buttons where the pressed one is the current state is the simpler
+            pattern, and it needs no roving tabindex. */}
+        <div class="site-pricing-toggle">
+          <div class="site-pricing-toggle-pill" role="group" aria-label="Billing period">
+            <button type="button" class="site-pricing-toggle-btn site-pricing-toggle-on" data-billing="annual" aria-pressed="true">Annual</button>{' '}
+            <button type="button" class="site-pricing-toggle-btn" data-billing="monthly" aria-pressed="false">Monthly</button>
           </div>
           <span class="site-pricing-save">Save ~20%</span>
         </div>
@@ -136,3 +145,43 @@ const schema = [
     body="14 days free with full Pro access. No credit card required."
   />
 </Base>
+<script>
+  // Progressive enhancement. The server renders the annual figures — the old
+  // page's own default toggle state, and what the copy-parity gate compares
+  // against — so with this script absent the page is still correct, just not
+  // switchable. Every value it needs is already in the DOM as a data attribute;
+  // nothing is fetched and nothing re-renders.
+  const toggle = document.querySelector<HTMLElement>('.site-pricing-toggle');
+  if (toggle) {
+    const buttons = [...toggle.querySelectorAll<HTMLButtonElement>('[data-billing]')];
+    const save = toggle.querySelector<HTMLElement>('.site-pricing-save');
+
+    const apply = (mode: string) => {
+      for (const b of buttons) {
+        const on = b.dataset.billing === mode;
+        b.classList.toggle('site-pricing-toggle-on', on);
+        b.setAttribute('aria-pressed', String(on));
+      }
+      document.querySelectorAll<HTMLElement>('[data-price-annual]').forEach((el) => {
+        el.textContent = mode === 'monthly' ? el.dataset.priceMonthly! : el.dataset.priceAnnual!;
+      });
+      document.querySelectorAll<HTMLElement>('[data-note-annual]').forEach((el) => {
+        el.textContent = mode === 'monthly' ? el.dataset.noteMonthly! : el.dataset.noteAnnual!;
+      });
+      // "or $119/mo billed monthly" is the alternative to whatever is showing,
+      // so it is only true while annual is selected. Left visible on monthly it
+      // would sit directly under a monthly price contradicting it.
+      document.querySelectorAll<HTMLElement>('.site-plan-monthly').forEach((el) => {
+        el.hidden = mode === 'monthly';
+      });
+      // The saving is the reason to pick annual; it is not a claim about the
+      // monthly price.
+      if (save) save.hidden = mode === 'monthly';
+    };
+
+    for (const b of buttons) {
+      b.addEventListener('click', () => apply(b.dataset.billing!));
+    }
+  }
+</script>
+

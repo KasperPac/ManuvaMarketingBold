@@ -565,7 +565,16 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
    own token here is what made this line need editing when the field changed,
    so it no longer names one. Opacity dropped for the same reason as the
    eyebrow and sub above — cobalt's white has no headroom to mute into. */
-.site-pricing-hero .site-pricing-toggle-btn { padding: var(--space-2) var(--space-5); border-radius: var(--radius-pill); font-size: var(--fs-md); font-weight: var(--fw-medium); color: inherit; }
+/* These became real <button>s when the toggle was made to work, and a button
+   carries a UA background (buttonface, #F0F0F0). The inherited white text
+   landed on it at 1.13:1 — axe caught it immediately; the spans it replaced had
+   no background at all and inherited the cobalt panel behind them. Resetting
+   background, border and font is what a <span>-to-<button> swap always owes. */
+.site-pricing-hero .site-pricing-toggle-btn {
+  padding: var(--space-2) var(--space-5); border-radius: var(--radius-pill);
+  font-size: var(--fs-md); font-weight: var(--fw-medium); color: inherit;
+  background: none; border: 0; font-family: inherit; cursor: pointer;
+}
 .site-pricing-hero .site-pricing-toggle-btn.site-pricing-toggle-on { background: var(--bg-card); color: var(--on-paper); opacity: 1; font-weight: var(--fw-semibold); }
 /* Was a lightened green on --ok-dim, which works over a dark field and fails
    over a bright one: --ok-dim is only 10% opaque, so on cobalt the badge
@@ -1447,3 +1456,14 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
 .site-onboarding .mv-eyebrow,
 .site-sectors .mv-eyebrow,
 .site-compare .mv-eyebrow { color: var(--brand-2); }
+
+/* `hidden` has to actually hide. The UA rule is `[hidden] { display: none }`,
+   which any class-level `display` outranks — .site-pricing-save is
+   display:inline-flex, so setting `.hidden = true` on it did nothing and the
+   "Save ~20%" badge stayed up beside a monthly price it does not apply to.
+   Caught by driving the toggle; the markup tests could not see it.
+
+   !important is warranted here in a way it usually is not: the whole contract
+   of the attribute is that it wins. Anything that genuinely needs to override
+   it should not be using `hidden` in the first place. */
+[hidden] { display: none !important; }

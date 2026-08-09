@@ -84,3 +84,37 @@ test('the feature matrix has all 43 data rows across its 9 categories, with spec
     '[none]', '[none]', '[none]', '[icon:check]',
   ]);
 });
+
+// The billing toggle shipped as decoration and nobody noticed until the author
+// clicked it: two <span>s inside an aria-hidden wrapper, with no script on the
+// page at all. It looked interactive, invited a click, did nothing, and screen
+// readers skipped it entirely. These assert the markup half of the fix; the
+// behaviour half is driven for real in tests/e2e/pricing.spec.ts, because a
+// static-HTML test cannot tell an inert control from a working one — which is
+// exactly how this got through the first time.
+test('the billing toggle is a real control, not a picture of one', () => {
+  const h = html();
+  const region = h.slice(h.indexOf('site-pricing-toggle'), h.indexOf('site-pricing-toggle') + 900);
+  expect(region, 'toggle is still spans').toContain('<button');
+  expect(region, 'toggle is still hidden from assistive tech').not.toContain('aria-hidden');
+  expect(region).toContain('data-billing="annual"');
+  expect(region).toContain('data-billing="monthly"');
+  expect(region).toContain('aria-pressed');
+});
+
+test('both billing figures ship in the markup so the toggle needs no fetch', () => {
+  const h = html();
+  for (const [annual, monthly] of [['$99', '$119'], ['$249', '$299'], ['$499', '$599']]) {
+    expect(h, `missing annual ${annual}`).toContain(`data-price-annual="${annual}"`);
+    expect(h, `missing monthly ${monthly}`).toContain(`data-price-monthly="${monthly}"`);
+  }
+});
+
+// Annual is what the old page's default toggle state rendered, and the parity
+// gate compares against that. If the server ever rendered monthly first, the
+// gate would fail on figures that are correct but in the wrong default.
+test('the server renders the annual figures, not the monthly ones', () => {
+  const h = html();
+  const shown = [...h.matchAll(/class="site-plan-price-val"[^>]*>([^<]+)</g)].map((m) => m[1]);
+  expect(shown).toEqual(['$99', '$249', '$499', 'Custom']);
+});

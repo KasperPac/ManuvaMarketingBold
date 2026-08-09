@@ -119,11 +119,23 @@ const PLANS = [
       {plan.tag && <span class="site-plan-badge">{plan.tag}</span>}{' '}
       <div class="site-plan-name">{plan.name}</div>
       <p class="site-plan-tagline">{plan.tagline}</p>
+      {/* Both figures ship in data attributes so the toggle can swap them with
+          no second render and no fetch. The annual values are what renders
+          server-side, which keeps the copy-parity gate seeing exactly what the
+          old page's default toggle state showed. */}
       <div class="site-plan-price">
-        <span class="site-plan-price-val">{plan.price}</span>
+        <span
+          class="site-plan-price-val"
+          data-price-annual={plan.price}
+          data-price-monthly={plan.monthlyPrice ?? plan.price}
+        >{plan.price}</span>
         {!plan.custom && <span class="site-plan-price-per">/mo</span>}
       </div>
-      <p class="site-plan-note">{plan.annualNote}</p>
+      <p
+        class="site-plan-note"
+        data-note-annual={plan.annualNote}
+        data-note-monthly={plan.monthlyPrice ? `Billed ${plan.monthlyPrice}/mo` : plan.annualNote}
+      >{plan.annualNote}</p>
       {plan.monthlyPrice && <p class="site-plan-monthly">or {plan.monthlyPrice}/mo billed monthly</p>}
       {/* Old page's CTA <a> and the chips <div> that follows it are separated
           only by real source whitespace, joining into one "Start free trial →
