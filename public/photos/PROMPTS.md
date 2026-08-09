@@ -21,8 +21,28 @@ without photos.
 
 ## The style anchor
 
+**"Style anchor" is this document's own term, not a feature of any tool.** It is
+a paragraph of prompt text you repeat verbatim. Nothing here depends on a
+product capability — it works in any generator because it is only words.
+
+Locking a look across a set is a separate question, and the tools do it
+differently:
+
+- **Midjourney** has `--sref`, a dedicated flag that separates *style* from
+  *subject* so you can carry one without the other.
+- **Gemini / Nano Banana has no `--sref` equivalent.** It takes reference
+  images instead: either continue in the same conversation so the previous
+  image is the reference, or start fresh, attach an approved image, and say
+  `Match the lighting, colour grade and level of wear in the attached image.
+  Now show: <subject>.` Because it does not decompose style from content, an
+  attached reference influences everything — say explicitly what should change,
+  or subject matter bleeds across too.
+- **Flux** does it with a separate image-conditioning path rather than a prompt
+  flag.
+
 Paste this block into **every** prompt, both sets, unchanged. It is what makes
-fifteen separate generations read as one shoot.
+fifteen separate generations read as one shoot when no reference image is in
+play — and the baseline the first image of each set is generated from.
 
 ```
 documentary editorial photograph of a small manufacturing workshop,
