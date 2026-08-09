@@ -26,7 +26,6 @@ export const FEATURE_LINKS = [
 ] as const;
 
 export const NAV_LINKS = [
-  { href: '/product', label: 'Product' },
   { href: '/features', label: 'Features' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/alternatives', label: 'Compare' },
@@ -35,7 +34,6 @@ export const NAV_LINKS = [
 
 export const FOOTER_GROUPS = [
   { heading: 'Product', links: [
-    { href: '/product', label: 'Product tour' },
     { href: '/features', label: 'Features' },
     { href: '/pricing', label: 'Pricing' },
   ] },
@@ -52,6 +50,6 @@ export const FOOTER_GROUPS = [
 ] as const;
 
 export const ALL_ROUTES = [
-  '/', '/product', '/features', '/pricing', '/about', '/alternatives',
+  '/', '/features', '/pricing', '/about', '/alternatives',
   '/alternatives/katana', '/alternatives/mrpeasy', '/privacy', '/terms',
 ] as const;

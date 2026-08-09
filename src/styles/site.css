@@ -402,16 +402,21 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
 /* On the wrap, not the section. Putting the grid on the section made .mv-wrap a
    grid item, which shrank it to its content and stopped its auto margins doing
    the centring every other section relies on — the band's content sat 243px
-   right of where the sections above and below start. */
-.site-beta .mv-wrap { display: grid; justify-items: start; gap: var(--space-5); }
+   right of where the sections above and below start.
+
+   Centred (author's call). Left-aligning it was my move when fixing the type
+   scale, and only the scale was the problem: at 20px centred it read as a
+   floating footnote, at 52px centred it reads as a full-bleed statement, which
+   is what a single-message band should be. */
+.site-beta .mv-wrap { display: grid; justify-items: center; gap: var(--space-5); text-align: center; }
 /* NOT flex. A flex container makes every child a flex item, including bare text
    nodes, so `gap` was inserted between "free" and the full stop that closes the
    sentence: "3 months of Pro — free ." The old 20px version had the same defect
    and it went unnoticed; at 52px it is unmissable. Inline-block icon with a
    margin keeps the sentence a single run of text. */
-.site-beta-head { font-size: var(--fs-display-3); margin: 0; max-width: 20ch; }
+.site-beta-head { font-size: var(--fs-display-3); margin: 0; max-width: 22ch; }
 .site-beta-head svg { vertical-align: -.08em; margin-right: var(--space-3); }
-.site-beta-sub { margin: 0; max-width: 52ch; font-size: var(--fs-lg); line-height: var(--lh-normal); }
+.site-beta-sub { margin: 0 auto; max-width: 52ch; font-size: var(--fs-lg); line-height: var(--lh-normal); }
 
 /* --- home: comparison ---
    This section was a full-bleed ink field, and every value here was tuned
@@ -1199,66 +1204,14 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
 [data-mode="still"] .site-video-frame,
 [data-mode="facade"] .site-video-frame { aspect-ratio: 16 / 9; }
 
-/* --- product tour (Task 5) --- */
-.site-product-hero { text-align: center; }
-.site-product-lede { max-width: 60ch; margin: var(--space-4) auto 0; font-size: var(--fs-lg); line-height: var(--lh-normal); opacity: .82; text-wrap: pretty; }
-
-/* Each shot now sits on its own full-bleed field with its framing line on the
-   paper section above. The old rule stacked all three inside one 960px-capped
-   wrap on white — measured 896px rendered from a 2080px original (43%), which
-   is the page's whole point shown at under half resolution. The band gives the
-   image the full content column, so the same asset renders at ~63%. */
-/* padding-bottom deliberately much smaller than the section default: the line
-   introduces the band directly below it, so it should read as attached to that
-   band rather than floating between two. Not 0 — at narrow widths these lines
-   wrap to two or three lines and the descenders came within a pixel of the
-   colour edge. */
-.site-product-framing { text-align: center; padding-bottom: var(--space-8); }
-.site-product-framing-line { max-width: 52ch; margin: 0 auto; font-size: var(--fs-lg); color: var(--ink-muted); text-wrap: pretty; }
-.site-product-shot { margin: 0; }
-.site-product-shot img { width: 100%; height: auto; display: block; border-radius: var(--radius-tile); box-shadow: var(--shadow-lg); }
-
-.site-product-domains { text-align: center; }
-/* review round 4, N2: 0px between the heading and the grid — descenders
-   touched the card tops. Every comparable heading-to-grid pairing on
-   /features measures 115px (measured: .site-feat-heading's own
-   margin-bottom, then a full .site-feat-intro paragraph, then ITS
-   margin-bottom — three stacked things). This section has no intro
-   paragraph between the heading and the grid, so there's nothing to give
-   that space for free; --space-24 is the nearest real token to the same
-   neighbourhood as a single margin. */
-.site-product-domains h2 { margin-bottom: var(--space-24); }
-/* align-self: start drops the default cross-axis stretch a grid item gets from
-   its row, so every card sizes to its own content. Originally an N1 fix from
-   the second pass, when a stretched image-less card meant ~280px of dead flare
-   beside two full ones and read as failed-to-load.
-
-   That justification no longer holds — the cards are paper now, so a stretched
-   card would be empty white against a hairline border rather than empty colour,
-   which is nowhere near as loud. The rule stays anyway on the weaker but still
-   real ground that a card ending well below its own content has no reason to,
-   and ragged rows are honest about which domains have a screen. Recording the
-   downgrade rather than leaving the old reasoning in place: this is the second
-   time a fix here invalidated its own comment. */
-.site-domain-card {
-  padding: var(--space-6); border-radius: var(--radius-tile);
-  display: grid; gap: var(--space-3); align-self: start; text-align: left;
-  /* paper card now, hue carried by the accent chip — see product.astro */
-  background: var(--bg-card); border: 1px solid var(--stroke);
-}
-.site-domain-accent {
-  width: 44px; height: 44px; border-radius: var(--radius-lg);
-  display: grid; place-items: center;
-}
-.site-domain-name { font-size: var(--fs-lg); margin: 0; }
-/* The blurb sits on paper now, so the muted ink token applies and the old
-   `color: inherit` (which inherited the field's --on-* ink) would be wrong.
-   The previous note here warned against opacity-muting because full-strength
-   white cleared AA only by a hair on violet and cobalt — that constraint left
-   with the coloured backgrounds; --ink-muted is a real token measured against
-   paper. */
-.site-domain-blurb { font-size: var(--fs-sm); color: var(--ink-muted); line-height: var(--lh-normal); margin: 0; }
-.site-domain-card .site-video { margin-top: var(--space-2); }
+/* The /product tour's styles lived here — hero, framing lines, full-bleed shot
+   bands, and the five domain cards with their accent chips. The route was
+   removed on the author's call (it did not flow with the rest of the site), and
+   nothing else used any of it: every one of those classes was referenced by
+   product.astro alone, checked before deleting. .site-domain-tile and
+   .site-domain-section are NOT part of this and stay — those belong to
+   /features' own domain grid, which is a different component that happens to
+   share a prefix. */
 
 /* --- home: highlighted latest feature (replaces the amber/violet split) --- */
 .site-highlight-panel { padding: var(--space-16); display: grid; justify-items: start; gap: var(--space-4); }

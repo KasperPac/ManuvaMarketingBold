@@ -21,9 +21,9 @@ const file = (route: string) => (route === '/' ? 'dist/index.html' : `dist${rout
 //
 // Deliberately scoped to `main > section` — nested panels are exempt and must
 // stay exempt. A tile grid is one composed unit with paper between its tiles,
-// the home page's amber/violet split is two inset panels on a paper section,
-// and /product's accent chips are 44px squares inside paper cards. None of
-// those is a fold. Only a full-bleed <Field> emits a top-level section
+// the home page's amber/violet split was two inset panels on a paper section,
+// and /alternatives' two comparison cards are panels inside one. None of those
+// is a fold. Only a full-bleed <Field> emits a top-level section
 // carrying data-fold, which is precisely what this rule governs.
 function topLevelFolds(html: string): (string | null)[] {
   const $ = load(html);
@@ -73,11 +73,22 @@ for (const route of ALL_ROUTES) {
 }
 
 // The rule above is satisfiable by having no fields at all, which would make it
-// vacuous on exactly the pages it matters most for. /pricing and /alternatives/
-// are legitimately colourless (the loud-layer rules forbid a field behind a
-// data table or long-form copy), so this asserts only where colour is the point.
+// vacuous on exactly the pages it matters most for.
+//
+// Only / and /features carry full-bleed fields at all. Everywhere else the
+// colour lives in nested panels — a hero panel, a CtaBand, the two comparison
+// cards on /alternatives — which this test deliberately does not count, because
+// the separation rule above only governs top-level bands. /pricing, /about and
+// the long-form routes are legitimately colourless besides: the loud-layer rules
+// keep a field off a data table or body copy.
+//
+// /product was in this list until the route was removed (author's call: it did
+// not flow with the rest of the site). Substituting /alternatives for it failed
+// immediately — worth recording, because it is the same shape of mistake as the
+// hue test that could not see separation: a page can be full of colour and still
+// declare no fold.
 test('the visual routes actually carry full-bleed fields', () => {
-  for (const route of ['/', '/product', '/features']) {
+  for (const route of ['/', '/features']) {
     const folds = topLevelFolds(readFileSync(file(route), 'utf8')).filter(Boolean);
     expect(folds.length, `${route} declares no full-bleed field`).toBeGreaterThan(0);
   }
