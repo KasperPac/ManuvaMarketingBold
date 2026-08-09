@@ -24,3 +24,8 @@ node_modules/
 # os / editor
 .DS_Store
 Thumbs.db
+
+# photo originals: 6-9MB PNGs straight out of the generator. scripts/prep-photos.mjs
+# turns each into the ~100KB JPEG that actually ships. Keep them locally for
+# re-cropping; never commit them.
+public/photos/*.png
