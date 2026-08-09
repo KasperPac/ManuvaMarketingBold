@@ -303,20 +303,6 @@ const schema = [
     </div>
   </Field>
 
-  {/* beta strip, recoloured from mint to aqua. The marquee's move to right
-      after the hero puts it back in the fold sequence ahead of this strip
-      (Task 3's ink explainer band now sits between them, so lime and this
-      strip are never adjacent either way) — mint would have repeated lime's
-      green, the same defect one position along. Violet is also out: the
-      split panels directly above this strip are amber and violet, so violet
-      would repeat the hue of the panel above it instead. Aqua is the only
-      field left unspoken-for on this page. */}
-  <Field field="aqua" class="site-beta">
-    <p class="site-beta-head"><Icon name="flask-conical" size={20} /> Beta testers get <strong>3 months of Pro — free</strong>.</p>
-    <p class="site-beta-sub">Shape the roadmap with us. Tell us what features your team needs and we'll build them with you.</p>
-    <Pill href={APP_URL} field="ink">Start free trial →</Pill>
-  </Field>
-
   {/* integrations strip — verbatim from the old site */}
   <section class="mv-section site-integrations">
     <div class="mv-wrap">
@@ -406,6 +392,34 @@ const schema = [
       </Panel>
     </div>
   </section>
+
+  {/* beta strip, recoloured from mint to aqua and moved here from directly
+      under the explainer band.
+
+      It sat immediately below Task 3's ink band with a 0px gap — two
+      full-bleed fields touching, which handoff.md forbids outright ("never
+      two fields touching — put ink or paper between them"). Navy straight
+      into cyan also read as one two-tone block rather than two moments,
+      since both are cool blues.
+
+      The cause was reasoning about the wrong neighbour. The second-pass
+      spec's fold sequence listed "amber/violet split → aqua beta", assuming
+      this strip already sat below the split; it did not, it sat ~50 lines
+      above it. The comment that used to live here inherited that mistake
+      and justified aqua with "the split panels directly above this strip"
+      — panels that were in fact below it — while the ink band Task 3 had
+      just inserted directly above went unconsidered. Moving the strip here
+      is what the approved sequence described all along.
+
+      Aqua still holds: mint would repeat the marquee's green, and violet
+      would repeat the split panel now genuinely above it. Paper either
+      side — the split panels are inset on paper, and pricing below is
+      paper — so this field touches nothing. */}
+  <Field field="aqua" class="site-beta">
+    <p class="site-beta-head"><Icon name="flask-conical" size={20} /> Beta testers get <strong>3 months of Pro — free</strong>.</p>
+    <p class="site-beta-sub">Shape the roadmap with us. Tell us what features your team needs and we'll build them with you.</p>
+    <Pill href={APP_URL} field="ink">Start free trial →</Pill>
+  </Field>
 
   {/* pricing — paper, verbatim. Plan cards are data: never a colour field behind
       them, so no data-fold here, matching the rule that already keeps colour off

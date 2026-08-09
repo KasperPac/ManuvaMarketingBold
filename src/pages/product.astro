@@ -2,24 +2,41 @@
 import Base from '../layouts/Base.astro';
 import Video from '../components/site/Video.astro';
 import Icon from '../components/ds/Icon.astro';
+import Field from '../components/site/Field.astro';
 import CtaBand from '../components/site/CtaBand.astro';
 import { DOMAINS } from '../content/domains';
 
+// Each shot gets its own full-bleed field, with its framing line on the paper
+// section immediately above it. Before this, all three sat unframed in one
+// 1,816px white run and the page carried no full-bleed field at all — the one
+// route whose whole job is visual, styled like the routes that carry tables.
+// /pricing and /alternatives/ are colourless for a real reason (the loud-layer
+// rules forbid a field behind a data table or long-form copy); this page had no
+// such constraint and no colour either.
+//
+// Hue order ink → amber → violet: none repeats, none is adjacent to another
+// field (paper framing sections sit between all three), and none collides with
+// the flare CtaBand that closes the page. Aqua and cobalt are deliberately left
+// out — the domain accents below use the full five-hue rotation, and reusing a
+// band hue there would pair a card with the band it sits nearest.
 const SHOTS = [
   {
     src: '/screen-dashboard.png',
     alt: 'Manuva dashboard overview with inventory value, fulfilment rate, and open orders',
     caption: 'Everything worth checking each morning, on one screen.',
+    field: 'ink',
   },
   {
     src: '/screen-variant.png',
     alt: 'Manuva variant detail showing versioned bills of materials with cost comparison',
     caption: 'Two BOM versions, compared line by line.',
+    field: 'amber',
   },
   {
     src: '/screen-components.png',
     alt: 'Manuva component selection modal with searchable parts library',
     caption: 'Every component, searchable, added in a click.',
+    field: 'violet',
   },
 ];
 
@@ -92,17 +109,27 @@ const schema = [
   </section>
 
   {/* The screenshots, at a size where the interface is legible. This is where
-      the dashboard belongs — someone here has chosen to look at the product. */}
-  <section class="mv-section site-product-shots">
-    <div class="mv-wrap">
-      {SHOTS.map((s) => (
+      the dashboard belongs — someone here has chosen to look at the product.
+
+      Each shot is a full-bleed field carrying only the image; its framing line
+      sits on the paper section above it, so the line introduces the screen it
+      describes rather than trailing the one before. That also guarantees paper
+      between every pair of fields, which is the rule the home page's own
+      ink/aqua adjacency broke. The <img> keeps its shadow and radius so it
+      still reads as a screen sitting on the field rather than a texture
+      bleeding into it. */}
+  {SHOTS.map((s, i) => (
+    <>
+      <section class="mv-section site-product-framing">
+        <div class="mv-wrap"><p class="site-product-framing-line">{s.caption}</p></div>
+      </section>
+      <Field field={s.field}>
         <figure class="site-product-shot">
-          <img src={s.src} alt={s.alt} width="2080" height="1090" loading="lazy" decoding="async" />
-          <figcaption>{s.caption}</figcaption>
+          <img src={s.src} alt={s.alt} width="2080" height="1090" loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />
         </figure>
-      ))}
-    </div>
-  </section>
+      </Field>
+    </>
+  ))}
 
   {/* Five domain cards. Each blurb is lifted from the source named in its
       `source` field — nothing composed. A card shows its video when one is
@@ -136,8 +163,22 @@ const schema = [
       <h2 class="mv-display">Five systems. One account.</h2>
       <div class="mv-cols-3">
         {DOMAINS.map((d) => (
-          <article class="site-domain-card" data-fold={d.field} style={`background:var(--field-${d.field});color:var(--on-${d.field})`}>
-            <Icon name={d.icon} size={30} />
+          <article class="site-domain-card">
+            {/* The card is paper now; the hue survives as the accent chip
+                behind the icon. Five saturated cards were the page's only colour
+                event, arriving all at once as a swatch grid — with three field
+                bands above them that reads as noise, and it also put five
+                different hues in one viewport, which nothing else on the site
+                does at this size.
+
+                The chip is still a real field/ink pair rather than the hue used
+                as a graphic on paper, so the loud-layer rule holds and the flare
+                ink override keeps working — hence data-fold on the chip, not on
+                the article: --on-flare defaults to #FFFFFF (3.33:1) and only
+                [data-fold="flare"] redeclares it to #141413. */}
+            <span class="site-domain-accent" data-fold={d.field} style={`background:var(--field-${d.field});color:var(--on-${d.field})`}>
+              <Icon name={d.icon} size={22} />
+            </span>
             <h3 class="site-domain-name">{d.name}</h3>
             <p class="site-domain-blurb">{d.blurb}</p>
             {d.poster && <Video poster={d.poster} alt={d.posterAlt} youtubeId={d.youtubeId} title={d.name} caption={false} />}

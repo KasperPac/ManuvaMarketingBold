@@ -1128,10 +1128,20 @@ a[href$="#purchasing"] .site-tile-title { color: #141413 !important; }
 .site-product-hero { text-align: center; }
 .site-product-lede { max-width: 60ch; margin: var(--space-4) auto 0; font-size: var(--fs-lg); line-height: var(--lh-normal); opacity: .82; text-wrap: pretty; }
 
-.site-product-shots .mv-wrap { display: flex; flex-direction: column; gap: var(--space-12); max-width: 960px; }
+/* Each shot now sits on its own full-bleed field with its framing line on the
+   paper section above. The old rule stacked all three inside one 960px-capped
+   wrap on white — measured 896px rendered from a 2080px original (43%), which
+   is the page's whole point shown at under half resolution. The band gives the
+   image the full content column, so the same asset renders at ~63%. */
+/* padding-bottom deliberately much smaller than the section default: the line
+   introduces the band directly below it, so it should read as attached to that
+   band rather than floating between two. Not 0 — at narrow widths these lines
+   wrap to two or three lines and the descenders came within a pixel of the
+   colour edge. */
+.site-product-framing { text-align: center; padding-bottom: var(--space-8); }
+.site-product-framing-line { max-width: 52ch; margin: 0 auto; font-size: var(--fs-lg); color: var(--ink-muted); text-wrap: pretty; }
 .site-product-shot { margin: 0; }
 .site-product-shot img { width: 100%; height: auto; display: block; border-radius: var(--radius-tile); box-shadow: var(--shadow-lg); }
-.site-product-shot figcaption { margin-top: var(--space-3); text-align: center; font-size: var(--fs-sm); color: var(--ink-muted); }
 
 .site-product-domains { text-align: center; }
 /* review round 4, N2: 0px between the heading and the grid — descenders
@@ -1143,25 +1153,34 @@ a[href$="#purchasing"] .site-tile-title { color: #141413 !important; }
    that space for free; --space-24 is the nearest real token to the same
    neighbourhood as a single margin. */
 .site-product-domains h2 { margin-bottom: var(--space-24); }
-/* review round 4, N1 (author's ruling, replaces round 3's align-content:
-   center): measured Production's card at 1280px+ (3 columns, so it shares
-   a row with the two image cards) — 115px of real content inside a
-   397-404px card, ~280px of dead flare. Centring the content only moved
-   where the empty space sat; it didn't remove it, and a card that's 70%
-   empty colour still reads as failed-to-load rather than deliberate.
-   align-self: start drops the default cross-axis stretch a grid item gets
-   from its row, so every card sizes to its own content instead — the
-   image-less cards are simply shorter, which is already how row 2 (both
-   currently image-less) renders with no fix at all. Row 1 goes ragged
-   (two tall, one short) instead of uniform, and every card is honestly
-   sized. NOTE: the mixed-row breakpoint moved since round 3's version of
-   this comment — after the poster removals, 3 columns (the default
-   desktop width) is the one width where an image card and a non-image
-   card actually share a row; 2 columns no longer does (both cards in its
-   one populated row-2 slot are now image-less). */
-.site-domain-card { padding: var(--space-6); border-radius: var(--radius-tile); display: grid; gap: var(--space-3); align-self: start; text-align: left; }
+/* align-self: start drops the default cross-axis stretch a grid item gets from
+   its row, so every card sizes to its own content. Originally an N1 fix from
+   the second pass, when a stretched image-less card meant ~280px of dead flare
+   beside two full ones and read as failed-to-load.
+
+   That justification no longer holds — the cards are paper now, so a stretched
+   card would be empty white against a hairline border rather than empty colour,
+   which is nowhere near as loud. The rule stays anyway on the weaker but still
+   real ground that a card ending well below its own content has no reason to,
+   and ragged rows are honest about which domains have a screen. Recording the
+   downgrade rather than leaving the old reasoning in place: this is the second
+   time a fix here invalidated its own comment. */
+.site-domain-card {
+  padding: var(--space-6); border-radius: var(--radius-tile);
+  display: grid; gap: var(--space-3); align-self: start; text-align: left;
+  /* paper card now, hue carried by the accent chip — see product.astro */
+  background: var(--bg-card); border: 1px solid var(--stroke);
+}
+.site-domain-accent {
+  width: 44px; height: 44px; border-radius: var(--radius-lg);
+  display: grid; place-items: center;
+}
 .site-domain-name { font-size: var(--fs-lg); margin: 0; }
-/* Never opacity-mute — see the card comment in product.astro: full-strength
-   white clears AA by a hair on violet and cobalt, so any muting fails. */
-.site-domain-blurb { font-size: var(--fs-sm); color: inherit; line-height: var(--lh-normal); margin: 0; }
+/* The blurb sits on paper now, so the muted ink token applies and the old
+   `color: inherit` (which inherited the field's --on-* ink) would be wrong.
+   The previous note here warned against opacity-muting because full-strength
+   white cleared AA only by a hair on violet and cobalt — that constraint left
+   with the coloured backgrounds; --ink-muted is a real token measured against
+   paper. */
+.site-domain-blurb { font-size: var(--fs-sm); color: var(--ink-muted); line-height: var(--lh-normal); margin: 0; }
 .site-domain-card .site-video { margin-top: var(--space-2); }
