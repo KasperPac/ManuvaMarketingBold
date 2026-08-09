@@ -1,4 +1,4 @@
-# Image prompt spec — 15 photos
+# Image prompt spec — 16 photos
 
 Companion to `README.md`, which says what each file is and where it goes. This
 one says how to generate them so they hold together as a set.
@@ -10,7 +10,7 @@ one thing:
   tile (the bottom on narrow screens) at **full natural colour**, masked so it
   fades into the field colour. Text never overlaps it, so these are seen
   properly — the same standard as Set B.
-- **Set B — sector cards (7).** Rendered at **full strength** as the entire card
+- **Set B — sector cards (8).** Rendered at **full strength** as the entire card
   background, with an opaque label bar across the bottom. These are seen
   properly and carry the weight.
 
@@ -128,7 +128,7 @@ outer 15% on every edge is lost.
 
 | # | File | Subject line to append |
 |---|---|---|
-| 1 | `platform-inventory.jpg` | `Open storage shelving in neat aligned rows, every bay and shelf location carrying its own small barcode label clipped to the front edge, bins and cartons squared up and uniform, receding in perspective.` |
+| 1 | `platform-inventory.jpg` | `Bright, well-organised warehouse, tall racking down an aisle, pallets and cartons filling the bays, a barcode label on every bay. Uses the WAREHOUSE anchor — see the paste-ready block.` |
 | 2 | `platform-boms.jpg` | `The component parts of a single consumer product laid out flat on a clean workbench in an exploded arrangement, evenly spaced, shot from above.` |
 | 3 | `platform-warehouse.jpg` | `Cartons being checked in on a clean receiving bench, a pair of hands lifting one clear of the stack.` |
 | 4 | `platform-team.jpg` | `Two people working side by side at a long uncluttered bench, seen from behind and to one side, faces not visible.` |
@@ -139,7 +139,7 @@ outer 15% on every edge is lost.
 
 ---
 
-## Set B — sector cards (7)
+## Set B — sector cards (8)
 
 **Treatment note.** Append this to the style anchor for all seven:
 
@@ -162,6 +162,7 @@ fixed and the photo has to match its label, no substitutions.
 | 5 | `sector-apparel.jpg` | Apparel | `Folded finished garments stacked beside a single sewing machine and neat rolls of fabric. Garments carry no printed graphics or labels.` |
 | 6 | `sector-hardware.jpg` | Hardware | `Small metal fittings and fasteners sorted into compartment trays on a clean bench.` |
 | 7 | `sector-electronics.jpg` | Electronics | `Populated circuit boards in an anti-static tray on a clean bench with fine tools and tweezers. Boards carry no printed markings.` |
+| 8 | `sector-manufacturing.jpg` | Manufacturing | `A maker's bench mid-assembly: a part-finished product held in a jig with hand tools laid out beside it, subject high in the frame.` |
 
 ---
 
@@ -319,8 +320,14 @@ neutral and colour across the eight.
 
 **1. `platform-inventory.jpg`** — Inventory & Production
 ```
-Open storage shelving in neat aligned rows, every bay and shelf location carrying its own small barcode label clipped to the front edge, bins and cartons squared up and uniform, receding in perspective. Barcode labels are graphic only, with no readable lettering. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail.
+A bright, well-organised warehouse: long runs of tall racking receding down an aisle, pallets and stacked cartons filling the bays, every bay and shelf location carrying its own small barcode label on the front edge, stock squared up and uniform. Barcode labels are graphic only, with no readable lettering. Documentary editorial photograph inside a clean, well-run warehouse — orderly and well-lit, not a heavy industrial plant. Natural light from high windows, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, uncluttered. 35mm lens, eye level, shallow depth of field. No grime, rust or dirt, no dark industrial interior. No text, no signage, no logos, no brand marks, no recognisable faces. Full colour, rich but natural saturation, tactile materials, crafted. Subject centred in the frame.
 ```
+
+> **This one uses a different anchor on purpose.** The rest of the set is a
+> small product studio; the author's note was that inventory has to read as a
+> warehouse, at scale, with far more stock in frame. Lighting, cleanliness and
+> every negative carry over unchanged — only the room changes. Do not use the
+> studio anchor here.
 
 **2. `platform-boms.jpg`** — Bills of Materials & Costing
 ```
@@ -357,7 +364,7 @@ A laptop open on a clean desk at the edge of the workspace, storage shelving sof
 A finished consumer product and its plain unbranded packaging on a clean bench, ready to ship. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail.
 ```
 
-## Set B — sector cards (7)
+## Set B — sector cards (8)
 
 Full colour, seen at full strength. Do these first and to a higher standard.
 Subject high in the frame — the bottom of the card is covered by a label bar.
@@ -395,6 +402,11 @@ Small metal fittings and fasteners sorted into compartment trays on a clean benc
 **7. `sector-electronics.jpg`** — Electronics
 ```
 Populated circuit boards in an anti-static tray on a clean bench with fine tools and tweezers. Boards carry no printed markings. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Full colour, rich but natural saturation, tactile materials, crafted. Subject in the upper two thirds of the frame.
+```
+
+**8. `sector-manufacturing.jpg`** — Manufacturing
+```
+A maker's bench mid-assembly: a part-finished product held in a jig with hand tools laid out beside it, subject high in the frame. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Full colour, rich but natural saturation, tactile materials, crafted. Subject centred in the frame.
 ```
 
 ## Nano Banana continuation form

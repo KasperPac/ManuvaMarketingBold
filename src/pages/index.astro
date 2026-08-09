@@ -177,9 +177,20 @@ const ONBOARDING = {
   ],
 } as const;
 
-// The seven sectors about.html actually names, verbatim from its own sentence:
-// "furniture, food, cosmetics, supplements, apparel, hardware, electronics".
-// That sentence is the ONLY sector list anywhere in the sources — there is no
+// The sectors about.html actually names. Seven come verbatim from its own
+// sentence — "furniture, food, cosmetics, supplements, apparel, hardware,
+// electronics" — and Manufacturing from a second source line, the company-info
+// table's "Sectors served: Manufacturing & product brands selling on Shopify,
+// WooCommerce, Amazon, Etsy" (author's call to include it).
+//
+// Manufacturing sits last deliberately. Every other entry is a product
+// category and this one is the activity they all share, so as a peer it reads
+// oddly in the middle of the list and reads correctly at the end, where it
+// catches the shops that fit none of the seven. It also makes eight, which
+// fills the four-column grid as two clean rows instead of leaving a ragged
+// row of three.
+//
+// Between them these two lines are the ONLY sector copy anywhere in the sources — there is no
 // per-sector copy on the old site, in llms.txt, or in the design system, so
 // this section names them and shows imagery and claims nothing further. Writing
 // a line about what each sector needs would be inventing copy, which is the one
@@ -195,6 +206,7 @@ const SECTORS = [
   { name: 'Apparel', photo: '/photos/sector-apparel.jpg' },
   { name: 'Hardware', photo: '/photos/sector-hardware.jpg' },
   { name: 'Electronics', photo: '/photos/sector-electronics.jpg' },
+  { name: 'Manufacturing', photo: '/photos/sector-manufacturing.jpg' },
 ] as const;
 
 const MARQUEE = [

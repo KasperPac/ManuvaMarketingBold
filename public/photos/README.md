@@ -76,9 +76,12 @@ care. Same guard: no file, no markup, no 404.
 | `sector-apparel.jpg` | Apparel |
 | `sector-hardware.jpg` | Hardware |
 | `sector-electronics.jpg` | Electronics |
+| `sector-manufacturing.jpg` | Manufacturing |
 
-The seven labels are fixed: they are the sectors `about.html` names, in its own
-words, and they are the only sector copy that exists anywhere in the sources.
+The eight labels are fixed: they are the sectors `about.html` names, in its own
+words — seven from its "make what they sell" sentence, and Manufacturing from
+the company-info table's "Sectors served" row. Between them, those two lines
+are the only sector copy that exists anywhere in the sources.
 A photo has to match the label it sits under — swapping in something adjacent
 because it generated better is the mismatch defect this project has already paid
 for three times.
