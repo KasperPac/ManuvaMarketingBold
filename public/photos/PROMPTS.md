@@ -45,16 +45,20 @@ fifteen separate generations read as one shoot when no reference image is in
 play — and the baseline the first image of each set is generated from.
 
 ```
-documentary editorial photograph of a small manufacturing workshop,
-natural window light, soft directional daylight, slightly overcast quality,
-warm neutral palette, matte surfaces, real working environment with mild
-wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth
-of field, no text, no signage, no logos, no brand marks, no recognisable
-faces
+Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces.
 ```
 
-Three things in there are doing specific work and should not be edited out:
+Four things in there are doing specific work and should not be edited out:
 
+- **"not a factory" / "not industrial" / "no grime, rust or dirt"** — the first
+  version of this anchor asked for "a small manufacturing workshop… real working
+  environment with mild wear and use", and duly produced a dirty factory. That
+  contradicts positioning the site already states: about.html says "tools
+  designed for large industrial manufacturers tend to be priced and structured
+  for an audience Manuva isn't". The audience is Shopify-first consumer brands —
+  furniture, food, cosmetics, supplements, apparel, hardware, electronics — so
+  the register is a bright, tidy small-batch studio, and much of what the product
+  does (stock, picking, packing, despatch) is not machining at all.
 - **"warm neutral palette"** — the design system's neutrals are a warm graphite
   ramp anchored on `#141413`, deliberately not blue-grey. Cool-toned photos will
   fight every surface they sit on.
@@ -71,8 +75,7 @@ Three things in there are doing specific work and should not be edited out:
 **Treatment note.** Append this to the style anchor for all eight:
 
 ```
-low saturation, near-monochrome, strong simple shapes, clear separation of
-light and shadow, generous negative space, minimal fine detail
+Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail.
 ```
 
 **Why low saturation — corrected, with measurements.** An earlier version of
@@ -107,14 +110,14 @@ outer 15% on every edge is lost.
 
 | # | File | Subject line to append |
 |---|---|---|
-| 1 | `platform-inventory.jpg` | `steel shelving racked with labelled parts bins and stacked components, receding in perspective` |
-| 2 | `platform-boms.jpg` | `component parts of a single product laid out flat on a workbench in an exploded arrangement, evenly spaced` |
-| 3 | `platform-warehouse.jpg` | `cardboard cartons stacked on a pallet at a goods-in bay, hands steadying the top carton` |
-| 4 | `platform-team.jpg` | `two people working side by side at a long assembly bench, seen from behind and to one side` |
-| 5 | `platform-orders.jpg` | `sealed and labelled cartons staged in rows for despatch beside a roller conveyor` |
-| 6 | `platform-production.jpg` | `a production bench mid-run, part-finished work and hand tools in use, motion in the background` |
-| 7 | `platform-reports.jpg` | `a laptop open on a desk at the edge of a workshop floor, stock shelving out of focus behind` |
-| 8 | `platform-shopify.jpg` | `a finished product and its retail packaging on a clean bench, ready to ship` |
+| 1 | `platform-inventory.jpg` | `Open storage shelving neatly racked with labelled bins and stacked stock, receding in perspective.` |
+| 2 | `platform-boms.jpg` | `The component parts of a single consumer product laid out flat on a clean workbench in an exploded arrangement, evenly spaced, shot from above.` |
+| 3 | `platform-warehouse.jpg` | `Cartons being checked in on a clean receiving bench, a pair of hands lifting one clear of the stack.` |
+| 4 | `platform-team.jpg` | `Two people working side by side at a long uncluttered bench, seen from behind and to one side, faces not visible.` |
+| 5 | `platform-orders.jpg` | `Sealed cartons staged in neat rows for despatch beside a packing bench. Shipping labels are blank and unprinted.` |
+| 6 | `platform-production.jpg` | `A small-batch assembly bench part way through a run, part-finished items arranged in sequence along it.` |
+| 7 | `platform-reports.jpg` | `A laptop open on a clean desk at the edge of the workspace, storage shelving softly out of focus behind it, screen dark and unreadable, no user interface visible.` |
+| 8 | `platform-shopify.jpg` | `A finished consumer product and its plain unbranded packaging on a clean bench, ready to ship.` |
 
 ---
 
@@ -123,8 +126,7 @@ outer 15% on every edge is lost.
 **Treatment note.** Append this to the style anchor for all seven:
 
 ```
-full colour, rich but natural saturation, tactile materials, appetising and
-crafted, subject in the upper two thirds of the frame
+Full colour, rich but natural saturation, tactile materials, crafted. Subject in the upper two thirds of the frame.
 ```
 
 **Composition.** The bottom ~60px of each card is an opaque label bar. Anything
@@ -135,13 +137,13 @@ fixed and the photo has to match its label, no substitutions.
 
 | # | File | Label | Subject line to append |
 |---|---|---|---|
-| 1 | `sector-furniture.jpg` | Furniture | `a timber chair frame part-assembled on a joinery bench, shavings and clamps around it` |
-| 2 | `sector-food.jpg` | Food | `small-batch food production, filled jars being sealed and labelled by hand on a stainless bench` |
-| 3 | `sector-cosmetics.jpg` | Cosmetics | `cosmetic jars and bottles being filled and capped in a small clean production room` |
-| 4 | `sector-supplements.jpg` | Supplements | `supplement powder being weighed and tubs filled on a small production line` |
-| 5 | `sector-apparel.jpg` | Apparel | `folded finished garments stacked beside an industrial sewing machine and fabric rolls` |
-| 6 | `sector-hardware.jpg` | Hardware | `machined metal fittings and fasteners sorted in trays on a workshop bench` |
-| 7 | `sector-electronics.jpg` | Electronics | `populated circuit boards in an anti-static tray at a bench with fine tools` |
+| 1 | `sector-furniture.jpg` | Furniture | `A part-assembled timber chair frame on a light, tidy joinery bench, hand tools and clamps arranged around it.` |
+| 2 | `sector-food.jpg` | Food | `Small-batch food production, filled glass jars being sealed by hand on a clean stainless bench. Jars are unlabelled.` |
+| 3 | `sector-cosmetics.jpg` | Cosmetics | `Cosmetic jars and bottles being filled and capped in a small, bright production room. Containers are unlabelled.` |
+| 4 | `sector-supplements.jpg` | Supplements | `Supplement powder being weighed on a bench scale beside plain tubs on a small production line. Tubs are unlabelled and the scale display is blank.` |
+| 5 | `sector-apparel.jpg` | Apparel | `Folded finished garments stacked beside a single sewing machine and neat rolls of fabric. Garments carry no printed graphics or labels.` |
+| 6 | `sector-hardware.jpg` | Hardware | `Small metal fittings and fasteners sorted into compartment trays on a clean bench.` |
+| 7 | `sector-electronics.jpg` | Electronics | `Populated circuit boards in an anti-static tray on a clean bench with fine tools and tweezers. Boards carry no printed markings.` |
 
 ---
 
@@ -278,42 +280,42 @@ neutral and colour across the eight.
 
 **1. `platform-inventory.jpg`** — Inventory & Production
 ```
-Steel shelving racked with labelled parts bins and stacked components, receding in perspective. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail. No text, no signage, no logos, no brand marks, no recognisable faces.
+Open storage shelving neatly racked with labelled bins and stacked stock, receding in perspective. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail.
 ```
 
 **2. `platform-boms.jpg`** — Bills of Materials & Costing
 ```
-The component parts of a single product laid out flat on a workbench in an exploded arrangement, evenly spaced, shot from above. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, shallow depth of field. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail. No text, no signage, no logos, no brand marks, no recognisable faces.
+The component parts of a single consumer product laid out flat on a clean workbench in an exploded arrangement, evenly spaced, shot from above. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail.
 ```
 
 **3. `platform-warehouse.jpg`** — Warehouse & Stock Movement
 ```
-Cardboard cartons stacked on a pallet at a goods-in bay, a pair of hands steadying the top carton. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail. No text, no signage, no logos, no brand marks, no recognisable faces.
+Cartons being checked in on a clean receiving bench, a pair of hands lifting one clear of the stack. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail.
 ```
 
 **4. `platform-team.jpg`** — Team & Integrations
 ```
-Two people working side by side at a long assembly bench, seen from behind and to one side, faces not visible. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail. No text, no signage, no logos, no brand marks, no recognisable faces.
+Two people working side by side at a long uncluttered bench, seen from behind and to one side, faces not visible. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail.
 ```
 
 **5. `platform-orders.jpg`** — Orders & Fulfilment
 ```
-Sealed cartons staged in rows for despatch beside a roller conveyor. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail. Shipping labels are blank and unprinted. No text, no signage, no logos, no brand marks, no recognisable faces.
+Sealed cartons staged in neat rows for despatch beside a packing bench. Shipping labels are blank and unprinted. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail.
 ```
 
 **6. `platform-production.jpg`** — Production Planning
 ```
-A production bench mid-run, part-finished work and hand tools in use, movement blurred in the background. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail. No text, no signage, no logos, no brand marks, no recognisable faces.
+A small-batch assembly bench part way through a run, part-finished items arranged in sequence along it. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail.
 ```
 
 **7. `platform-reports.jpg`** — Reports & Analytics
 ```
-A laptop open on a desk at the edge of a workshop floor, stock shelving out of focus behind it, screen dark and unreadable. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail. No text, no signage, no logos, no brand marks, no recognisable faces, no user interface visible on the screen.
+A laptop open on a clean desk at the edge of the workspace, storage shelving softly out of focus behind it, screen dark and unreadable, no user interface visible. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail.
 ```
 
 **8. `platform-shopify.jpg`** — Shopify & Platform
 ```
-A finished product and its plain retail packaging on a clean bench, ready to ship. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail. Packaging is unbranded and unprinted. No text, no signage, no logos, no brand marks, no recognisable faces.
+A finished consumer product and its plain unbranded packaging on a clean bench, ready to ship. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail.
 ```
 
 ## Set B — sector cards (7)
@@ -323,37 +325,37 @@ Subject high in the frame — the bottom of the card is covered by a label bar.
 
 **1. `sector-furniture.jpg`** — Furniture
 ```
-A timber chair frame part-assembled on a joinery bench, shavings and clamps around it, subject high in the frame. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Full colour, rich but natural saturation, tactile materials, crafted. No text, no signage, no logos, no brand marks, no recognisable faces.
+A part-assembled timber chair frame on a light, tidy joinery bench, hand tools and clamps arranged around it. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Full colour, rich but natural saturation, tactile materials, crafted. Subject in the upper two thirds of the frame.
 ```
 
 **2. `sector-food.jpg`** — Food
 ```
-Small-batch food production, filled glass jars being sealed by hand on a stainless steel bench, subject high in the frame. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Full colour, rich but natural saturation, tactile materials, appetising and crafted. Jars are unlabelled. No text, no signage, no logos, no brand marks, no recognisable faces.
+Small-batch food production, filled glass jars being sealed by hand on a clean stainless bench. Jars are unlabelled. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Full colour, rich but natural saturation, tactile materials, crafted. Subject in the upper two thirds of the frame.
 ```
 
 **3. `sector-cosmetics.jpg`** — Cosmetics
 ```
-Cosmetic jars and bottles being filled and capped in a small clean production room, subject high in the frame. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Full colour, rich but natural saturation, tactile materials, crafted. Containers are unlabelled. No text, no signage, no logos, no brand marks, no recognisable faces.
+Cosmetic jars and bottles being filled and capped in a small, bright production room. Containers are unlabelled. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Full colour, rich but natural saturation, tactile materials, crafted. Subject in the upper two thirds of the frame.
 ```
 
 **4. `sector-supplements.jpg`** — Supplements
 ```
-Supplement powder being weighed on a bench scale beside plain tubs on a small production line, subject high in the frame. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Full colour, rich but natural saturation, tactile materials, crafted. Tubs are unlabelled and the scale display is blank. No text, no signage, no logos, no brand marks, no recognisable faces.
+Supplement powder being weighed on a bench scale beside plain tubs on a small production line. Tubs are unlabelled and the scale display is blank. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Full colour, rich but natural saturation, tactile materials, crafted. Subject in the upper two thirds of the frame.
 ```
 
 **5. `sector-apparel.jpg`** — Apparel
 ```
-Folded finished garments stacked beside an industrial sewing machine and rolls of fabric, subject high in the frame. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Full colour, rich but natural saturation, tactile materials, crafted. Garments carry no printed graphics or labels. No text, no signage, no logos, no brand marks, no recognisable faces.
+Folded finished garments stacked beside a single sewing machine and neat rolls of fabric. Garments carry no printed graphics or labels. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Full colour, rich but natural saturation, tactile materials, crafted. Subject in the upper two thirds of the frame.
 ```
 
 **6. `sector-hardware.jpg`** — Hardware
 ```
-Machined metal fittings and fasteners sorted into compartment trays on a workshop bench, subject high in the frame. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Full colour, rich but natural saturation, tactile materials, crafted. No text, no signage, no logos, no brand marks, no recognisable faces.
+Small metal fittings and fasteners sorted into compartment trays on a clean bench. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Full colour, rich but natural saturation, tactile materials, crafted. Subject in the upper two thirds of the frame.
 ```
 
 **7. `sector-electronics.jpg`** — Electronics
 ```
-Populated circuit boards in an anti-static tray on a bench with fine tools and tweezers, subject high in the frame. Documentary editorial photograph of a small manufacturing workshop, natural window light, soft directional daylight, slightly overcast quality, warm neutral palette, matte surfaces, real working environment with mild wear and use, unstyled and uncontrived, 35mm lens, eye level, shallow depth of field. Full colour, rich but natural saturation, tactile materials, crafted. Boards carry no printed markings. No text, no signage, no logos, no brand marks, no recognisable faces.
+Populated circuit boards in an anti-static tray on a clean bench with fine tools and tweezers. Boards carry no printed markings. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Full colour, rich but natural saturation, tactile materials, crafted. Subject in the upper two thirds of the frame.
 ```
 
 ## Nano Banana continuation form
