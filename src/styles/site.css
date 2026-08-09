@@ -1330,16 +1330,27 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
 
 /* --- home: onboarding (four steps, from the design system's first-run kit) --- */
 .site-onboarding-steps {
-  list-style: none; margin: var(--space-10) 0 0; padding: 0;
-  display: grid; gap: var(--space-6); grid-template-columns: repeat(4, 1fr);
+  list-style: none; margin: var(--space-12) 0 0; padding: 0;
+  display: grid; gap: var(--space-8); grid-template-columns: repeat(4, 1fr);
 }
-.site-onboarding-step { display: grid; gap: var(--space-4); align-content: start; }
+/* The rule is where the step's hue lives — see the reasoning in index.astro.
+   Decorative, so it carries no contrast requirement of its own, which is what
+   lets amber and aqua stay in the rotation at all. */
+.site-onboarding-step {
+  display: grid; gap: var(--space-2); align-content: start;
+  border-top: 5px solid var(--step); padding-top: var(--space-5);
+}
+/* .mv-numeral is the design system's own display-numeral class, and
+   --fs-display-7/8 are annotated in typography.css as "hero numeral — crop it,
+   don't shrink it". This is the marketing-scale version of that: big enough to
+   be the thing you see first, clamped so four of them still fit a 1fr column at
+   960px. line-height 0.78 pulls the following title up tight against it. */
 .site-onboarding-num {
-  width: 44px; height: 44px; border-radius: 50%;
-  display: grid; place-items: center;
-  font-family: var(--font-numeral); font-weight: var(--fw-bold); font-size: var(--fs-lg);
+  font-size: clamp(56px, 6.5vw, 104px);
+  line-height: .78; color: var(--ink-strong);
+  margin-bottom: var(--space-2);
 }
-.site-onboarding-title { font-size: var(--fs-lg); margin: 0 0 var(--space-2); }
+.site-onboarding-title { font-size: var(--fs-lg); margin: 0; }
 .site-onboarding-desc { margin: 0; font-size: var(--fs-md); line-height: var(--lh-normal); color: var(--ink-muted); text-wrap: pretty; }
 @media (max-width: 960px) { .site-onboarding-steps { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) { .site-onboarding-steps { grid-template-columns: 1fr; } }
@@ -1441,3 +1452,23 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
 }
 .site-drawer-group[open] > summary::after { content: '\2212'; }
 .site-drawer-sub { padding-left: var(--space-4); font-size: var(--fs-md); color: var(--ink-muted); }
+
+/* --- section headings ---
+   Sections added during this pass used a bare `.mv-display`, which carries
+   weight, tracking and family but no size, so they resolved to 21px — barely
+   above body copy, on a page whose hero is 120px and whose closing CTA is 88px.
+   They disappeared. Six of them, across four routes; the pass-1 pages set their
+   own sizes explicitly and were never affected.
+
+   --fs-display-3 (52px) rather than the 40px used elsewhere: it matches the
+   explainer band's h2, which is the home page's other section-level heading, so
+   the page reads 120 / 52 / 88 instead of 120 / 21 / 88. */
+.site-section-title { font-size: var(--fs-display-3); margin: var(--space-2) 0 var(--space-4); max-width: 24ch; }
+/* The eyebrow above it was --ink-muted at 11px and read as a caption rather
+   than a label. --brand-2 is the design system's AA-safe cobalt-as-text and is
+   already what the footer's group headings use, so this ties the two together
+   rather than inventing a third treatment. */
+.site-section-title + *, .mv-eyebrow + .site-section-title { margin-top: var(--space-2); }
+.site-onboarding .mv-eyebrow,
+.site-sectors .mv-eyebrow,
+.site-compare .mv-eyebrow { color: var(--brand-2); }

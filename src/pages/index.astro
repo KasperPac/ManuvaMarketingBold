@@ -460,7 +460,7 @@ const schema = [
           separate lines, so the old page's glued "eyebrow + heading" run needs
           an explicit space to survive — {' '} forces a real text node. */}
       <span class="mv-eyebrow">The platform</span>{' '}
-      <h2 class="mv-display">Everything your shop needs. Nothing it doesn't.</h2>
+      <h2 class="mv-display site-section-title">Everything your shop needs. Nothing it doesn't.</h2>
       <p class="site-section-sub">
         One system covering the whole shop floor — from raw materials in to finished goods out. No modules to
         bolt on, no consultants to hire.
@@ -526,19 +526,24 @@ const schema = [
   <section class="mv-section site-onboarding">
     <div class="mv-wrap">
       <span class="mv-eyebrow">{ONBOARDING.eyebrow}</span>{' '}
-      <h2 class="mv-display">{ONBOARDING.heading}</h2>
+      <h2 class="mv-display site-section-title">{ONBOARDING.heading}</h2>
       <p class="site-section-sub">{ONBOARDING.lede}</p>
+      {/* The step's hue rides on a custom property rather than the numeral
+          itself. Only cobalt clears AA as text on paper (4.76:1); violet and
+          flare are large-text-only at 4.40 and 3.18, and amber, aqua and mint
+          fail even the 3:1 floor — 1.72, 2.26, 2.25. Four coloured numerals is
+          therefore not available at any size, so the numeral takes --ink-strong
+          and the colour becomes the rule above each step, where it is
+          decorative and carries no contrast requirement.
+
+          aria-hidden on the numeral: this is an <ol>, so order is already
+          conveyed. Without it a screen reader reads "1 1 Connect Shopify". */}
       <ol class="site-onboarding-steps">
         {ONBOARDING.steps.map((st, i) => (
-          <li class="site-onboarding-step">
-            {/* The number carries the hue as a real field/ink pair, same as the
-                /product domain cards' accent chip — data-fold so --on-flare
-                resolves to near-black instead of its failing white default. */}
-            <span class="site-onboarding-num" data-fold={st.field} style={`background:var(--field-${st.field});color:var(--on-${st.field})`}>{i + 1}</span>
-            <div>
-              <h3 class="site-onboarding-title">{st.title}</h3>
-              <p class="site-onboarding-desc">{st.desc}</p>
-            </div>
+          <li class="site-onboarding-step" style={`--step:var(--field-${st.field})`}>
+            <span class="mv-numeral site-onboarding-num" aria-hidden="true">{i + 1}</span>
+            <h3 class="site-onboarding-title">{st.title}</h3>
+            <p class="site-onboarding-desc">{st.desc}</p>
           </li>
         ))}
       </ol>
@@ -600,7 +605,7 @@ const schema = [
   <section class="mv-section site-sectors">
     <div class="mv-wrap">
       <span class="mv-eyebrow">Who runs Manuva</span>{' '}
-      <h2 class="mv-display">Built for shops that make what they sell.</h2>
+      <h2 class="mv-display site-section-title">Built for shops that make what they sell.</h2>
       <ul class="site-sector-grid">
         {SECTORS.map((sec) => {
           const src = photo(sec.photo);
