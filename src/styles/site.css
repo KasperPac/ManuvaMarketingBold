@@ -387,9 +387,31 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
 .site-split-img { width: 100%; height: auto; display: block; border-radius: var(--radius-tile); margin-top: var(--space-5); }
 
 /* --- home: beta strip --- */
-.site-beta { text-align: center; display: grid; justify-items: center; gap: var(--space-4); }
-.site-beta-head { display: flex; align-items: center; gap: var(--space-2); font-size: var(--fs-xl); margin: 0; }
-.site-beta-sub { margin: 0 0 var(--space-2); max-width: 52ch; font-size: var(--fs-md); opacity: .8; }
+/* This band read as out of place because it followed none of the page's own
+   conventions. Every section around it is left-aligned with an eyebrow, a
+   52px heading and full-strength body copy; this one was centred, its heading
+   was a 20px <p>, and its body sat at 14px under an opacity mute — roughly 90px
+   of content floating in a 351px band of cyan. Next to 94px step numerals it
+   read as a footnote that had been given a whole fold.
+
+   Now it matches: left-aligned, display-scale heading, body at full strength.
+   The copy is untouched — it is the old page's own beta strip, verbatim, and
+   the parity gate checks every word of it. Only the <p> became an <h2>, which
+   the extractor treats identically (both are boundary selectors) and which
+   gives the section the heading it was missing for screen readers. */
+/* On the wrap, not the section. Putting the grid on the section made .mv-wrap a
+   grid item, which shrank it to its content and stopped its auto margins doing
+   the centring every other section relies on — the band's content sat 243px
+   right of where the sections above and below start. */
+.site-beta .mv-wrap { display: grid; justify-items: start; gap: var(--space-5); }
+/* NOT flex. A flex container makes every child a flex item, including bare text
+   nodes, so `gap` was inserted between "free" and the full stop that closes the
+   sentence: "3 months of Pro — free ." The old 20px version had the same defect
+   and it went unnoticed; at 52px it is unmissable. Inline-block icon with a
+   margin keeps the sentence a single run of text. */
+.site-beta-head { font-size: var(--fs-display-3); margin: 0; max-width: 20ch; }
+.site-beta-head svg { vertical-align: -.08em; margin-right: var(--space-3); }
+.site-beta-sub { margin: 0; max-width: 52ch; font-size: var(--fs-lg); line-height: var(--lh-normal); }
 
 /* --- home: comparison ---
    This section was a full-bleed ink field, and every value here was tuned
