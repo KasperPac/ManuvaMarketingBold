@@ -1,11 +1,11 @@
 # Platform tile photography
 
 Eight decorative watermark photos, one per tile in the home page's "The platform"
-grid. They fade and slide in on hover/focus at **16% opacity under a
-`soft-light` blend**, so they read as a texture behind the field colour rather
-than as a picture. Nothing here is load-bearing: with the directory empty the
-tiles render exactly as they did before, and `Tile.astro` only emits the layer
-when a `photo` path is passed.
+grid. The photo owns a band down the right of each tile (the bottom on narrow
+screens) at **full natural colour**, masked so it fades into the field colour,
+with the text held clear of it. Nothing here is load-bearing: with the directory
+empty the tiles render exactly as they did before, and `Tile.astro` only emits
+the layer when a `photo` path is passed.
 
 **These images do not exist yet.** The paths below are wired up in
 `src/pages/index.astro`; drop the files in and they appear.
@@ -33,10 +33,9 @@ cards are full-colour and actually seen).
 - **Self-hosted only.** No CDN or remote URL. An e2e test asserts every route
   makes zero cross-origin requests on load, and it will fail.
 - **Landscape, ~1600×1000, JPEG, under ~200KB each.** They render at tile size
-  and sit at 16% opacity, so detail is wasted; file size is not.
-- **No text, no logos, no readable UI.** At 16% under soft-light any lettering
-  turns to noise, and a real brand mark in the background is a licensing
-  problem.
+  at band width, so file size matters more than resolution.
+- **No text, no logos, no readable UI.** These are seen at full strength, so
+  any lettering is legible, and a real brand mark is a licensing problem.
 - **No recognisable faces.** Hands and figures at working distance are fine.
 - **Consistent treatment across all eight** — same rough lighting and warmth, or
   the grid reads as eight unrelated stock photos.

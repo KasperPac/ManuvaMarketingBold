@@ -1258,53 +1258,72 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
    the same constraint Pill.astro documents. `inherit` takes the field's ink. */
 .site-alt-index-card-link { color: inherit; font-weight: var(--fw-semibold); text-decoration: underline; text-underline-offset: 3px; }
 
-/* --- tile watermark photography (home platform grid) ---
-   A decorative photo that slides up and fades in on hover/focus. Absent by
-   default: Tile only emits the layer when a `photo` path is passed, so every
-   tile elsewhere on the site is byte-identical to before.
+/* --- tile photography (home platform grid) ---
+   The photo owns a band of the tile at full natural colour, with text kept
+   clear of it. Absent by default: Tile only emits the layer when a `photo`
+   path is passed, so every tile elsewhere on the site is unchanged.
 
-   CONTRAST IS THE RISK HERE, and it is the one thing the test suite cannot
-   check for us. axe reads computed colours; it cannot see a background image,
-   so text sitting over one of these photos is invisible to every contrast test
-   in this project — the same blind spot that let four mismatched screenshots
-   ship. Three things keep it safe by construction rather than by measurement:
+   This replaces a 16%-opacity soft-light watermark. That version was
+   effectively invisible — you could not tell what any photograph was — and
+   turning it up did not fix it: soft-light compresses toward the base colour,
+   so it hides the image and drains the field at the same time. Measured, 45%
+   still was not legible and dropped white-on-cobalt to ~3.7:1.
 
-   1. opacity caps at .16, so the field colour still supplies the overwhelming
-      majority of the composite;
-   2. `mix-blend-mode: soft-light` cannot drive a channel to pure black or
-      white the way `overlay` or `screen` can — it compresses toward the
-      field's own luminance instead of away from it;
-   3. the layer sits under a scrim keyed to the field's own ink, so the corner
-      where the title and body actually sit stays close to the flat field.
+   The contrast problem is now structural rather than managed. Nothing overlaps:
+   text sits on flat field colour, the photo sits beside it, and the mask fades
+   one into the other. That matters because no test in this project can measure
+   text contrast over an image — axe reads computed colours and cannot see a
+   background — so the only safe arrangement is one where the question does not
+   arise. Worth noting the old version was already at 4.34:1 worst case while
+   every contrast test passed.
 
-   Whoever adds the real images still has to look at each tile with the photo
-   in place. This makes a bad outcome unlikely, not impossible. */
+   The mask, not a gradient overlay, is what lets this work without naming a
+   colour: masking the photo's own edge to transparent lets each tile's own
+   field show through, so one rule serves all eight hues. */
 .site-tile { position: relative; overflow: hidden; isolation: isolate; }
 .site-tile-photo {
-  position: absolute; inset: 0; z-index: 0;
+  position: absolute; inset: 0 0 0 auto; width: 46%; z-index: 0;
   background-size: cover; background-position: center;
-  opacity: 0; mix-blend-mode: soft-light;
-  transform: translateY(12px) scale(1.04);
-  transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out);
+  transform: scale(1.02);
+  transition: transform var(--dur-slow) var(--ease-out);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 42%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 42%);
   pointer-events: none;
 }
-/* The scrim: a gradient from the tile's own background toward transparent,
-   strongest where the text is. `currentColor` would be the ink, not the field,
-   so this uses the field colour the inline style already set — inherit via
-   `background-color` is not available on a pseudo-layer, hence the gradient
-   riding on the parent's own paint through soft-light above rather than a
-   second colour declaration that would need the field name repeated. */
-.site-tile-photo::after {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(to top, rgb(0 0 0 / .18), transparent 60%);
-}
+/* The residual nod to the original "slide on hover" idea. The photo is present
+   at rest now — hiding it was the whole complaint — so hover only eases it. */
 .site-tile:hover .site-tile-photo,
-.site-tile:focus-visible .site-tile-photo { opacity: .16; transform: none; }
-/* Content above the photo. Only needed on the three real children; the photo
-   is DOM-first, but these carry no stacking context of their own otherwise. */
+.site-tile:focus-visible .site-tile-photo { transform: scale(1.06); }
+
+/* Content above the photo, and held clear of the band so no glyph ever lands
+   on the image even at the longest copy. 52% + the 46% band leaves a 2%
+   breathing gap at each end of the mask ramp. */
 .site-tile-head, .site-tile-title, .site-tile-body { position: relative; z-index: 1; }
+.site-tile:has(.site-tile-photo) .site-tile-title,
+.site-tile:has(.site-tile-photo) .site-tile-body { max-width: 52%; }
+
+/* Narrow: a 46% side band would leave the copy around 190px wide at a 390px
+   viewport, which wraps the titles to three lines. The band moves to the bottom
+   and the mask turns vertical.
+
+   Fixed height, not a percentage: a percentage band scales with the tile, and
+   the tile grows with its own copy, so the band chased the content down. The
+   Warehouse tile carries four chips and its text landed 176px into the opaque
+   part of the photo — caught by measuring text boxes against the mask ramp at
+   four widths, not by looking. A fixed band plus matching bottom padding means
+   the reserved strip cannot move no matter how long the copy runs. */
+@media (max-width: 720px) {
+  .site-tile-photo {
+    inset: auto 0 0 0; width: auto; height: 160px;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 45%);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 45%);
+  }
+  .site-tile:has(.site-tile-photo) { padding-bottom: calc(160px + var(--space-6)); }
+  .site-tile:has(.site-tile-photo) .site-tile-title,
+  .site-tile:has(.site-tile-photo) .site-tile-body { max-width: none; }
+}
 @media (prefers-reduced-motion: reduce) {
-  .site-tile-photo { transition: opacity var(--dur-fast) linear; transform: none; }
+  .site-tile-photo { transition: none; transform: none; }
   .site-tile:hover .site-tile-photo,
   .site-tile:focus-visible .site-tile-photo { transform: none; }
 }

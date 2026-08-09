@@ -6,9 +6,10 @@ one says how to generate them so they hold together as a set.
 **The two sets need different treatments.** They are not fifteen variations of
 one thing:
 
-- **Set A — platform tiles (8).** Rendered at **16% opacity under a
-  `soft-light` blend** on top of a saturated field colour. They are texture, not
-  pictures. Detail is thrown away; only large-scale light and shade survives.
+- **Set A — platform tiles (8).** The photo owns a band down the right of the
+  tile (the bottom on narrow screens) at **full natural colour**, masked so it
+  fades into the field colour. Text never overlaps it, so these are seen
+  properly — the same standard as Set B.
 - **Set B — sector cards (7).** Rendered at **full strength** as the entire card
   background, with an opaque label bar across the bottom. These are seen
   properly and carry the weight.
@@ -75,8 +76,25 @@ Four things in there are doing specific work and should not be edited out:
 **Treatment note.** Append this to the style anchor for all eight:
 
 ```
-Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail.
+Full colour, rich but natural saturation, tactile materials, crafted. Subject centred in the frame.
 ```
+
+**This changed after the first eight landed.** Set A was originally specified as
+near-monochrome texture behind a 16%-opacity soft-light watermark. That turned
+out to be invisible — you could not tell what any photograph was — and raising
+the opacity did not fix it, because soft-light compresses toward the base
+colour: it hides the image and drains the field at the same time. At 45% it was
+still illegible and had dropped white-on-cobalt to about 3.7:1.
+
+The photo now occupies its own band at natural colour with the text beside it,
+so **both sets want the same treatment**. The eight already delivered came back
+in colour and suit it as they are; nothing needs regenerating for the change.
+
+**"Subject centred" is load-bearing.** The band is roughly square while the
+source is 16:10, so `cover` shows only the middle ~64% of the frame. The Reports
+photo put its laptop in the bottom-left corner and the tile cropped it out
+entirely — the one object the tile is about. That one is now anchored left in
+code, but centring the subject avoids the problem instead of patching it.
 
 **Why low saturation — corrected, with measurements.** An earlier version of
 this file claimed a saturated photo would drag the field off-hue and make cobalt
@@ -110,7 +128,7 @@ outer 15% on every edge is lost.
 
 | # | File | Subject line to append |
 |---|---|---|
-| 1 | `platform-inventory.jpg` | `Open storage shelving neatly racked with labelled bins and stacked stock, receding in perspective.` |
+| 1 | `platform-inventory.jpg` | `Open storage shelving in neat aligned rows, every bay and shelf location carrying its own small barcode label clipped to the front edge, bins and cartons squared up and uniform, receding in perspective.` |
 | 2 | `platform-boms.jpg` | `The component parts of a single consumer product laid out flat on a clean workbench in an exploded arrangement, evenly spaced, shot from above.` |
 | 3 | `platform-warehouse.jpg` | `Cartons being checked in on a clean receiving bench, a pair of hands lifting one clear of the stack.` |
 | 4 | `platform-team.jpg` | `Two people working side by side at a long uncluttered bench, seen from behind and to one side, faces not visible.` |
@@ -181,16 +199,16 @@ Two things to know before committing:
   crop: the mark sits about 83% down the frame and a platform tile only trims
   8.6% off top and bottom.
 
-  At 16% opacity under soft-light it is effectively invisible, so Set A can
-  tolerate it. **Set B cannot** — those render at full strength, and a sparkle in
-  the corner of a sector card is plainly visible. Generate through the API or a
-  paid tier that does not stamp it. Cropping it out is possible but fragile
-  across fifteen images and costs composition.
+  **Both sets now render at full strength, so neither can tolerate it.** When
+  Set A was a 16% watermark the mark was invisible and could be ignored; the
+  band treatment ended that. All eight delivered images were cropped to remove
+  it (`scripts/prep-photos.mjs` drops the bottom 20%), which works but costs a
+  fifth of every frame. Generate through the API or a paid tier that does not
+  stamp, and pass `--keep-bottom` so nothing is thrown away.
 
 - **Set the output size explicitly.** The first image came back 1024x559. That is
-  fine for Set A, which is texture at 16%, but too small for Set B: those fill a
-  card at full strength and will upscale visibly on a wide viewport. Ask for
-  1600x1000 or larger.
+  too small for either set now that both are seen at full size, and will upscale
+  visibly on a wide viewport. Ask for 1600x1000 or larger.
 
 - **It leans clean.** Its natural register is bright and tidy, and the style
   anchor above deliberately asks for the opposite: mild wear, real working
@@ -232,9 +250,13 @@ has a cutoff.
 
 ## After generating
 
-1. **Crop to 16:10**, subject centred (Set A) or high (Set B).
-2. **Resize to 1600×1000.** Anything larger is wasted — Set A renders at tile
-   size and 16% opacity.
+**`node scripts/prep-photos.mjs` does steps 1-3 for you.** It reads every PNG in
+this directory, crops the generator watermark, resizes and compresses, and
+leaves the originals alone. Pass `--keep-bottom` if your images have no
+watermark to remove. The manual equivalent:
+
+1. **Crop to 16:10**, subject centred (Set A) or high in frame (Set B).
+2. **Resize to 1600×1000.** Larger is wasted at the sizes these render.
 3. **Compress to JPEG, target under 200KB each.** Models output multi-megabyte
    PNGs. Fifteen uncompressed files would be the heaviest thing on the site by
    an order of magnitude, on a site that currently makes zero third-party
@@ -261,11 +283,14 @@ making a claim.
 files in place and look at all fifteen at desktop and mobile width. **No test in
 this repo can check this** — axe reads computed colours and cannot see a
 background image, which is precisely the blind spot that let those mismatched
-screenshots ship. Set A is protected by structure (16% opacity, `soft-light`,
-plus a scrim) and Set B by an opaque label bar, so problems are unlikely rather
-than impossible. If a title gets hard to read over any photo, that photo is too
-busy or too light — re-roll it rather than adjusting the CSS, which would weaken
-the treatment for all eight.
+screenshots ship.
+
+Both sets are now protected structurally rather than by measurement: on a
+platform tile the text sits on flat field colour beside the photo, never over
+it, and a sector card carries an opaque label bar. Nothing overlaps, so the
+question does not arise. Worth knowing that the previous 16% watermark version
+was already at 4.34:1 worst case while every contrast test passed — that is what
+"axe cannot see a background image" costs in practice.
 
 ---
 
@@ -281,8 +306,9 @@ no photo rather than a broken image.
 
 ## Set A — platform tiles (8)
 
-Near-monochrome texture. These sit at 16% opacity under a colour field, so what
-survives is light and shade, not detail or colour.
+Full colour. The photo owns a band of the tile at natural colour, so these are
+seen properly. Keep the subject centred — the band shows only the middle ~64%
+of the frame.
 
 **These prompts ask for near-monochrome and that is still the recommendation —
 but a colour result is not a defect.** Measured, a saturated source shifts the
@@ -293,7 +319,7 @@ neutral and colour across the eight.
 
 **1. `platform-inventory.jpg`** — Inventory & Production
 ```
-Open storage shelving neatly racked with labelled bins and stacked stock, receding in perspective. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail.
+Open storage shelving in neat aligned rows, every bay and shelf location carrying its own small barcode label clipped to the front edge, bins and cartons squared up and uniform, receding in perspective. Barcode labels are graphic only, with no readable lettering. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Low saturation, near-monochrome, strong simple shapes, clear separation of light and shadow, generous negative space, minimal fine detail.
 ```
 
 **2. `platform-boms.jpg`** — Bills of Materials & Costing

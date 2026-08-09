@@ -21,8 +21,14 @@ export interface Props {
    * this prop existed — which is what every tile outside the home page's
    * platform grid does. */
   photo?: string;
+  /** Where to anchor the photo inside its band, as a CSS background-position.
+   * The band is roughly square while the source is 16:10, so `cover` shows only
+   * the middle ~64% of the frame horizontally — a subject sitting near an edge
+   * is cropped out entirely. The Reports photo lost its laptop exactly that way.
+   * Defaults to centre; set it per image when the subject is off-centre. */
+  photoFocus?: string;
 }
-const { field, num, icon, title, href, headingLevel = 'div', class: className, photo } = Astro.props;
+const { field, num, icon, title, href, headingLevel = 'div', class: className, photo, photoFocus = 'center' } = Astro.props;
 // href turns the tile into a real link, root tag <a> instead of <div> — an
 // unlinked tile has no reason to be one or the other.
 const Tag = href ? 'a' : 'div';
@@ -36,7 +42,7 @@ const TitleTag = headingLevel;
   {/* DOM-first so it paints beneath the content without needing a z-index on
       every sibling — the same ordering invariant Video.astro's poster/button
       pair depends on. aria-hidden plus no alt: decorative by construction. */}
-  {photo && <span class="site-tile-photo" aria-hidden="true" style={`background-image:url("${photo}")`}></span>}
+  {photo && <span class="site-tile-photo" aria-hidden="true" style={`background-image:url("${photo}");background-position:${photoFocus}`}></span>}
   <div class="site-tile-head">
     {icon && <Icon name={icon} size={30} />}
     {num && <span class="mv-score site-tile-num">{num}</span>}

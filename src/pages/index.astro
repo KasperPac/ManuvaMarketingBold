@@ -112,6 +112,9 @@ const PILLARS_EXTRA = [
     field: 'cobalt',
     title: 'Reports & Analytics',
     photo: '/photos/platform-reports.jpg',
+    // The laptop sits in the bottom-left of this frame and the band crops to the
+    // middle, so centred it vanished entirely — the one thing the tile is about.
+    photoFocus: 'left center',
     href: '/features#reports',
     body: 'Live data on stock, supplier performance, PO accuracy, and dead stock — the reports that actually drive decisions.',
   },
@@ -452,7 +455,7 @@ const schema = [
       </p>
       <div class="mv-cols-2">
         {PILLARS.map((p) => (
-          <Tile field={p.field} icon={p.icon} title={p.title} href={p.href} headingLevel="h3" photo={photo(p.photo)}>
+          <Tile field={p.field} icon={p.icon} title={p.title} href={p.href} headingLevel="h3" photo={photo(p.photo)} photoFocus={p.photoFocus}>
             {p.body}{' '}
             <span class="site-tile-chips">
               {p.chips.map((c) => <span class="site-tile-chip">{c} </span>)}
@@ -463,7 +466,7 @@ const schema = [
             lists and there is no source for a tag list on a features.html
             section, so inventing one would be inventing copy. */}
         {PILLARS_EXTRA.map((p) => (
-          <Tile field={p.field} icon={p.icon} title={p.title} href={p.href} headingLevel="h3" photo={photo(p.photo)}>
+          <Tile field={p.field} icon={p.icon} title={p.title} href={p.href} headingLevel="h3" photo={photo(p.photo)} photoFocus={p.photoFocus}>
             {p.body}
           </Tile>
         ))}
