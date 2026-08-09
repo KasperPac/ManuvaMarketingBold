@@ -118,8 +118,23 @@ test('the dashboard screenshot has left the home page for /product', () => {
   expect(html()).not.toContain('screen-dashboard.png');
 });
 
-test('the other two product shots stay where they are', () => {
+// Was "the other two product shots stay where they are" — they no longer do.
+// The amber/violet showcase split that carried them was replaced by the
+// highlighted-feature panel (author's call), so all three product shots now
+// live on /product and none is on the home page. Asserting absence rather than
+// deleting the test: the shots leaving home was a deliberate decision, and a
+// silent reappearance here would mean someone restored the old split.
+test('no product screenshot remains on the home page', () => {
   const h = html();
-  expect(h).toContain('screen-variant.png');
-  expect(h).toContain('screen-components.png');
+  for (const shot of ['screen-dashboard.png', 'screen-variant.png', 'screen-components.png']) {
+    expect(h, `${shot} is back on the home page`).not.toContain(shot);
+  }
+});
+
+// The highlight that replaced the split must actually be there, or the test
+// above is satisfied by simply having removed the section and put nothing back.
+test('the highlighted latest feature replaced the showcase split', () => {
+  const h = html();
+  expect(h).toContain('Trace every finished good back to the lot it came from.');
+  expect(h).toContain('/features#lot-tracking');
 });

@@ -1,0 +1,145 @@
+---
+import Base from '../../layouts/Base.astro';
+import Panel from '../../components/site/Panel.astro';
+import Icon from '../../components/ds/Icon.astro';
+import CtaBand from '../../components/site/CtaBand.astro';
+
+// This route exists to fix a real navigation gap the author found: nav
+// "Compare" pointed at /alternatives/katana specifically, so /alternatives/
+// mrpeasy had no primary-nav path at all. It was reachable — the footer links
+// it from all nine pages and the Katana page cross-links it — but nothing in
+// the main nav did, and removing the home page's comparison section cut two
+// more links to it. Picking one of two competitor pages to be "Compare" was
+// always arbitrary; this is the parent both of them were missing.
+//
+// The comparison table below is the old home page's own #compare section,
+// moved here verbatim rather than deleted when the author removed it from the
+// landing page — same rows, same intro, same caption, same footnote links.
+// That keeps the copy on the site instead of losing it, and it lands on the
+// page whose whole subject it is.
+const COMPARE_ROWS = [
+  ['Real-time inventory', 'yes', 'yes', 'Batch sync', 'no'],
+  ['BOM versioning', 'yes', 'Manual', 'no', 'no'],
+  ['Delivery receipts / goods-in', 'yes', 'yes', 'yes', 'In a tab'],
+  ['Warehouse bin locations', 'yes', 'no', 'Add-on', 'no'],
+  ['Shopify integration', 'yes', 'yes', 'no', 'no'],
+  ['Staff capacity planning', 'yes', 'no', 'Basic', 'no'],
+  ['Cost management', 'yes', 'Basic', 'yes', 'no'],
+  ['Setup time', 'Days', 'Days–weeks', 'Weeks', 'Hours'],
+] as const;
+
+// Each card's blurb is the target page's own <meta description>, verbatim —
+// not a written summary. Both are already reviewed, ranking copy.
+const COMPARISONS = [
+  {
+    href: '/alternatives/katana',
+    field: 'cobalt' as const,
+    name: 'Manuva vs Katana',
+    blurb:
+      'Katana alternative for Shopify manufacturers. Compare pricing, BOM versioning, bin locations, and capacity planning — Manuva starts at $99/mo with unlimited floor users.',
+  },
+  {
+    href: '/alternatives/mrpeasy',
+    field: 'violet' as const,
+    name: 'Manuva vs MRPeasy',
+    blurb:
+      'MRPeasy alternative built for Shopify product brands. Compare per-seat pricing, setup time, real-time sync, and shop-floor usability against Manuva at $99/mo.',
+  },
+];
+
+// Authored head values — this route has no old counterpart, the same situation
+// /product is in. Only the second set of authored head values on the site;
+// both need reading as copy at review rather than checking against a source.
+const TITLE = 'Manuva vs the alternatives — MRP comparisons';
+const DESCRIPTION =
+  'Compare Manuva against Katana, MRPeasy, and spreadsheets — pricing, BOM versioning, bin locations, capacity planning, and setup time, side by side.';
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://manuva.app/' },
+      { '@type': 'ListItem', position: 2, name: 'Compare', item: 'https://manuva.app/alternatives' },
+    ],
+  },
+];
+---
+<Base
+  title={TITLE}
+  description={DESCRIPTION}
+  twitterDescription={DESCRIPTION}
+  canonical="https://manuva.app/alternatives"
+  {schema}
+>
+  <section class="mv-section site-alt-index-hero">
+    <div class="mv-wrap">
+      <span class="mv-eyebrow">Compare</span>{' '}
+      <h1 class="mv-display">Manuva vs the alternatives</h1>
+      <p class="site-alt-index-lede">
+        Honest, dated comparisons against the tools Shopify manufacturers actually evaluate.
+      </p>
+    </div>
+  </section>
+
+  <section class="mv-section">
+    <div class="mv-wrap">
+      <div class="mv-cols-2">
+        {COMPARISONS.map((c) => (
+          <Panel field={c.field} data-fold={c.field} class="site-alt-index-card">
+            <h2 class="mv-display site-alt-index-card-title">{c.name}</h2>
+            <p class="site-alt-index-card-body">{c.blurb}</p>
+            <a href={c.href} class="site-alt-index-card-link">Read the full comparison →</a>
+          </Panel>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* The home page's former #compare section, verbatim. Paper, not a field:
+      it is a data table, and "never a colour field behind a data table" is the
+      rule that took it off ink on the home page in the first place. */}
+  <section class="mv-section site-compare" id="compare">
+    <div class="mv-wrap">
+    <span class="mv-eyebrow">Why Manuva</span>{' '}
+    <h2 class="mv-display">Built for the floor, not for the demo</h2>
+    <p class="site-compare-intro">
+      Other tools either started as accounting software or as Trello-for-factories. Manuva was built from day
+      one for the way real shops run production.
+    </p>
+    <div class="site-compare-table" role="table" aria-label="Feature comparison: Manuva vs competitors">
+      <div class="site-compare-row site-compare-row-head" role="row">
+        <div role="columnheader">Capability</div>
+        <div role="columnheader" class="site-compare-manuva">Manuva</div>
+        <div role="columnheader">Katana</div>
+        <div role="columnheader">MRPEasy</div>
+        <div role="columnheader">Spreadsheets</div>
+      </div>
+      {COMPARE_ROWS.map(([name, manuva, katana, mrpeasy, spreadsheets]) => (
+        <div class="site-compare-row" role="row">
+          <div role="cell" class="site-compare-feat">{name}</div>
+          <div role="cell" class="site-compare-manuva">
+            {manuva === 'yes' ? <Icon name="check" size={16} /> : manuva === 'no' ? <Icon name="x" size={16} /> : manuva}
+          </div>
+          <div role="cell">{katana === 'yes' ? <Icon name="check" size={16} /> : katana === 'no' ? <Icon name="x" size={16} /> : katana}</div>
+          <div role="cell">{mrpeasy === 'yes' ? <Icon name="check" size={16} /> : mrpeasy === 'no' ? <Icon name="x" size={16} /> : mrpeasy}</div>
+          <div role="cell">{spreadsheets === 'yes' ? <Icon name="check" size={16} /> : spreadsheets === 'no' ? <Icon name="x" size={16} /> : spreadsheets}</div>
+        </div>
+      ))}
+    </div>
+    <p class="site-compare-foot">
+      See full comparison:{' '}
+      <a href="/alternatives/katana">Manuva vs Katana</a> · <a href="/alternatives/mrpeasy">Manuva vs MRPeasy</a>
+      <br />
+      <span class="site-compare-caption">Competitor data based on publicly available information. Verify before sharing with prospects.</span>
+    </p>
+    </div>
+  </section>
+
+  <CtaBand
+    field="flare"
+    heading="See Manuva in action"
+    body="14-day free trial, full Pro access. No credit card required. Set up in a day."
+    secondActionHref="/about#contact"
+  />
+</Base>

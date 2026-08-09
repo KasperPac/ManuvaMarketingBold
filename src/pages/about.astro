@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import Field from '../components/site/Field.astro';
 import Panel from '../components/site/Panel.astro';
 import CtaBand from '../components/site/CtaBand.astro';
+import Pill from '../components/site/Pill.astro';
 import Icon from '../components/ds/Icon.astro';
 import { APP_URL, CONTACT_EMAIL } from '../site';
 
@@ -222,6 +223,37 @@ const schema = [
     </div>
   </section>
 
+  {/* Contact — moved here from the home page (author's call: "remove the get in
+      touch from the landing page"). Deliberately relocated rather than deleted:
+      six links across the site plus the Organization schema's contactPoint.url
+      target #contact, and the copy is the old home page's own contact section,
+      verbatim. /about is where someone looking for the company already is, and
+      this page already carries the company block directly above.
+
+      Everything below is unchanged from its home-page form, including the two
+      extraction notes, which still apply — they describe how this markup keeps
+      each fragment boundary-isolated for the parity gate. The one change is the
+      anchor's owner: /about#contact, not /#contact. */}
+  <section class="mv-section site-contact" id="contact">
+    <div class="mv-wrap site-contact-inner">
+      <h2 class="mv-display">Get in touch</h2>
+      <p class="site-contact-sub">
+        Whether you're ready to start a trial or just want to see how Manuva fits your shop, we'd love to talk.
+      </p>
+      {/* No Icon before the label: it would stamp a "[icon:mail]" token right
+          before "Email". div, not span, for label/meta so each is its own
+          boundary-isolated segment; the mailto link needs an explicit {' '}
+          before "We reply…" since Astro drops the whitespace-only text node
+          that would otherwise separate them. */}
+      <div class="site-contact-info">
+        <div class="site-contact-label">Email</div>
+        <a href={`mailto:${CONTACT_EMAIL}`} class="site-contact-value">{CONTACT_EMAIL}</a>{' '}
+        <div class="site-contact-meta">We reply within one business day</div>
+      </div>
+      <Pill href={`mailto:${CONTACT_EMAIL}`} field="cobalt">Email us</Pill>
+    </div>
+  </section>
+
   {/* 5 · flare CTA. Heading and body are the old page's own closing
       cta-section text, verbatim — not an assembled tagline. secondActionHref
       matches the old page's own "Book a demo" href (same query-param-drop
@@ -230,6 +262,6 @@ const schema = [
     field="flare"
     heading="See Manuva in action"
     body="14-day free trial, full Pro access. No credit card required. Set up in a day."
-    secondActionHref="/#contact"
+    secondActionHref="/about#contact"
   />
 </Base>

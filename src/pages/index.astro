@@ -10,6 +10,18 @@ import Video from '../components/site/Video.astro';
 import Icon from '../components/ds/Icon.astro';
 import Button from '../components/ds/Button.astro';
 import { APP_URL, CONTACT_EMAIL } from '../site';
+import { existsSync } from 'node:fs';
+
+// The eight platform tiles each name a watermark photo under public/photos/.
+// None of those files exists yet — the author is generating them — and a path
+// to a missing file is a 404 on every home-page load, since a browser fetches
+// a background-image whether or not the layer is currently visible.
+//
+// So the paths are resolved against the filesystem at build time and dropped if
+// the file is not there. Empty directory: the tiles render exactly as they did
+// before, no requests, no 404s. Drop the eight JPEGs in and they light up with
+// no code change. See public/photos/README.md for what each one should show.
+const photo = (path: string) => (existsSync(`public${path}`) ? path : undefined);
 
 // The old page's four real pillars (features#inventory/boms/purchasing/capacity),
 // verbatim — titles, body copy and chip tags. Not the six-domain array from the
@@ -29,6 +41,7 @@ const PILLARS = [
     icon: 'package',
     field: 'cobalt',
     title: 'Inventory & Production',
+    photo: '/photos/platform-inventory.jpg',
     href: '/features#inventory',
     body: 'From raw materials to finished goods — live stock counts, production orders, manufacturing plans, and stocktakes. Everything that keeps the floor moving.',
     chips: ['Stock control', 'Production orders', 'Mfg planning', 'Stocktaking'],
@@ -37,6 +50,7 @@ const PILLARS = [
     icon: 'wrench',
     field: 'violet',
     title: 'Bills of Materials & Costing',
+    photo: '/photos/platform-boms.jpg',
     href: '/features#boms',
     body: 'Build multi-level BOMs with versioning, then roll up costs automatically. Know your margin before the job starts, not after.',
     chips: ['BOM builder', 'Cost management'],
@@ -45,6 +59,7 @@ const PILLARS = [
     icon: 'truck',
     field: 'flare',
     title: 'Warehouse & Stock Movement',
+    photo: '/photos/platform-warehouse.jpg',
     href: '/features#purchasing',
     body: 'Every delivery receipt, transfer, and adjustment updates your stock automatically. Bin-level locations mean nothing gets lost on the floor.',
     chips: ['Delivery receipts', 'Stock adjustments', 'Bin locations', 'Transfers'],
@@ -53,11 +68,86 @@ const PILLARS = [
     icon: 'zap',
     field: 'amber',
     title: 'Team & Integrations',
+    photo: '/photos/platform-team.jpg',
     href: '/features#capacity',
     body: "Plan around your team's capacity, sell through Shopify with inventory synced automatically, and get the reports that matter — on-time rate, scrap, stock turn.",
     chips: ['Staff capacity', 'Shopify', 'Reporting'],
   },
 ] as const;
+
+// Four more, added because four pillars was too thin a summary of the platform
+// (author's call). PILLARS above stays exactly as it was — those four are the
+// old home page's own features section and the parity gate checks every word of
+// them. These are additions, and none of their copy is composed: each title is
+// a features.html section eyebrow and each body is that section's own intro,
+// verbatim, reached through features.astro's DOMAIN_SECTIONS. Icons match the
+// icon features.astro already uses for the same section.
+//
+// Chosen to fill the gaps the original four leave rather than restate them:
+// PILLARS covers inventory+production, BOMs+costing, warehouse movement and
+// team+integrations, so orders, production scheduling, reporting and the
+// Shopify platform layer are the four real sections with no representation
+// here. Lot tracking is the one other uncovered section and is deliberately
+// absent — it carries the highlight panel below instead of being buried as a
+// ninth tile.
+const PILLARS_EXTRA = [
+  {
+    icon: 'shopping-cart',
+    field: 'aqua',
+    title: 'Orders & Fulfilment',
+    photo: '/photos/platform-orders.jpg',
+    href: '/features#orders',
+    body: 'Shopify orders flow in automatically. Manual and B2B orders go in directly. Manuva tracks each line from component allocation through to delivery — so nothing slips.',
+  },
+  {
+    icon: 'kanban-square',
+    field: 'flare',
+    title: 'Production Planning',
+    photo: '/photos/platform-production.jpg',
+    href: '/features#production-planning',
+    body: "Schedule jobs, track steps in sequence, and know exactly what's running and what's blocked — across every department, in real time.",
+  },
+  {
+    icon: 'layout-dashboard',
+    field: 'cobalt',
+    title: 'Reports & Analytics',
+    photo: '/photos/platform-reports.jpg',
+    href: '/features#reports',
+    body: 'Live data on stock, supplier performance, PO accuracy, and dead stock — the reports that actually drive decisions.',
+  },
+  {
+    icon: 'shopping-bag',
+    field: 'violet',
+    title: 'Shopify & Platform',
+    photo: '/photos/platform-shopify.jpg',
+    href: '/features#shopify',
+    body: 'Real-time webhook sync, not nightly batch imports. Orders drive production. Inventory stays accurate across every channel.',
+  },
+] as const;
+
+// The highlight that replaces the old amber/violet showcase split. Not chosen
+// by us: the old home page's own hero badge reads `<span class="pip">New</span>
+// Lot tracking & supplier scorecards`, so lot tracking is the site's own
+// declared latest feature and that badge is still on the hero above. Heading
+// and body are the features.html lot-tracking section's own heading and intro,
+// verbatim.
+//
+// No screenshot. The three shots this site owns are the dashboard, the variant
+// detail and the component picker — none of them shows lot tracking, and
+// putting one here would caption an image with something it does not depict,
+// which is the defect class that cost this project four separate fixes.
+const HIGHLIGHT = {
+  eyebrow: 'New',
+  section: 'Lot tracking & traceability',
+  heading: 'Trace every finished good back to the lot it came from.',
+  body: 'Lot numbers, expiry dates, and end-to-end traceability for brands where provenance, shelf life, or recall preparedness actually matter — food, cosmetics, supplements, electronics, regulated components.',
+  href: '/features#lot-tracking',
+  feats: [
+    'Assign lot or batch numbers at goods receipt',
+    'Track expiration on perishable components, with FEFO picking',
+    'Supplier → component lot → production order → finished good → customer order',
+  ],
+} as const;
 
 const MARQUEE = [
   'Yield % on every BOM line',
@@ -107,20 +197,6 @@ const TIERS = [
   },
 ] as const;
 
-// Verbatim from the old site's comparison table (#compare). The old markup is a
-// div-based ARIA table, not a <table> — kept the same way here so a colour field
-// never sits behind real tabular markup.
-const COMPARE_ROWS = [
-  ['Real-time inventory', 'yes', 'yes', 'Batch sync', 'no'],
-  ['BOM versioning', 'yes', 'Manual', 'no', 'no'],
-  ['Delivery receipts / goods-in', 'yes', 'yes', 'yes', 'In a tab'],
-  ['Warehouse bin locations', 'yes', 'no', 'Add-on', 'no'],
-  ['Shopify integration', 'yes', 'yes', 'no', 'no'],
-  ['Staff capacity planning', 'yes', 'no', 'Basic', 'no'],
-  ['Cost management', 'yes', 'Basic', 'yes', 'no'],
-  ['Setup time', 'Days', 'Days–weeks', 'Weeks', 'Hours'],
-] as const;
-
 const description =
   'Inventory, BOMs, work orders, and stock control — connected, live, and built for the floor. The simpler alternative to legacy MRP for Shopify manufacturers.';
 // Old page's own og:description AND twitter:description — identical to each
@@ -162,7 +238,7 @@ const schema = [
       contactType: 'customer support',
       email: CONTACT_EMAIL,
       availableLanguage: ['English'],
-      url: 'https://manuva.app/#contact',
+      url: 'https://manuva.app/about#contact',
     },
   },
   {
@@ -259,7 +335,7 @@ const schema = [
               contact form's message field via JS. The form is gone (see the
               contact section below), but the anchor is still the closest match
               to old intent — it lands on the email CTA instead of prefilling. */}
-          <Pill href="#contact" ghost>Book a demo</Pill>
+          <Pill href="/about#contact" ghost>Book a demo</Pill>
         </div>
         <div class="site-hero-meta">
           {/* div, not span: div is a parity boundary-selector so each item stays
@@ -331,11 +407,19 @@ const schema = [
       </p>
       <div class="mv-cols-2">
         {PILLARS.map((p) => (
-          <Tile field={p.field} icon={p.icon} title={p.title} href={p.href} headingLevel="h3">
+          <Tile field={p.field} icon={p.icon} title={p.title} href={p.href} headingLevel="h3" photo={photo(p.photo)}>
             {p.body}{' '}
             <span class="site-tile-chips">
               {p.chips.map((c) => <span class="site-tile-chip">{c} </span>)}
             </span>
+          </Tile>
+        ))}
+        {/* No chips on these four: chips are the old page's own per-pillar tag
+            lists and there is no source for a tag list on a features.html
+            section, so inventing one would be inventing copy. */}
+        {PILLARS_EXTRA.map((p) => (
+          <Tile field={p.field} icon={p.icon} title={p.title} href={p.href} headingLevel="h3" photo={photo(p.photo)}>
+            {p.body}
           </Tile>
         ))}
       </div>
@@ -343,52 +427,35 @@ const schema = [
     </div>
   </section>
 
-  {/* amber / violet split — the old page's product-tour showcase rows */}
+  {/* Highlighted latest feature — replaces the old page's amber/violet
+      showcase split (two product-tour rows on versioned BOMs and the component
+      picker). Author's call: those two read as an arbitrary pair, and both
+      their screenshots now live on /product where they have company and
+      context.
+
+      What replaces them is not a third arbitrary pick — the old home page's own
+      hero badge, still on the hero above, reads New / "Lot tracking & supplier
+      scorecards", so the site already declares its latest feature and this
+      panel just gives it somewhere to land. Copy is the features.html
+      lot-tracking section's own heading and intro, verbatim.
+
+      One panel, not a split: a single full-width panel is the point of a
+      highlight. Amber: violet is out because the tile grid directly above ends
+      on the violet Shopify tile AND the explainer band above that is violet;
+      aqua is out because the beta strip immediately below is aqua — removing
+      the pricing section made those two neighbours, which is exactly how the
+      ink/aqua adjacency happened. Amber is the one warm field this page no
+      longer uses anywhere else. */}
   <section class="mv-section">
-    <div class="mv-wrap mv-split" style="--split:1.25fr 1fr">
-      <Panel field="amber" data-fold="amber" class="site-split-panel">
-        <span class="mv-eyebrow">Bills of materials</span>{' '}
-        <h3 class="mv-display site-split-heading">Versioned BOMs that track every change.</h3>
-        <p class="site-split-body">
-          Every time you change a component, swap a supplier, or adjust quantities, Manuva captures it as a new
-          version. Compare side-by-side, see the cost and margin impact, and roll back if you need to.
-        </p>
-        <ul class="site-split-list">
-          <li><Icon name="check" size={16} /> Full version history with timestamps</li>
-          <li><Icon name="check" size={16} /> See added, removed, and changed components at a glance</li>
-          <li><Icon name="check" size={16} /> Automatic cost and margin recalculation</li>
+    <div class="mv-wrap">
+      <Panel field="amber" data-fold="amber" class="site-highlight-panel">
+        <span class="mv-eyebrow site-highlight-eyebrow"><span class="site-hero-badge">{HIGHLIGHT.eyebrow}</span>{HIGHLIGHT.section}</span>{' '}
+        <h3 class="mv-display site-highlight-heading">{HIGHLIGHT.heading}</h3>
+        <p class="site-highlight-body">{HIGHLIGHT.body}</p>
+        <ul class="site-highlight-list">
+          {HIGHLIGHT.feats.map((f) => <li><Icon name="check" size={16} /> {f}</li>)}
         </ul>
-        <img
-          src="/screen-variant.png"
-          width="2080"
-          height="1090"
-          loading="lazy"
-          decoding="async"
-          alt="Manuva variant detail showing versioned bills of materials with cost comparison"
-          class="site-split-img"
-        />
-      </Panel>
-      <Panel field="violet" data-fold="violet" class="site-split-panel">
-        <span class="mv-eyebrow">Component library</span>{' '}
-        <h3 class="mv-display site-split-heading">Build BOMs in minutes, not hours.</h3>
-        <p class="site-split-body">
-          Search every component, fastener, and raw material across your library. Add to a BOM with a click —
-          quantities, costs, and supplier links all carry through automatically.
-        </p>
-        <ul class="site-split-list">
-          <li><Icon name="check" size={16} /> Search by name, SKU, supplier, or category</li>
-          <li><Icon name="check" size={16} /> Add multiple components in a single action</li>
-          <li><Icon name="check" size={16} /> Costs and stock levels visible inline</li>
-        </ul>
-        <img
-          src="/screen-components.png"
-          width="2080"
-          height="1090"
-          loading="lazy"
-          decoding="async"
-          alt="Manuva component selection modal with searchable parts library"
-          class="site-split-img"
-        />
+        <Pill href={HIGHLIGHT.href} field="paper">See how lot tracking works →</Pill>
       </Panel>
     </div>
   </section>
@@ -421,125 +488,25 @@ const schema = [
     <Pill href={APP_URL} field="paper">Start free trial →</Pill>
   </Field>
 
-  {/* pricing — paper, verbatim. Plan cards are data: never a colour field behind
-      them, so no data-fold here, matching the rule that already keeps colour off
-      the product-shot table. */}
-  <section class="mv-section site-pricing">
-    <div class="mv-wrap">
-      <span class="mv-eyebrow">Pricing</span>{' '}
-      <h2 class="mv-display">Simple pricing for manufacturing teams</h2>
-      <p class="site-section-sub">
-        One price per tier. No per-seat fees. No usage meters. Start free for 14 days — no credit card required.
-      </p>
-      <div class="site-pricing-toggle" aria-hidden="true">
-        <span class="site-pricing-toggle-btn">Monthly</span>{' '}
-        <span class="site-pricing-toggle-btn site-pricing-toggle-on">Annual <span class="site-pricing-save">−20%</span></span>
-      </div>
-      <div class="mv-cols-3 site-tier-grid">
-        {TIERS.map((tier) => (
-          <div class:list={['site-tier', { 'site-tier-featured': tier.featured }]}>
-            {tier.tag && <span class="site-tier-tag">{tier.tag}</span>}{' '}
-            <div class="site-tier-name">{tier.name}</div>
-            <p class="site-tier-desc">{tier.desc}</p>
-            <div class="site-tier-price"><span class="site-tier-val">{tier.price}</span> <span class="site-tier-per">/ month</span></div>
-            <div class="site-tier-sub">{tier.sub}</div>
-            <Pill href={APP_URL} field={tier.featured ? 'cobalt' : undefined} variant={tier.featured ? undefined : 'secondary'} class="site-tier-cta">Start free trial</Pill>{' '}
-            {/* No Icon here: the old page's tier-feats checkmarks are raw SVGs
-                with no data-lucide, so they contribute zero text on extraction.
-                Icon always stamps a "[icon:check]" token, which would sit right
-                where the parity gate expects the old page's plain feature text —
-                breaking both the CTA-glued phrase and each isolated fragment
-                ("Single-level BOMs", "Cost management", …). A CSS ::before
-                checkmark gets the same look without the token. */}
-            <ul class="site-tier-feats">
-              {tier.featsHd && <li class="site-tier-feats-hd">{tier.featsHd}</li>}
-              {tier.feats.map((f) => <li>{f}</li>)}
-            </ul>
-          </div>
-        ))}
-      </div>
-      <p class="site-pricing-enterprise">
-        <strong>Enterprise</strong> is available on request — multi-site, SSO/SAML, dedicated CSM, custom SLAs.{' '}
-        <a href="#contact">Contact sales →</a> · <a href="/pricing">See full feature comparison →</a>
-      </p>
-    </div>
-  </section>
+  {/* The pricing summary and the eight-row comparison table both lived here,
+      verbatim from the old home page. Removed on the author's call: each now
+      has its own page (/pricing carries the full plan cards and the feature
+      matrix; /alternatives/katana and /alternatives/mrpeasy carry the
+      competitor comparisons at far greater depth), and stacking both here left
+      the page grey from the beta strip all the way to the closing CTA.
 
-  {/* ink comparison — the old page's full 8-row table, verbatim. id="compare"
-      matches the old page's own <section class="compare" id="compare">
-      (origin/master:index.html) — both /alternatives/ pages' "Explore
-      further" links carry a real "/#compare" href that pointed at this
-      section on the old site and silently lost its target in the reskin
-      (Task 14, caught by testing every href="/route#id" resolves, not just
-      same-page ones — team-lead correction, not a content decision). */}
-  {/* comparison — paper, was ink. It carries an eight-row comparison table, and
-      "never a colour field behind a data table" is the loud-layer rule this
-      site already follows for pricing and the about company block. Navy read as
-      an exception to that rule; with navy gone from marketing there is no
-      neutral dark to make the exception with, and a rotation hue behind a data
-      table would break the rule outright. Paper is the answer the rule was
-      always pointing at. */}
-  <section class="mv-section site-compare" id="compare">
-    <div class="mv-wrap">
-    <span class="mv-eyebrow">Why Manuva</span>{' '}
-    <h2 class="mv-display">Built for the floor, not for the demo</h2>
-    <p class="site-compare-intro">
-      Other tools either started as accounting software or as Trello-for-factories. Manuva was built from day
-      one for the way real shops run production.
-    </p>
-    <div class="site-compare-table" role="table" aria-label="Feature comparison: Manuva vs competitors">
-      <div class="site-compare-row site-compare-row-head" role="row">
-        <div role="columnheader">Capability</div>
-        <div role="columnheader" class="site-compare-manuva">Manuva</div>
-        <div role="columnheader">Katana</div>
-        <div role="columnheader">MRPEasy</div>
-        <div role="columnheader">Spreadsheets</div>
-      </div>
-      {COMPARE_ROWS.map(([name, manuva, katana, mrpeasy, spreadsheets]) => (
-        <div class="site-compare-row" role="row">
-          <div role="cell" class="site-compare-feat">{name}</div>
-          <div role="cell" class="site-compare-manuva">
-            {manuva === 'yes' ? <Icon name="check" size={16} /> : manuva === 'no' ? <Icon name="x" size={16} /> : manuva}
-          </div>
-          <div role="cell">{katana === 'yes' ? <Icon name="check" size={16} /> : katana === 'no' ? <Icon name="x" size={16} /> : katana}</div>
-          <div role="cell">{mrpeasy === 'yes' ? <Icon name="check" size={16} /> : mrpeasy === 'no' ? <Icon name="x" size={16} /> : mrpeasy}</div>
-          <div role="cell">{spreadsheets === 'yes' ? <Icon name="check" size={16} /> : spreadsheets === 'no' ? <Icon name="x" size={16} /> : spreadsheets}</div>
-        </div>
-      ))}
-    </div>
-    <p class="site-compare-foot">
-      See full comparison:{' '}
-      <a href="/alternatives/katana">Manuva vs Katana</a> · <a href="/alternatives/mrpeasy">Manuva vs MRPeasy</a>
-      <br />
-      <span class="site-compare-caption">Competitor data based on publicly available information. Verify before sharing with prospects.</span>
-    </p>
-    </div>
-  </section>
+      This is a deliberate copy loss on the site's highest-value page, not an
+      oversight: the parity gate fails /  without ignore entries, and those
+      entries are recorded in scripts/parity/ignore.json under this decision
+      rather than the gate being weakened. See MVBOLD-9. */}
 
-  {/* contact — paper, verbatim heading/copy/email. The old 5-field form posts to
-      mailto:...&method=POST, which most browsers either ignore, dump raw
-      key=value text into a mail client from, or silently no-op — shipping that
-      is worse than not shipping a form. Replaced with a direct mailto CTA. */}
-  <section class="mv-section site-contact" id="contact">
-    <div class="mv-wrap site-contact-inner">
-      <h2 class="mv-display">Get in touch</h2>
-      <p class="site-contact-sub">
-        Whether you're ready to start a trial or just want to see how Manuva fits your shop, we'd love to talk.
-      </p>
-      {/* No Icon before the label: it would stamp a "[icon:mail]" token right
-          before "Email", the exact isolated fragment the old page needs, the
-          same way the tier-feats checkmarks did. div, not span, for label/meta
-          so each is its own boundary-isolated segment; the mailto link needs an
-          explicit {' '} before "We reply…" since Astro drops the whitespace-only
-          text node that would otherwise separate them. */}
-      <div class="site-contact-info">
-        <div class="site-contact-label">Email</div>
-        <a href={`mailto:${CONTACT_EMAIL}`} class="site-contact-value">{CONTACT_EMAIL}</a>{' '}
-        <div class="site-contact-meta">We reply within one business day</div>
-      </div>
-      <Pill href={`mailto:${CONTACT_EMAIL}`} field="cobalt">Email us</Pill>
-    </div>
-  </section>
+  {/* The contact section lived here. Moved to /about#contact on the author's
+      call — not deleted: #contact is the target of six links across the site
+      (PriceCards' Enterprise CTA, the closing CtaBand on /about, /features and
+      both /alternatives/ pages, and this page's own hero "Book a demo") plus
+      the Organization schema's contactPoint.url. Deleting it would have left
+      all seven pointing at nothing, and lost the copy outright; /about is
+      where a reader looking for the company already is. */}
 
   {/* flare CTA. No secondActionHref: the old home page has no closing
       cta-section at all (it ends on the contact section, preserved above) —

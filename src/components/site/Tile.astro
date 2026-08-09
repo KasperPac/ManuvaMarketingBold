@@ -11,8 +11,18 @@ export interface Props {
    * variants (e.g. a compact nav-style grid) scoped by a parent selector,
    * same pattern as href/headingLevel below: additive, other callers unaffected. */
   class?: string;
+  /** Optional watermark photograph, revealed on hover/focus. Path to a
+   * self-hosted image under public/ — never a remote URL, since the whole site
+   * holds a no-third-party-request-on-load property that an e2e test enforces.
+   *
+   * Purely decorative: it renders as a CSS background on an aria-hidden layer,
+   * carries no alt text, and every tile reads identically to a screen reader
+   * with or without it. Omit it and the tile renders exactly as it did before
+   * this prop existed — which is what every tile outside the home page's
+   * platform grid does. */
+  photo?: string;
 }
-const { field, num, icon, title, href, headingLevel = 'div', class: className } = Astro.props;
+const { field, num, icon, title, href, headingLevel = 'div', class: className, photo } = Astro.props;
 // href turns the tile into a real link, root tag <a> instead of <div> — an
 // unlinked tile has no reason to be one or the other.
 const Tag = href ? 'a' : 'div';
@@ -23,6 +33,10 @@ const TitleTag = headingLevel;
   class:list={['site-tile', 'mv-reveal', 'mv-lift', className]}
   style={`background:var(--field-${field});color:var(--on-${field});border-radius:var(--radius-tile)`}
 >
+  {/* DOM-first so it paints beneath the content without needing a z-index on
+      every sibling — the same ordering invariant Video.astro's poster/button
+      pair depends on. aria-hidden plus no alt: decorative by construction. */}
+  {photo && <span class="site-tile-photo" aria-hidden="true" style={`background-image:url("${photo}")`}></span>}
   <div class="site-tile-head">
     {icon && <Icon name={icon} size={30} />}
     {num && <span class="mv-score site-tile-num">{num}</span>}

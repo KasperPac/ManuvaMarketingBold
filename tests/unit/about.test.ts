@@ -78,12 +78,23 @@ test('closing CTA carries the real trial terms', () => {
 // relocated into the hero as a workaround since CtaBand couldn't hold it;
 // that workaround is gone along with the bug that required it, so this
 // checks the real closing band specifically, not just page-wide presence.
-test('the closing CTA band carries both "Start free trial" and "Book a demo" → /#contact', () => {
+// Target moved from /#contact to /about#contact: the contact section left the
+// home page (author's call) and was relocated to this page rather than deleted,
+// because six links across the site plus the Organization schema pointed at it.
+test('the closing CTA band carries both "Start free trial" and "Book a demo" -> /about#contact', () => {
   const h = html();
   const band = h.slice(h.indexOf('site-cta-heading'));
   expect(band).toContain('Start free trial');
   expect(band).toContain('Book a demo');
-  expect(band).toContain('href="/#contact"');
+  expect(band).toContain('href="/about#contact"');
+});
+
+// This page now owns the anchor those six links target.
+test('the relocated contact section lives here', () => {
+  const h = html();
+  expect(h).toContain('id="contact"');
+  expect(h).toContain('Get in touch');
+  expect(h).toContain('We reply within one business day');
 });
 
 test('no two adjacent folds share a hue', () => {

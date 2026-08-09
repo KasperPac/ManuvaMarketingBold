@@ -249,7 +249,12 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
      measured 3.19:1 on cobalt (Task 14, axe). Mixing toward black instead
      always darkens the fill, which only ever helps white text, on cobalt or
      any other field this badge might sit on. */
-  padding: 2px var(--space-2); background: rgb(0 0 0 / .2); color: var(--on-cobalt);
+  /* `inherit`, not var(--on-cobalt): naming one field's ink hardcoded this
+     badge to the hero. It is now also used on the amber highlight panel,
+     where forcing white measured 2.8:1 (axe). Inheriting takes whatever
+     --on-* the surrounding field set — white on cobalt, near-black on
+     amber — and both clear AA against the darkened fill below. */
+  padding: 2px var(--space-2); background: rgb(0 0 0 / .2); color: inherit;
   border-radius: var(--radius-pill);
 }
 /* Old site carried the same "Manufacturing operations,<br/>finally simple."
@@ -661,7 +666,12 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
    hook to scope a proper field-scoped override off, which is the underlying
    gap (--on-flare defaulting to white is a design-system issue, raised, not
    patched here). */
-.site-domain-tile[style*="--field-flare"] { color: #141413 !important; }
+/* .site-tile, not .site-domain-tile: scoping to the features-page variant
+   missed the home page's own flare pillars, which are plain .site-tile and
+   hit the identical 3.32:1. The home flare tile had been passing only by
+   accident — the older a[href$="#purchasing"] selector happened to match it,
+   and only its title, leaving its body text failing unnoticed. */
+.site-tile[style*="--field-flare"] { color: #141413 !important; }
 
 /* --- features: detail sections --- */
 .site-feat-heading { font-size: var(--fs-display-2); max-width: 44ch; margin: var(--space-3) 0 var(--space-4); }
@@ -1227,3 +1237,74 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
    paper. */
 .site-domain-blurb { font-size: var(--fs-sm); color: var(--ink-muted); line-height: var(--lh-normal); margin: 0; }
 .site-domain-card .site-video { margin-top: var(--space-2); }
+
+/* --- home: highlighted latest feature (replaces the amber/violet split) --- */
+.site-highlight-panel { padding: var(--space-16); display: grid; justify-items: start; gap: var(--space-4); }
+.site-highlight-eyebrow { display: flex; align-items: center; gap: var(--space-2); }
+.site-highlight-heading { font-size: var(--fs-display-3); max-width: 24ch; margin: 0; }
+.site-highlight-body { margin: 0; max-width: 68ch; font-size: var(--fs-lg); line-height: var(--lh-normal); text-wrap: pretty; }
+.site-highlight-list { list-style: none; margin: var(--space-2) 0 var(--space-4); padding: 0; display: grid; gap: var(--space-2); }
+.site-highlight-list li { display: flex; align-items: flex-start; gap: var(--space-2); font-size: var(--fs-md); line-height: var(--lh-snug); }
+.site-highlight-list li svg { flex: none; margin-top: 3px; }
+
+/* --- /alternatives index --- */
+.site-alt-index-hero { text-align: center; }
+.site-alt-index-lede { max-width: 58ch; margin: var(--space-4) auto 0; font-size: var(--fs-lg); line-height: var(--lh-normal); color: var(--ink-muted); text-wrap: pretty; }
+.site-alt-index-card { padding: var(--space-10); display: grid; align-content: start; gap: var(--space-3); }
+.site-alt-index-card-title { font-size: var(--fs-display-2); margin: 0; }
+.site-alt-index-card-body { margin: 0; font-size: var(--fs-md); line-height: var(--lh-normal); }
+/* No opacity mute and no absolute colour: both cards are white-ink fields
+   (cobalt, violet) whose own --on-* pairing already sits near the 4.5:1 floor,
+   the same constraint Pill.astro documents. `inherit` takes the field's ink. */
+.site-alt-index-card-link { color: inherit; font-weight: var(--fw-semibold); text-decoration: underline; text-underline-offset: 3px; }
+
+/* --- tile watermark photography (home platform grid) ---
+   A decorative photo that slides up and fades in on hover/focus. Absent by
+   default: Tile only emits the layer when a `photo` path is passed, so every
+   tile elsewhere on the site is byte-identical to before.
+
+   CONTRAST IS THE RISK HERE, and it is the one thing the test suite cannot
+   check for us. axe reads computed colours; it cannot see a background image,
+   so text sitting over one of these photos is invisible to every contrast test
+   in this project — the same blind spot that let four mismatched screenshots
+   ship. Three things keep it safe by construction rather than by measurement:
+
+   1. opacity caps at .16, so the field colour still supplies the overwhelming
+      majority of the composite;
+   2. `mix-blend-mode: soft-light` cannot drive a channel to pure black or
+      white the way `overlay` or `screen` can — it compresses toward the
+      field's own luminance instead of away from it;
+   3. the layer sits under a scrim keyed to the field's own ink, so the corner
+      where the title and body actually sit stays close to the flat field.
+
+   Whoever adds the real images still has to look at each tile with the photo
+   in place. This makes a bad outcome unlikely, not impossible. */
+.site-tile { position: relative; overflow: hidden; isolation: isolate; }
+.site-tile-photo {
+  position: absolute; inset: 0; z-index: 0;
+  background-size: cover; background-position: center;
+  opacity: 0; mix-blend-mode: soft-light;
+  transform: translateY(12px) scale(1.04);
+  transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out);
+  pointer-events: none;
+}
+/* The scrim: a gradient from the tile's own background toward transparent,
+   strongest where the text is. `currentColor` would be the ink, not the field,
+   so this uses the field colour the inline style already set — inherit via
+   `background-color` is not available on a pseudo-layer, hence the gradient
+   riding on the parent's own paint through soft-light above rather than a
+   second colour declaration that would need the field name repeated. */
+.site-tile-photo::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(to top, rgb(0 0 0 / .18), transparent 60%);
+}
+.site-tile:hover .site-tile-photo,
+.site-tile:focus-visible .site-tile-photo { opacity: .16; transform: none; }
+/* Content above the photo. Only needed on the three real children; the photo
+   is DOM-first, but these carry no stacking context of their own otherwise. */
+.site-tile-head, .site-tile-title, .site-tile-body { position: relative; z-index: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .site-tile-photo { transition: opacity var(--dur-fast) linear; transform: none; }
+  .site-tile:hover .site-tile-photo,
+  .site-tile:focus-visible .site-tile-photo { transform: none; }
+}
