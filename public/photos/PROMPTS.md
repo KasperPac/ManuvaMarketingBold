@@ -75,11 +75,31 @@ low saturation, near-monochrome, strong simple shapes, clear separation of
 light and shadow, generous negative space, minimal fine detail
 ```
 
-**Why low saturation.** At 16% under `soft-light` the blend preserves the
-field's hue and modulates its lightness. A colour-saturated photo drags the
-brand colour off-hue — cobalt starts to look muddy. A near-monochrome photo only
-modulates lightness, so the field stays exactly the colour it is meant to be.
-This is the single highest-leverage instruction in Set A.
+**Why low saturation — corrected, with measurements.** An earlier version of
+this file claimed a saturated photo would drag the field off-hue and make cobalt
+"look muddy", and called it the highest-leverage instruction in Set A. That was
+overstated. Running the actual CSS `soft-light` formula at 16% alpha across a
+15–85% luminance range gives:
+
+| Field | greyscale source | saturated source |
+|---|---|---|
+| cobalt | 0.76° hue, 2.4% sat | 2.39° hue, 4.0% sat |
+| violet | 1.30° hue, 2.2% sat | 1.50° hue, 1.6% sat |
+| aqua | 0.67° hue, 0.0% sat | 0.80° hue, 0.0% sat |
+| amber | 1.41° hue, 0.0% sat | 1.54° hue, 0.0% sat |
+
+Greyscale is genuinely better — about three times less hue shift on cobalt — but
+**both are far below what anyone can see.** A 2.4° hue shift is not a visible
+defect, and "muddy" was wrong.
+
+The real reason to keep Set A near-monochrome is **consistency across the eight,
+not fidelity within one.** Eight photos each carrying a different colour cast
+would push each tile's field a slightly different direction. Every tile would
+still look approximately right on its own, and the grid would not look like a
+set. Neutral sources make all eight land in the same place.
+
+So: if a Set A image comes back in colour and you like it, it is not a defect —
+ship it. Just do not mix. Eight colour or eight neutral, not five and three.
 
 **Composition.** These crop to `cover` at roughly 3:2 and get overlaid with a
 title and two lines of body copy. Keep the interesting part central; assume the
