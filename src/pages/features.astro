@@ -33,7 +33,10 @@ const DOMAINS = [
   { label: 'Purchasing', href: '#purchasing', icon: 'file-text', field: 'flare' },
   { label: 'Production', href: '#production-planning', icon: 'kanban-square', field: 'aqua' },
   { label: 'Capacity & Team', href: '#capacity', icon: 'building-2', field: 'lime' },
-  { label: 'Costing', href: '#costing', icon: 'calculator', field: 'ink' },
+  // was 'ink' — navy is off the marketing site (author's call). flare, not
+  // mint: mint here would sit directly beside the lime tile above it, which
+  // is the lime-on-green pairing this project has now fixed twice.
+  { label: 'Costing', href: '#costing', icon: 'calculator', field: 'flare' },
   { label: 'Reports', href: '#reports', icon: 'layout-dashboard', field: 'cobalt' },
   { label: 'Shopify & Platform', href: '#shopify', icon: 'shopping-bag', field: 'violet' },
 ] as const;

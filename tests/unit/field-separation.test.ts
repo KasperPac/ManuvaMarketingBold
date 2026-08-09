@@ -51,6 +51,27 @@ for (const route of ALL_ROUTES) {
   });
 }
 
+// Navy is the app's dark end, not a marketing colour (author's call: it stays
+// in the app, where it is a substrate under a single accent; on marketing it
+// was a third blue behind cobalt and aqua). The design system agrees on its own
+// terms — --field-rotation is `cobalt flare amber violet mint aqua` and the
+// readme's loud layer is those six plus lime, with ink in neither list.
+//
+// Checks the rendered value, not the token name, because navy reached pages
+// through three separate channels: --field-ink (marketing.css), --bg-ink
+// (themes.css, which is what Button's `ink` variant and so every field-less
+// Pill used), and the .mv-field-ink helper class on the footer. Grepping for
+// any one of those would have missed the other two.
+const NAVY = /#15314[dD]|rgb\(\s*21\s*,\s*49\s*,\s*77\s*\)/;
+
+for (const route of ALL_ROUTES) {
+  test(`${route} — no navy on the marketing site`, () => {
+    const html = readFileSync(file(route), 'utf8');
+    expect(NAVY.test(html), `${route} still renders the logo navy #15314D`).toBe(false);
+    expect(html).not.toMatch(/mv-field-ink|var\(--field-ink\)|var\(--bg-ink\)/);
+  });
+}
+
 // The rule above is satisfiable by having no fields at all, which would make it
 // vacuous on exactly the pages it matters most for. /pricing and /alternatives/
 // are legitimately colourless (the loud-layer rules forbid a field behind a

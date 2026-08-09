@@ -94,12 +94,16 @@ test('no two adjacent folds share a hue', () => {
   }
 });
 
-// Field sequence per the task brief: mint hero -> paper -> ink principles -> flare CTA.
-test('hero is mint, principles are ink, closing CTA is flare', () => {
+// Was "mint hero -> paper -> ink principles -> flare CTA". The principles
+// section is paper now: navy came off the marketing site (author's call), and
+// the six principle items are long-form body copy, which the loud-layer rules
+// keep off any colour field — so it did not move to another hue, it dropped to
+// paper. The hero and closing CTA are unchanged.
+test('hero is mint, closing CTA is flare, and principles carry no field', () => {
   const folds = [...html().matchAll(/data-fold="([a-z]+)"/g)].map((m) => m[1]);
   expect(folds[0]).toBe('mint');
-  expect(folds).toContain('ink');
   expect(folds[folds.length - 1]).toBe('flare');
+  expect(folds).toEqual(['mint', 'flare']);
 });
 
 // Rule: never set an absolute ink inside a <Field>, never opacity-mute text

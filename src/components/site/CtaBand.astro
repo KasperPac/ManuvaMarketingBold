@@ -34,7 +34,7 @@ const { field, heading, body, secondActionHref } = Astro.props;
             all four routes that pass secondActionHref, until this was
             added — a straight port of the same fix used everywhere else in
             this codebase two adjacent Pills/buttons appear). */}
-        <Pill href={APP_URL}>Start free trial</Pill>{secondActionHref && <>{' '}<Pill href={secondActionHref}>Book a demo</Pill></>}
+        <Pill href={APP_URL} field="paper">Start free trial</Pill>{secondActionHref && <>{' '}<Pill href={secondActionHref} field="paper">Book a demo</Pill></>}
       </div>
     </div>
   </div>

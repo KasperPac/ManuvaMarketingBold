@@ -95,19 +95,29 @@ body { background: var(--field-paper); color: var(--ink-strong); }
   display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
   gap: var(--space-10); padding-block: var(--space-16);
 }
-.site-footer-brand { display: grid; gap: var(--space-5); align-content: start; color: #fff; }
-.site-footer-brand p { margin: 0; max-width: 28ch; color: rgb(255 255 255 / .62); }
+/* The footer was `.mv-field-ink` — the logo navy — and every colour below was a
+   white-alpha value chosen against it. Navy is off the marketing site entirely
+   now (author's call: it stays in the app, where it is a substrate under one
+   accent; here it was a third blue behind cobalt and aqua). Nothing here could
+   be swapped one-for-one: white at 62% over navy became invisible over paper,
+   so each value moves to the real light-surface token it should have been.
+   The logo needs no change — Logo.astro masks `currentColor`, so it follows
+   whatever ink is in scope and inverts for free. */
+.site-footer { background: var(--field-paper); color: var(--on-paper); border-top: 1px solid var(--stroke); }
+.site-footer-brand { display: grid; gap: var(--space-5); align-content: start; color: var(--ink-strong); }
+.site-footer-brand p { margin: 0; max-width: 28ch; color: var(--ink-muted); }
 .site-footer-col { display: grid; gap: var(--space-3); align-content: start; }
-.site-footer-col .mv-eyebrow { color: var(--field-amber); }
-.site-footer a { color: rgb(255 255 255 / .62); text-decoration: none; }
-.site-footer a:hover { color: #fff; }
-.site-footer-base { border-top: 1px solid rgb(255 255 255 / .12); }
-/* .42 measured 3.64:1 on the footer's navy ink (Task 14, axe) — below the
-   4.5:1 small-text floor. .62 matches `.site-footer a` just above, already
-   proven safe at this same size/background. */
+/* was --field-amber, which was legible on navy and is 1.9:1 on paper — a field
+   used as small text, which the loud-layer rules forbid outright ("never use a
+   field as small text on white"). --brand-2 is the design system's own AA-safe
+   value for exactly this: cobalt as text. */
+.site-footer-col .mv-eyebrow { color: var(--brand-2); }
+.site-footer a { color: var(--ink-muted); text-decoration: none; }
+.site-footer a:hover { color: var(--ink-strong); }
+.site-footer-base { border-top: 1px solid var(--stroke); }
 .site-footer-base .mv-wrap {
   display: flex; justify-content: space-between;
-  padding-block: var(--space-5); font-size: var(--fs-xs); color: rgb(255 255 255 / .62);
+  padding-block: var(--space-5); font-size: var(--fs-xs); color: var(--ink-muted);
 }
 @media (max-width: 720px) {
   .site-footer-grid { grid-template-columns: 1fr 1fr; }
@@ -376,32 +386,37 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
 .site-beta-head { display: flex; align-items: center; gap: var(--space-2); font-size: var(--fs-xl); margin: 0; }
 .site-beta-sub { margin: 0 0 var(--space-2); max-width: 52ch; font-size: var(--fs-md); opacity: .8; }
 
-/* --- home: comparison --- */
+/* --- home: comparison ---
+   This section was a full-bleed ink field, and every value here was tuned
+   against navy: white-alpha fills for the table and the Manuva column,
+   white-alpha hairlines, and opacity used as the muting mechanism throughout.
+   On paper all of that inverts — white at 4% over paper is invisible, and
+   opacity .7 on near-black text lands around 3:1, under the small-text floor
+   the old comments were themselves written to defend. Every value moves to the
+   light-surface token that does the same job, and the muting moves from
+   opacity to real ink tokens, which is what the rest of the site already
+   uses on paper. */
 .site-compare { display: grid; gap: var(--space-5); }
-.site-compare-intro { margin: 0; max-width: 60ch; font-size: var(--fs-lg); line-height: var(--lh-normal); opacity: .7; }
-.site-compare-table { margin-top: var(--space-8); border-radius: var(--radius-tile); overflow: hidden; background: rgb(255 255 255 / .04); }
+.site-compare-intro { margin: 0; max-width: 60ch; font-size: var(--fs-lg); line-height: var(--lh-normal); color: var(--ink-muted); }
+.site-compare-table { margin-top: var(--space-8); border-radius: var(--radius-tile); overflow: hidden; background: var(--bg-card); border: 1px solid var(--stroke); }
 .site-compare-row { display: grid; grid-template-columns: 1.6fr repeat(4, 1fr); align-items: center; }
-.site-compare-row + .site-compare-row { border-top: 1px solid rgb(255 255 255 / .1); }
-.site-compare-row > div { padding: var(--space-4) var(--space-5); font-size: var(--fs-md); text-align: center; opacity: .7; }
-.site-compare-row .site-compare-feat { text-align: left; opacity: 1; font-weight: var(--fw-medium); }
-.site-compare-row-head > div { font-family: var(--font-display); font-weight: var(--fw-semibold); opacity: 1; }
-.site-compare-manuva { background: rgb(255 255 255 / .08); opacity: 1 !important; font-weight: var(--fw-semibold); }
-.site-compare-foot { margin: var(--space-4) 0 0; text-align: center; font-size: var(--fs-md); opacity: .7; }
-/* Unmuting the opacity fixed the ancestor's contribution but not the link's
-   own colour: unstyled, it still falls through to the ds's global
-   `a{color:var(--brand-1)}` (_ds/tokens/base.css), and --brand-1 on this
-   field's dark ink measures only 2.67:1 even at full opacity (Task 14,
-   axe) — cobalt-500 was never meant to sit directly on navy as text.
-   --on-ink matches the surrounding caption's own ink. */
-.site-compare-foot a { font-weight: var(--fw-semibold); color: var(--on-ink); }
-.site-compare-caption { display: inline-block; margin-top: var(--space-2); font-size: var(--fs-sm); opacity: .6; }
-/* .7/.6 on white-on-ink measured 1.99:1 (the katana/mrpeasy links) and
-   3.64:1 respectively (Task 14, axe) — opacity on an ancestor composites
-   the whole subtree, including the two `<a>`s inside .site-compare-foot, so
-   there's no way to unmute just the links without unmuting the element
-   carrying the opacity itself. */
-[data-fold] .site-compare-foot,
-[data-fold] .site-compare-caption { opacity: 1; }
+.site-compare-row + .site-compare-row { border-top: 1px solid var(--stroke); }
+.site-compare-row > div { padding: var(--space-4) var(--space-5); font-size: var(--fs-md); text-align: center; color: var(--ink-muted); }
+.site-compare-row .site-compare-feat { text-align: left; color: var(--ink-strong); font-weight: var(--fw-medium); }
+.site-compare-row-head > div { font-family: var(--font-display); font-weight: var(--fw-semibold); color: var(--ink-strong); }
+/* The Manuva column still needs to read as the highlighted one. --tint-cobalt
+   is the design system's own bedding tint for exactly this — "so a page can
+   breathe without dropping to white" — and body copy at --ink-strong is
+   documented as clearing AA on all the tints. */
+.site-compare-manuva { background: var(--tint-cobalt); color: var(--ink-strong) !important; font-weight: var(--fw-semibold); }
+.site-compare-foot { margin: var(--space-4) 0 0; text-align: center; font-size: var(--fs-md); color: var(--ink-muted); }
+/* The old override forced --on-ink (white) here, because the ds's global
+   `a{color:var(--brand-1)}` measured 2.67:1 on navy. On paper that inverts
+   exactly: white would be invisible, and --brand-1 cobalt-500 is fine as a
+   link on a light surface. --brand-2 is the AA-safe value, so it is used
+   rather than relying on the global. */
+.site-compare-foot a { font-weight: var(--fw-semibold); color: var(--brand-2); }
+.site-compare-caption { display: inline-block; margin-top: var(--space-2); font-size: var(--fs-sm); color: var(--ink-muted); }
 
 @media (max-width: 720px) {
   .site-compare-row { grid-template-columns: 1.3fr repeat(4, minmax(0, 1fr)); }
@@ -487,9 +502,16 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
 
 /* --- pricing: hero --- */
 .site-pricing-hero-panel { display: grid; justify-items: center; text-align: center; gap: var(--space-6); padding: var(--space-16); }
-.site-pricing-hero-eyebrow { opacity: .72; }
+/* The .72/.82 opacity mutes here were measured against navy and were fine on
+   it. This panel is cobalt now, whose own white ink sits at ~4.87:1 to begin
+   with — there is no headroom to mute into, and axe measured the eyebrow at
+   3.34:1 and the sub at 3.87:1 the moment the field changed. Dropped rather
+   than retuned, which is the rule this project already settled on for
+   .site-about-hero-sub and .site-alt-hero-sub: full strength on any field,
+   not a per-field contrast audit. */
+.site-pricing-hero-eyebrow { opacity: 1; }
 .site-pricing-hero-title { font-size: var(--fs-display-4); max-width: 18ch; }
-.site-pricing-hero-sub { margin: 0; max-width: 46ch; font-size: var(--fs-lg); line-height: var(--lh-normal); opacity: .82; text-wrap: pretty; }
+.site-pricing-hero-sub { margin: 0; max-width: 46ch; font-size: var(--fs-lg); line-height: var(--lh-normal); text-wrap: pretty; }
 /* Scoped under .site-pricing-hero — see the home-page block's own comment
    above for why (Task 14, team-lead review). Specificity does the rest:
    .site-pricing-hero-toggle-btn.site-pricing-toggle-on (below) is one
@@ -497,17 +519,30 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
    outranks the plain -toggle-btn rule regardless of source order — no
    :not() needed once the two pages can't reach each other's rules at all. */
 .site-pricing-hero .site-pricing-toggle { display: flex; align-items: center; gap: var(--space-3); }
-.site-pricing-hero .site-pricing-toggle-pill { display: flex; background: rgb(255 255 255 / .14); border-radius: var(--radius-pill); padding: 3px; }
+/* Was white at 14%, which lightened navy into a still-dark blue and left white
+   text comfortable. Over cobalt the same 14% lifts the pill to #5675FF and
+   white lands at 3.9:1 (axe). Mixed toward black instead — the identical
+   reasoning Pill.astro's ghost style already carries: lightening a white-ink
+   field is the wrong direction, darkening helps every one of them. */
+.site-pricing-hero .site-pricing-toggle-pill { display: flex; background: color-mix(in srgb, black 14%, transparent); border-radius: var(--radius-pill); padding: 3px; }
 /* --ink-muted (this class's un-scoped ancestor rule) is a light-theme dark
-   grey — wrong for this page's ink field regardless of opacity, which is
+   grey — wrong for this panel's field regardless of opacity, which is
    what caused the 1.15:1 this page's toggle measured before scoping
-   (Task 14, axe). --on-ink is this field's own real ink. */
-.site-pricing-hero .site-pricing-toggle-btn { padding: var(--space-2) var(--space-5); border-radius: var(--radius-pill); font-size: var(--fs-md); font-weight: var(--fw-medium); color: var(--on-ink); opacity: .8; }
+   (Task 14, axe). `inherit` takes whichever --on-* the panel itself set,
+   which was --on-ink white and is now --on-cobalt white; naming the field's
+   own token here is what made this line need editing when the field changed,
+   so it no longer names one. Opacity dropped for the same reason as the
+   eyebrow and sub above — cobalt's white has no headroom to mute into. */
+.site-pricing-hero .site-pricing-toggle-btn { padding: var(--space-2) var(--space-5); border-radius: var(--radius-pill); font-size: var(--fs-md); font-weight: var(--fw-medium); color: inherit; }
 .site-pricing-hero .site-pricing-toggle-btn.site-pricing-toggle-on { background: var(--bg-card); color: var(--on-paper); opacity: 1; font-weight: var(--fw-semibold); }
-/* Same --ok-on-tint pairing as the home instance above, but on a dark field
-   instead of paper — lightening (not darkening) is what a dark background
-   needs (Task 14, axe: undarkened --ok measured 3.49:1 here). */
-.site-pricing-hero .site-pricing-save { display: inline-flex; align-items: center; padding: var(--space-1) var(--space-3); background: var(--ok-dim); color: color-mix(in srgb, var(--ok) 55%, white); border-radius: var(--radius-pill); font-size: var(--fs-sm); font-weight: var(--fw-bold); }
+/* Was a lightened green on --ok-dim, which works over a dark field and fails
+   over a bright one: --ok-dim is only 10% opaque, so on cobalt the badge
+   background stayed essentially cobalt (#3665EE) and the lightened green
+   measured 2.56:1 (axe). A green success badge cannot ride a blue field at
+   any lightness, so it stops depending on the field underneath and carries
+   its own solid backing — then it can reuse the exact darkened green the home
+   page's own instance uses on paper, rather than a third variant. */
+.site-pricing-hero .site-pricing-save { display: inline-flex; align-items: center; padding: var(--space-1) var(--space-3); background: var(--bg-card); color: color-mix(in srgb, var(--ok) 70%, black); border-radius: var(--radius-pill); font-size: var(--fs-sm); font-weight: var(--fw-bold); }
 
 /* --- pricing: plan cards --- */
 .site-plan-grid { align-items: stretch; }
@@ -614,14 +649,19 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
    is no lighter shade left to reach for; the field itself just isn't safe
    for text this small (--fs-sm, 12px). Measured 3.32:1 (Task 14, axe). Same
    remedy the design already ships for CtaBand's flare instance
-   ([data-fold="flare"] above): dark ink instead of white. Scoped to the
-   Purchasing tile specifically (the only flare domain tile — see features.astro's
-   DOMAINS) rather than every .site-domain-tile, since Tile has no data-fold
-   hook to key a field-scoped override off and the other domain colours
-   don't have this problem at this size. !important is required: Tile.astro
-   sets colour as part of its own inline style, which outranks any external
-   class rule without it. */
-a[href$="#purchasing"] .site-tile-title { color: #141413 !important; }
+   ([data-fold="flare"] above): dark ink instead of white.
+   !important is required: Tile.astro sets colour as part of its own inline
+   style, which outranks any external class rule without it.
+
+   This was scoped to a[href$="#purchasing"] — "the only flare domain tile".
+   That stopped being true the moment Costing moved off ink to flare, and axe
+   caught the new tile at the same 3.32:1 the old comment had already
+   measured. Keyed off the inline style instead of the href, so it covers
+   every flare domain tile including any added later; Tile has no data-fold
+   hook to scope a proper field-scoped override off, which is the underlying
+   gap (--on-flare defaulting to white is a design-system issue, raised, not
+   patched here). */
+.site-domain-tile[style*="--field-flare"] { color: #141413 !important; }
 
 /* --- features: detail sections --- */
 .site-feat-heading { font-size: var(--fs-display-2); max-width: 44ch; margin: var(--space-3) 0 var(--space-4); }
@@ -939,9 +979,12 @@ a[href$="#purchasing"] .site-tile-title { color: #141413 !important; }
 .site-about-group-head { max-width: 68ch; margin: 0 0 var(--space-8); }
 .site-about-heading { font-size: var(--fs-display-2); max-width: 42ch; margin: var(--space-2) 0 var(--space-3); }
 /* Paper default: old page's own .group-head p { color: var(--ink-muted) }.
-   Only the principles group-head sits inside Field field="ink" — never set
-   an absolute ink inside a Field, so that one instance inherits on-ink white
-   from the section instead via the [data-fold] override below. */
+   The principles group-head used to sit inside Field field="ink" and was the
+   one instance that needed to inherit the section's own white; that field is
+   paper now, so every group-head on this page takes the muted default and the
+   [data-fold] override below no longer fires here. Kept anyway — it is the
+   general rule for this class on any field, not an about-page special case,
+   and .site-about-lede still ships inside the mint hero panel. */
 .site-about-lede { margin: var(--space-3) 0 0; max-width: 62ch; font-size: var(--fs-lg); line-height: var(--lh-normal); color: var(--ink-muted); }
 [data-fold] .site-about-lede { color: inherit; }
 
@@ -949,7 +992,7 @@ a[href$="#purchasing"] .site-tile-title { color: #141413 !important; }
 .site-about-body { max-width: 72ch; font-size: var(--fs-lg); line-height: var(--lh-normal); color: var(--ink-muted); margin: 0 0 var(--space-4); }
 .site-about-body strong { color: var(--ink-strong); }
 
-/* --- about: principles (ink field) reuses .site-feat-* and .mv-cols-2 as-is --- */
+/* --- about: principles (paper, was ink) reuses .site-feat-* and .mv-cols-2 as-is --- */
 .site-about-principles .site-feat-grid { margin-top: var(--space-2); }
 
 /* --- about: company info card (paper, never a field behind this table-like data) --- */

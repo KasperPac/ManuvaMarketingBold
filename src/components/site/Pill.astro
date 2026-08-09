@@ -1,8 +1,20 @@
 ---
 import Button from '../ds/Button.astro';
 import type { FieldName } from '../../site';
-export interface Props { href: string; field?: FieldName; ghost?: boolean; class?: string }
-const { href, field, ghost = false, class: className } = Astro.props;
+export interface Props {
+  href: string;
+  field?: FieldName;
+  ghost?: boolean;
+  /** Passed straight to Button when neither `field` nor `ghost` is set. Exists
+   * so the home page's pricing summary can render its non-featured tiers as
+   * `secondary`, matching PriceCards on /pricing, which has always used
+   * primary/secondary for featured/non-featured. The home summary rendered
+   * both as the same fill, so the two pages disagreed about the same three
+   * tiers. */
+  variant?: 'primary' | 'secondary';
+  class?: string;
+}
+const { href, field, ghost = false, variant, class: className } = Astro.props;
 // Composed into Button's inline style string, the same channel `field` uses
 // below — Button.astro always writes its own computed style inline
 // (background/color/border set unconditionally for every variant), which
@@ -30,6 +42,15 @@ const style = field
     ? ghostStyle
     : undefined;
 ---
-<Button as="a" href={href} size="xl" shape="pill" variant="ink" class:list={['mv-press', className]} style={style}>
+{/* Base variant is `primary` (--brand-2 cobalt), not `ink`. Button's `ink`
+    variant fills with --bg-ink #15314D, the logo navy — so every Pill that
+    passed neither `field` nor `ghost` silently rendered navy: both CtaBand
+    buttons on all nine pages, and the home page's non-featured tier CTAs.
+    Navy is the app's dark end, not a marketing fill (author's call; the
+    design system agrees — --field-rotation is cobalt flare amber violet mint
+    aqua, and the readme's loud layer is those six plus lime, with ink in
+    neither). Anywhere a Pill sits ON a loud field it now passes field="paper"
+    explicitly rather than relying on this fallback. */}
+<Button as="a" href={href} size="xl" shape="pill" variant={variant ?? 'primary'} class:list={['mv-press', className]} style={style}>
   <slot />
 </Button>

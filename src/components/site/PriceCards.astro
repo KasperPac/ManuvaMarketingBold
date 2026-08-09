@@ -94,7 +94,10 @@ const PLANS = [
     // section, Task 7) — so this points there rather than porting the 404.
     ctaLabel: 'Contact sales →',
     ctaHref: '/#contact',
-    ctaVariant: 'ink' as const,
+    // was 'ink'; navy is off the marketing site, and 'secondary' is what the
+    // other two non-featured tiers already use. Growth keeps 'primary', so
+    // the featured tier is still the only filled CTA on the page.
+    ctaVariant: 'secondary' as const,
     featured: false,
     enterprise: true,
     feats: [

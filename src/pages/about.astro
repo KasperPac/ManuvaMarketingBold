@@ -149,7 +149,13 @@ const schema = [
       pattern (already AA-verified on data-fold sections via the generic
       [data-fold] .site-feat-icon/.site-feat-desc overrides) rather than
       inventing a parallel "card on a field" treatment. */}
-  <Field field="ink" class="site-about-principles">
+  {/* principles — paper, was ink. Six principle items of body copy in a 2-col
+      grid; "never a colour field behind long-form body copy" is the same rule
+      the comparison table on the home page now follows. With navy off the
+      marketing site there is no neutral dark left to hold it, and a rotation
+      hue behind this much reading would be the loudest thing on the page. */}
+  <section class="mv-section site-about-principles">
+    <div class="mv-wrap">
     <div class="site-about-group-head">
       <span class="mv-eyebrow">How we build</span>{' '}
       <h2 class="mv-display site-about-heading">The principles behind the product.</h2>
@@ -166,7 +172,8 @@ const schema = [
         </div>
       ))}
     </div>
-  </Field>
+    </div>
+  </section>
 
   {/* 4 · paper — company info. No colour field behind this table-like data,
       same rule pricing.astro's matrix follows. */}

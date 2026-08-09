@@ -253,7 +253,7 @@ const schema = [
               correct as a background/border pairing, but indistinguishable by
               substring from lime-as-text. Built directly on Button instead, with
               the border keyed to --on-lime, so lime only ever appears as a fill. */}
-          <Button as="a" href={APP_URL} size="xl" shape="pill" variant="ink" class="mv-press"
+          <Button as="a" href={APP_URL} size="xl" shape="pill" variant="primary" class="mv-press"
             style="background:var(--field-lime);color:var(--on-lime);border-color:var(--on-lime)">Start free trial</Button>{' '}
           {/* The old page's "Book a demo" pointed at #contact and prefilled the
               contact form's message field via JS. The form is gone (see the
@@ -282,7 +282,7 @@ const schema = [
       so there is nothing to move across. "32 seconds" matches the asset's real
       runtime (public/video/explainer.mp4 probes at 32.3s via its mvhd atom); the
       brief's own draft said "30 seconds", which doesn't match the file. */}
-  <Field field="ink" class="site-explainer">
+  <Field field="violet" class="site-explainer">
     <div class="site-explainer-inner">
       <span class="mv-eyebrow">See it in 32 seconds</span>
       <h2 class="mv-display site-explainer-title">What Manuva actually does.</h2>
@@ -418,7 +418,7 @@ const schema = [
   <Field field="aqua" class="site-beta">
     <p class="site-beta-head"><Icon name="flask-conical" size={20} /> Beta testers get <strong>3 months of Pro — free</strong>.</p>
     <p class="site-beta-sub">Shape the roadmap with us. Tell us what features your team needs and we'll build them with you.</p>
-    <Pill href={APP_URL} field="ink">Start free trial →</Pill>
+    <Pill href={APP_URL} field="paper">Start free trial →</Pill>
   </Field>
 
   {/* pricing — paper, verbatim. Plan cards are data: never a colour field behind
@@ -443,7 +443,7 @@ const schema = [
             <p class="site-tier-desc">{tier.desc}</p>
             <div class="site-tier-price"><span class="site-tier-val">{tier.price}</span> <span class="site-tier-per">/ month</span></div>
             <div class="site-tier-sub">{tier.sub}</div>
-            <Pill href={APP_URL} field={tier.featured ? 'cobalt' : undefined} class="site-tier-cta">Start free trial</Pill>{' '}
+            <Pill href={APP_URL} field={tier.featured ? 'cobalt' : undefined} variant={tier.featured ? undefined : 'secondary'} class="site-tier-cta">Start free trial</Pill>{' '}
             {/* No Icon here: the old page's tier-feats checkmarks are raw SVGs
                 with no data-lucide, so they contribute zero text on extraction.
                 Icon always stamps a "[icon:check]" token, which would sit right
@@ -472,7 +472,15 @@ const schema = [
       section on the old site and silently lost its target in the reskin
       (Task 14, caught by testing every href="/route#id" resolves, not just
       same-page ones — team-lead correction, not a content decision). */}
-  <Field field="ink" class="site-compare" id="compare">
+  {/* comparison — paper, was ink. It carries an eight-row comparison table, and
+      "never a colour field behind a data table" is the loud-layer rule this
+      site already follows for pricing and the about company block. Navy read as
+      an exception to that rule; with navy gone from marketing there is no
+      neutral dark to make the exception with, and a rotation hue behind a data
+      table would break the rule outright. Paper is the answer the rule was
+      always pointing at. */}
+  <section class="mv-section site-compare" id="compare">
+    <div class="mv-wrap">
     <span class="mv-eyebrow">Why Manuva</span>{' '}
     <h2 class="mv-display">Built for the floor, not for the demo</h2>
     <p class="site-compare-intro">
@@ -505,7 +513,8 @@ const schema = [
       <br />
       <span class="site-compare-caption">Competitor data based on publicly available information. Verify before sharing with prospects.</span>
     </p>
-  </Field>
+    </div>
+  </section>
 
   {/* contact — paper, verbatim heading/copy/email. The old 5-field form posts to
       mailto:...&method=POST, which most browsers either ignore, dump raw

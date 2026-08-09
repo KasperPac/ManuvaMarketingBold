@@ -14,17 +14,26 @@ import { DOMAINS } from '../content/domains';
 // rules forbid a field behind a data table or long-form copy); this page had no
 // such constraint and no colour either.
 //
-// Hue order ink → amber → violet: none repeats, none is adjacent to another
+// Hue order cobalt → amber → violet: none repeats, none is adjacent to another
 // field (paper framing sections sit between all three), and none collides with
-// the flare CtaBand that closes the page. Aqua and cobalt are deliberately left
-// out — the domain accents below use the full five-hue rotation, and reusing a
-// band hue there would pair a card with the band it sits nearest.
+// the flare CtaBand that closes the page.
+//
+// The first band was ink until navy came off the marketing site entirely
+// (author's call — navy stays in the app, where it is the substrate under one
+// accent; here it was a third blue behind cobalt and aqua). Cobalt replaces it.
+//
+// That does mean cobalt now appears twice on this page: this band, and the
+// Inventory accent chip further down. An earlier version of this comment
+// claimed cobalt was "deliberately left out" so no band would share a hue with
+// the chip nearest it — that reasoning died with ink, and the two are five
+// sections and three fields apart, well outside anything the adjacency rule
+// governs. Recording the change rather than quietly leaving the old claim.
 const SHOTS = [
   {
     src: '/screen-dashboard.png',
     alt: 'Manuva dashboard overview with inventory value, fulfilment rate, and open orders',
     caption: 'Everything worth checking each morning, on one screen.',
-    field: 'ink',
+    field: 'cobalt',
   },
   {
     src: '/screen-variant.png',

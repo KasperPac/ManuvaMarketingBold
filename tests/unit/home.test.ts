@@ -97,9 +97,15 @@ test('lime never touches mint again', () => {
   }
 });
 
-test('the explainer band sits on ink directly after the hero', () => {
+// The band was ink until navy came off the marketing site. What the test is
+// actually protecting is the position — hero, then marquee, then the explainer
+// as the page's second beat — so that survives the hue change; the hue itself
+// is now guarded by the no-navy test in field-separation.test.ts, which covers
+// every route rather than this one line.
+test('the explainer band is the third fold, directly after hero and marquee', () => {
   const folds = [...html().matchAll(/data-fold="([a-z]+)"/g)].map((m) => m[1]);
-  expect(folds.slice(0, 3)).toEqual(['cobalt', 'lime', 'ink']);
+  expect(folds.slice(0, 2)).toEqual(['cobalt', 'lime']);
+  expect(folds[2]).toBe('violet');
 });
 
 test('the explainer is self-hosted and preloads nothing', () => {
