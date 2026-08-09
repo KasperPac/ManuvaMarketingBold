@@ -1213,6 +1213,21 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
 [data-mode="still"] .site-video-frame,
 [data-mode="facade"] .site-video-frame { aspect-ratio: 16 / 9; }
 
+/* The facade swaps the poster for an <iframe>, and `.site-video-el` sets
+   height:auto — which is correct for the <video> that self mode uses, because a
+   video element has intrinsic dimensions to resolve against. An iframe has
+   none, so height:auto falls back to the HTML default of 150px: the frame
+   stayed a correct 900x506 while the player inside it rendered 900x154.
+
+   Absolute inset:0 rather than height:100%, because the frame's height comes
+   from aspect-ratio and a percentage height against an aspect-ratio-derived
+   box is not something to rely on. The frame is already position:relative for
+   the poster, so this needs nothing new. */
+iframe.site-video-el {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; border: 0;
+}
+
 /* The /product tour's styles lived here — hero, framing lines, full-bleed shot
    bands, and the five domain cards with their accent chips. The route was
    removed on the author's call (it did not flow with the rest of the site), and

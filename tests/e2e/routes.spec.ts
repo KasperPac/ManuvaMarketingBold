@@ -140,4 +140,16 @@ test('the explainer reaches YouTube only after a click', async ({ page }) => {
     'src',
     /youtube-nocookie\.com\/embed\/Vr4rkatHggA/,
   );
+
+  // The player has to fill the frame it replaced. Checking the src alone said
+  // nothing about that, and the first version shipped a 900x154 iframe inside a
+  // 900x506 frame: `.site-video-el` sets height:auto, which resolves fine for
+  // the <video> self mode uses and falls back to the HTML default 150px for an
+  // iframe, which has no intrinsic size. Correct URL, correct markup, unusable
+  // player.
+  const box = await page.locator('iframe').boundingBox();
+  const frame = await page.locator('.site-video-frame').boundingBox();
+  expect(box, 'iframe has no box').not.toBeNull();
+  expect(Math.round(box!.height), 'player does not fill its frame').toBe(Math.round(frame!.height));
+  expect(Math.round(box!.width)).toBe(Math.round(frame!.width));
 });
