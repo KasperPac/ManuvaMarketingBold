@@ -107,7 +107,45 @@ fixed and the photo has to match its label, no substitutions.
 
 ## Tool parameters
 
-**Midjourney** — best route for set cohesion.
+**Nano Banana (Google's Gemini image model) — try this first.**
+
+The dominant requirement here is not realism, it is that fifteen separate
+generations look like one shoot. Consistency is the exact axis this model was
+built on: it holds a subject, environment and lighting steady across successive
+edits, which turns the set into a conversation rather than fifteen independent
+rolls of the dice.
+
+That maps unusually well onto Set B. Rather than prompting seven sectors
+independently and hoping they match, establish the room once and move through it:
+
+1. Generate `sector-furniture.jpg` from the full prompt (anchor + treatment +
+   subject) until the light and feel are right.
+2. Then, in the same conversation, for each remaining sector:
+   `Same workshop, same lighting, same camera and lens, same grade. Now show
+   <next subject line>.`
+3. Only restate the negatives — no text, no signage, no logos, no faces — if one
+   creeps back in.
+
+Use the Pro tier if it is available to you; it holds detail and resolution
+better, which matters for Set B where the photo is seen at full strength. Set A
+does not need it.
+
+Two things to know before committing:
+
+- **All outputs carry Google's invisible SynthID watermark.** That does not
+  restrict commercial use, but it does mean the images are detectable as
+  generated. Consumer free tiers have also carried a *visible* watermark at
+  times, which would be fatal here — **check what your tier does before
+  generating fifteen**, and prefer the API or a paid tier.
+- **It leans clean.** Its natural register is bright and tidy, and the style
+  anchor above deliberately asks for the opposite: mild wear, real working
+  environments, unstyled. Push harder on those words here than you would with
+  Midjourney, and reject the first results if they look like a brochure.
+
+Cheap and fast enough that finding out costs almost nothing, which is the main
+argument for starting here.
+
+**Midjourney** — the strongest *aesthetic*, if Nano Banana comes out too glossy.
 
 1. Generate #1 of a set until you have one you genuinely like.
 2. Take its job URL and use it as the style reference for the rest:
@@ -117,6 +155,9 @@ fixed and the photo has to match its label, no substitutions.
    near-monochrome and Set B is full colour, so forcing one reference across
    both fights the treatment notes.
 
+`--style raw` matters: the default aesthetic pulls toward stylised, and this
+brief wants documentary.
+
 **Flux (fal / Replicate)** — best route if you want to script it.
 
 - Model: Flux 1.1 Pro. `aspect_ratio: "16:10"`, `output_format: "jpg"`.
@@ -125,8 +166,8 @@ fixed and the photo has to match its label, no substitutions.
   of the way to a coherent look.
 - Fifteen images is one small script; re-rolling a single bad one costs nothing.
 
-**Adobe Firefly** — pick this if commercial licensing comfort outranks
-aesthetics. Trained on licensed Adobe Stock with commercial indemnification
+**Adobe Firefly** — the fallback if commercial licensing comfort outranks
+everything else. Trained on licensed Adobe Stock with commercial indemnification
 available, and it lands straight in Photoshop for the crop and compress step.
 Output tends to look safer and more generic. **Verify the current licensing
 terms yourself before relying on them** — they change, and my knowledge of them
