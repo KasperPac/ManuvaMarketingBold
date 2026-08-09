@@ -23,6 +23,11 @@ when a `photo` path is passed.
 | `platform-reports.jpg` | Reports & Analytics | cobalt | An office-side desk in a workshop — laptop among stock |
 | `platform-shopify.jpg` | Shopify & Platform | violet | Finished retail-ready product, packaging visible |
 
+**Prompts for all fifteen are written up in `PROMPTS.md`** — a shared style
+anchor plus per-image subject lines, split into the two sets because they need
+different treatments (the platform tiles are near-monochrome texture; the sector
+cards are full-colour and actually seen).
+
 ## Requirements
 
 - **Self-hosted only.** No CDN or remote URL. An e2e test asserts every route
@@ -55,3 +60,26 @@ Two checks, both of which have bitten this project already:
 Generated imagery is fine for this. It is decorative, carries no alt text, and
 makes no factual claim — but it still has to look like the thing its heading
 names.
+
+## The seven sector cards
+
+Added with the use-cases section. These render at **full strength** as the whole
+card background with an opaque label bar across the bottom — unlike the platform
+tiles above, they are seen properly, so they carry more weight and want more
+care. Same guard: no file, no markup, no 404.
+
+| File | Label |
+|---|---|
+| `sector-furniture.jpg` | Furniture |
+| `sector-food.jpg` | Food |
+| `sector-cosmetics.jpg` | Cosmetics |
+| `sector-supplements.jpg` | Supplements |
+| `sector-apparel.jpg` | Apparel |
+| `sector-hardware.jpg` | Hardware |
+| `sector-electronics.jpg` | Electronics |
+
+The seven labels are fixed: they are the sectors `about.html` names, in its own
+words, and they are the only sector copy that exists anywhere in the sources.
+A photo has to match the label it sits under — swapping in something adjacent
+because it generated better is the mismatch defect this project has already paid
+for three times.
