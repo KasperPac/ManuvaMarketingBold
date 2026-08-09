@@ -1,7 +1,7 @@
 # Manuva marketing site (Bold)
 
 Marketing site for Manuva, rebuilt on the Manuva design system. Astro static
-output, deployed to Netlify. A re-skin of `KasperPac/ManuvaMarketing` — the copy
+output, deployed to Vercel. A re-skin of `KasperPac/ManuvaMarketing` — the copy
 and URLs already exist and perform, so only the visual layer is new.
 
 ## Task tracking
@@ -22,6 +22,15 @@ Visuals: the design system in `_ds/`. Facts and copy: the old repo at
 behind and does not contain `about.html`, `alternatives/`, `llms.txt`,
 `robots.txt`, `sitemap.xml` or `_redirects`. Read copy with `git show
 origin/master:<path>`, and treat that repo as read-only.
+
+## Deployment
+
+Vercel, from `master`. `astro.config.mjs` sets `build.format: 'file'`, so every
+route emits as `<route>.html` rather than `<route>/index.html` — Netlify serves
+those at clean URLs automatically, **Vercel does not**. `vercel.json` sets
+`cleanUrls: true` to do it, and without that every route except `/` returns 404
+while the landing page looks perfectly fine. `netlify.toml` and
+`public/_redirects` are kept for Netlify/Cloudflare and are ignored by Vercel.
 
 ## Standing rules
 

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/product", "destination": "/features", "permanent": true },
+    { "source": "/alternatives.html", "destination": "/alternatives", "permanent": true }
+  ]
+}
