@@ -41,9 +41,20 @@ differently:
 - **Flux** does it with a separate image-conditioning path rather than a prompt
   flag.
 
-Paste this block into **every** prompt, both sets, unchanged. It is what makes
-fifteen separate generations read as one shoot when no reference image is in
-play — and the baseline the first image of each set is generated from.
+Paste this block into **every** prompt except the two noted below, both sets,
+unchanged. It is what makes separate generations read as one shoot when no
+reference image is in play — and the baseline the first image of each set is
+generated from.
+
+**Two prompts use a different anchor, and both say so where they sit:**
+
+- `platform-inventory.jpg` needs a warehouse at scale, not a studio.
+- `sector-manufacturing.jpg` needs a sheet metal fabrication shop, and the
+  studio anchor forbids the machinery that is the whole subject.
+
+Both keep the lighting, palette, tidiness and every negative. Only the room
+changes, which is what lets sixteen images across three rooms still read as one
+set. Do not reunify them.
 
 ```
 Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces.
@@ -162,7 +173,7 @@ fixed and the photo has to match its label, no substitutions.
 | 5 | `sector-apparel.jpg` | Apparel | `Folded finished garments stacked beside a single sewing machine and neat rolls of fabric. Garments carry no printed graphics or labels.` |
 | 6 | `sector-hardware.jpg` | Hardware | `Small metal fittings and fasteners sorted into compartment trays on a clean bench.` |
 | 7 | `sector-electronics.jpg` | Electronics | `Populated circuit boards in an anti-static tray on a clean bench with fine tools and tweezers. Boards carry no printed markings.` |
-| 8 | `sector-manufacturing.jpg` | Manufacturing | `A maker's bench mid-assembly: a part-finished product held in a jig with hand tools laid out beside it, subject high in the frame.` |
+| 8 | `sector-manufacturing.jpg` | Manufacturing | `Folded sheet metal components stacked and squared on a workbench beside a press brake. Uses the FABRICATION anchor — see the paste-ready block.` |
 
 ---
 
@@ -406,8 +417,20 @@ Populated circuit boards in an anti-static tray on a clean bench with fine tools
 
 **8. `sector-manufacturing.jpg`** — Manufacturing
 ```
-A maker's bench mid-assembly: a part-finished product held in a jig with hand tools laid out beside it, subject high in the frame. Documentary editorial photograph inside a small, bright product studio — the tidy small-batch workspace of an independent consumer brand, not a factory. Natural window light, soft directional daylight, warm neutral palette, matte surfaces, clean, orderly and well-kept, calm and uncluttered, small-team scale, 35mm lens, eye level, shallow depth of field. Not industrial, no heavy machinery, no grime, rust or dirt, no dark factory interior. No text, no signage, no logos, no brand marks, no recognisable faces. Full colour, rich but natural saturation, tactile materials, crafted. Subject centred in the frame.
+Folded sheet metal components stacked and squared on a workbench beside a press brake, clean brushed steel edges and consistent bends, subject high in the frame. Documentary editorial photograph inside a clean, modern sheet metal workshop — organised and well-lit, a precise small fabrication shop rather than a heavy industrial plant. Bright even light, soft directional daylight from high windows, cool metal against a warm neutral palette, matte surfaces, swept floor, tools racked and put away. 35mm lens, eye level, shallow depth of field. No grime, no rust, no oil, no sparks, no dark industrial interior. No text, no signage, no logos, no brand marks, no recognisable faces. Full colour, rich but natural saturation, tactile materials, crafted. Subject centred in the frame.
 ```
+
+> **Third anchor in the set, and the last.** Sheet metal is the author's read
+> of what Manufacturing should show, and it will not come out of the studio
+> anchor — that one forbids heavy machinery, and a press brake is the point
+> here. What holds the set together is carried over unchanged: the same bright
+> even daylight, the same warm neutral palette, the same swept-and-tidy
+> register, the same negatives. Only the room and the material change.
+>
+> Note it deliberately keeps `no grime, no rust, no oil, no sparks`. A clean,
+> precise fabrication shop is still not the industrial plant about.html says
+> Manuva is not built for, and metalwork is where a generator will reach for
+> that imagery hardest.
 
 ## Nano Banana continuation form
 
