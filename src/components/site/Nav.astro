@@ -1,8 +1,20 @@
 ---
 import Logo from '../ds/Logo.astro';
 import Button from '../ds/Button.astro';
+import Icon from '../ds/Icon.astro';
 import Drawer from './Drawer.astro';
-import { NAV_LINKS, APP_URL } from '../../site';
+import { NAV_LINKS, FEATURE_LINKS, APP_URL } from '../../site';
+
+// Features renders as a disclosure rather than a plain link. Two controls, on
+// purpose: the anchor still navigates to /features on click or Enter, so the
+// menu is never the only route to the page and a pointer-less or script-less
+// client loses nothing. The button beside it owns the panel — aria-expanded and
+// aria-controls belong on the control that toggles, not on a link that
+// navigates.
+//
+// The panel ships `hidden` rather than merely collapsed by CSS: a
+// visually-hidden-but-present menu would put ten extra links into every
+// keyboard user's tab order on every page of the site.
 ---
 <header class="site-nav">
   <div class="mv-wrap site-nav-inner">
@@ -11,7 +23,34 @@ import { NAV_LINKS, APP_URL } from '../../site';
     </a>
 
     <nav class="mv-nav-links site-nav-links" aria-label="Primary">
-      {NAV_LINKS.map((l) => <a href={l.href}>{l.label}</a>)}
+      {NAV_LINKS.map((l) =>
+        l.label === 'Features' ? (
+          <div class="site-nav-item site-nav-has-menu">
+            <a href={l.href}>{l.label}</a>
+            <button
+              type="button"
+              class="site-nav-disclosure"
+              aria-expanded="false"
+              aria-controls="site-nav-features"
+              aria-label="Show all features"
+            >
+              <Icon name="chevron-down" size={16} />
+            </button>
+            <div id="site-nav-features" class="site-nav-menu" hidden>
+              <div class="site-nav-menu-inner">
+                <ul class="site-nav-menu-list">
+                  {FEATURE_LINKS.map((f) => (
+                    <li><a href={f.href}>{f.label}</a></li>
+                  ))}
+                </ul>
+                <a href="/features" class="site-nav-menu-all">See the full feature set →</a>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <a href={l.href}>{l.label}</a>
+        ),
+      )}
     </nav>
 
     <a href={APP_URL} class="site-nav-signin mv-nav-links">Sign in</a>
@@ -32,3 +71,79 @@ import { NAV_LINKS, APP_URL } from '../../site';
   </div>
 </header>
 <Drawer />
+
+<script>
+  // Progressive enhancement: with this script absent the anchor still reaches
+  // /features and the panel simply never opens. Nothing here is required to
+  // navigate the site.
+  const item = document.querySelector<HTMLElement>('.site-nav-has-menu');
+  const toggle = item?.querySelector<HTMLButtonElement>('.site-nav-disclosure');
+  const panel = item?.querySelector<HTMLElement>('.site-nav-menu');
+
+  if (item && toggle && panel) {
+    let hoverTimer: number | undefined;
+    // Whether the panel is being held open deliberately (clicked or keyed) as
+    // opposed to incidentally (hovered). Without this the button is useless on
+    // a mouse: moving the pointer onto the chevron fires mouseenter and opens
+    // the panel, so the click that follows always reads as "already open" and
+    // closes it again. Verified by driving it: hover then click left the panel
+    // shut every time.
+    let pinned = false;
+
+    const setOpen = (open: boolean) => {
+      panel.hidden = !open;
+      toggle.setAttribute('aria-expanded', String(open));
+    };
+
+    // Hover only where hovering is a real gesture. On touch the same listener
+    // fires as a synthetic mouseenter on first tap, which would open the panel
+    // and swallow the tap that was meant to follow the link.
+    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (canHover) {
+      item.addEventListener('mouseenter', () => {
+        window.clearTimeout(hoverTimer);
+        setOpen(true);
+      });
+      // Small close delay so a diagonal mouse path from the label to the far
+      // side of the panel does not dismiss it mid-travel. A pinned panel
+      // ignores mouseleave entirely — it was opened on purpose.
+      item.addEventListener('mouseleave', () => {
+        if (pinned) return;
+        hoverTimer = window.setTimeout(() => setOpen(false), 160);
+      });
+    }
+
+    toggle.addEventListener('click', () => {
+      pinned = !pinned;
+      setOpen(pinned);
+    });
+
+    // Escape closes and returns focus to the control that opened it — without
+    // this, focus would be stranded inside a panel that just disappeared.
+    item.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !panel.hidden) {
+        pinned = false;
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+
+    // Tabbing past the last link in the panel closes it. focusout fires before
+    // the new element takes focus, hence the relatedTarget check rather than
+    // reading document.activeElement.
+    item.addEventListener('focusout', (e) => {
+      const next = (e as FocusEvent).relatedTarget as Node | null;
+      if (!next || !item.contains(next)) {
+        pinned = false;
+        setOpen(false);
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!panel.hidden && !item.contains(e.target as Node)) {
+        pinned = false;
+        setOpen(false);
+      }
+    });
+  }
+</script>

@@ -1,11 +1,26 @@
 ---
-import { NAV_LINKS, APP_URL } from '../../site';
+import { NAV_LINKS, FEATURE_LINKS, APP_URL } from '../../site';
+
+// The desktop mega menu is hidden below 960px, where this drawer takes over.
+// Without the feature list here the ten feature areas would be desktop-only —
+// a details/summary keeps them one tap away without making the drawer a wall
+// of links, and needs no script of its own.
 ---
 <div id="site-drawer" class="site-drawer" hidden>
   <div class="site-drawer-panel" role="dialog" aria-modal="true" aria-label="Menu">
     <button type="button" class="site-drawer-close" aria-label="Close menu">&times;</button>
     <nav aria-label="Mobile">
-      {NAV_LINKS.map((l) => <a href={l.href}>{l.label}</a>)}
+      {NAV_LINKS.map((l) =>
+        l.label === 'Features' ? (
+          <details class="site-drawer-group">
+            <summary>{l.label}</summary>
+            <a href={l.href} class="site-drawer-sub">Feature overview</a>
+            {FEATURE_LINKS.map((f) => <a href={f.href} class="site-drawer-sub">{f.label}</a>)}
+          </details>
+        ) : (
+          <a href={l.href}>{l.label}</a>
+        ),
+      )}
       <a href={APP_URL}>Sign in</a>
       <a href={APP_URL} class="site-drawer-cta">Start free trial</a>
     </nav>

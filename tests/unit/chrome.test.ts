@@ -10,12 +10,34 @@ const renderFooter = () => AstroContainer.create().then((c) => c.renderToString(
 const hrefsIn = (html: string) =>
   [...html.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
 
+// The Features mega menu links deep: /features#boms and nine siblings. The
+// route half still has to be real, which is what this checks after splitting
+// the fragment off. That the fragment itself resolves to a live id is a
+// separate, stronger check that already exists in the e2e suite ("every
+// cross-page '/path#id' anchor resolves to a real id on its target route") and
+// runs against the built pages, where the ids actually are — a container-
+// rendered Nav has no way to know what /features contains.
 test('every nav link points at a route that exists', async () => {
   const internal = hrefsIn(await renderNav()).filter((h) => h.startsWith('/') && h !== '#main');
   expect(internal.length, 'nav rendered no internal links to check').toBeGreaterThan(0);
   for (const href of internal) {
-    expect(ALL_ROUTES, `${href} is not a real route`).toContain(href);
+    const route = href.split('#')[0];
+    expect(ALL_ROUTES, `${href} is not a real route`).toContain(route);
   }
+});
+
+// The menu is the reason the check above had to relax, so assert it is actually
+// there — otherwise a future change that empties FEATURE_LINKS would leave the
+// relaxed check passing on nothing.
+test('the features menu lists every feature area and is hidden until opened', async () => {
+  const html = await renderNav();
+  const { FEATURE_LINKS } = await import('../../src/site');
+  for (const f of FEATURE_LINKS) {
+    expect(html, `menu is missing ${f.label}`).toContain(`href="${f.href}"`);
+  }
+  expect(html).toContain('aria-expanded="false"');
+  expect(html).toContain('aria-controls="site-nav-features"');
+  expect(html).toMatch(/id="site-nav-features"[^>]*hidden/);
 });
 
 test('every footer link points at a route that exists', async () => {

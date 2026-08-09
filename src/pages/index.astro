@@ -149,6 +149,51 @@ const HIGHLIGHT = {
   ],
 } as const;
 
+// Onboarding, lifted from the design system's own first-run kit
+// (_ds/ui_kits/app/onboarding.html) — the headline, the lede and three of the
+// four step descriptions are that kit's own words, not written here. Step 1 is
+// the exception: the kit's Shopify step shows a finished state with demo
+// numbers ("205 products, 385 components…") rather than a description, so its
+// line comes from the features.html Shopify section instead. Both are real
+// sources; neither is composed.
+//
+// Worth knowing why this reads as a marketing beat at all: the kit calls that
+// screen "the only full-bleed colour field inside the product… the one moment
+// the app should feel like the site". The onboarding flow was already designed
+// as the seam between the two, so putting it on the site closes a loop the
+// design system drew first.
+const ONBOARDING = {
+  eyebrow: 'Getting started',
+  heading: 'Four steps and your floor is live.',
+  lede: 'Nothing to install and nobody to book. Connect Shopify, bring in your BOMs, count once, then run a job. Most manufacturers finish in an afternoon.',
+  steps: [
+    { field: 'cobalt', title: 'Connect Shopify', desc: 'Products, variants, and inventory levels stay in sync between Manuva and Shopify automatically.' },
+    { field: 'violet', title: 'Import your BOMs', desc: 'Upload a spreadsheet, or build the first one from a template. Nine minutes, typically.' },
+    { field: 'aqua', title: 'Count once', desc: 'One stocktake session sets the baseline. Every movement after that is tracked for you.' },
+    { field: 'flare', title: 'Run a job', desc: 'Release a work order, allocate stock, and watch the floor scan against it.' },
+  ],
+} as const;
+
+// The seven sectors about.html actually names, verbatim from its own sentence:
+// "furniture, food, cosmetics, supplements, apparel, hardware, electronics".
+// That sentence is the ONLY sector list anywhere in the sources — there is no
+// per-sector copy on the old site, in llms.txt, or in the design system, so
+// this section names them and shows imagery and claims nothing further. Writing
+// a line about what each sector needs would be inventing copy, which is the one
+// rule this project has not broken.
+//
+// Photos are optional and build-time guarded exactly like the platform tiles:
+// no file, no markup, no 404. See public/photos/README.md.
+const SECTORS = [
+  { name: 'Furniture', photo: '/photos/sector-furniture.jpg' },
+  { name: 'Food', photo: '/photos/sector-food.jpg' },
+  { name: 'Cosmetics', photo: '/photos/sector-cosmetics.jpg' },
+  { name: 'Supplements', photo: '/photos/sector-supplements.jpg' },
+  { name: 'Apparel', photo: '/photos/sector-apparel.jpg' },
+  { name: 'Hardware', photo: '/photos/sector-hardware.jpg' },
+  { name: 'Electronics', photo: '/photos/sector-electronics.jpg' },
+] as const;
+
 const MARQUEE = [
   'Yield % on every BOM line',
   'BOM versioning with rollback',
@@ -460,6 +505,31 @@ const schema = [
     </div>
   </section>
 
+  {/* Onboarding — paper. Placed between the amber highlight and the aqua beta
+      strip, which also gives those two fields the paper separation the rule
+      requires. Numbered steps rather than tiles: the order is the point. */}
+  <section class="mv-section site-onboarding">
+    <div class="mv-wrap">
+      <span class="mv-eyebrow">{ONBOARDING.eyebrow}</span>{' '}
+      <h2 class="mv-display">{ONBOARDING.heading}</h2>
+      <p class="site-section-sub">{ONBOARDING.lede}</p>
+      <ol class="site-onboarding-steps">
+        {ONBOARDING.steps.map((st, i) => (
+          <li class="site-onboarding-step">
+            {/* The number carries the hue as a real field/ink pair, same as the
+                /product domain cards' accent chip — data-fold so --on-flare
+                resolves to near-black instead of its failing white default. */}
+            <span class="site-onboarding-num" data-fold={st.field} style={`background:var(--field-${st.field});color:var(--on-${st.field})`}>{i + 1}</span>
+            <div>
+              <h3 class="site-onboarding-title">{st.title}</h3>
+              <p class="site-onboarding-desc">{st.desc}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
   {/* beta strip, recoloured from mint to aqua and moved here from directly
       under the explainer band.
 
@@ -507,6 +577,28 @@ const schema = [
       the Organization schema's contactPoint.url. Deleting it would have left
       all seven pointing at nothing, and lost the copy outright; /about is
       where a reader looking for the company already is. */}
+
+  {/* Use cases — the seven sectors about.html names, nothing more. No blurb
+      per sector on purpose: no source carries one, and a plausible-sounding
+      line about what furniture manufacturers need would be invented copy. The
+      photo is the content here; the label names it. */}
+  <section class="mv-section site-sectors">
+    <div class="mv-wrap">
+      <span class="mv-eyebrow">Who runs Manuva</span>{' '}
+      <h2 class="mv-display">Built for shops that make what they sell.</h2>
+      <ul class="site-sector-grid">
+        {SECTORS.map((sec) => {
+          const src = photo(sec.photo);
+          return (
+            <li class="site-sector-card">
+              {src && <span class="site-sector-photo" aria-hidden="true" style={`background-image:url("${src}")`}></span>}
+              <span class="site-sector-name">{sec.name}</span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </section>
 
   {/* flare CTA. No secondActionHref: the old home page has no closing
       cta-section at all (it ends on the contact section, preserved above) —
