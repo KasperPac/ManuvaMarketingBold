@@ -28,4 +28,8 @@ Thumbs.db
 # photo originals: 6-9MB PNGs straight out of the generator. scripts/prep-photos.mjs
 # turns each into the ~100KB JPEG that actually ships. Keep them locally for
 # re-cropping; never commit them.
-public/photos/*.png
+#
+# They live outside public/ deliberately: public/ is the web root and Astro
+# copies all of it into dist/, so 125MB of PNGs was being written into every
+# local build alongside the 1.8MB the site actually uses.
+photo-originals/

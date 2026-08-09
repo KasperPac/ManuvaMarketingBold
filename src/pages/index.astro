@@ -415,9 +415,15 @@ const schema = [
       a 32-second "what is Manuva" is the strongest asset available. The screenshot
       moves to /product, where someone has chosen to look at the product.
       Eyebrow and heading are authored here — the old page had no video section,
-      so there is nothing to move across. "32 seconds" matches the asset's real
-      runtime (public/video/explainer.mp4 probes at 32.3s via its mvhd atom); the
-      brief's own draft said "30 seconds", which doesn't match the file. */}
+      so there is nothing to move across.
+
+      "32 seconds" was measured off the master: public/video/explainer.mp4 probed
+      at 32.3s via its mvhd atom, against a brief that had guessed "30 seconds".
+      That file is deleted now that the video is on YouTube, so the basis lives
+      in git history rather than the working tree. The upload was confirmed as
+      the same video by oEmbed — title "What is Manuva?", author
+      "Pac - Technologies" — but oEmbed exposes no duration, so if the uploaded
+      cut differs from the master the number here needs rechecking. */}
   <Field field="violet" class="site-explainer">
     <div class="site-explainer-inner">
       <span class="mv-eyebrow">See it in 32 seconds</span>
@@ -429,8 +435,13 @@ const schema = [
           Written against the brief's assumed 3s frame, which showed product
           screens mid-fade; never revisited when the real extraction moved to
           1s (Task 1) for a clean title card instead (review round 3, I3). */}
+      {/* Facade, not self-hosted. The explainer is on YouTube now, so the 8.7MB
+          MP4 that shipped with every deploy is gone. The no-third-party-request
+          -on-load property this site holds is unaffected: the facade renders the
+          poster and a button as static markup and reaches youtube-nocookie.com
+          only on click. An e2e test asserts that per route. */}
       <Video
-        src="/video/explainer.mp4"
+        youtubeId="Vr4rkatHggA"
         poster="/video/explainer-poster.jpg"
         alt="Manuva title card reading Manufacturing operations software — What is Manuva?"
         title="What is Manuva"

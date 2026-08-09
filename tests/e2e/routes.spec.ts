@@ -114,16 +114,30 @@ test.describe('no third-party contact before interaction', () => {
   }
 });
 
-// The home page's explainer video is self-hosted (mode "self", not a
-// YouTube facade), so its regression shape is different: not a cross-origin
-// leak, but the browser eagerly fetching the same-origin .mp4's bytes before
-// a visitor has asked for them. <video preload="none"> plus the poster
-// still-frame is what's supposed to prevent that.
-test('the home page transfers no video bytes until play', async ({ page }) => {
-  const videoReqs: string[] = [];
-  page.on('request', (r) => { if (/\.mp4/.test(r.url())) videoReqs.push(r.url()); });
+// The explainer is a YouTube facade: a static poster and button, with the embed
+// created only on click. The property worth protecting is that no request
+// reaches YouTube before someone asks for the video — a bare <iframe> in the
+// markup would fetch on page load and set cookies for every visitor who never
+// pressed play.
+//
+// This replaces a check on same-origin .mp4 bytes that the self-hosted version
+// needed. It could not simply be deleted when the video moved to YouTube: its
+// first assertion still passed, trivially, because there is no longer an mp4 to
+// fetch. It would have sat there green while asserting nothing.
+test('the explainer reaches YouTube only after a click', async ({ page }) => {
+  const yt: string[] = [];
+  page.on('request', (r) => {
+    if (/youtube|ytimg|googlevideo|ggpht/.test(r.url())) yt.push(r.url());
+  });
+
   await page.goto('/', { waitUntil: 'networkidle' });
-  expect(videoReqs, 'video fetched on load').toEqual([]);
+  expect(yt, 'YouTube was contacted before any interaction').toEqual([]);
+  expect(await page.locator('iframe').count(), 'an embed shipped in the static markup').toBe(0);
+
   await page.locator('.site-video-play').first().click();
-  await expect.poll(() => videoReqs.length).toBeGreaterThan(0);
+  await expect.poll(() => yt.length, { timeout: 10_000 }).toBeGreaterThan(0);
+  await expect(page.locator('iframe')).toHaveAttribute(
+    'src',
+    /youtube-nocookie\.com\/embed\/Vr4rkatHggA/,
+  );
 });

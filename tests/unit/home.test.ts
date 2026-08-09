@@ -108,10 +108,18 @@ test('the explainer band is the third fold, directly after hero and marquee', ()
   expect(folds[2]).toBe('violet');
 });
 
-test('the explainer is self-hosted and preloads nothing', () => {
+// Was "self-hosted and preloads nothing". The explainer moved to YouTube, so
+// the property being protected changed shape: there is no longer a file to
+// avoid preloading, and what matters instead is that the facade ships as static
+// markup and reaches no third party until someone clicks. The load-time half of
+// that is asserted per route in tests/e2e/routes.spec.ts, which watches real
+// requests; this covers the markup.
+test('the explainer is a click-to-load facade, not an embedded player', () => {
   const h = html();
-  expect(h).toContain('/video/explainer.mp4');
-  expect(h).toContain('preload="none"');
+  expect(h).toContain('data-youtube-id="Vr4rkatHggA"');
+  expect(h, 'an iframe in the static markup would load YouTube on page load').not.toContain('<iframe');
+  expect(h, 'the self-hosted asset is gone').not.toContain('/video/explainer.mp4');
+  expect(h, 'the poster still has to render before any click').toContain('/video/explainer-poster.jpg');
 });
 
 test('the dashboard screenshot has left the home page for /product', () => {

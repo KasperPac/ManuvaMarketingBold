@@ -20,28 +20,34 @@
 import sharp from 'sharp';
 import { readdirSync, statSync, existsSync } from 'node:fs';
 
-const DIR = 'public/photos';
+// Originals live OUTSIDE public/. Everything under public/ is the web root and
+// gets copied verbatim into dist/ — with the 16 PNGs in there the build output
+// was 126MB against 1.8MB of actual site. They are git-ignored so a deploy from
+// a clean clone never had them, but a local `npm run build` did, and anything
+// dropped in public/ by habit would ship.
+const SRC = 'photo-originals';
+const OUT = 'public/photos';
 const KEEP_BOTTOM = process.argv.includes('--keep-bottom');
 // 1600x1000 is what public/photos/README.md specifies: enough for a
 // full-strength sector card, and far more than a 16%-opacity tile needs.
 const OUT_W = 1600, OUT_H = 1000;
 const MAX_KB = 200;
 
-if (!existsSync(DIR)) {
-  console.error(`no ${DIR} directory`);
+if (!existsSync(SRC)) {
+  console.error(`no ${SRC}/ directory — put the generator's PNGs there, not in public/`);
   process.exit(1);
 }
 
-const pngs = readdirSync(DIR).filter((f) => f.toLowerCase().endsWith('.png')).sort();
+const pngs = readdirSync(SRC).filter((f) => f.toLowerCase().endsWith('.png')).sort();
 if (!pngs.length) {
-  console.log(`no PNGs in ${DIR} — nothing to do`);
+  console.log(`no PNGs in ${SRC} — nothing to do`);
   process.exit(0);
 }
 
 let over = 0;
 for (const f of pngs) {
-  const src = `${DIR}/${f}`;
-  const out = src.replace(/\.png$/i, '.jpg');
+  const src = `${SRC}/${f}`;
+  const out = `${OUT}/${f.replace(/\.png$/i, '.jpg')}`;
   const { width, height } = await sharp(src).metadata();
 
   let pipeline = sharp(src);
