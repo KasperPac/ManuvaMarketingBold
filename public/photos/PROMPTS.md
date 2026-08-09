@@ -266,7 +266,15 @@ no photo rather than a broken image.
 
 ## Set A — platform tiles (8)
 
-Near-monochrome texture. These sit at 16% opacity under a colour field.
+Near-monochrome texture. These sit at 16% opacity under a colour field, so what
+survives is light and shade, not detail or colour.
+
+**These prompts ask for near-monochrome and that is still the recommendation —
+but a colour result is not a defect.** Measured, a saturated source shifts the
+field by about 2.4° of hue at most, which nobody can see (numbers under "Why low
+saturation" above). Neutral is preferred only so the eight land in the same
+place as a set. If colour output looks good to you, keep it — just do not mix
+neutral and colour across the eight.
 
 **1. `platform-inventory.jpg`** — Inventory & Production
 ```
