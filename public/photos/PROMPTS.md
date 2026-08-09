@@ -174,11 +174,24 @@ does not need it.
 
 Two things to know before committing:
 
-- **All outputs carry Google's invisible SynthID watermark.** That does not
-  restrict commercial use, but it does mean the images are detectable as
-  generated. Consumer free tiers have also carried a *visible* watermark at
-  times, which would be fatal here — **check what your tier does before
-  generating fifteen**, and prefer the API or a paid tier.
+- **CONFIRMED: the visible watermark is real, and it is baked into the pixels.**
+  The first generated image came back with a four-pointed sparkle glyph in the
+  bottom-right corner — verified at 6x zoom, not guessed at. It is part of the
+  image data, not metadata, so it cannot be stripped. It also survives the tile
+  crop: the mark sits about 83% down the frame and a platform tile only trims
+  8.6% off top and bottom.
+
+  At 16% opacity under soft-light it is effectively invisible, so Set A can
+  tolerate it. **Set B cannot** — those render at full strength, and a sparkle in
+  the corner of a sector card is plainly visible. Generate through the API or a
+  paid tier that does not stamp it. Cropping it out is possible but fragile
+  across fifteen images and costs composition.
+
+- **Set the output size explicitly.** The first image came back 1024x559. That is
+  fine for Set A, which is texture at 16%, but too small for Set B: those fill a
+  card at full strength and will upscale visibly on a wide viewport. Ask for
+  1600x1000 or larger.
+
 - **It leans clean.** Its natural register is bright and tidy, and the style
   anchor above deliberately asks for the opposite: mild wear, real working
   environments, unstyled. Push harder on those words here than you would with
