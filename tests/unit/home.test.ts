@@ -5,13 +5,13 @@ const html = () => readFileSync('dist/index.html', 'utf8');
 
 test('states the trial correctly', () => {
   const h = html();
-  expect(h).toMatch(/14[\s-]day/i);
-  expect(h).not.toMatch(/30[\s-]day free trial/i);
+  expect(h).toMatch(/30[\s-]day/i);
+  expect(h).not.toMatch(/14[\s-]day free trial/i);
   expect(h).not.toMatch(/free forever/i);
 });
 
 test('carries the beta-tester strip', () => {
-  expect(html()).toMatch(/3 months of Pro/i);
+  expect(html()).toMatch(/a free month of Pro/i);
 });
 
 test('ships none of the invented reference figures', () => {
@@ -143,6 +143,8 @@ test('no product screenshot remains on the home page', () => {
 // above is satisfied by simply having removed the section and put nothing back.
 test('the highlighted latest feature replaced the showcase split', () => {
   const h = html();
-  expect(h).toContain('Trace every finished good back to the lot it came from.');
-  expect(h).toContain('/features#lot-tracking');
+  // Was the lot-tracking panel until 2026-09-22; lot tracking is not built,
+  // so the highlight names the reports suite instead.
+  expect(h).toContain('Operational intelligence, not last week&#39;s spreadsheet.');
+  expect(h).toContain('/features#reports');
 });

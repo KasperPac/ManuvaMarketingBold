@@ -67,7 +67,7 @@ test('states the real company facts: HQ, launch year, sectors, contact, app', ()
 test('closing CTA carries the real trial terms', () => {
   const h = html();
   expect(h).toContain('See Manuva in action');
-  expect(h).toMatch(/14-day free trial, full Pro access\. No credit card required\. Set up in a day\./);
+  expect(h).toMatch(/30-day free trial, full Pro access\. No credit card required\. Set up in a day\./);
 });
 
 // The old page's closing cta-section has two buttons, "Start free trial" and

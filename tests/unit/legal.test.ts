@@ -26,7 +26,7 @@ const PRIVACY_CLAUSE_BODY: readonly [string, string][] = [
 const TERMS_CLAUSE_BODY: readonly [string, string][] = [
   ['1', 'You accept these Terms when you sign up for, access, or pay for the Service.'],
   ['2', 'The Service evolves over time.'],
-  ['3', 'We offer a 14-day free trial.'],
+  ['3', 'We offer a 30-day free trial.'],
   ['4', 'GST is included for Australian customers and shown separately on invoices.'],
   ['5', 'The Customer retains all rights, title, and interest in Customer Data.'],
   ['6', 'This licence does not extend to Customer Data.'],

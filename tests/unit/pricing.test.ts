@@ -16,9 +16,9 @@ test('states flat per-account pricing, the core differentiator', () => {
   expect(html()).not.toMatch(/per seat pricing|priced per user/i);
 });
 
-test('trial is 14 days with full Pro access and no card', () => {
+test('trial is 30 days with full Pro access and no card', () => {
   const h = html();
-  expect(h).toMatch(/14[\s-]day/i);
+  expect(h).toMatch(/30[\s-]day/i);
   expect(h).toMatch(/no credit card/i);
 });
 
@@ -45,11 +45,11 @@ test('the head carries the old page\'s real title and description, not an invent
   const h = html();
   expect(h).toContain('<title>Pricing — Manuva</title>');
   expect(h).toContain(
-    'Simple pricing for manufacturing teams. One price per tier, no per-seat fees, no usage meters. Start free for 14 days.',
+    'Simple pricing for manufacturing teams. One price per tier, no per-seat fees, no usage meters. Start free for 30 days.',
   );
 });
 
-test('the feature matrix has all 43 data rows across its 9 categories, with specific verdicts intact', () => {
+test('the feature matrix has all 41 data rows across its 9 categories, with specific verdicts intact', () => {
   const h = html();
   for (const category of [
     'Plan Limits',
@@ -69,9 +69,13 @@ test('the feature matrix has all 43 data rows across its 9 categories, with spec
   // this counts the actual extracted rows and checks specific verdicts, using
   // the same extractTables() the parity gate's table tier runs on.
   const rows = extractTables(h);
-  // 1 header row ("Feature" + 4 tier names) + 43 data rows + 9 category-divider
-  // rows (colspan label, 0 verdicts each) = 53.
-  expect(rows.length, 'total extracted table rows').toBe(53);
+  // 1 header row ("Feature" + 4 tier names) + 41 data rows + 9 category-divider
+  // rows (colspan label, 0 verdicts each) = 51. Was 43 data rows until
+  // 2026-09-22, when API access and Multiple Shopify stores came out —
+  // neither is built. Bin / aisle locations stays: bin_aisle, bin_bay and
+  // bin_sub_location ship, gated by the binManagement plan flag. Only
+  // per-bin stock *balances* are missing, which the row never claimed.
+  expect(rows.length, 'total extracted table rows').toBe(51);
 
   const byName = new Map(rows.map((r) => [r.name.toLowerCase(), r.verdicts]));
   // Starter is the only tier without BOM versioning — a row a bare label check

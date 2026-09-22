@@ -14,7 +14,6 @@ test('every source section heading survives', () => {
     'Build, version, and run BOMs',
     'Every order, from sale to shipment',
     'Stock counts you can actually trust',
-    'Trace every finished good back to the lot',
     'Purchase orders that close the loop',
     'Run the floor without a whiteboard',
     'Plan production around the people',
@@ -42,8 +41,8 @@ test('no two adjacent folds share a hue', () => {
 });
 
 // Field.astro used to drop any `id` prop (no `...rest` spread), so the two
-// sections wrapped in <Field> (lot-tracking, costing) never got their anchor
-// id — the domain grid's #lot-tracking/#costing tiles pointed at nothing.
+// sections wrapped in <Field> never got their anchor id — the domain grid's
+// #costing tile pointed at nothing.
 // Nothing else checked this (not the gate, which strips <nav> chrome; not
 // the other tests, which check heading text, not ids), so it shipped past
 // review once already (Task 9 code review, fix round 1).
@@ -57,10 +56,10 @@ test('every in-page anchor link resolves to a real id on the page', () => {
   }
 });
 
-test('the ten domain-grid links target the ten real section ids, including the two full-bleed Field sections', () => {
+test('the nine domain-grid links target the nine real section ids, including the full-bleed Field sections', () => {
   const h = html();
   for (const id of [
-    'boms', 'orders', 'inventory', 'lot-tracking', 'purchasing',
+    'boms', 'orders', 'inventory', 'purchasing',
     'production-planning', 'capacity', 'costing', 'reports', 'shopify',
   ]) {
     expect(h, `id="${id}" missing`).toContain(`id="${id}"`);

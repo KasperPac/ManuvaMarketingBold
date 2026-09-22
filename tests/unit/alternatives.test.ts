@@ -48,7 +48,7 @@ test('katana carries its own real title and description, not an invented one', (
   const h = readFileSync('dist/alternatives/katana.html', 'utf8');
   expect(h).toContain('<title>Katana Alternative for Shopify Manufacturers — Manuva</title>');
   expect(h).toContain(
-    'Looking for a Katana alternative with BOM versioning, flat-rate pricing, and real Shopify sync? See how Manuva compares — 14-day free trial, no credit card.',
+    'Looking for a Katana alternative with BOM versioning, flat-rate pricing, and real Shopify sync? See how Manuva compares — 30-day free trial, no credit card.',
   );
 });
 
@@ -56,27 +56,29 @@ test('mrpeasy carries its own real title and description, not an invented one', 
   const h = readFileSync('dist/alternatives/mrpeasy.html', 'utf8');
   expect(h).toContain('<title>MRPeasy Alternative — Flat-Rate MRP for Shopify Manufacturers | Manuva</title>');
   expect(h).toContain(
-    'MRPeasy alternative built around flat-rate pricing, native Shopify webhook sync, and BOM versioning. See how Manuva compares — 14-day free trial.',
+    'MRPeasy alternative built around flat-rate pricing, native Shopify webhook sync, and BOM versioning. See how Manuva compares — 30-day free trial.',
   );
 });
 
-test('both pages state the 14-day, full-Pro, no-credit-card trial', () => {
+test('both pages state the 30-day, full-Pro, no-credit-card trial', () => {
   for (const p of ['dist/alternatives/katana.html', 'dist/alternatives/mrpeasy.html']) {
     const h = readFileSync(p, 'utf8');
-    expect(h).toMatch(/14[\s-]day/i);
+    expect(h).toMatch(/30[\s-]day/i);
     expect(h).toMatch(/no credit card/i);
   }
 });
 
-test('katana comparison table keeps all 12 rows with verdicts intact', () => {
+test('katana comparison table keeps all 11 rows with verdicts intact', () => {
   const h = readFileSync('dist/alternatives/katana.html', 'utf8');
   const rows = extractTables(h);
   const byName = new Map(rows.map((r) => [r.name.toLowerCase(), r.verdicts]));
   expect(byName.get('bom versioning with comparison')).toEqual(['Yes', 'No']);
-  expect(byName.get('multi-level / nested boms')).toEqual(['Yes', 'Yes']);
+  // The multi-level / nested BOMs row came out 2026-09-22: product_bom_component
+  // references components only, so Manuva has no nested BOMs to claim.
+  expect(byName.get('multi-level / nested boms')).toBeUndefined();
   expect(byName.get('pricing model')).toEqual(['Flat per account', 'Per user']);
-  // header row + 12 data rows
-  expect(rows.length).toBe(13);
+  // header row + 11 data rows
+  expect(rows.length).toBe(12);
 });
 
 test('mrpeasy seat-math and comparison tables keep every row with verdicts intact', () => {
@@ -120,11 +122,11 @@ test('katana verdict colours match the old table exactly, not a text-matching gu
   const h = readFileSync('dist/alternatives/katana.html', 'utf8');
   const classes = competitorVerdictClasses(h, 'Manuva vs Katana feature comparison');
   // Verbatim from the old page's own class="yes|no|partial" on the Katana
-  // column of every one of its 12 rows.
+  // column of its rows, less the multi-level / nested BOMs row removed
+  // 2026-09-22 (Manuva has no nested BOMs).
   expect(classes).toEqual({
     'bom versioning with comparison': 'no',
     'yield % per bom line': 'no',
-    'multi-level / nested boms': 'yes',
     'capacity planning': 'no',
     'staff costing per production run': 'no',
     'shopify webhook sync (real-time)': 'yes',

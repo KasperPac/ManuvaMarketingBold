@@ -52,7 +52,7 @@ const PILLARS = [
     title: 'Bills of Materials & Costing',
     photo: '/photos/platform-boms.jpg',
     href: '/features#boms',
-    body: 'Build multi-level BOMs with versioning, then roll up costs automatically. Know your margin before the job starts, not after.',
+    body: 'Build a versioned bill of materials for every variant, then roll up costs automatically. Know your margin before the job starts, not after.',
     chips: ['BOM builder', 'Cost management'],
   },
   {
@@ -87,9 +87,8 @@ const PILLARS = [
 // PILLARS covers inventory+production, BOMs+costing, warehouse movement and
 // team+integrations, so orders, production scheduling, reporting and the
 // Shopify platform layer are the four real sections with no representation
-// here. Lot tracking is the one other uncovered section and is deliberately
-// absent — it carries the highlight panel below instead of being buried as a
-// ninth tile.
+// here. Reporting is deliberately absent from the tiles — it carries the
+// highlight panel below instead of being buried as a ninth tile.
 const PILLARS_EXTRA = [
   {
     icon: 'shopping-cart',
@@ -128,27 +127,27 @@ const PILLARS_EXTRA = [
   },
 ] as const;
 
-// The highlight that replaces the old amber/violet showcase split. Not chosen
-// by us: the old home page's own hero badge reads `<span class="pip">New</span>
-// Lot tracking & supplier scorecards`, so lot tracking is the site's own
-// declared latest feature and that badge is still on the hero above. Heading
-// and body are the features.html lot-tracking section's own heading and intro,
-// verbatim.
+// The home page's one highlight panel. Was lot tracking, which the product
+// does not have: no lot tables exist, only a free-text batch number captured
+// on a goods-receipt line. Replaced with Reports & Analytics — every bullet
+// below maps to a report that ships today (stock on hand, spend by supplier,
+// lead-time accuracy, PO variance, dead stock, inventory integrity), and PDF
+// export landed 2026-09-22, so "New" is honest.
 //
 // No screenshot. The three shots this site owns are the dashboard, the variant
-// detail and the component picker — none of them shows lot tracking, and
-// putting one here would caption an image with something it does not depict,
-// which is the defect class that cost this project four separate fixes.
+// detail and the component picker — none of them shows a report, and putting
+// one here would caption an image with something it does not depict, which is
+// the defect class that cost this project four separate fixes.
 const HIGHLIGHT = {
   eyebrow: 'New',
-  section: 'Lot tracking & traceability',
-  heading: 'Trace every finished good back to the lot it came from.',
-  body: 'Lot numbers, expiry dates, and end-to-end traceability for brands where provenance, shelf life, or recall preparedness actually matter — food, cosmetics, supplements, electronics, regulated components.',
-  href: '/features#lot-tracking',
+  section: 'Reports & analytics',
+  heading: "Operational intelligence, not last week's spreadsheet.",
+  body: 'Ten built-in reports on stock, supplier performance, PO accuracy and dead stock — scoped to any date range, exported to CSV or PDF in a click.',
+  href: '/features#reports',
   feats: [
-    'Assign lot or batch numbers at goods receipt',
-    'Track expiration on perishable components, with FEFO picking',
-    'Supplier → component lot → production order → finished good → customer order',
+    'Stock on hand, valuation, movements and dead stock',
+    'Supplier lead-time accuracy and PO variance, scored from your own data',
+    'Every report exports to CSV or a print-ready PDF',
   ],
 } as const;
 
@@ -243,7 +242,7 @@ const TIERS = [
     sub: 'Billed $2,988/yr',
     featured: true,
     featsHd: 'Everything in Starter, plus',
-    feats: ['Multi-level BOMs & versioning', 'Warehouse & bin locations', 'Cost management', 'Shopify integration', 'Priority support & onboarding'],
+    feats: ['BOM versioning & yield %', 'Warehouse & bin locations', 'Cost management', 'Shopify integration', 'Priority support & onboarding'],
   },
   {
     name: 'Pro',
@@ -355,14 +354,12 @@ const schema = [
   <section class="site-hero">
     <div class="mv-wrap">
       <Panel field="cobalt" class="site-hero-panel" data-fold="cobalt">
-        {/* Verbatim from the old page's eyebrow, including the zero-width gap
-            between the "New" badge and the text that follows it in the old
-            markup (<span class="pip">New</span>Lot tracking…) — not a typo,
-            the old source really has no space there. "Lot tracking" and
-            "supplier scorecards" aren't in llms.txt, but both are documented
-            in the old features.html (Task 9 carries it across), so this is
-            sourced, not invented. */}
-        <span class="mv-eyebrow site-hero-eyebrow"><span class="site-hero-badge">New</span>Lot tracking &amp; supplier scorecards</span>{' '}
+{/* The zero-width gap between the "New" badge and the text that follows
+            is deliberate, carried from the old markup (<span class="pip">New</span>Lot
+            tracking…) — not a typo. The feature named changed: lot tracking is
+            not built, so the badge now names the reports suite, whose PDF export
+            shipped 2026-09-22. */}
+        <span class="mv-eyebrow site-hero-eyebrow"><span class="site-hero-badge">New</span>Reports &amp; PDF export</span>{' '}
         <h1 class="mv-display site-hero-title">
           Make it.{' '}
           {/* Inline style, not a class-only background: the copy-parity/lime
@@ -504,11 +501,10 @@ const schema = [
       their screenshots now live on /product where they have company and
       context.
 
-      What replaces them is not a third arbitrary pick — the old home page's own
-      hero badge, still on the hero above, reads New / "Lot tracking & supplier
-      scorecards", so the site already declares its latest feature and this
-      panel just gives it somewhere to land. Copy is the features.html
-      lot-tracking section's own heading and intro, verbatim.
+      What replaces them is the reports suite: the one area the product
+      genuinely leads on and the one that shipped most recently (PDF export,
+      2026-09-22). Copy is the features page's own Reports & Analytics heading
+      and a summary of its bullets.
 
       One panel, not a split: a single full-width panel is the point of a
       highlight. Amber: violet is out because the tile grid directly above ends
@@ -526,7 +522,7 @@ const schema = [
         <ul class="site-highlight-list">
           {HIGHLIGHT.feats.map((f) => <li><Icon name="check" size={16} /> {f}</li>)}
         </ul>
-        <Pill href={HIGHLIGHT.href} field="paper">See how lot tracking works →</Pill>
+        <Pill href={HIGHLIGHT.href} field="paper">See every report →</Pill>
       </Panel>
     </div>
   </section>
@@ -584,7 +580,7 @@ const schema = [
       side — the split panels are inset on paper, and pricing below is
       paper — so this field touches nothing. */}
   <Field field="aqua" class="site-beta">
-    <h2 class="mv-display site-beta-head"><Icon name="flask-conical" size={32} /> Beta testers get <strong>3 months of Pro — free</strong>.</h2>
+    <h2 class="mv-display site-beta-head"><Icon name="flask-conical" size={32} /> Beta testers get <strong>a free month of Pro</strong>.</h2>
     <p class="site-beta-sub">Shape the roadmap with us. Tell us what features your team needs and we'll build them with you.</p>
     <Pill href={APP_URL} field="paper">Start free trial →</Pill>
   </Field>

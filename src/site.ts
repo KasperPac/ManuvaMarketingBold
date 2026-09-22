@@ -16,7 +16,6 @@ export const FEATURE_LINKS = [
   { href: '/features#boms', label: 'BOMs & Manufacturing' },
   { href: '/features#orders', label: 'Orders & Fulfilment' },
   { href: '/features#inventory', label: 'Inventory' },
-  { href: '/features#lot-tracking', label: 'Lot tracking & traceability' },
   { href: '/features#purchasing', label: 'Purchasing & Suppliers' },
   { href: '/features#production-planning', label: 'Production Planning' },
   { href: '/features#capacity', label: 'Capacity & Team' },

@@ -29,7 +29,6 @@ const DOMAINS = [
   { label: 'BOMs & Manufacturing', href: '#boms', icon: 'layers', field: 'cobalt' },
   { label: 'Orders', href: '#orders', icon: 'shopping-cart', field: 'violet' },
   { label: 'Inventory', href: '#inventory', icon: 'package', field: 'mint' },
-  { label: 'Lot Tracking', href: '#lot-tracking', icon: 'hash', field: 'amber' },
   { label: 'Purchasing', href: '#purchasing', icon: 'file-text', field: 'flare' },
   { label: 'Production', href: '#production-planning', icon: 'kanban-square', field: 'aqua' },
   { label: 'Capacity & Team', href: '#capacity', icon: 'building-2', field: 'lime' },
@@ -43,7 +42,7 @@ const DOMAINS = [
 
 // The ten detail sections, verbatim from the old page's own ten <h2> groups,
 // in the old page's own order. Field sequence: paper by default; a full-bleed
-// Field after section 3 (violet, on lot-tracking) and after section 7
+// Field after section 3 (violet) and after section 7
 // (cobalt, on costing) — the only two colour breaks in the spine.
 const GROUPS = [
   {
@@ -51,13 +50,13 @@ const GROUPS = [
     eyebrow: 'BOMs & Manufacturing',
     heading: 'Build, version, and run BOMs that keep up with reality.',
     intro:
-      'From simple kits to multi-level assemblies — track every component, every version, and every change. Cost and margin update automatically.',
+      'Every component, every version, every change — captured. Cost and margin update automatically as your BOMs evolve.',
     image: {
       src: '/screen-variant.png',
       alt: 'Manuva variant detail showing versioned bills of materials with side-by-side cost comparison',
     },
     feats: [
-      { icon: 'layers', title: 'Multi-level / nested BOMs', desc: 'Sub-assemblies, kits, and finished goods all in one tree. Costs roll up automatically.' },
+      { icon: 'layers', title: 'Component BOMs per variant', desc: 'Every Shopify variant gets its own bill of materials. Costs roll up automatically from component cost and quantity.' },
       { icon: 'percent', title: 'Yield % per BOM line', tier: 'Growth+', desc: 'Set realistic scrap allowances per component. Material requirements reflect what you actually consume.' },
       { icon: 'git-branch', title: 'BOM versioning', tier: 'Growth+', desc: 'Draft, publish, and roll back. Every change is captured — history never gets overwritten.' },
       { icon: 'split', title: 'Side-by-side version comparison', tier: 'Growth+', desc: 'See added, removed, and changed components at a glance — with the cost and margin impact spelled out.' },
@@ -100,23 +99,6 @@ const GROUPS = [
       { icon: 'clipboard-list', title: 'Scan-to-count', tier: 'Growth+', desc: 'Run stocktakes with a scanner. Open a session, scan components, enter counts. Progress tracked in real time — no paper tally sheets.' },
       { icon: 'map-pin', title: 'Scan-to-locate', tier: 'Growth+', desc: 'Scan a component barcode and assign it to its bin location on the spot. Batch updates confirmed in one step.' },
     ],
-  },
-  {
-    id: 'lot-tracking',
-    fold: 'violet',
-    eyebrow: 'Lot tracking & traceability',
-    heading: 'Trace every finished good back to the lot it came from.',
-    intro:
-      'Lot numbers, expiry dates, and end-to-end traceability for brands where provenance, shelf life, or recall preparedness actually matter — food, cosmetics, supplements, electronics, regulated components.',
-    feats: [
-      { icon: 'hash', title: 'Lot & batch numbers', tier: 'Growth+', desc: 'Assign lot or batch numbers at goods receipt. Auto-generate or capture supplier batch codes. Every component instance carries its lot through the system.' },
-      { icon: 'calendar-x', title: 'Expiry dates per lot', tier: 'Growth+', desc: 'Track expiration on perishable or shelf-life-limited components. Get alerts before a lot expires; FEFO (first expired, first out) picking on production allocation.' },
-      { icon: 'git-fork', title: 'End-to-end traceability', tier: 'Growth+', desc: "Supplier → component lot → production order → finished good → customer order. Trace any unit you've shipped back to the raw materials that built it, in seconds." },
-      { icon: 'shield-alert', title: 'Recall reports', tier: 'Pro+', desc: 'A bad lot ships in. Pull a report of every finished good produced from it, and every customer order those units went to. Recall preparedness without a spreadsheet panic.' },
-      { icon: 'clipboard-pen-line', title: 'Lot-level stocktakes', tier: 'Growth+', desc: 'Count by lot, not just by SKU. Reconcile variances per lot to catch substitution errors and miscounts before they corrupt traceability.' },
-      { icon: 'badge-check', title: 'Audit-ready exports', tier: 'Pro+', desc: 'Export lot histories for compliance audits — FDA, TGA, GMP, BRC. CSV and PDF with full chain-of-custody from receipt to shipment.' },
-    ],
-    differentiator: { icon: 'zap', lead: 'Unique to Manuva:', text: "End-to-end lot traceability paired with recall reports at Pro — Katana doesn't ship lot tracking at any tier, and competitors that do typically gate it behind enterprise-only plans." },
   },
   {
     id: 'purchasing',
