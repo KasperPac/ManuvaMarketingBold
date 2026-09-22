@@ -16,7 +16,7 @@ const FAQS = [
   },
   {
     q: 'What do I get during the free trial?',
-    a: 'Full Pro-level access for 14 days — no credit card required. At the end of the trial, your account downgrades to the tier you selected at sign-up. You can add a card and upgrade at any time during or after the trial.',
+    a: 'Full Pro-level access for 30 days — no credit card required. At the end of the trial, your account downgrades to the tier you selected at sign-up. You can add a card and upgrade at any time during or after the trial.',
   },
   {
     q: 'Can I change tiers after signing up?',
@@ -36,7 +36,7 @@ const FAQS = [
 // layout's copy, which invents its own tagline ("Flat pricing. Unlimited
 // users.") for the hero and never states this page's real head values at all.
 const description =
-  'Simple pricing for manufacturing teams. One price per tier, no per-seat fees, no usage meters. Start free for 14 days.';
+  'Simple pricing for manufacturing teams. One price per tier, no per-seat fees, no usage meters. Start free for 30 days.';
 // Old page's own twitter:description — identical to its og:description,
 // both shorter than the meta description above (they drop the trailing
 // "Start free for 14 days." clause). Base.astro's og:description still
@@ -81,7 +81,7 @@ const schema = [
         <div class="mv-eyebrow site-pricing-hero-eyebrow">Pricing</div>
         <h1 class="mv-display site-pricing-hero-title">Simple pricing for manufacturing teams</h1>
         <p class="site-pricing-hero-sub">
-          One price per tier. No per-seat fees. No usage meters. Start free for 14 days — no credit card required.
+          One price per tier. No per-seat fees. No usage meters. Start free for 30 days — no credit card required.
         </p>
 {/* This was <span>s inside an aria-hidden div with no script anywhere — a
             picture of a control. It looked interactive, invited a click and did
@@ -134,7 +134,7 @@ const schema = [
       the old page's own <meta name="description"> sentence (not body copy,
       but real old-page text all the same): "Simple pricing for manufacturing
       teams. One price per tier, no per-seat fees, no usage meters. Start
-      free for 14 days." — the middle sentence is the one that fits a CTA.
+      free for 30 days." — the middle sentence is the one that fits a CTA.
       No secondActionHref: pricing.html has no closing cta-section at all
       (confirmed by reading the raw source, not assumed) — "Start free
       trial" alone, not a "Book a demo" invented to match every other
@@ -142,7 +142,7 @@ const schema = [
   <CtaBand
     field="amber"
     heading="One price per tier, no per-seat fees, no usage meters."
-    body="14 days free with full Pro access. No credit card required."
+    body="30 days free with full Pro access. No credit card required."
   />
 </Base>
 <script>

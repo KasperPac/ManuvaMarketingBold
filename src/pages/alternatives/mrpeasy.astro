@@ -3,7 +3,7 @@ import Alternative from '../../layouts/Alternative.astro';
 
 // Verbatim from the old page's own <head>.
 const description =
-  'MRPeasy alternative built around flat-rate pricing, native Shopify webhook sync, and BOM versioning. See how Manuva compares — 14-day free trial.';
+  'MRPeasy alternative built around flat-rate pricing, native Shopify webhook sync, and BOM versioning. See how Manuva compares — 30-day free trial.';
 // Old page's own og:description — shorter than the meta description above
 // (drops the trailing "14-day free trial").
 const ogDescription =
@@ -52,7 +52,7 @@ const COMPARE_ROWS: [string, string, string, 'yes' | 'no' | 'partial'][] = [
   ['Lead-time accuracy by supplier', 'Yes', 'Limited', 'partial'],
   ['Multi-warehouse + bin locations', 'Yes (Growth)', 'Yes', 'yes'],
   ['Financial profitability dashboard', 'Yes (Pro)', 'No', 'no'],
-  ['Free trial', '14 days, full Pro', '15 days', 'yes'],
+  ['Free trial', '30 days, full Pro', '15 days', 'yes'],
   ['Setup time', 'Hours to days', 'Days to weeks', 'partial'],
 ];
 
@@ -85,7 +85,7 @@ const FAQS = [
   },
   {
     q: 'Can I migrate from MRPeasy to Manuva without downtime?',
-    a: "Yes. Export your components, BOMs, suppliers, purchase orders, and stock balances from MRPeasy as CSV. Run Manuva alongside MRPeasy during the 14-day trial — switch your Shopify webhook from MRPeasy to Manuva only when you're satisfied. The Manuva team will handle the data import for you on Growth and above.",
+    a: "Yes. Export your components, BOMs, suppliers, purchase orders, and stock balances from MRPeasy as CSV. Run Manuva alongside MRPeasy during the 30-day trial — switch your Shopify webhook from MRPeasy to Manuva only when you're satisfied. The Manuva team will handle the data import for you on Growth and above.",
   },
   {
     q: 'What MRPeasy features does Manuva not yet have?',
@@ -132,7 +132,7 @@ const schema = [
   ctaField="cobalt"
   faqs={FAQS}
   faqHeading="Switching from MRPeasy — common questions"
-  ctaHeading="Try Manuva free for 14 days"
+  ctaHeading="Try Manuva free for 30 days"
   ctaBody="Full Pro access. No credit card required. Run it alongside MRPeasy during the trial — switch your Shopify webhook only when you're satisfied."
   ctaSecondActionHref="/about#contact"
 >
@@ -150,7 +150,7 @@ const schema = [
         staying relocated here as a workaround for CtaBand's old hardcoded
         "Talk to us". */}
     <div class="site-hero-meta">
-      <div>14-day free trial</div>
+      <div>30-day free trial</div>
       <div>No credit card</div>
       <div>Unlimited users from Growth</div>
     </div>

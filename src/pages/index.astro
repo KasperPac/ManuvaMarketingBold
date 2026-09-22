@@ -214,7 +214,7 @@ const MARQUEE = [
   'BOM versioning with rollback',
   'Unlimited users on Growth',
   'Real-time Shopify webhooks',
-  '14-day free trial',
+  '30-day free trial',
 ];
 
 // Verbatim from the old site's integrations strip — same order.
@@ -248,12 +248,12 @@ const TIERS = [
   {
     name: 'Pro',
     tag: null,
-    desc: 'For professional manufacturers needing capacity planning, full costing, and API access.',
+    desc: 'For professional manufacturers needing capacity planning, full costing, and PDF exports.',
     price: '$499',
     sub: 'Billed $5,988/yr',
     featured: false,
     featsHd: 'Everything in Growth, plus',
-    feats: ['Capacity planning & staffing', 'Financial profitability dashboard', 'Advanced reports + PDF/CSV export', 'API access', 'Priority support (< 4hr)'],
+    feats: ['Capacity planning & staffing', 'Financial profitability dashboard', 'Advanced reports + PDF/CSV export', 'Priority support (< 4hr)'],
   },
 ] as const;
 
@@ -400,7 +400,7 @@ const schema = [
         <div class="site-hero-meta">
           {/* div, not span: div is a parity boundary-selector so each item stays
               its own isolated segment instead of gluing to its neighbour. */}
-          <div>14 day free trial</div>
+          <div>30-day free trial</div>
           <div>No credit card</div>
         </div>
       </Panel>
@@ -646,6 +646,6 @@ const schema = [
   <CtaBand
     field="flare"
     heading="Manufacturing operations, finally simple."
-    body="14 days free with full Pro access. No credit card required."
+    body="30 days free with full Pro access. No credit card required."
   />
 </Base>
