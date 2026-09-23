@@ -1,5 +1,6 @@
 ---
 import Alternative from '../../layouts/Alternative.astro';
+import TrialStrip from '../../components/site/TrialStrip.astro';
 
 // Verbatim from the old page's own <head> — title/description/og:*/twitter:*
 // all match; confirmed identical across the source's <head> block.
@@ -155,6 +156,7 @@ const schema = [
   ctaHeading="Try Manuva free for 30 days"
   ctaBody="Full Pro access. No credit card required. Run it in parallel with Katana — switch your Shopify webhook when you're satisfied."
   ctaSecondActionHref="/about#contact"
+  trialItems={['30-day free trial', 'No credit card', 'Set up in a day']}
 >
   <Fragment slot="hero">
     <h1 class="mv-display site-alt-hero-title">Katana Alternatives for Shopify Manufacturers: Why Teams Switch to Manuva</h1>
@@ -171,11 +173,6 @@ const schema = [
         back to the closing band where the old page's own cta-section
         actually has them, and this workaround is gone. page-hero on the old
         page is eyebrow + h1 + lede only — no buttons. */}
-    <div class="site-hero-meta">
-      <div>30-day free trial</div>
-      <div>No credit card</div>
-      <div>Set up in a day</div>
-    </div>
   </Fragment>
 
   <Fragment slot="comparison">

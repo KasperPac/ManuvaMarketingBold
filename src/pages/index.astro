@@ -321,15 +321,19 @@ const schema = [
     publisher: { '@id': 'https://manuva.app/#org' },
     // No aggregateRating/review — none exist in the source; inventing one
     // is both a project rule and a Google structured-data policy violation.
+    // AUD, matching /terms §4 ("Prices are stated in Australian Dollars")
+    // and the note under the plan cards. This said USD, which made the
+    // machine-readable price disagree with every human-readable one — and
+    // Google reads this, so it is the version that ends up in a rich result.
     offers: TIERS.map((t) => ({
       '@type': 'Offer',
       name: t.name,
       price: t.price.replace('$', ''),
-      priceCurrency: 'USD',
+      priceCurrency: 'AUD',
       priceSpecification: {
         '@type': 'UnitPriceSpecification',
         price: t.price.replace('$', ''),
-        priceCurrency: 'USD',
+        priceCurrency: 'AUD',
         unitText: 'MONTH',
       },
       availability: 'https://schema.org/OnlineOnly',

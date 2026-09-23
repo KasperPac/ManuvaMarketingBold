@@ -5,6 +5,7 @@ import PriceCards from '../components/site/PriceCards.astro';
 import FeatureMatrix from '../components/site/FeatureMatrix.astro';
 import FaqList from '../components/site/FaqList.astro';
 import Field from '../components/site/Field.astro';
+import TrialStrip from '../components/site/TrialStrip.astro';
 import CtaBand from '../components/site/CtaBand.astro';
 
 // Verbatim from the old page's five FAQ items — llms.txt only carries four of
@@ -117,14 +118,19 @@ const schema = [
     </div>
   </section>
 
-  {/* 3 · paper matrix — data, never a field behind it */}
+  {/* 3 · the accent, and a beat between four pale cards and a 43-row table.
+      This is PriceCards' own "All plans include…" line, verbatim, promoted
+      out of .mv-wrap so it can run full-bleed. */}
+  <TrialStrip items={['All plans include a 30-day free trial · No credit card required']} />
+
+  {/* 4 · paper matrix — data, never a field behind it */}
   <section class="mv-section site-matrix-section">
     <div class="mv-wrap">
       <FeatureMatrix />
     </div>
   </section>
 
-  {/* 4 · mint FAQ. The page ran cobalt hero → paper → paper → paper → amber
+  {/* 5 · mint FAQ. The page ran cobalt hero → paper → paper → paper → amber
       CTA: two fields on a long page, both of them chrome. The FAQ is the one
       block here that can take a field without breaking a loud-layer rule —
       the plan cards and the 43-row matrix are data, which never gets a colour
@@ -136,7 +142,7 @@ const schema = [
     <FaqList items={FAQS} />
   </Field>
 
-  {/* 5 · amber CTA. Heading is a verbatim quote, not an assembled tagline —
+  {/* 6 · amber CTA. Heading is a verbatim quote, not an assembled tagline —
       the old page's own <meta name="description"> sentence (not body copy,
       but real old-page text all the same): "Simple pricing for manufacturing
       teams. One price per tier, no per-seat fees, no usage meters. Start

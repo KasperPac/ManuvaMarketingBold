@@ -1,5 +1,6 @@
 ---
 import Alternative from '../../layouts/Alternative.astro';
+import TrialStrip from '../../components/site/TrialStrip.astro';
 
 // Verbatim from the old page's own <head>.
 const description =
@@ -139,6 +140,7 @@ const schema = [
   ctaHeading="Try Manuva free for 30 days"
   ctaBody="Full Pro access. No credit card required. Run it alongside MRPeasy during the trial — switch your Shopify webhook only when you're satisfied."
   ctaSecondActionHref="/about#contact"
+  trialItems={['30-day free trial', 'No credit card', 'Unlimited users from Growth']}
 >
   <Fragment slot="hero">
     <h1 class="mv-display site-alt-hero-title">MRPeasy Alternative: Flat-Rate Manufacturing Software for Growing Teams</h1>
@@ -153,11 +155,6 @@ const schema = [
         secondActionHref (ctaSecondActionHref="/about#contact" above) instead of
         staying relocated here as a workaround for CtaBand's old hardcoded
         "Talk to us". */}
-    <div class="site-hero-meta">
-      <div>30-day free trial</div>
-      <div>No credit card</div>
-      <div>Unlimited users from Growth</div>
-    </div>
   </Fragment>
 
   <Fragment slot="comparison">

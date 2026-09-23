@@ -161,7 +161,10 @@ const PLANS = [
     </div>
   ))}
 </div>
-<p class="site-plans-note">All plans include a 30-day free trial · No credit card required</p>
+{/* The "All plans include…" line moved to pricing.astro, where it can be a
+    full-bleed lime band between the plan cards and the comparison matrix —
+    it cannot escape .mv-wrap from in here. Same string, same position in
+    the reading order. */}
 {/* Sourced from llms.txt's own summary line, since the old page's monthly
     figures only ever existed inside data-monthly attributes (invisible text,
     JS-toggle only) — this makes them real, permanent copy instead. */}

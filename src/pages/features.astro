@@ -4,6 +4,7 @@ import Field from '../components/site/Field.astro';
 import Panel from '../components/site/Panel.astro';
 import Tile from '../components/site/Tile.astro';
 import CtaBand from '../components/site/CtaBand.astro';
+import TrialStrip from '../components/site/TrialStrip.astro';
 import Icon from '../components/ds/Icon.astro';
 import { FEATURE_LINKS } from '../site';
 import type { FieldName } from '../site';
@@ -117,6 +118,10 @@ const GROUPS = [
     eyebrow: 'Inventory',
     heading: 'Stock counts you can actually trust.',
     intro: 'Every movement logged. Every adjustment tracked. Bin-level locations mean nothing gets lost on the floor.',
+    image: {
+      src: '/screen-components.png',
+      alt: 'Manuva component picker listing every component with its SKU, unit and cost, filtered by category',
+    },
     feats: [
       { icon: 'package', title: 'Component & raw material tracking', desc: 'From bolts and fasteners to fabric and chemicals — track every input to your products.' },
       { icon: 'package-2', title: 'Finished goods tracking', desc: 'Stock counts that update automatically as production completes and orders ship.' },
@@ -211,6 +216,10 @@ const GROUPS = [
     eyebrow: 'Reports & Analytics',
     heading: "Operational intelligence, not last week's spreadsheet.",
     intro: 'Live data on stock, supplier performance, PO accuracy, and dead stock — the reports that actually drive decisions.',
+    image: {
+      src: '/screen-dashboard.png',
+      alt: 'Manuva dashboard showing inventory value, fulfilment rate, open orders, inventory trends and low stock alerts',
+    },
     feats: [
       { icon: 'layout-dashboard', title: 'Real-time dashboard', desc: 'Open orders, components running low, fulfillment rate, and inventory value — all on one screen.' },
       { icon: 'package-search', title: 'Stock on hand', tier: 'Growth+', desc: 'Current balances across every component and finished good, filterable by location and category.' },
@@ -295,14 +304,14 @@ const schema = [
             The meta row just below is a *different* fragment (the old
             page's own cta-section "cta-meta" row) that CtaBand still has no
             slot for — that one stays relocated, or it would be lost again. */}
-        <div class="site-hero-meta">
-          <div>30-day free trial</div>
-          <div>No credit card</div>
-          <div>Unlimited users from Growth</div>
-        </div>
       </Panel>
     </div>
   </section>
+
+  {/* The hero's own reassurance row, moved out of the panel and onto a lime
+      band. Same three strings, same order, same position on the page — it
+      just carries the accent now. See TrialStrip.astro. */}
+  <TrialStrip items={['30-day free trial', 'No credit card', 'Unlimited users from Growth']} />
 
   {/* 2 · domain grid — additive summary band, does not replace the ten
       sections below. See the DOMAINS comment above for sourcing. */}

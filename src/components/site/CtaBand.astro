@@ -1,5 +1,6 @@
 ---
 import Pill from './Pill.astro';
+import Button from '../ds/Button.astro';
 import type { FieldName } from '../../site';
 import { APP_URL } from '../../site';
 export interface Props {
@@ -34,7 +35,16 @@ const { field, heading, body, secondActionHref } = Astro.props;
             all four routes that pass secondActionHref, until this was
             added — a straight port of the same fix used everywhere else in
             this codebase two adjacent Pills/buttons appear). */}
-        <Pill href={APP_URL} field="paper">Start free trial</Pill>{secondActionHref && <>{' '}<Pill href={secondActionHref} field="paper">Book a demo</Pill></>}
+        {/* Built on Button directly, not Pill field="lime". Pill would also stamp
+            border-color:var(--field-lime), which is a correct background/border
+            pairing but is indistinguishable by substring from lime-as-text —
+            and tests/unit/home.test.ts guards "lime is never a text colour" by
+            substring. The home page's own lime hero button is built exactly
+            this way, for exactly this reason; this follows it rather than
+            loosening the guard. The border keys to --on-lime, so lime only
+            ever appears as a fill. */}
+        <Button as="a" href={APP_URL} size="xl" shape="pill" variant="primary" class="mv-press"
+          style="background:var(--field-lime);color:var(--on-lime);border-color:var(--on-lime)">Start free trial</Button>{secondActionHref && <>{' '}<Pill href={secondActionHref} field="paper">Book a demo</Pill></>}
       </div>
     </div>
   </div>
