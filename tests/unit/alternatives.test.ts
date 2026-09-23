@@ -52,9 +52,16 @@ test('katana carries its own real title and description, not an invented one', (
   );
 });
 
+// The title is the one deliberate divergence from this page's own source
+// <head>. The old value was "MRPeasy Alternative — Flat-Rate MRP for Shopify
+// Manufacturers | Manuva": 70 characters, and the only title of the nine that
+// ended in a pipe instead of the em dash every other page uses. Past roughly
+// 60 characters a title is truncated in search results, so the clause being
+// cut was the one doing the work. Shortened to 57 and brought onto the site's
+// own separator. The description below is untouched.
 test('mrpeasy carries its own real title and description, not an invented one', () => {
   const h = readFileSync('dist/alternatives/mrpeasy.html', 'utf8');
-  expect(h).toContain('<title>MRPeasy Alternative — Flat-Rate MRP for Shopify Manufacturers | Manuva</title>');
+  expect(h).toContain('<title>MRPeasy Alternative for Shopify Manufacturers — Manuva</title>');
   expect(h).toContain(
     'MRPeasy alternative built around flat-rate pricing, native Shopify webhook sync, and BOM versioning. See how Manuva compares — 30-day free trial.',
   );
@@ -106,7 +113,11 @@ function competitorVerdictClasses(html: string, tableAriaLabel: string) {
   const $ = load(html);
   const rows: Record<string, string | undefined> = {};
   $(`table[aria-label="${tableAriaLabel}"] tbody tr`).each((_, tr) => {
-    const cells = $(tr).find('td');
+    // 'th, td' — the row label is a <th scope="row"> now, so selecting 'td'
+    // alone shifted every index by one and the competitor column fell off the
+    // end. The assertion below is unchanged; only the way a row's own cells
+    // are collected had to follow the markup.
+    const cells = $(tr).find('th, td');
     const name = $(cells[0]).text().trim().toLowerCase();
     const competitorClass = $(cells[2])
       .attr('class')

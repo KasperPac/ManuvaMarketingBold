@@ -148,15 +148,39 @@ const DIFFERENTIATORS = [
         <th scope="col">Enterprise</th>
       </tr>
     </thead>
+    {/* Three separate fixes in this block, all of them things axe cannot see
+        because empty cells and unmarked row labels are valid HTML:
+
+        1. The category bands were <td colspan="5">. As <th scope="colgroup">
+           they announce as the heading for the rows beneath them instead of
+           as an orphaned data cell.
+        2. Row labels were <td>. As <th scope="row"> a screen reader reading
+           cell-by-cell gets "Growth, Yield % per BOM line, Included" instead
+           of a bare "Included" with no idea what it belongs to — the whole
+           point of a 43-row table.
+        3. Every verdict cell was either an aria-hidden check or a bare em
+           dash, so 40 of the 43 rows read as five empty cells. Both now carry
+           an accessible name via role="img" + aria-label — see Icon.astro's
+           `label` prop for why the name goes on the element rather than into
+           a visually-hidden sibling (short version: the parity gate compares
+           table cells on extracted text, and added text breaks it).
+
+        The dash keeps its own <span role="img"> for the same reason the check
+        does: the span's text content is replaced by the label for assistive
+        tech, and stays exactly "—" for the extractor. */}
     <tbody>
       {CATEGORIES.map((cat) => (
         <>
-          <tr class="site-matrix-divider"><td colspan="5">{cat.label}</td></tr>
+          <tr class="site-matrix-divider"><th colspan="5" scope="colgroup">{cat.label}</th></tr>
           {cat.rows.map((row) => (
             <tr>
-              <td>{row.name}</td>
+              <th scope="row">{row.name}</th>
               {row.v.map((cell) => (
-                <td>{cell === true ? <Icon name="check" size={16} /> : cell === false ? '—' : cell}</td>
+                <td>{cell === true
+                  ? <Icon name="check" size={16} label="Included" />
+                  : cell === false
+                    ? <span role="img" aria-label="Not included">—</span>
+                    : cell}</td>
               ))}
             </tr>
           ))}
@@ -171,10 +195,20 @@ const DIFFERENTIATORS = [
     <div class="site-matrix-card">
       <div class="site-matrix-card-name">{d.plan}</div>
       <ul class="site-matrix-card-list">
+        {/* Same blindness as the desktop table had, and it landed harder
+            here: a card read as "Growth | Locations: | 5 | BOM versions: |
+            Production orders: | Variants: | Support: | Email" — three labels
+            with nothing after them, because the value was an aria-hidden
+            tick. Named the same way, for the same parity reason (see
+            Icon.astro's `label` prop). */}
         {d.rows.map((r) => (
           <li>
             <span class="site-matrix-card-label">{r.label}:</span>{' '}
-            <strong>{r.v === true ? <Icon name="check" size={14} /> : r.v === false ? '—' : r.v}</strong>
+            <strong>{r.v === true
+              ? <Icon name="check" size={14} label="Included" />
+              : r.v === false
+                ? <span role="img" aria-label="Not included">—</span>
+                : r.v}</strong>
           </li>
         ))}
       </ul>

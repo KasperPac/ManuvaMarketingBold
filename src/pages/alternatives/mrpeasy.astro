@@ -77,7 +77,7 @@ const ADDS = [
 const FAQS = [
   {
     q: 'Does Manuva have a per-user pricing tier like MRPeasy?',
-    a: 'No. Manuva uses flat per-account pricing across every tier. The Starter plan covers up to 5 office seats; Growth and Pro include unlimited users — office and shop floor — at $249/mo and $499/mo respectively. There is no scenario where adding a team member raises your bill.',
+    a: 'No. Manuva uses flat per-account pricing across every tier. The Starter plan covers up to 3 users; Growth and Pro include unlimited users — office and shop floor — at $249/mo and $499/mo respectively. There is no scenario where adding a team member raises your bill.',
   },
   {
     q: "How does Manuva's Shopify sync compare to MRPeasy?",
@@ -121,7 +121,11 @@ const schema = [
 ];
 ---
 <Alternative
-  title="MRPeasy Alternative — Flat-Rate MRP for Shopify Manufacturers | Manuva"
+  {/* Em dash before the brand, like the other eight titles — this was the
+      one page using a pipe. Shortened from 70 characters to 57 as well: past
+      ~60 a title is truncated in search results, and "Flat-Rate MRP for
+      Shopify Manufacturers" was the clause being cut. */}
+  title="MRPeasy Alternative for Shopify Manufacturers — Manuva"
   description={description}
   ogDescription={ogDescription}
   twitterDescription={twitterDescription}
@@ -181,7 +185,8 @@ const schema = [
           <tbody>
             {SEAT_ROWS.map(([users, mrp, growth, pro]) => (
               <tr>
-                <td class="site-alt-users">{users}</td>
+                {/* The team size is this row's label, so it is its header. */}
+                <th scope="row" class="site-alt-users">{users}</th>
                 <td class="site-alt-mrp-cell">{mrp}</td>
                 <td class="site-alt-manuva-cell">{growth[0]}{growth[1] && <>{' '}<span class="site-alt-delta">{growth[1]}</span></>}</td>
                 <td class="site-alt-manuva-cell">{pro[0]}{pro[1] && <>{' '}<span class="site-alt-delta">{pro[1]}</span></>}</td>
@@ -191,8 +196,8 @@ const schema = [
         </table>
       </div>
       <p class="site-alt-table-foot">
-        MRPeasy Professional list pricing as of May 2026 (~$49/user/month, billed annually). Verify on MRPeasy's
-        site before sharing externally. Manuva's Growth and Pro tiers include unlimited users on all plans above
+        MRPeasy Professional list pricing as of May 2026 (~$49/user/month billed annually, their published USD
+        list price). Check MRPeasy's current site before you decide. Manuva's Growth and Pro tiers include unlimited users on all plans above
         Starter.
       </p>
       <div class="site-alt-trial-callout">
@@ -220,7 +225,8 @@ const schema = [
           <tbody>
             {COMPARE_ROWS.map(([name, manuva, mrpeasy, mrpeasyClass]) => (
               <tr>
-                <td>{name}</td>
+                {/* th scope="row" — see the same change on the katana page. */}
+                <th scope="row">{name}</th>
                 <td class="site-alt-yes">{manuva}</td>
                 <td class={`site-alt-${mrpeasyClass}`}>{mrpeasy}</td>
               </tr>

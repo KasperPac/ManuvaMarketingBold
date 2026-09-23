@@ -6,8 +6,28 @@ export interface Props {
   name: string;
   size?: number;
   class?: string;
+  /** Accessible name. Omit it (the default) and the glyph stays decorative:
+   * aria-hidden, out of the accessibility tree, which is right wherever a
+   * visible text label sits beside it.
+   *
+   * Supply it where the glyph IS the content and there is no text to fall
+   * back on — the check marks in the plan comparison matrix being the case
+   * that forced this prop to exist. Forty of that table's forty-three rows
+   * carried availability as an aria-hidden check, so the row read as
+   * `"Product + variant sync" | "" | "" | "" | ""` to a screen reader: the
+   * page's entire commercial argument, blank.
+   *
+   * role="img" + aria-label rather than visually-hidden text on purpose.
+   * scripts/parity/extract.js replaces every [data-icon] element with an
+   * "[icon:name]" token and then compares table rows cell-by-cell on their
+   * text, treating a cell that is only a dash as "[none]" — so ANY text added
+   * inside a verdict cell (hidden or not) changes that cell's extracted value
+   * and trips the gate's changedRows check. Attributes are not extracted, so
+   * naming the element instead of adding a sibling leaves the comparison
+   * byte-identical while the cell gains a real accessible name. */
+  label?: string;
 }
-const { name, size = 20, class: className } = Astro.props;
+const { name, size = 20, class: className, label } = Astro.props;
 
 const require = createRequire(import.meta.url);
 
@@ -32,7 +52,12 @@ const svg = raw
       .replace(/\swidth="[^"]*"/, '')
       .replace(/\sheight="[^"]*"/, '')
       .replace(/\sclass="[^"]*"/, '');
-    return `<svg${cleaned} width="${size}" height="${size}" data-icon="${name}" aria-hidden="true" focusable="false"${
+    // focusable="false" stays on both branches: IE/Edge-legacy put SVG in the
+    // tab order otherwise, and a named icon is still not a control.
+    const a11y = label
+      ? `role="img" aria-label="${String(label).replace(/"/g, '&quot;')}" focusable="false"`
+      : `aria-hidden="true" focusable="false"`;
+    return `<svg${cleaned} width="${size}" height="${size}" data-icon="${name}" ${a11y}${
       className ? ` class="${className}"` : ''
     }>`;
   })

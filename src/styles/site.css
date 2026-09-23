@@ -111,7 +111,9 @@ body { background: var(--field-paper); color: var(--ink-strong); }
    used as small text, which the loud-layer rules forbid outright ("never use a
    field as small text on white"). --brand-2 is the design system's own AA-safe
    value for exactly this: cobalt as text. */
-.site-footer-col .mv-eyebrow { color: var(--brand-2); }
+/* h2 now, not a span (see Footer.astro) — reset the UA heading margins so the
+   grid `gap` stays the only spacing in play and the column looks unchanged. */
+.site-footer-col .mv-eyebrow { color: var(--brand-2); margin: 0; }
 .site-footer a { color: var(--ink-muted); text-decoration: none; }
 .site-footer a:hover { color: var(--ink-strong); }
 .site-footer-base { border-top: 1px solid var(--stroke); }
@@ -174,7 +176,13 @@ a[href$="features#purchasing"] .site-tile-chip { background: rgb(255 255 255 / .
    from the page verbatim (never an assembled tagline), and those run longer
    than a short marketing line — text-wrap:balance (mv-display) still keeps
    the wrap even across pages with very different heading lengths. */
-.site-cta-heading { font-size: var(--fs-display-5); max-width: 26ch; margin: 0; }
+/* --fs-display-3 (52px), not --fs-display-5 (88px). At 88px this heading was
+   the largest type on six of the seven content pages — larger than each
+   page's own h1 (--fs-display-4, 68px) — so the closing call to action
+   outranked the page title everywhere except the home page. 52px sits above
+   the 40px section h2 and below the 68px h1, which is the order the document
+   outline already claims. tests/unit/hero-contract.test.ts pins it. */
+.site-cta-heading { font-size: var(--fs-display-3); max-width: 26ch; margin: 0; }
 .site-cta-body { margin: 0; font-size: var(--fs-lg); max-width: 38ch; opacity: .84; text-wrap: pretty; }
 .site-cta-actions { display: flex; gap: var(--space-4); }
 /* CtaBand's own div always carries data-fold (see CtaBand.astro), so this
@@ -362,6 +370,89 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
 .site-hero-meta { display: flex; gap: var(--space-6); font-size: var(--fs-md); opacity: .76; }
 .site-hero-meta div { display: flex; align-items: center; gap: var(--space-2); }
 
+/* --- the shared page-hero contract ----------------------------------------
+   One rule for every hero except the home page's. Before this existed each
+   page carried its own copy of the same five declarations and they had
+   drifted apart: measured at 1280px the six interior heroes shipped three
+   eyebrow display modes (flex / block / inline), five eyebrow gaps
+   (32 / 24 / 32 / 20 / 2px), three heading alignments and three heading
+   sizes (68px, and 28px on /alternatives, which had no panel at all and so
+   fell through to the base .mv-display value). A visitor moving between two
+   pages saw two different products.
+
+   The contract is: an inset Panel carrying a field, centred, with the eyebrow
+   a block sibling at one fixed gap, the h1 at --fs-display-4, and the lede
+   capped so it never runs the full panel width. Per-page rules below may
+   override `max-width` on the title or lede to tune a wrap — that is
+   typographic fitting, not divergence — but nothing else.
+
+   The home page is the one documented exception. `.site-hero-panel` stays
+   left-aligned at --fs-display-6 because its composition is genuinely
+   different (badge eyebrow, split headline carrying the lime mark, display
+   lede, two CTAs, meta) and because `.site-hero-title`'s
+   `width: calc(min(14ch, 100%) + var(--space-8))` and `.site-hero-mark`'s
+   `white-space: nowrap` are load-bearing against the split-pill defect that
+   tests/e2e/responsive.spec.ts pins at eight viewports. Centring it would
+   put both back in play for no stated gain. tests/unit/hero-contract.test.ts
+   asserts the split so it can't drift back into seven rules. */
+.site-features-hero-panel,
+.site-pricing-hero-panel,
+.site-about-hero-panel,
+.site-alt-hero-panel,
+.site-alt-index-hero-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  text-align: center;
+  gap: var(--space-6);
+  padding: var(--space-16);
+}
+/* .mv-eyebrow ships `display: inline` with no margin of its own. Every page
+   that looked right was correcting that with a page-specific rule, and
+   /alternatives was the one that never got one — hence its 2px gap. The
+   contract owns it now: block display, and the panel's own grid `gap`
+   supplies the space, so there is one number instead of five. */
+.site-features-hero-panel > .mv-eyebrow,
+.site-pricing-hero-panel > .mv-eyebrow,
+.site-about-hero-panel > .mv-eyebrow,
+.site-alt-hero-panel > .mv-eyebrow,
+.site-alt-index-hero-panel > .mv-eyebrow {
+  display: block;
+  /* Full strength on any field. This is the rule the project already settled
+     on for .site-about-hero-sub and .site-alt-hero-sub rather than running a
+     per-field contrast audit: cobalt and violet's white ink sits at ~4.87:1
+     and 4.60:1 respectively, with no headroom to mute into. */
+  opacity: 1;
+}
+.site-features-hero-title,
+.site-pricing-hero-title,
+.site-about-hero-title,
+.site-alt-hero-title,
+.site-alt-index-hero-title { font-size: var(--fs-display-4); margin: 0; }
+.site-features-hero-sub,
+.site-pricing-hero-sub,
+.site-about-hero-sub,
+.site-alt-hero-sub,
+.site-alt-index-hero-sub {
+  margin: 0;
+  font-size: var(--fs-lg);
+  line-height: var(--lh-normal);
+  text-wrap: pretty;
+  opacity: 1;
+}
+/* The meta row is a flex child of a centred grid, so it needs telling. */
+.site-features-hero-panel .site-hero-meta,
+.site-alt-hero-panel .site-hero-meta { justify-content: center; }
+@media (max-width: 720px) {
+  .site-features-hero-panel,
+  .site-pricing-hero-panel,
+  .site-about-hero-panel,
+  .site-alt-hero-panel,
+  .site-alt-index-hero-panel { padding: var(--space-10); }
+  /* Three meta items at 14px do not fit one line on a phone. */
+  .site-hero-meta { flex-wrap: wrap; row-gap: var(--space-2); }
+}
+
 /* Ghost pill styling (Pill's `ghost` prop) is composed into Button's inline
    style string in Pill.astro itself, not here — a CSS class can't win against
    the inline style Button always writes. See Pill.astro's comment. */
@@ -433,6 +524,10 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
 .site-compare-table { margin-top: var(--space-8); border-radius: var(--radius-tile); overflow: hidden; background: var(--bg-card); border: 1px solid var(--stroke); }
 .site-compare-row { display: grid; grid-template-columns: 1.6fr repeat(4, 1fr); align-items: center; }
 .site-compare-row + .site-compare-row { border-top: 1px solid var(--stroke); }
+/* The head row and the body rows now sit in separate role="rowgroup"
+   wrappers, so they are no longer adjacent siblings and the rule above no
+   longer draws the line between them. This restores it. */
+.site-compare-table > [role='rowgroup'] + [role='rowgroup'] > .site-compare-row:first-child { border-top: 1px solid var(--stroke); }
 .site-compare-row > div { padding: var(--space-4) var(--space-5); font-size: var(--fs-md); text-align: center; color: var(--ink-muted); }
 .site-compare-row .site-compare-feat { text-align: left; color: var(--ink-strong); font-weight: var(--fw-medium); }
 .site-compare-row-head > div { font-family: var(--font-display); font-weight: var(--fw-semibold); color: var(--ink-strong); }
@@ -532,18 +627,11 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
   .site-tier-featured { box-shadow: none; }
 }
 
-/* --- pricing: hero --- */
-.site-pricing-hero-panel { display: grid; justify-items: center; text-align: center; gap: var(--space-6); padding: var(--space-16); }
-/* The .72/.82 opacity mutes here were measured against navy and were fine on
-   it. This panel is cobalt now, whose own white ink sits at ~4.87:1 to begin
-   with — there is no headroom to mute into, and axe measured the eyebrow at
-   3.34:1 and the sub at 3.87:1 the moment the field changed. Dropped rather
-   than retuned, which is the rule this project already settled on for
-   .site-about-hero-sub and .site-alt-hero-sub: full strength on any field,
-   not a per-field contrast audit. */
-.site-pricing-hero-eyebrow { opacity: 1; }
-.site-pricing-hero-title { font-size: var(--fs-display-4); max-width: 18ch; }
-.site-pricing-hero-sub { margin: 0; max-width: 46ch; font-size: var(--fs-lg); line-height: var(--lh-normal); text-wrap: pretty; }
+/* --- pricing: hero ---
+   Layout, alignment, eyebrow and type scale all come from the shared page-hero
+   contract above. Only the wrap tuning lives here. */
+.site-pricing-hero-title { max-width: 18ch; }
+.site-pricing-hero-sub { max-width: 46ch; }
 /* Scoped under .site-pricing-hero — see the home-page block's own comment
    above for why (Task 14, team-lead review). Specificity does the rest:
    .site-pricing-hero-toggle-btn.site-pricing-toggle-on (below) is one
@@ -604,12 +692,29 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
 .site-plan-price-val { font-family: var(--font-display); font-size: var(--fs-display-1); font-weight: var(--fw-semibold); }
 .site-plan-price-per { font-size: var(--fs-sm); color: var(--ink-faint); }
 .site-plan-note { font-size: var(--fs-sm); color: var(--ink-muted); margin: var(--space-1) 0 0; }
-.site-plan-monthly { font-size: var(--fs-xs); color: var(--ink-faint); margin: var(--space-1) 0 var(--space-5); }
+/* min-height, and always rendered (empty on Enterprise, which has no monthly
+   price) — this line is what kept the four cards' internals from lining up.
+   Measured before the fix: the CTA sat at 258 / 259 / 258px from each card's
+   top edge on Starter, Growth and Pro, and at 215px on Enterprise, with the
+   feature list 44px high for the same reason. All four cards were the same
+   585px tall, so the four most important targets on the page simply did not
+   form a line.
+   .is-muted rather than the `hidden` attribute for the billing toggle, so
+   switching Annual/Monthly hides the text without collapsing the box — the
+   old `el.hidden = true` made every card jump on every toggle. */
+.site-plan-monthly { font-size: var(--fs-xs); color: var(--ink-faint); margin: var(--space-1) 0 var(--space-5); min-height: 1.4em; }
+.site-plan-monthly.is-muted { visibility: hidden; }
 .site-plan-cta { width: 100%; margin-top: var(--space-2); }
 .site-plan-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: var(--space-5) 0 var(--space-5); }
 .site-plan-chip {
   display: inline-flex; padding: var(--space-1) var(--space-3); border-radius: var(--radius-pill);
-  font-size: var(--fs-xs); font-weight: var(--fw-medium); background: var(--bg-card-2); color: var(--ink-muted);
+  font-size: var(--fs-xs); font-weight: var(--fw-medium); background: var(--bg-card-2);
+  /* --ink-strong, not --ink-muted: these chips state the plan's spec ("1
+     location", "3 users"), but muted grey beside a green "Unlimited users"
+     chip read as disabled — as though the plan did not have the thing it was
+     describing. Same weight for both now; the green stays as emphasis on the
+     unlimited case rather than as the only thing distinguishing them. */
+  color: var(--ink-strong);
 }
 /* Same --ok-on-tint pairing as .site-pricing-save; measured 2.54-3.01:1
    across the plain and --brand-dim-tinted (enterprise) card backgrounds
@@ -634,14 +739,21 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
   color: var(--ink-muted); border-bottom: 2px solid var(--stroke-strong); font-size: var(--fs-base);
 }
 .site-matrix-table thead th:first-child { text-align: left; color: var(--ink-strong); }
-.site-matrix-divider td {
+/* The row labels and the category bands became <th> so the table carries real
+   row and colgroup scope (see FeatureMatrix.astro). These selectors match
+   `td, th` where they used to match `td` alone; `text-align: left` and
+   `font-weight` are restated because a <th> defaults to centred and bold. */
+.site-matrix-divider th {
   padding: var(--space-3) var(--space-4); background: var(--bg-card-2); font-size: var(--fs-xs); font-weight: var(--fw-bold);
   letter-spacing: var(--ls-caps); text-transform: uppercase; color: var(--ink-muted); border-top: 1px solid var(--stroke);
+  text-align: left;
 }
-.site-matrix-table tbody tr:not(.site-matrix-divider) td { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--stroke); vertical-align: middle; }
-.site-matrix-table td:first-child { color: var(--ink-strong); }
-.site-matrix-table td:not(:first-child) { text-align: center; color: var(--ink-muted); }
-.site-matrix-table tbody tr:not(.site-matrix-divider):hover td { background: var(--bg-card-2); }
+.site-matrix-table tbody tr:not(.site-matrix-divider) td,
+.site-matrix-table tbody tr:not(.site-matrix-divider) th { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--stroke); vertical-align: middle; }
+.site-matrix-table tbody th[scope='row'] { text-align: left; color: var(--ink-strong); font-weight: var(--fw-regular); }
+.site-matrix-table tbody td { text-align: center; color: var(--ink-muted); }
+.site-matrix-table tbody tr:not(.site-matrix-divider):hover td,
+.site-matrix-table tbody tr:not(.site-matrix-divider):hover th { background: var(--bg-card-2); }
 .site-matrix-table svg { color: var(--ok); }
 
 /* Not .mv-cols-2: that utility's own 720px breakpoint collapses it to a single
@@ -667,20 +779,76 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
 .site-faq { max-width: 720px; margin: 0 auto; }
 .site-faq-item { border-top: 1px solid var(--stroke); padding: var(--space-6) 0; }
 .site-faq-item:last-child { border-bottom: 1px solid var(--stroke); }
-.site-faq-q { font-size: var(--fs-lg); font-weight: var(--fw-semibold); color: var(--ink-strong); cursor: pointer; list-style: none; }
+/* `list-style: none` removes the native disclosure triangle, and nothing was
+   putting anything back — so every FAQ on the site (five items on /pricing,
+   four on each comparison page) rendered as a plain heading with no hint that
+   it opened. Measured in the browser: list-style none, ::before "none",
+   ::after "none", ::marker "normal".
+   The chevron below is drawn from currentColor with borders rather than an
+   Icon component, because <summary> is the click target and an extra element
+   inside it would glue onto the question text in the copy-parity extractor's
+   output. It rotates on open; the rotation is suppressed under
+   prefers-reduced-motion, where the end state still differs. */
+.site-faq-q {
+  font-size: var(--fs-lg); font-weight: var(--fw-semibold); color: var(--ink-strong);
+  cursor: pointer; list-style: none;
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-5);
+}
 .site-faq-q::-webkit-details-marker { display: none; }
+.site-faq-q::after {
+  content: ''; flex: none; width: 9px; height: 9px;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform var(--dur-fast) ease;
+  opacity: .55;
+}
+.site-faq-item[open] > .site-faq-q::after { transform: rotate(-135deg) translate(-2px, -2px); }
+.site-faq-item[open] > .site-faq-q { color: var(--brand-1); }
+.site-faq-q:focus-visible { outline: 2px solid var(--brand-2); outline-offset: 4px; border-radius: var(--radius-sm); }
+@media (prefers-reduced-motion: reduce) {
+  .site-faq-q::after { transition: none; }
+}
 .site-faq-a { font-size: var(--fs-md); color: var(--ink-muted); line-height: var(--lh-normal); margin-top: var(--space-3); }
+/* The /pricing FAQ sits on a mint Field now. Same rule as the contact block:
+   an absolute ink written for paper is not safe on a field, so inherit the
+   field's own paired ink. --brand-1 on the open question and --ink-muted on
+   the answer were both measured failures here. The hairline borders stay as
+   they are — they are decorative, held to the 3:1 non-text floor. */
+[data-fold] .site-faq-a,
+[data-fold] .site-faq-q,
+[data-fold] .site-faq-item[open] > .site-faq-q { color: inherit; }
+[data-fold] .site-faq-item { border-color: color-mix(in srgb, currentColor 22%, transparent); }
 
-/* --- features: hero --- */
-.site-features-hero-panel { display: grid; justify-items: center; text-align: center; gap: var(--space-6); padding: var(--space-16); }
-.site-features-hero-title { font-size: var(--fs-display-4); max-width: 20ch; }
-.site-features-hero-sub { margin: 0; max-width: 60ch; font-size: var(--fs-lg); line-height: var(--lh-normal); opacity: .82; text-wrap: pretty; }
+/* --- features: hero ---
+   Everything but the wrap tuning comes from the shared page-hero contract. */
+.site-features-hero-title { max-width: 20ch; }
+.site-features-hero-sub { max-width: 60ch; }
 .site-features-hero-actions { margin-top: var(--space-2); }
 
 /* --- features: domain grid (additive summary band, not a replacement for
    the ten sections below — see features.astro's DOMAINS comment) --- */
 .site-domain-section { text-align: center; }
-.site-domain-grid { margin-top: var(--space-8); }
+/* Flex wrap, centred, rather than a fixed column count. Nine tiles never
+   divide evenly into six (the old .mv-cols-6) or into the 3 / 2 / 1 steps
+   that utility drops to, so at most widths the last row was short — and with
+   a grid, short means "left-aligned under a centred heading". Centring the
+   wrap makes a short row sit under the middle of the one above it.
+   The basis is a third of the row minus its two gaps at desktop, half minus
+   one gap on a tablet, full width on a phone. */
+.site-domain-grid {
+  margin-top: var(--space-8);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-4);
+}
+.site-domain-tile { flex: 0 1 calc((100% - var(--space-4) * 2) / 3); }
+@media (max-width: 960px) {
+  .site-domain-tile { flex-basis: calc((100% - var(--space-4)) / 2); }
+}
+@media (max-width: 560px) {
+  .site-domain-tile { flex-basis: 100%; }
+}
 .site-domain-tile { min-height: auto; padding: var(--space-5); display: grid; justify-items: center; text-align: center; gap: var(--space-2); }
 .site-domain-tile .site-tile-head { justify-content: center; }
 .site-domain-tile .site-tile-title { font-size: var(--fs-sm); letter-spacing: normal; text-transform: none; }
@@ -845,20 +1013,30 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
 .site-contact-label { font-size: var(--fs-xs); font-weight: var(--fw-semibold); text-transform: uppercase; letter-spacing: var(--ls-caps); color: var(--ink-faint); }
 .site-contact-value { font-size: var(--fs-md); font-weight: var(--fw-medium); color: var(--ink-strong); }
 .site-contact-meta { font-size: var(--fs-sm); color: var(--ink-muted); }
+/* This block moved onto a violet Field. The absolute inks and the .8 mute
+   above were written for paper and are the exact failure the project's own
+   rule names — never set an absolute ink inside a <Field>, never opacity-mute
+   text on one. axe measured --ink-faint on violet at 3.4:1. Inheriting the
+   field's own --on-violet is the only value guaranteed to clear AA, since
+   Field already pairs every background with its ink. */
+[data-fold] .site-contact-sub { opacity: 1; }
+[data-fold] .site-contact-label,
+[data-fold] .site-contact-value,
+[data-fold] .site-contact-meta { color: inherit; }
+/* No replacement opacity: on violet, white ink sits at 4.60:1 at FULL
+   strength, so any mute at all drops these below AA. The label and meta lines
+   read as secondary through size and letter-spacing instead, which is what
+   they already had. */
 
-/* --- alternatives: hero --- */
-.site-alt-hero-panel { display: grid; justify-items: start; text-align: left; gap: var(--space-5); padding: var(--space-16); }
-.site-alt-hero-title { font-size: var(--fs-display-4); max-width: 26ch; }
-/* No opacity mute, unlike most other hero subheads (site-hero-sub,
-   site-features-hero-sub): katana's hero field is violet, whose full-strength
-   white-on-field contrast is only 4.60:1 (computed, matches the task brief's
-   own figure) — any opacity < 1 at this font-size (16px, below the 18.66px
-   bold / 24px normal "large text" threshold) drops below 4.5:1 AA. Verified:
-   .84 measures 3.61:1 on violet, .76 measures 3.19:1. Full strength is the
-   only value that clears AA on this field; mrpeasy's amber field (dark ink
-   on a bright yellow) would have had huge headroom either way, so dropping
-   the mute here costs nothing there. */
-.site-alt-hero-sub { margin: 0; max-width: 64ch; font-size: var(--fs-lg); line-height: var(--lh-normal); text-wrap: pretty; }
+/* --- alternatives: hero ---
+   Layout, alignment and type scale come from the shared page-hero contract.
+   The full-strength ink the contract mandates matters most here: katana's
+   hero field is violet, whose white-on-field contrast is only 4.60:1, so any
+   opacity < 1 at 16px (below the 18.66px bold / 24px normal "large text"
+   threshold) drops below 4.5:1 AA — .84 measures 3.61:1, .76 measures
+   3.19:1. */
+.site-alt-hero-title { max-width: 26ch; }
+.site-alt-hero-sub { max-width: 64ch; }
 .site-alt-hero-actions { margin-top: var(--space-2); }
 /* site-hero-meta (shared with / and /features) mutes to .76 by default,
    which measures 3.55:1 on cobalt and 3.19:1 on violet — both below 4.5:1 AA
@@ -910,7 +1088,10 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
    --brand-2 computes to ~5.95:1 there. */
 .site-alt-table thead th.site-alt-table-manuva { color: var(--brand-2); }
 .site-alt-table tbody tr:last-child td { border-bottom: none; }
-.site-alt-table td:first-child { font-weight: var(--fw-semibold); color: var(--ink-strong); }
+/* Row labels are <th scope="row"> now, not <td> (see the two comparison
+   pages). Matching on the scope attribute rather than :first-child keeps the
+   styling identical and makes the intent explicit. */
+.site-alt-table tbody th[scope='row'] { font-weight: var(--fw-semibold); color: var(--ink-strong); }
 /* Verdict text is always --ink-strong (18.43:1 on --bg-card, comfortably
    clears 4.5:1 AA) — the ok/danger/warning colour survives only as a small
    non-text dot before the word, where WCAG's lower 3:1 "non-text contrast"
@@ -951,7 +1132,7 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
 .site-alt-table-foot a { color: var(--brand-2); text-decoration: underline; }
 
 /* --- alternatives: mrpeasy seat-cost table --- */
-.site-alt-seat-table .site-alt-users { font-weight: var(--fw-semibold); color: var(--ink-strong); }
+.site-alt-seat-table th.site-alt-users { font-weight: var(--fw-semibold); color: var(--ink-strong); }
 .site-alt-seat-table .site-alt-mrp-cell { color: var(--ink-muted); }
 .site-alt-seat-table .site-alt-manuva-cell { color: var(--brand-1); font-weight: var(--fw-semibold); }
 /* Source's own de-emphasis for the per-row saving figure (13px, --ink-faint,
@@ -999,7 +1180,12 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
    "Explore further" strip visibly lighter than .site-alt-group's own
    64px above it, matching the old page's own 72px→56px step down. */
 .site-alt-related { padding: var(--space-12) 0; border-top: 1px solid var(--stroke); text-align: center; }
-.site-alt-related h2 { font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--ink-muted); margin: 0 0 var(--space-5); text-transform: uppercase; letter-spacing: var(--ls-caps); }
+/* Was --fs-sm (12px) uppercase, which rendered a section <h2> smaller than
+   the body copy and smaller than the links beneath it — the layout said
+   "micro-label", the document outline said "section heading". Brought onto
+   the same 40px step every other section h2 on these pages uses, sentence
+   case, so the two agree. */
+.site-alt-related h2 { font-size: var(--fs-display-2); margin: 0 0 var(--space-6); }
 .site-alt-related-links { display: flex; gap: var(--space-3); justify-content: center; flex-wrap: wrap; }
 .site-alt-related-links a {
   padding: var(--space-2) var(--space-5); background: var(--bg-card); border: 1px solid var(--stroke-strong);
@@ -1009,16 +1195,14 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
 
 @media (max-width: 720px) {
   .site-alt-price-cols { grid-template-columns: 1fr; }
-  .site-alt-hero-panel { padding: var(--space-10); }
+  /* hero padding now comes from the shared page-hero contract's own
+     720px block, not a second copy here. */
 }
 
-/* --- about: hero --- */
-.site-about-hero-panel { padding: var(--space-24) var(--space-16) var(--space-16); display: grid; gap: var(--space-8); justify-items: start; text-align: left; }
-.site-about-hero-title { font-size: var(--fs-display-4); max-width: 22ch; }
-/* No opacity mute, same reasoning as .site-alt-hero-sub: on-mint (near-black
-   on a bright mint field) has huge headroom, but the rule this project
-   settled on is full strength on any field, not a per-field contrast audit. */
-.site-about-hero-sub { margin: 0; max-width: 62ch; font-size: var(--fs-lg); line-height: var(--lh-normal); text-wrap: pretty; }
+/* --- about: hero ---
+   Everything but the wrap tuning comes from the shared page-hero contract. */
+.site-about-hero-title { max-width: 22ch; }
+.site-about-hero-sub { max-width: 62ch; }
 .site-about-hero-actions { margin-top: var(--space-2); }
 
 /* --- about: shared group head/heading/lede (build, principles, company) --- */
@@ -1053,7 +1237,7 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
 .site-about-company-value a { color: var(--brand-1); font-weight: var(--fw-medium); }
 
 @media (max-width: 720px) {
-  .site-about-hero-panel { padding: var(--space-10); }
+  /* hero padding: see the shared page-hero contract. */
   .site-about-company { padding: var(--space-6); }
 }
 
@@ -1247,8 +1431,14 @@ iframe.site-video-el {
 .site-highlight-list li svg { flex: none; margin-top: 3px; }
 
 /* --- /alternatives index --- */
-.site-alt-index-hero { text-align: center; }
-.site-alt-index-lede { max-width: 58ch; margin: var(--space-4) auto 0; font-size: var(--fs-lg); line-height: var(--lh-normal); color: var(--ink-muted); text-wrap: pretty; }
+/* This page used to be the odd one out: a bare .mv-section with no panel, no
+   field and only `text-align: center`, so .mv-display and .mv-eyebrow fell
+   through to their base values and the h1 rendered at 28px against 68px on
+   every other page. It now takes the shared page-hero contract like the rest
+   — see .site-alt-index-hero-panel in that block. The lede keeps its own
+   colour because it is the one hero lede that is NOT on a field. */
+.site-alt-index-hero-sub { max-width: 58ch; }
+.site-alt-index-hero-title { max-width: 20ch; }
 .site-alt-index-card { padding: var(--space-10); display: grid; align-content: start; gap: var(--space-3); }
 .site-alt-index-card-title { font-size: var(--fs-display-2); margin: 0; }
 .site-alt-index-card-body { margin: 0; font-size: var(--fs-md); line-height: var(--lh-normal); }
@@ -1451,7 +1641,7 @@ iframe.site-video-el {
 }
 .site-drawer-group[open] > summary::after { content: '\2212'; }
 .site-drawer-sub { padding-left: var(--space-4); font-size: var(--fs-md); color: var(--ink-muted); }
-
+
 /* --- section headings ---
    Sections added during this pass used a bare `.mv-display`, which carries
    weight, tracking and family but no size, so they resolved to 21px — barely

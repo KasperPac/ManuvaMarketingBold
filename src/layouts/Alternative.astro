@@ -73,9 +73,12 @@ const {
     </div>
   </section>
 
+  {/* mv-display, like every other section h2 on this page. Without it this
+      heading inherited a 12px uppercase micro-label treatment — an <h2> set
+      smaller than the links underneath it. See .site-alt-related h2. */}
   <section class="site-alt-related">
     <div class="mv-wrap">
-      <h2>Explore further</h2>
+      <h2 class="mv-display">Explore further</h2>
       <slot name="related" />
     </div>
   </section>

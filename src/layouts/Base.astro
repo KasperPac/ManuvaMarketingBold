@@ -34,10 +34,12 @@ const {
   ogDescription = description, ogType = 'website', twitterDescription, schema,
 } = Astro.props;
 
-const TOKENS = [
-  'fonts', 'colors', 'themes', 'typography', 'spacing',
-  'shape', 'marketing', 'responsive', 'motion', 'base',
-];
+// The ten token files are concatenated into /_ds/tokens.css by
+// scripts/sync-ds.js, which owns the order (it is this list, unchanged). Ten
+// separate <link>s meant ten render-blocking requests per page for ten files
+// that only ever change together, as one vendored export. The individual
+// files are still synced and still served — this only stops the layout asking
+// for them one at a time.
 
 // Astro.site is undefined when this layout is rendered through the container
 // API (astro/container) without an astroConfig, e.g. in unit tests. Fall back
@@ -86,7 +88,7 @@ const ogImageUrl = Astro.site ? new URL(ogImage, Astro.site) : ogImage;
     <link rel="icon" href="/favicon-16.png" sizes="16x16" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
-    {TOKENS.map((t) => <link rel="stylesheet" href={`/_ds/tokens/${t}.css`} />)}
+    <link rel="stylesheet" href="/_ds/tokens.css" />
 
     {schema && schema.length > 0 && (
       <script type="application/ld+json" set:html={JSON.stringify(schema)} />

@@ -72,13 +72,22 @@ const schema = [
   canonical="https://manuva.app/alternatives"
   {schema}
 >
-  <section class="mv-section site-alt-index-hero">
+  {/* 1 · aqua hero panel, inset on paper — the shared page-hero contract.
+      This page previously shipped a bare .mv-section with no panel and no
+      field, so .mv-display fell through to its base value and the h1
+      rendered at 28px against 68px on every other page, with the eyebrow
+      sitting 2px off it. aqua rather than one of the hues below it: the two
+      comparison cards are cobalt and violet and the closing band is flare,
+      so this is the one field on the page that repeats nothing. */}
+  <section class="site-hero site-alt-index-hero">
     <div class="mv-wrap">
-      <span class="mv-eyebrow">Compare</span>{' '}
-      <h1 class="mv-display">Manuva vs the alternatives</h1>
-      <p class="site-alt-index-lede">
-        Honest, dated comparisons against the tools Shopify manufacturers actually evaluate.
-      </p>
+      <Panel field="aqua" data-fold="aqua" class="site-alt-index-hero-panel">
+        <span class="mv-eyebrow">Compare</span>{' '}
+        <h1 class="mv-display site-alt-index-hero-title">Manuva vs the alternatives</h1>
+        <p class="site-alt-index-hero-sub">
+          Honest, dated comparisons against the tools Shopify manufacturers actually evaluate.
+        </p>
+      </Panel>
     </div>
   </section>
 
@@ -107,31 +116,49 @@ const schema = [
       Other tools either started as accounting software or as Trello-for-factories. Manuva was built from day
       one for the way real shops run production.
     </p>
+    {/* This table was the worst of the three for a screen reader, because
+        BOTH verdicts were aria-hidden glyphs: a row came back as
+        `"Real-time inventory" | "" | "" | "Batch sync" | ""`, so Manuva's yes
+        and a competitor's no were indistinguishable and the table read as
+        though nobody had anything.
+
+        `cell` renders the verdict with an accessible name and no added text
+        (see Icon.astro's `label` prop). The row label is now role="rowheader"
+        rather than role="cell", and the head and body rows sit in explicit
+        role="rowgroup" wrappers, so the ARIA table is actually complete
+        rather than a grid of anonymous cells. */}
     <div class="site-compare-table" role="table" aria-label="Feature comparison: Manuva vs competitors">
-      <div class="site-compare-row site-compare-row-head" role="row">
-        <div role="columnheader">Capability</div>
-        <div role="columnheader" class="site-compare-manuva">Manuva</div>
-        <div role="columnheader">Katana</div>
-        <div role="columnheader">MRPEasy</div>
-        <div role="columnheader">Spreadsheets</div>
-      </div>
-      {COMPARE_ROWS.map(([name, manuva, katana, mrpeasy, spreadsheets]) => (
-        <div class="site-compare-row" role="row">
-          <div role="cell" class="site-compare-feat">{name}</div>
-          <div role="cell" class="site-compare-manuva">
-            {manuva === 'yes' ? <Icon name="check" size={16} /> : manuva === 'no' ? <Icon name="x" size={16} /> : manuva}
-          </div>
-          <div role="cell">{katana === 'yes' ? <Icon name="check" size={16} /> : katana === 'no' ? <Icon name="x" size={16} /> : katana}</div>
-          <div role="cell">{mrpeasy === 'yes' ? <Icon name="check" size={16} /> : mrpeasy === 'no' ? <Icon name="x" size={16} /> : mrpeasy}</div>
-          <div role="cell">{spreadsheets === 'yes' ? <Icon name="check" size={16} /> : spreadsheets === 'no' ? <Icon name="x" size={16} /> : spreadsheets}</div>
+      <div role="rowgroup">
+        <div class="site-compare-row site-compare-row-head" role="row">
+          <div role="columnheader">Capability</div>
+          <div role="columnheader" class="site-compare-manuva">Manuva</div>
+          <div role="columnheader">Katana</div>
+          <div role="columnheader">MRPeasy</div>
+          <div role="columnheader">Spreadsheets</div>
         </div>
-      ))}
+      </div>
+      <div role="rowgroup">
+        {COMPARE_ROWS.map(([name, ...verdicts]) => (
+          <div class="site-compare-row" role="row">
+            <div role="rowheader" class="site-compare-feat">{name}</div>
+            {verdicts.map((v, i) => (
+              <div role="cell" class:list={[{ 'site-compare-manuva': i === 0 }]}>
+                {v === 'yes'
+                  ? <Icon name="check" size={16} label="Yes" />
+                  : v === 'no'
+                    ? <Icon name="x" size={16} label="No" />
+                    : v}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
     <p class="site-compare-foot">
       See full comparison:{' '}
       <a href="/alternatives/katana">Manuva vs Katana</a> · <a href="/alternatives/mrpeasy">Manuva vs MRPeasy</a>
       <br />
-      <span class="site-compare-caption">Competitor data based on publicly available information. Verify before sharing with prospects.</span>
+      <span class="site-compare-caption">Competitor data based on publicly available information, last checked May 2026. Check each vendor's current site before you decide.</span>
     </p>
     </div>
   </section>

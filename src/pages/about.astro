@@ -234,8 +234,14 @@ const schema = [
       extraction notes, which still apply — they describe how this markup keeps
       each fragment boundary-isolated for the parity gate. The one change is the
       anchor's owner: /about#contact, not /#contact. */}
-  <section class="mv-section site-contact" id="contact">
-    <div class="mv-wrap site-contact-inner">
+  {/* violet. This page ran mint hero → paper → paper → paper → flare CTA.
+      "What we build" and the six principles are long-form body copy and the
+      company block is data, so all three are off-limits for a field; the
+      contact block is four short lines and a button, which is exactly what a
+      field is for. violet shares a hue with neither the mint above nor the
+      flare below. */}
+  <Field field="violet" class="site-contact" id="contact">
+    <div class="site-contact-inner">
       <h2 class="mv-display site-about-heading">Get in touch</h2>
       <p class="site-contact-sub">
         Whether you're ready to start a trial or just want to see how Manuva fits your shop, we'd love to talk.
@@ -250,9 +256,9 @@ const schema = [
         <a href={`mailto:${CONTACT_EMAIL}`} class="site-contact-value">{CONTACT_EMAIL}</a>{' '}
         <div class="site-contact-meta">We reply within one business day</div>
       </div>
-      <Pill href={`mailto:${CONTACT_EMAIL}`} field="cobalt">Email us</Pill>
+      <Pill href={`mailto:${CONTACT_EMAIL}`} field="paper">Email us</Pill>
     </div>
-  </section>
+  </Field>
 
   {/* 5 · flare CTA. Heading and body are the old page's own closing
       cta-section text, verbatim — not an assembled tagline. secondActionHref

@@ -185,9 +185,9 @@ const schema = [
         <h2 class="mv-display">What Katana doesn't do that Shopify manufacturers need</h2>
         <p>
           Katana covers the basics — inventory, simple BOMs, work orders, and Shopify sync. As your operation
-          matures, four gaps tend to drive teams to evaluate alternatives. Each item below is based on Katana's
-          publicly documented feature set as of May 2026. Verify against Katana's current site before sharing
-          externally.
+          matures, five gaps tend to drive teams to evaluate alternatives. Each item below is based on Katana's
+          publicly documented feature set as of May 2026. Check Katana's current site before you
+          decide.
         </p>
       </div>
       <div class="site-alt-gap-list">
@@ -222,7 +222,12 @@ const schema = [
           <tbody>
             {COMPARE_ROWS.map(([name, manuva, katana, katanaClass]) => (
               <tr>
-                <td>{name}</td>
+                {/* th scope="row", not td: without it a screen reader reading this
+                    table cell-by-cell gets a bare "No" with no idea which
+                    capability it belongs to. The verdicts here are real text
+                    (unlike the pricing matrix's icons), so they only needed
+                    the row context, not an accessible name. */}
+                <th scope="row">{name}</th>
                 <td class="site-alt-yes">{manuva}</td>
                 <td class={`site-alt-${katanaClass}`}>{katana}</td>
               </tr>
@@ -263,7 +268,7 @@ const schema = [
           {MANUVA_PRICE_ROWS.map(([label, amount]) => (
             <div class="site-alt-price-row"><span>{label}</span><span class="site-alt-price-amount">{amount}</span></div>
           ))}
-          <div class="site-alt-price-callout"><strong>Unlimited users from Growth — no seat charges, ever.</strong> Pricing in USD, billed annually. Monthly add ~20%.</div>
+          <div class="site-alt-price-callout"><strong>Unlimited users from Growth — no seat charges, ever.</strong> Manuva pricing in AUD, billed annually. Monthly add ~20%. Katana figures are their published USD list price.</div>
         </div>
       </div>
       <div class="site-alt-trial-callout">

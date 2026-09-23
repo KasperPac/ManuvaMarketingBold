@@ -106,15 +106,22 @@ test('no two adjacent folds share a hue', () => {
 });
 
 // Was "mint hero -> paper -> ink principles -> flare CTA". The principles
-// section is paper now: navy came off the marketing site (author's call), and
-// the six principle items are long-form body copy, which the loud-layer rules
-// keep off any colour field — so it did not move to another hue, it dropped to
-// paper. The hero and closing CTA are unchanged.
-test('hero is mint, closing CTA is flare, and principles carry no field', () => {
+// section is paper: navy came off the marketing site (author's call), and the
+// six principle items are long-form body copy, which the loud-layer rules keep
+// off any colour field — so it did not move to another hue, it dropped to
+// paper. Same reasoning still holds for "what we build" (prose) and the
+// company block (data).
+//
+// violet was added on the contact block. The page was running two fields —
+// hero and closing CTA, both chrome — against the home page's six, which is
+// what made the interior of the site read as a different product. The contact
+// block is four short lines and a button: the one section here that can carry
+// a field without breaking a loud-layer rule.
+test('hero is mint, contact is violet, closing CTA is flare, and prose carries no field', () => {
   const folds = [...html().matchAll(/data-fold="([a-z]+)"/g)].map((m) => m[1]);
   expect(folds[0]).toBe('mint');
   expect(folds[folds.length - 1]).toBe('flare');
-  expect(folds).toEqual(['mint', 'flare']);
+  expect(folds).toEqual(['mint', 'violet', 'flare']);
 });
 
 // Rule: never set an absolute ink inside a <Field>, never opacity-mute text
