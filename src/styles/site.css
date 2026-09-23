@@ -259,6 +259,28 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
 /* Already carried --shadow-lg to mark the featured tier; keep that louder. */
 .site-plan-featured { box-shadow: var(--shadow-lg); }
 
+/* --- the trial strip: lime, the one accent, back on the interior pages ---
+   See TrialStrip.astro for why the accent has to be a filled band rather than
+   a rule or a marker. Dark ink on lime is 15.6:1, so this is the one place
+   the accent can carry text at all. */
+.site-trial-strip { padding-block: var(--space-4); }
+.site-trial-strip-inner {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: var(--space-3) var(--space-8);
+  font-size: var(--fs-md); font-weight: var(--fw-semibold);
+}
+.site-trial-strip-inner > div { display: flex; align-items: center; gap: var(--space-2); }
+/* A lime dot between items rather than a middot glyph, so the separator is
+   never mistaken for copy by the parity extractor. */
+.site-trial-strip-inner > div + div::before {
+  content: ''; width: 5px; height: 5px; border-radius: 50%;
+  background: currentColor; opacity: .45; margin-right: var(--space-4);
+}
+@media (max-width: 720px) {
+  .site-trial-strip-inner { gap: var(--space-2); }
+  .site-trial-strip-inner > div + div::before { display: none; }
+}
+
 /* --- home: hero --- */
 .site-hero { padding: 0 var(--gutter) var(--gutter); }
 /* grid-template-columns is explicit (a single definite track) rather than
@@ -711,7 +733,9 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
 .site-plan-enterprise { background: var(--brand-dim); }
 .site-plan-badge {
   position: absolute; top: calc(var(--space-3) * -1); left: 50%; transform: translateX(-50%);
-  background: var(--brand-1); color: var(--ink-on-brand); font-size: var(--fs-sm); font-weight: var(--fw-semibold);
+  /* lime, the one accent, on the one element whose whole job is to draw the
+     eye. Dark ink on lime is 15.6:1. */
+  background: var(--field-lime); color: var(--on-lime); font-size: var(--fs-sm); font-weight: var(--fw-semibold);
   padding: var(--space-1) var(--space-4); border-radius: var(--radius-pill); box-shadow: var(--shadow-sm); white-space: nowrap;
 }
 .site-plan-name { font-family: var(--font-display); font-size: var(--fs-lg); font-weight: var(--fw-semibold); margin-top: var(--space-2); }
@@ -926,11 +950,34 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
    between --space-12 (48px) and --space-16 (64px) — checked rendered, not
    picked by arithmetic: --space-12 keeps the 1.1fr image column from
    crowding the text column at this section's own width. */
-.site-feat-row-image { display: grid; grid-template-columns: 1fr 1.1fr; gap: var(--space-12); align-items: center; }
+/* align-items: start, not center, and the image sticks.
+
+   Centred, a 332px-tall screenshot against a 920px column of cards left 294px
+   of dead space above it and 294px below â 588px, 43% of the #boms section,
+   which is what read as "bare and void" right after a colourful hero. Pinning
+   the image to the top would move the whole void to the bottom rather than
+   remove it, so it is sticky instead: it holds beside the cards for the length
+   of the section, and the column is never empty.
+
+   --nav-h keeps it clear of the sticky header. The height cap stops a tall
+   screenshot from being taller than the viewport, which would stop it
+   sticking at all. */
+.site-feat-row-image { display: grid; grid-template-columns: 1fr 1.1fr; gap: var(--space-12); align-items: start; }
 /* The cards only get the 1fr column here, so two of them across it left
    ~23%-wide cards wrapping every second word. One column in an image
    section, two everywhere else. */
 .site-feat-row-image .site-feat-grid { grid-template-columns: 1fr; }
+.site-feat-row-image .site-feat-image {
+  position: sticky;
+  top: calc(var(--nav-h) + var(--space-8));
+  max-height: calc(100vh - var(--nav-h) - var(--space-16));
+}
+.site-feat-row-image .site-feat-image img { max-height: inherit; object-fit: contain; object-position: top; }
+/* Sticky needs a scroll distance to be worth anything, and below the split
+   point the image stacks above the cards anyway. */
+@media (max-width: 860px) {
+  .site-feat-row-image .site-feat-image { position: static; max-height: none; }
+}
 
 /* A grid of cards, not bare rows on the background.
 

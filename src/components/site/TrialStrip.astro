@@ -1,0 +1,39 @@
+---
+export interface Props {
+  /** The reassurance items, in order. Always copy that already exists on the
+   * page — this component relocates a line, it never invents one. */
+  items: readonly string[];
+}
+const { items } = Astro.props;
+
+// Lime is the design system's single named accent, and before this it appeared
+// three times on the home page (the hero CTA fill, the "Track it." mark in the
+// h1, the marquee band) and nowhere else on the site — zero uses on /pricing,
+// /about, /alternatives or either comparison page. That absence is most of why
+// the interior pages read as a different, flatter product: they are the same
+// system with the signature removed.
+//
+// It has to be a FILL to work. As a hairline or a small marker on paper it
+// measures about 1.2:1 and washes out; as a field with --on-lime near-black
+// ink on it, it is 15.6:1 and unmistakable. So the accent returns as a band,
+// which is exactly the role the home page's marquee already plays.
+//
+// Placed directly below the hero, outside the hero's Panel: .site-hero's own
+// bottom padding keeps paper between the inset panel and this band, so no two
+// fields touch. The home page's cobalt hero into the lime marquee is the same
+// arrangement.
+---
+{/* <section>, not <div>: this is a band in the page's own rhythm, and as a
+    div it sat BETWEEN two sections without being one — which broke the
+    `section + section` hairline that marks every paper-to-paper boundary,
+    so the two sections either side of it read as one. It carries no
+    heading and no accessible name, so it is not a region landmark. */}
+<section class="mv-field-lime site-trial-strip" data-fold="lime">
+  <div class="mv-wrap site-trial-strip-inner">
+    {/* div per item, not spans: div is a parity boundary selector, so each
+        item stays its own isolated fragment instead of gluing onto its
+        neighbour — the same reason the hero meta row these items come from
+        used divs. */}
+    {items.map((t) => <div>{t}</div>)}
+  </div>
+</section>

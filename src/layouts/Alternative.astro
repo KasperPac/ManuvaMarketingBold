@@ -3,6 +3,7 @@ import Base from './Base.astro';
 import Panel from '../components/site/Panel.astro';
 import FaqList from '../components/site/FaqList.astro';
 import CtaBand from '../components/site/CtaBand.astro';
+import TrialStrip from '../components/site/TrialStrip.astro';
 import type { FieldName } from '../site';
 
 export interface Props {
@@ -13,6 +14,12 @@ export interface Props {
   heroField: FieldName;
   ctaField: FieldName;
   faqs: { q: string; a: string }[];
+  /** The hero's own reassurance row, which used to sit inside the hero Panel
+   * as a .site-hero-meta div. Same strings, same order, same place on the
+   * page — it is a lime band now so that the design system's one accent
+   * appears on these pages at all. Both pages carry three items; a page that
+   * has none omits the prop and gets no band rather than an invented one. */
+  trialItems?: readonly string[];
   /** Old page's own FAQ <h2>, verbatim — never the generic "Questions" label,
    * since that real sentence is >=25 chars and the parity gate counts it as a
    * required phrase. Reused for Task 13's FAQPage JSON-LD alongside `faqs`. */
@@ -40,7 +47,7 @@ export interface Props {
   schema?: Record<string, unknown>[];
 }
 const {
-  title, description, canonical, competitor, heroField, ctaField, faqs, faqHeading, ctaHeading, ctaBody,
+  title, description, canonical, competitor, heroField, ctaField, faqs, faqHeading, ctaHeading, ctaBody, trialItems,
   ctaSecondActionHref, ogDescription, twitterDescription, schema,
 } = Astro.props;
 ---
@@ -59,6 +66,8 @@ const {
       </Panel>
     </div>
   </section>
+
+  {trialItems && trialItems.length > 0 && <TrialStrip items={trialItems} />}
 
   {/* Comparison runs on paper — never a colour field behind a table. */}
   <section class="mv-section site-alt-comparison">
