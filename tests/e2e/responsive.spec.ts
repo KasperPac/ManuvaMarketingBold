@@ -186,24 +186,56 @@ for (const width of HERO_MARK_WIDTHS) {
 
 // --- section division ---------------------------------------------------
 //
-// All-white-background paper sections made it hard to tell where one section
-// ended and the next began — the home page ran 3,380px across four
-// consecutive sections with zero visual division, and /pricing plus both
-// /alternatives/ pages each ran five consecutive paper sections. Scoped to
-// marketing routes only: /privacy and /terms wrap everything in
+// The property: you can always tell where one section ends and the next
+// begins. The home page once ran 3,380px across four consecutive sections
+// with zero visual division, and /pricing plus both /alternatives/ pages
+// each ran five consecutive paper sections.
+//
+// This used to be asserted as "no two consecutive sections share a
+// background", because the mechanism was an alternation between
+// --field-paper (#FAFAF9) and --bg-card (#FFFFFF). That alternation is gone:
+// it was a 1.04:1 step, far too close to read as rhythm, and since every
+// boundary ALSO carries a hairline the result was visible seams between
+// bands that looked identical — which read as "some sections are greyer than
+// others" rather than as structure.
+//
+// The guarantee is unchanged; only what carries it moved. A boundary now
+// counts as visible if the two sections differ in background (a colour field
+// against paper) OR the later one draws its top border. Asserting the
+// property rather than one implementation of it also means the next person
+// to change the mechanism gets told what actually matters.
+//
+// Scoped to marketing routes: /privacy and /terms wrap everything in
 // <article class="site-doc">, so `main > section` matches nothing there, and
-// the design-system author has ruled those two pages keep their current
+// the design-system author has ruled those two keep their current
 // clause/heading/TOC-driven navigation instead.
 const MARKETING_ROUTES = ALL_ROUTES.filter((r) => r !== '/privacy' && r !== '/terms');
 
 for (const route of MARKETING_ROUTES) {
-  test(`${route} — no two consecutive sections share a background`, async ({ page }) => {
+  test(`${route} — every section boundary is visible`, async ({ page }) => {
     await page.goto(route);
-    const bgs = await page.$$eval('main > section', (els) =>
-      els.map((e) => getComputedStyle(e).backgroundColor));
-    expect(bgs.length).toBeGreaterThan(1);
-    for (let i = 1; i < bgs.length; i++) {
-      expect(bgs[i], `sections ${i - 1} and ${i} share ${bgs[i]}`).not.toBe(bgs[i - 1]);
+    const sections = await page.$$eval('main > section', (els) =>
+      els.map((e) => {
+        const cs = getComputedStyle(e);
+        return {
+          bg: cs.backgroundColor,
+          borderTopWidth: parseFloat(cs.borderTopWidth) || 0,
+          borderTopColor: cs.borderTopColor,
+        };
+      }));
+    expect(sections.length).toBeGreaterThan(1);
+    for (let i = 1; i < sections.length; i++) {
+      const prev = sections[i - 1];
+      const cur = sections[i];
+      const toneChange = cur.bg !== prev.bg;
+      const rule =
+        cur.borderTopWidth > 0 &&
+        cur.borderTopColor !== 'rgba(0, 0, 0, 0)' &&
+        !/,\s*0\)$/.test(cur.borderTopColor);
+      expect(
+        toneChange || rule,
+        `sections ${i - 1} and ${i} share ${cur.bg} and there is no rule between them`,
+      ).toBe(true);
     }
   });
 }
