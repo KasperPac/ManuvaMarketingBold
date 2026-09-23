@@ -517,7 +517,13 @@ const schema = [
     <div class="mv-wrap">
       <Panel field="amber" data-fold="amber" class="site-highlight-panel">
         <span class="mv-eyebrow site-highlight-eyebrow"><span class="site-hero-badge">{HIGHLIGHT.eyebrow}</span>{HIGHLIGHT.section}</span>{' '}
-        <h3 class="mv-display site-highlight-heading">{HIGHLIGHT.heading}</h3>
+        {/* h2, not h3. This panel is a sibling section of the pillars grid
+            above it, not a child of it — as an h3 it read in the outline as
+            though it belonged under "Everything your shop needs." No
+            heading-order skip either way, so axe never had anything to say
+            about it; the structure was just describing a nesting the layout
+            does not have. */}
+        <h2 class="mv-display site-highlight-heading">{HIGHLIGHT.heading}</h2>
         <p class="site-highlight-body">{HIGHLIGHT.body}</p>
         <ul class="site-highlight-list">
           {HIGHLIGHT.feats.map((f) => <li><Icon name="check" size={16} /> {f}</li>)}

@@ -4,6 +4,7 @@ import Panel from '../components/site/Panel.astro';
 import PriceCards from '../components/site/PriceCards.astro';
 import FeatureMatrix from '../components/site/FeatureMatrix.astro';
 import FaqList from '../components/site/FaqList.astro';
+import Field from '../components/site/Field.astro';
 import CtaBand from '../components/site/CtaBand.astro';
 
 // Verbatim from the old page's five FAQ items — llms.txt only carries four of
@@ -28,7 +29,7 @@ const FAQS = [
   },
   {
     q: 'Do you offer discounts for annual billing?',
-    a: 'Annual billing saves you around 20% compared to paying month-to-month. The toggle above shows you both options.',
+    a: 'Annual billing saves you around 17% compared to paying month-to-month — put another way, paying monthly costs about 20% more. The toggle above shows you both options.',
   },
 ];
 
@@ -70,7 +71,8 @@ const schema = [
 ];
 ---
 <Base title="Pricing — Manuva" description={description} twitterDescription={twitterDescription} canonical="https://manuva.app/pricing" {schema}>
-  {/* 1 · ink hero, inset on paper */}
+  {/* 1 · cobalt hero panel, inset on paper (was ink; navy came off the
+      marketing site). Layout comes from the shared page-hero contract. */}
   <section class="site-hero site-pricing-hero">
     <div class="mv-wrap">
       <Panel field="cobalt" data-fold="cobalt" class="site-pricing-hero-panel">
@@ -102,7 +104,7 @@ const schema = [
             <button type="button" class="site-pricing-toggle-btn site-pricing-toggle-on" data-billing="annual" aria-pressed="true">Annual</button>{' '}
             <button type="button" class="site-pricing-toggle-btn" data-billing="monthly" aria-pressed="false">Monthly</button>
           </div>
-          <span class="site-pricing-save">Save ~20%</span>
+          <span class="site-pricing-save">Save ~17%</span>
         </div>
       </Panel>
     </div>
@@ -122,13 +124,17 @@ const schema = [
     </div>
   </section>
 
-  {/* 4 · paper FAQ */}
-  <section class="mv-section site-faq-section">
-    <div class="mv-wrap">
-      <h2 class="mv-display">Frequently asked questions</h2>
-      <FaqList items={FAQS} />
-    </div>
-  </section>
+  {/* 4 · mint FAQ. The page ran cobalt hero → paper → paper → paper → amber
+      CTA: two fields on a long page, both of them chrome. The FAQ is the one
+      block here that can take a field without breaking a loud-layer rule —
+      the plan cards and the 43-row matrix are data, which never gets a colour
+      field behind it. mint, so no two fields on the page share a hue and
+      nothing touches the amber band below (CtaBand's own outer section is
+      paper, so there is always paper between them). */}
+  <Field field="mint" class="site-faq-section">
+    <h2 class="mv-display">Frequently asked questions</h2>
+    <FaqList items={FAQS} />
+  </Field>
 
   {/* 5 · amber CTA. Heading is a verbatim quote, not an assembled tagline —
       the old page's own <meta name="description"> sentence (not body copy,
@@ -171,8 +177,14 @@ const schema = [
       // "or $119/mo billed monthly" is the alternative to whatever is showing,
       // so it is only true while annual is selected. Left visible on monthly it
       // would sit directly under a monthly price contradicting it.
+      //
+      // A class toggling `visibility: hidden`, not the `hidden` attribute:
+      // `hidden` removes the box, so every card's CTA and feature list jumped
+      // up ~43px on each toggle. visibility keeps the row reserved, which is
+      // the same mechanism that now holds the Enterprise card in line with
+      // the other three (see .site-plan-monthly).
       document.querySelectorAll<HTMLElement>('.site-plan-monthly').forEach((el) => {
-        el.hidden = mode === 'monthly';
+        el.classList.toggle('is-muted', mode === 'monthly');
       });
       // The saving is the reason to pick annual; it is not a claim about the
       // monthly price.

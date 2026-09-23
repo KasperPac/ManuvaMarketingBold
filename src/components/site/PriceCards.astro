@@ -58,7 +58,7 @@ const PLANS = [
   {
     name: 'Pro',
     tag: null,
-    tagline: 'Professional manufacturers needing capacity, costing & API',
+    tagline: 'Professional manufacturers needing capacity, costing & advanced reporting',
     price: '$499',
     annualNote: 'Billed $5,988/yr',
     monthlyPrice: '$599',
@@ -135,7 +135,12 @@ const PLANS = [
         data-note-annual={plan.annualNote}
         data-note-monthly={plan.monthlyPrice ? `Billed ${plan.monthlyPrice}/mo` : plan.annualNote}
       >{plan.annualNote}</p>
-      {plan.monthlyPrice && <p class="site-plan-monthly">or {plan.monthlyPrice}/mo billed monthly</p>}
+      {/* Always rendered, empty on Enterprise. Previously this element was
+          absent from the Enterprise card entirely, and its ~43px of line plus
+          bottom margin was the whole reason that card's CTA, chips, divider
+          and feature list sat 43px above the other three. The CSS gives it a
+          min-height so the empty case still reserves the row. */}
+      <p class="site-plan-monthly">{plan.monthlyPrice ? `or ${plan.monthlyPrice}/mo billed monthly` : ''}</p>
       {/* Old page's CTA <a> and the chips <div> that follows it are separated
           only by real source whitespace, joining into one "Start free trial →
           1 location 3 users" phrase — {' '} plus a trailing space per chip
@@ -160,4 +165,9 @@ const PLANS = [
 {/* Sourced from llms.txt's own summary line, since the old page's monthly
     figures only ever existed inside data-monthly attributes (invisible text,
     JS-toggle only) — this makes them real, permanent copy instead. */}
-<p class="site-plans-monthly-note">Monthly pricing: Starter $119, Growth $299, Pro $599. Annual saves approximately 20%.</p>
+{/* Currency stated where the prices are. /terms §4 has always said "Prices
+    are stated in Australian Dollars (AUD). GST is included for Australian
+    customers" — but no page a buyer actually shops on said so, and the katana
+    comparison asserted USD, so the site contradicted itself on the one fact a
+    price is meaningless without. Wording matches the terms clause exactly. */}
+<p class="site-plans-monthly-note">Monthly pricing: Starter $119, Growth $299, Pro $599. Annual saves approximately 17%. Prices are in Australian Dollars (AUD); GST is included for Australian customers.</p>

@@ -10,11 +10,18 @@ const year = new Date().getFullYear();
       <p>Manufacturing operations, finally simple.</p>
       <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
     </div>
+    {/* <nav> + a real heading, with aria-labelledby tying them together. The
+        groups were bare divs headed by a <span>, so the footer offered no
+        landmark to jump to and no heading structure to navigate by — three
+        unlabelled lists of links. The heading stays visually identical: it
+        still carries .mv-eyebrow, it is just an h2 now instead of a span.
+        h2 rather than h3: the footer is a sibling of <main>, not a child of
+        any section in it, so it starts its own level under the page h1. */}
     {FOOTER_GROUPS.map((g) => (
-      <div class="site-footer-col">
-        <span class="mv-eyebrow">{g.heading}</span>
+      <nav class="site-footer-col" aria-labelledby={`footer-${g.heading.toLowerCase()}`}>
+        <h2 class="mv-eyebrow" id={`footer-${g.heading.toLowerCase()}`}>{g.heading}</h2>
         {g.links.map((l) => <a href={l.href}>{l.label}</a>)}
-      </div>
+      </nav>
     ))}
   </div>
   <div class="site-footer-base">
