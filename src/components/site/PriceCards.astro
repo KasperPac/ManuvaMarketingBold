@@ -145,7 +145,12 @@ const PLANS = [
           only by real source whitespace, joining into one "Start free trial →
           1 location 3 users" phrase — {' '} plus a trailing space per chip
           reproduces the same run since <a> and <span> aren't boundary tags. */}
+      {/* VARIANT A — the featured tier's CTA is lime on the ink card, as in
+          reference Pricing.jsx. Inline style rather than Pill's field prop for
+          the usual reason: field="lime" also stamps border-color, which reads
+          as lime-as-text by substring to tests/unit/home.test.ts. */}
       <Button as="a" href={plan.ctaHref} variant={plan.ctaVariant} size="lg" shape="pill" block
+        style={plan.featured ? 'background:var(--field-lime);color:var(--on-lime);border-color:var(--on-lime)' : undefined}
         class="site-plan-cta mv-press" aria-label={`${plan.ctaLabel.replace(' →', '')} — ${plan.name} plan`}>
         {plan.ctaLabel}
       </Button>{' '}
