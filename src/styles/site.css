@@ -215,21 +215,49 @@ a[href$="features#purchasing"] .site-tile-chip { background: rgb(255 255 255 / .
 [data-fold="flare"] { --on-flare: #141413; }
 
 /* --- section division ------------------------------------------------
-   Paper sections alternate paper / card so a boundary is always visible.
-   Four consecutive sections on the home page previously ran 3,380px with
-   no division at all, and /pricing plus both /alternatives/ pages ran five.
+   One paper tone, with the hairline below carrying every boundary.
 
-   `of :not([data-fold])` counts every `main` child matching that selector —
-   in practice every non-field section, since every direct child of `main`
-   on the marketing routes is a `<section>` (true today, not guaranteed by
-   the selector itself) — so field bands neither break the alternation nor
-   consume a position. CSS cannot restart a positional count mid-list, so
-   the alternation is global per page rather than resetting at each band —
-   deterministic, and every boundary still shows. Needs Chrome 111 /
-   Firefox 113 / Safari 9 for the `of S` syntax. */
+   These sections used to alternate --field-paper (#FAFAF9) and --bg-card
+   (#FFFFFF) via `nth-child(even of :not([data-fold]))`. That is a 1.04:1
+   step — far too close to read as rhythm, but each boundary also carries a
+   hairline, so the result was visible seams between bands that looked
+   identical. It read as "some sections are greyer than others" rather than
+   as structure — exactly the wrong impression on pages that are already
+   57-81% bare background (measured at 1280px: /features 69%, /pricing 70%,
+   /alternatives/katana 81%, against the home page's 36%).
+
+   The boundary problem the alternation was solving is real — four
+   consecutive home-page sections once ran 3,380px with no division — but
+   the hairline below carries it on its own, and the cards introduced for
+   .site-feat give each section its own internal edges too. */
 main > section:not([data-fold]) { background: var(--field-paper); }
-main > section:nth-child(even of :not([data-fold])) { background: var(--bg-card); }
 main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px solid var(--stroke); }
+
+/* --- card elevation --------------------------------------------------
+   Every card on this site is --bg-card (#FFFFFF) on --field-paper
+   (#FAFAF9). That is a 1.044:1 fill, held together by a --stroke-card
+   hairline of rgba(20,20,19,0.07) â so as a surface the card is invisible,
+   and the whole interior reads as one flat pale sheet with outlines drawn
+   on it. It is the same 1.04:1 mistake the section alternation was making,
+   repeated at component scale, and it is most of why these pages feel grey
+   next to a home page whose tiles are saturated fills.
+
+   --shadow-sm lifts them off the page without introducing a second
+   background colour or touching a hue. Applied to the card family in one
+   place rather than per component, so a new card cannot miss it.
+
+   NOT applied inside a field: on violet or cobalt those cards are a
+   translucent lift of the field's own ink (see [data-fold] .site-feat), and
+   a black drop shadow under them would read as grime. */
+.site-feat,
+.site-alt-gap-item,
+.site-alt-price-col,
+.site-alt-add-card,
+.site-matrix-card,
+.site-plan { box-shadow: var(--shadow-sm); }
+[data-fold] .site-feat { box-shadow: none; }
+/* Already carried --shadow-lg to mark the featured tier; keep that louder. */
+.site-plan-featured { box-shadow: var(--shadow-lg); }
 
 /* --- home: hero --- */
 .site-hero { padding: 0 var(--gutter) var(--gutter); }
@@ -899,9 +927,59 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
    picked by arithmetic: --space-12 keeps the 1.1fr image column from
    crowding the text column at this section's own width. */
 .site-feat-row-image { display: grid; grid-template-columns: 1fr 1.1fr; gap: var(--space-12); align-items: center; }
+/* The cards only get the 1fr column here, so two of them across it left
+   ~23%-wide cards wrapping every second word. One column in an image
+   section, two everywhere else. */
+.site-feat-row-image .site-feat-grid { grid-template-columns: 1fr; }
 
-.site-feat-grid { gap: var(--space-2) var(--space-8); }
-.site-feat { display: flex; gap: var(--space-3); padding: var(--space-2) 0; }
+/* A grid of cards, not bare rows on the background.
+
+   The audit's own fix round added colour FIELDS to the interior pages and
+   moved the wrong number: measured at 1280px, /features carries about as
+   much full-bleed colour as the home page does (18% of scroll height against
+   20%). What the home page actually has and the interior pages did not is
+   filled bands â 44% of its height is coloured tiles, photo panels and the
+   video block, against 13% here. The rest of /features was two-thirds bare
+   #FAFAF9 carrying a narrow column of 13px muted text, which is what reads
+   as "big grey sections" next to a colourful landing page.
+
+   So each feature item gets a real surface. On paper that is a white card on
+   the one paper tone; inside a field it is a translucent lift of the field's
+   own ink, so the card reads without fighting the hue or introducing a
+   second background colour to contrast-check. Used by /features (nine
+   sections) and /about (the six principles), which share this class. */
+.site-feat-grid { gap: var(--space-4); }
+.site-feat {
+  display: flex; gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--bg-card);
+  border: 1px solid var(--stroke-card);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--dur-fast) ease, transform var(--dur-fast) ease;
+}
+/* The card has to come from the field itself â a white card on violet would
+   be a second surface needing its own ink and its own contrast audit.
+
+   The FILL mixes toward black, not toward currentColor. Mixing currentColor
+   (white, on both fields this lands on) into the background lightens it,
+   which is the wrong direction for white text: axe measured violet going
+   4.60:1 -> 4.21:1 at 8%, below AA. Black darkens instead, which only ever
+   helps white ink â violet 4.60 -> 5.49, cobalt 4.97 -> 5.85 at 10%. Same
+   trap, same fix, as the ghost Pill's own comment records.
+
+   The BORDER still mixes from currentColor: it is a non-text edge held to
+   the 3:1 bar, so lightening it is both safe and the point. */
+[data-fold] .site-feat {
+  background: color-mix(in srgb, black 10%, transparent);
+  border-color: color-mix(in srgb, currentColor 18%, transparent);
+}
+/* Anchored items â a tile grid that does nothing on hover reads as an image,
+   not as content. Matches the lift .mv-lift already gives the home tiles. */
+@media (hover: hover) and (pointer: fine) {
+  .site-feat:hover { border-color: var(--stroke-strong); }
+  [data-fold] .site-feat:hover { border-color: color-mix(in srgb, currentColor 34%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) { .site-feat { transition: none; } }
 /* Base rule is the ORIGINAL paper look: a --brand-dim (10% alpha) chip with
    --brand-1 blue text/icon — restored here after fix round 1 flattened it
    to a neutral grey (a real visual regression on the eight paper sections,
@@ -991,12 +1069,30 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
    field and paper sections. --brand-1 on the icon is likewise safe (blue
    on solid light grey, not on the field), unlike .site-feat-icon's
    near-transparent chip above. */
+/* Was --bg-card-2 (#DEDEDA) â 1.29:1 against paper, which made it the one
+   genuinely grey slab on the page once the section alternation was dropped
+   and the cards gained elevation. It is a highlight, not a disabled state, so
+   it now reads as one: the card surface everything else uses, marked with a
+   brand rule down its leading edge. */
 .site-differentiator {
   margin-top: var(--space-8); padding: var(--space-4) var(--space-5);
-  background: var(--bg-card-2); border: 1px solid var(--stroke-card); border-radius: var(--radius-md);
+  background: var(--bg-card); border: 1px solid var(--stroke-card);
+  border-left: 3px solid var(--brand-1);
+  border-radius: var(--radius-md); box-shadow: var(--shadow-sm);
   font-size: var(--fs-sm); color: var(--ink-muted); line-height: var(--lh-normal);
   display: flex; gap: var(--space-3); align-items: flex-start;
 }
+/* Inside a field the same rule would be a cobalt stripe on violet. Derive it
+   from the field's own ink, like the cards above. */
+[data-fold] .site-differentiator {
+  /* Toward black, for the same reason as the cards above. */
+  background: color-mix(in srgb, black 10%, transparent);
+  border-color: color-mix(in srgb, currentColor 18%, transparent);
+  border-left-color: currentColor;
+  box-shadow: none; color: inherit;
+}
+[data-fold] .site-differentiator-icon,
+[data-fold] .site-differentiator strong { color: inherit; }
 .site-differentiator-icon { flex: none; color: var(--brand-1); display: grid; place-items: center; }
 .site-differentiator strong { color: var(--ink-strong); }
 
