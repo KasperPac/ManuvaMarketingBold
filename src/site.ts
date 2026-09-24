@@ -59,6 +59,11 @@ export const NAV_LINKS = [
 ] as const;
 
 export const FOOTER_GROUPS = [
+  // The old footer carried a "Feature overview" column listing the nine
+  // feature areas — the site's only cross-page entry points into /features
+  // besides the header. The rebuild dropped it; the six domains that replaced
+  // the nine areas take its place.
+  { heading: 'Feature overview', links: FEATURE_LINKS },
   { heading: 'Product', links: [
     { href: '/features', label: 'Features' },
     { href: '/pricing', label: 'Pricing' },

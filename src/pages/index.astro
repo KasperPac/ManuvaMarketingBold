@@ -1,11 +1,19 @@
 ---
 import Base from '../layouts/Base.astro';
+import Video from '../components/site/Video.astro';
 import { APP_URL, DOMAINS } from '../site';
 
-// Rebuilt on the new design (MVBOLD-17). The page is the five blocks the
-// reference index.html specifies — full-field hero with a ghost numeral, the
-// live marquee, the pinned stage of six shape-cut domain panels, the ink
-// comparison, and the closing field — in that order, with full motion.
+// Rebuilt on the new design (MVBOLD-17): full-field hero with a ghost
+// numeral, the live marquee, the pinned stage of six shape-cut domain
+// panels, and the closing field, with full motion.
+//
+// The first pass of that rebuild kept only those blocks and dropped 46 of
+// the page's 53 sentences with them — the explainer, the platform grid, the
+// reports highlight, the onboarding steps, the integrations strip, the beta
+// strip and the sectors row. "Keep latest content" was the instruction and
+// that was a straight miss. All of it is back below, re-poured into the new
+// design's own vocabulary (.sec / .split / .nlist) rather than the old
+// components, but word for word.
 //
 // Content is this repo's latest, not the handoff's: the trial is 30 days and
 // prices are AUD, both of which the handoff still carries at their older
@@ -15,6 +23,12 @@ import { APP_URL, DOMAINS } from '../site';
 // README flags it — "decorative only, but confirm it isn't read as a claim."
 // We have no such figure, so this uses the one count the page can prove: the
 // six domains it is about.
+//
+// Field rhythm, per the loud-layer rules — one full-bleed field per fold and
+// never two touching:
+//   cobalt hero → lime marquee → paper → STAGE → paper → amber → paper →
+//   ink → paper → aqua → paper → flare outro
+// The hero/marquee pairing is the design's own and is kept as it ships.
 
 const MARQUEE = [
   'Yield % on every BOM line',
@@ -23,6 +37,82 @@ const MARQUEE = [
   'Real-time Shopify webhooks',
   '30-day free trial',
 ];
+
+// The platform grid — the old page's PILLARS and PILLARS_EXTRA, verbatim.
+// They were four tiles plus four; as one numbered list they read as the
+// eight things the product is, which is what the section claims.
+const PLATFORM = [
+  {
+    title: 'Inventory & Production',
+    chips: ['Stock control', 'Production orders', 'Mfg planning', 'Stocktaking'],
+    href: '/features#inventory',
+    body: 'From raw materials to finished goods — live stock counts, production orders, manufacturing plans, and stocktakes. Everything that keeps the floor moving.',
+  },
+  {
+    title: 'Bills of Materials & Costing',
+    chips: ['BOM builder', 'Cost management'],
+    href: '/features#production',
+    body: 'Build a versioned bill of materials for every variant, then roll up costs automatically. Know your margin before the job starts, not after.',
+  },
+  {
+    title: 'Warehouse & Stock Movement',
+    chips: ['Delivery receipts', 'Stock adjustments', 'Bin locations', 'Transfers'],
+    href: '/features#purchasing',
+    body: 'Every delivery receipt, transfer, and adjustment updates your stock automatically. Bin-level locations mean nothing gets lost on the floor.',
+  },
+  {
+    title: 'Team & Integrations',
+    chips: ['Staff capacity', 'Shopify', 'Reporting'],
+    href: '/features#planning',
+    body: "Plan around your team's capacity, sell through Shopify with inventory synced automatically, and get the reports that matter — on-time rate, scrap, stock turn.",
+  },
+  {
+    title: 'Orders & Fulfilment',
+    href: '/features#sales',
+    body: 'Shopify orders flow in automatically. Manual and B2B orders go in directly. Manuva tracks each line from component allocation through to delivery — so nothing slips.',
+  },
+  {
+    title: 'Production Planning',
+    href: '/features#planning',
+    body: "Schedule jobs, track steps in sequence, and know exactly what's running and what's blocked — across every department, in real time.",
+  },
+  {
+    title: 'Reports & Analytics',
+    href: '/features#reporting',
+    body: 'Live data on stock, supplier performance, PO accuracy, and dead stock — the reports that actually drive decisions.',
+  },
+  {
+    title: 'Shopify & Platform',
+    href: '/features#sales',
+    body: 'Real-time webhook sync, not nightly batch imports. Orders drive production. Inventory stays accurate across every channel.',
+  },
+] as const satisfies readonly { title: string; href: string; body: string; chips?: readonly string[] }[];
+
+const HIGHLIGHT = {
+  section: 'Reports & analytics',
+  heading: "Operational intelligence, not last week's spreadsheet.",
+  body: 'Ten built-in reports on stock, supplier performance, PO accuracy and dead stock — scoped to any date range, exported to CSV or PDF in a click.',
+  href: '/features#reporting',
+  feats: [
+    'Stock on hand, valuation, movements and dead stock',
+    'Supplier lead-time accuracy and PO variance, scored from your own data',
+    'Every report exports to CSV or a print-ready PDF',
+  ],
+} as const;
+
+const ONBOARDING = [
+  { title: 'Connect Shopify', desc: 'Products, variants, and inventory levels stay in sync between Manuva and Shopify automatically.' },
+  { title: 'Import your BOMs', desc: 'Upload a spreadsheet, or build the first one from a template. Nine minutes, typically.' },
+  { title: 'Count once', desc: 'One stocktake session sets the baseline. Every movement after that is tracked for you.' },
+  { title: 'Run a job', desc: 'Release a work order, allocate stock, and watch the floor scan against it.' },
+] as const;
+
+const INTEGRATIONS = ['Shopify', 'WooCommerce', 'Amazon', 'Etsy', 'Xero', 'QuickBooks', 'MYOB'];
+
+const SECTORS = [
+  'Furniture', 'Food', 'Cosmetics', 'Supplements',
+  'Apparel', 'Hardware', 'Electronics', 'Manufacturing',
+] as const;
 
 // The old site's own #compare rows. They moved to /alternatives when the home
 // page dropped that section; the new design puts a three-column comparison
@@ -33,6 +123,15 @@ const COMPARE = [
   ['Yield % per BOM line', 'Included', 'Not offered'],
   ['BOM versioning & compare', 'Included', 'Not offered'],
   ['PO variance reporting', 'Included', 'Not offered'],
+] as const;
+
+// Annual per-month prices, for the SoftwareApplication offers below. AUD,
+// matching /terms §4 ("Prices are stated in Australian Dollars") and the
+// figures on /pricing.
+const TIER_PRICES = [
+  { name: 'Starter', price: '99' },
+  { name: 'Growth', price: '249' },
+  { name: 'Pro', price: '499' },
 ] as const;
 
 const description =
@@ -67,7 +166,40 @@ const schema = [
     name: 'Manuva',
     publisher: { '@id': 'https://manuva.app/#org' },
   },
+  {
+    // Dropped in the first rebuild pass along with the page body. It is the
+    // node that carries the product's category and its prices into a rich
+    // result, so losing it is a live SEO regression, not cosmetic.
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'Manuva',
+    applicationCategory: 'BusinessApplication',
+    applicationSubCategory: 'Manufacturing operations / MRP',
+    operatingSystem: 'Web',
+    description,
+    url: 'https://manuva.app/',
+    image: 'https://manuva.app/og-image.png',
+    publisher: { '@id': 'https://manuva.app/#org' },
+    // No aggregateRating/review — none exist in the source; inventing one
+    // is both a project rule and a Google structured-data policy violation.
+    offers: TIER_PRICES.map((t) => ({
+      '@type': 'Offer',
+      name: t.name,
+      price: t.price,
+      priceCurrency: 'AUD',
+      priceSpecification: {
+        '@type': 'UnitPriceSpecification',
+        price: t.price,
+        priceCurrency: 'AUD',
+        unitText: 'MONTH',
+      },
+      availability: 'https://schema.org/OnlineOnly',
+      url: 'https://manuva.app/pricing',
+    })),
+  },
 ];
+
+const pad = (n: number) => String(n).padStart(2, '0');
 ---
 <Base
   title="Manuva — Manufacturing operations, finally simple"
@@ -79,11 +211,12 @@ const schema = [
   {schema}
 >
   <section class="hero tall mv-field-cobalt" style="align-content:center">
-    <span class="ghostnum num" aria-hidden="true" style="top:auto;bottom:-.2em">06</span>
+    <span class="ghostnum num" aria-hidden="true" style="top:auto;bottom:-.2em" data-n="06"></span>
     <span class="eyebrow" style="opacity:.75">MRP for Shopify manufacturers</span>
-    <h1 class="disp">Make it. <span class="hl">Track it.</span> Ship it.</h1>
-    <p class="sub" style="opacity:.88">
-      Inventory, BOMs, work orders and stock control — connected, live, and built for people standing on a factory floor.
+    <h1 class="disp">Make it. <span class="hl keep">Track it.</span> Ship it.</h1>
+    <p class="sub" style="opacity:.88;max-width:46ch">
+      Manuva replaces the spreadsheets and legacy MRP your team is fighting with. Inventory, BOMs, work
+      orders, and stock control — connected, live, and built for the floor.
     </p>
     <div class="row">
       <a class="pill" href={APP_URL}>Start free</a>
@@ -95,6 +228,21 @@ const schema = [
     <div class="track">{MARQUEE.map((w) => <span>{w}</span>)}</div>
   </div>
 
+  {/* The explainer. A facade, not an embed: the poster and button are static
+      markup and nothing reaches youtube-nocookie.com until someone clicks. */}
+  <section class="sec">
+    <div style="display:grid;gap:12px">
+      <span class="eyebrow" style="opacity:.6">See it in 32 seconds</span>
+      <h2 class="disp">What Manuva actually does.</h2>
+    </div>
+    <Video
+      youtubeId="Vr4rkatHggA"
+      poster="/video/explainer-poster.jpg"
+      alt="Manuva title card reading Manufacturing operations software — What is Manuva?"
+      title="What is Manuva"
+    />
+  </section>
+
   {/* The pinned stage. Six panels, one pin, each clipping in over the last on
       its own shape. Panel 0 carries no data-shape — it is the backdrop the
       other five land on. */}
@@ -102,15 +250,78 @@ const schema = [
     <div class="pin">
       {DOMAINS.map((d, i) => (
         <a class={`panel mv-field-${d.field}`} href={`/features#${d.id}`} data-shape={i ? String(i - 1) : undefined}>
-          <span class="pnum num" data-rate="26" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          <span class="pnum num" data-rate="26" aria-hidden="true" data-n={pad(i + 1)}></span>
           <span class="eyebrow" data-rate="88" style="opacity:.75">
-            {String(i + 1).padStart(2, '0')} / {String(DOMAINS.length).padStart(2, '0')}
+            {pad(i + 1)} / {pad(DOMAINS.length)}
           </span>
           <h2 class="disp" data-rate="52">{d.name}</h2>
           <p class="pline" data-rate="70">{d.line}</p>
           <span class="more" data-rate="80">See {d.name.toLowerCase()}</span>
         </a>
       ))}
+    </div>
+  </section>
+
+  <section class="sec">
+    <div style="display:grid;gap:12px">
+      <span class="eyebrow" style="opacity:.6">The platform</span>
+      <h2 class="disp">Everything your shop needs. Nothing it doesn't.</h2>
+      <p class="sub" style="color:var(--ink-muted);max-width:58ch">
+        One system covering the whole shop floor — from raw materials in to finished goods out. No modules to
+        bolt on, no consultants to hire.
+      </p>
+    </div>
+    <ul class="nlist two">
+      {PLATFORM.map((p, i) => (
+        <li>
+          <span class="i">{pad(i + 1)}</span>
+          <h3><a href={p.href}>{p.title}</a></h3>
+          <p>{p.body}</p>
+          {'chips' in p && <p class="chips">{p.chips.map((c) => <span>{c}</span>)}</p>}
+        </li>
+      ))}
+    </ul>
+    <a class="pill ink" href="/features" style="justify-self:start">Explore the full feature set &rarr;</a>
+  </section>
+
+  <section class="sec mv-field-amber">
+    <div class="split">
+      <div class="stick" style="display:grid;gap:18px">
+        <span class="eyebrow" style="opacity:.7">Getting started</span>
+        <h2 class="disp" style="font-size:clamp(40px,9vw,72px)">Four steps and your floor is live.</h2>
+        <p class="sub" style="opacity:.82">
+          Nothing to install and nobody to book. Connect Shopify, bring in your BOMs, count once, then run a
+          job. Most manufacturers finish in an afternoon.
+        </p>
+      </div>
+      <ul class="nlist">
+        {ONBOARDING.map((s, i) => (
+          <li>
+            <span class="i">{pad(i + 1)}</span>
+            <h3>{s.title}</h3>
+            <p>{s.desc}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="split">
+      <div class="stick" style="display:grid;gap:18px">
+        <span class="eyebrow" style="opacity:.6">{HIGHLIGHT.section}</span>
+        <h2 class="disp" style="font-size:clamp(40px,9vw,72px)">{HIGHLIGHT.heading}</h2>
+        <p class="sub" style="color:var(--ink-muted)">{HIGHLIGHT.body}</p>
+        <a class="pill ink" href={HIGHLIGHT.href} style="justify-self:start">See every report &rarr;</a>
+      </div>
+      <ul class="nlist">
+        {HIGHLIGHT.feats.map((f, i) => (
+          <li>
+            <span class="i">{pad(i + 1)}</span>
+            <h3>{f}</h3>
+          </li>
+        ))}
+      </ul>
     </div>
   </section>
 
@@ -123,13 +334,10 @@ const schema = [
           Flat pricing, unlimited users from Growth up. Connect Shopify, import your BOMs, run your first job today.
         </p>
       </div>
-      {/* A field behind .ctable is allowed on ink specifically — it is a
-          comparison, not product data. One of the three rules the new design
-          revises, and scoped to exactly this. */}
       <div class="ctable">
         <div class="r h">
           <span></span>
-          <span class="eyebrow" style="color:var(--field-lime)">Manuva</span>
+          <span class="eyebrow limechip">Manuva</span>
           <span class="eyebrow" style="opacity:.5">Per-seat MRP</span>
         </div>
         {COMPARE.map(([k, us, them]) => (
@@ -141,6 +349,29 @@ const schema = [
         ))}
       </div>
     </div>
+  </section>
+
+  <section class="sec">
+    <p class="eyebrow" style="opacity:.6;margin:0">Integrates with the tools you already use</p>
+    <ul class="logorow">
+      {INTEGRATIONS.map((name) => <li>{name}</li>)}
+    </ul>
+  </section>
+
+  <section class="sec mv-field-aqua">
+    <h2 class="disp">Beta testers get <span class="hl">a free month of Pro</span>.</h2>
+    <p class="sub" style="opacity:.85;max-width:52ch">
+      Shape the roadmap with us. Tell us what features your team needs and we'll build them with you.
+    </p>
+    <a class="pill white" href={APP_URL} style="justify-self:start">Start free trial &rarr;</a>
+  </section>
+
+  <section class="sec">
+    <span class="eyebrow" style="opacity:.6">Who runs Manuva</span>
+    <h2 class="disp">Built for shops that make what they sell.</h2>
+    <ul class="logorow sectors">
+      {SECTORS.map((name) => <li>{name}</li>)}
+    </ul>
   </section>
 
   <section class="outro mv-field-flare">

@@ -1,0 +1,290 @@
+---
+import Base from './Base.astro';
+import { APP_URL, type FieldName } from '../site';
+
+export interface Props {
+  title: string;
+  description: string;
+  ogDescription?: string;
+  twitterDescription?: string;
+  canonical: string;
+  /** "Katana" / "MRPeasy" — used throughout the page's own copy. */
+  them: string;
+  /** The other comparison, for the closing cross-link. */
+  otherHref: string;
+  otherLabel: string;
+  heroField: FieldName;
+  /** Which SHAPES index the feature-comparison cut uses. The design gives
+   * katana the diagonal slab and mrpeasy the blade so the two pages do not
+   * animate identically. */
+  cutShape: number;
+  h1Lead: string;
+  h1Highlight: string;
+  heroLede: string;
+  /** The "Where X stops short" section: five numbered gaps. */
+  gapsEyebrow: string;
+  gapTitle: string;
+  gapBody: string;
+  gaps?: readonly { lead: string; body: string }[];
+  /** [label, ours, theirs, verdict] — verdict drives the competitor column's
+   * colour, and it is read from the old page's own class rather than derived
+   * from the text. */
+  matrix: readonly (readonly [string, string, string, 'yes' | 'no' | 'partial'])[];
+  matrixTitle: string;
+  matrixBody: string;
+  matrixNote: string;
+  /** The pricing section. katana runs two price columns; mrpeasy runs a
+   * seat-math table instead. A page supplies one or the other. */
+  priceTitle?: string;
+  priceBody?: string;
+  priceCols?: readonly {
+    name: string; sub: string; featured?: boolean;
+    rows: readonly (readonly [string, string])[];
+    callout: string; calloutLead?: string;
+  }[];
+  seatHead?: readonly string[];
+  seatRows?: readonly (readonly [string, string, readonly [string, string | null], readonly [string, string | null]])[];
+  seatFoot?: string;
+  priceCalloutLead: string;
+  priceCallout: string;
+  /** Where the callout sits: with the gap section (mrpeasy, whose seat table
+   * lives there) or with the pricing section (katana). */
+  calloutIn?: 'gaps' | 'price';
+  /** "What you get that X doesn't offer…" — three cards. */
+  addsEyebrow: string;
+  addsTitle: string;
+  addsBody: string;
+  adds: readonly { title: string; body: string }[];
+  faqs: readonly { q: string; a: string }[];
+  ctaHeading: string;
+  ctaBody: string;
+  schema?: Record<string, unknown>[];
+}
+
+const {
+  title, description, ogDescription, twitterDescription, canonical,
+  them, otherHref, otherLabel, heroField, cutShape,
+  h1Lead, h1Highlight, heroLede,
+  gapsEyebrow, gapTitle, gapBody, gaps,
+  matrix, matrixTitle, matrixBody, matrixNote,
+  priceTitle, priceBody, priceCols, seatHead, seatRows, seatFoot,
+  priceCalloutLead, priceCallout, calloutIn = 'price',
+  addsEyebrow, addsTitle, addsBody, adds,
+  faqs, ctaHeading, ctaBody, schema,
+} = Astro.props;
+
+// The compare pages, on the new design. Motion: one moment — a single shape
+// cut into the feature comparison, and nothing else pins.
+//
+// These two pages are the site's ranking competitor-intercept content and
+// CLAUDE.md singles them out: copy moves verbatim. The first pass of this
+// rebuild carried only ADDS (three cards) and silently dropped GAPS (five),
+// both price tables, the hero lede, the section framing and the related
+// links — 43 of katana's 69 visible sentences. All of it is back here; what
+// changed is the shape the words are poured into, not the words.
+//
+// Two departures from the reference layout, both because the repo's content
+// wins:
+//
+//   - Its FAQ answers are stubs, marked "TODO: copy — answer lives in
+//     alternatives/*.html, carry it across verbatim". We have the real
+//     answers, so they go in.
+//   - Its matrix is boolean, rendered as bare tick/dash marks. Ours carries
+//     real values ("Yes (Pro)", "Limited", "Flat per account", "14 days"),
+//     which say more than a tick.
+//
+// The reference's Manuva price card also lists "API included". We removed API
+// claims from this site deliberately — no API appears anywhere in the product
+// copy — so that line does not come back.
+const cnt = matrix.filter((r) => r[3] === 'no').length;
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+<Base
+  {title}
+  {description}
+  {ogDescription}
+  {twitterDescription}
+  {canonical}
+  ogType="article"
+  current="/alternatives"
+  headInk="light"
+  {schema}
+>
+  <section class={`hero mv-field-${heroField}`}>
+    <span class="ghostnum num" aria-hidden="true" data-n="vs"></span>
+    <span class="eyebrow" style="opacity:.8">Manuva vs {them}</span>
+    {/* No inline font-size. The reference hard-codes 11vw here, which beats
+        the design's own `.hero h1` clamp at 1100+ (96–156px) because inline
+        wins — at 1512px that is 166px, and "manufacturers" then runs past
+        the content width and gets clipped by the body's overflow-x. The
+        prototype was only ever viewed at 375/768/1440, so it never showed.
+        The breakpoint system is the responsive contract per the README, so
+        it gets to size this. Only the measure is set here. */}
+    <h1 class="disp" style="max-width:16ch">{h1Lead} <span class="hl">{h1Highlight}</span></h1>
+    <p class="sub" style="opacity:.9;max-width:52ch">{heroLede}</p>
+    <div class="row">
+      <a class="pill" href={APP_URL}>Start free</a>
+      <a class="pill ghost" href="/pricing">See pricing</a>
+    </div>
+    <span style="font-size:14px;opacity:.8">30 days free, full Pro access. No credit card.</span>
+  </section>
+
+  {/* Where they stop short — the page's substance, five numbered gaps. */}
+  <section class="sec">
+    <div class="split">
+      <div class="stick" style="display:grid;gap:18px">
+        <span class="eyebrow" style="opacity:.6">{gapsEyebrow}</span>
+        <h2 class="disp" style="font-size:clamp(40px,9vw,72px)">{gapTitle}</h2>
+        <p class="sub" style="color:var(--ink-muted)">{gapBody}</p>
+      </div>
+      {gaps && (
+        <ul class="nlist">
+          {gaps.map((g, i) => (
+            <li>
+              <span class="i">{pad(i + 1)}</span>
+              <h3>{g.lead}</h3>
+              <p>{g.body}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+      {seatRows && seatHead && (
+        <div style="display:grid;gap:14px">
+          <div class="stable">
+            <div class="r h">
+              {seatHead.map((h, i) => <span class="eyebrow" style={i ? 'opacity:.6' : undefined}>{h}</span>)}
+            </div>
+            {seatRows.map(([users, theirs, growth, pro]) => (
+              <div class="r">
+                <span class="k">{users}</span>
+                <span class="them">{theirs}</span>
+                <span class="us">{growth[0]}{growth[1] && <i class="delta">{growth[1]}</i>}</span>
+                <span class="us">{pro[0]}{pro[1] && <i class="delta">{pro[1]}</i>}</span>
+              </div>
+            ))}
+          </div>
+          {seatFoot && <p class="sub" style="opacity:.7;font-size:15px;max-width:64ch">{seatFoot}</p>}
+          {calloutIn === 'gaps' && (
+            <p class="pcallout"><strong>{priceCalloutLead}</strong> {priceCallout}</p>
+          )}
+        </div>
+      )}
+    </div>
+  </section>
+
+  {/* The page's one pinned moment. */}
+  <section class="mv-field-ink">
+    <div class="intro" data-from="paper" data-shape={String(cutShape)}>
+      <div class="ipin">
+        <div class="cut mv-field-ink">
+          <span class="pnum num" data-rate="30" aria-hidden="true" data-n={pad(cnt)}></span>
+          <span class="eyebrow limechip" data-rate="70">Feature comparison</span>
+          <h2 class="disp" data-rate="50">{cnt} things {them} doesn't do.</h2>
+          <p class="pline" data-rate="90">Manuva vs {them}, line by line.</p>
+        </div>
+      </div>
+    </div>
+    <div class="wrap" style="padding-bottom:96px;display:grid;gap:24px">
+      <div style="display:grid;gap:10px">
+        <h3 class="disp" style="font-size:clamp(28px,5vw,40px)">{matrixTitle}</h3>
+        <p class="sub" style="opacity:.75;font-size:16px;max-width:52ch">{matrixBody}</p>
+      </div>
+      <div class="ctable">
+        <div class="r h">
+          <span></span>
+          <span class="eyebrow limechip">Manuva</span>
+          <span class="eyebrow" style="opacity:.5">{them}</span>
+        </div>
+        {matrix.map(([label, ours, theirs, verdict]) => (
+          <div class="r">
+            <span class="k" style="opacity:.85">{label}</span>
+            <span class="us">{ours}</span>
+            <span class="them" data-verdict={verdict}>{theirs}</span>
+          </div>
+        ))}
+      </div>
+      <p class="sub" style="opacity:.7;font-size:15px;max-width:58ch">
+        {matrixNote} <a href="mailto:hello@manuva.app">Spot something out of date?</a>
+      </p>
+    </div>
+  </section>
+
+  {priceTitle && priceCols && (
+    <section class="sec">
+      <div style="display:grid;gap:12px">
+        <span class="eyebrow" style="opacity:.6">Pricing</span>
+        <h2 class="disp">{priceTitle}</h2>
+        <p class="sub" style="color:var(--ink-muted);max-width:56ch">{priceBody}</p>
+      </div>
+      <div class="pgrid">
+        {priceCols.map((c) => (
+          <article class={c.featured ? 'pcard mv-field-cobalt' : 'pcard mv-field-paper'}>
+            {/* Not lime. The reference sets this eyebrow to var(--field-lime)
+                on a cobalt card — 4.21:1, under AA, and lime as text is
+                something the design forbids outright ("backgrounds only,
+                never text"). The field's own paired ink is what it should be. */}
+            <span class="eyebrow" style={c.featured ? undefined : 'opacity:.6'}>{c.name}</span>
+            <p style="margin:0;font-size:16px;line-height:1.5;opacity:.85">{c.sub}</p>
+            <div class="ptable">
+              {c.rows.map(([label, amount]) => (
+                <div class="prow"><span>{label}</span><span class="num amt">{amount}</span></div>
+              ))}
+            </div>
+            <p class="pnote">
+              {c.calloutLead && <strong>{c.calloutLead}</strong>} {c.callout}
+            </p>
+          </article>
+        ))}
+      </div>
+      {calloutIn === 'price' && (
+        <p class="pcallout"><strong>{priceCalloutLead}</strong> {priceCallout}</p>
+      )}
+    </section>
+  )}
+
+  <section class="sec" style="padding-top:8px">
+    <div style="display:grid;gap:12px">
+      <span class="eyebrow" style="opacity:.6">{addsEyebrow}</span>
+      <h2 class="disp" style="font-size:clamp(36px,8vw,64px)">{addsTitle}</h2>
+      <p class="sub" style="color:var(--ink-muted);max-width:56ch">{addsBody}</p>
+    </div>
+    <ul class="nlist two three">
+      {adds.map((a, i) => (
+        <li>
+          <span class="i">{pad(i + 1)}</span>
+          <h3>{a.title}</h3>
+          <p>{a.body}</p>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="sec" style="padding-top:24px">
+    <div class="split">
+      <h2 class="disp stick" style="font-size:clamp(40px,9vw,72px)">Switching from {them} — common questions</h2>
+      <div class="faq">
+        {faqs.map((f, i) => (
+          <details open={i === 0}>
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+    <nav class="related" aria-label="Related pages">
+      <a href="/features">Full feature list</a>
+      <a href="/pricing">Pricing &amp; plans</a>
+      <a href={otherHref}>vs {otherLabel}</a>
+      <a href="/alternatives">Comparison overview</a>
+    </nav>
+  </section>
+
+  <section class="outro mv-field-lime">
+    <p class="disp">{ctaHeading}</p>
+    <p class="sub">{ctaBody}</p>
+    <div class="row">
+      <a class="pill ink" href={APP_URL}>Start free</a>
+      <a class="pill ghost" href="/about#contact">Book a demo</a>
+    </div>
+  </section>
+</Base>

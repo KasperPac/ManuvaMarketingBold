@@ -1,21 +1,16 @@
 ---
-import Alternative from '../../layouts/Alternative.astro';
-import TrialStrip from '../../components/site/TrialStrip.astro';
+import Compare from '../../layouts/Compare.astro';
 
-// Verbatim from the old page's own <head> — title/description/og:*/twitter:*
-// all match; confirmed identical across the source's <head> block.
-const description =
-  "Looking for a Katana alternative with BOM versioning, flat-rate pricing, and real Shopify sync? See how Manuva compares — 30-day free trial, no credit card.";
-// Old page's own og:description AND twitter:description — identical to each
-// other (confirmed independently, not assumed — see Alternative.astro's own
-// note on why that assumption broke for mrpeasy), both shorter than the meta
-// description above (drop the trailing "14-day free trial, no credit card").
-const ogDescription =
-  'Looking for a Katana alternative with BOM versioning, flat-rate pricing, and real Shopify sync? See how Manuva compares.';
+// Rebuilt on the new design (MVBOLD-17). Motion: one moment — a single shape
+// cut into the feature comparison. Layout and behaviour come from
+// layouts/Compare.astro; everything here is this page's own content, carried
+// across from the previous build rather than retyped.
+//
+// The reference's FAQ answers are stubs marked TODO. These are the real ones.
 
-// Verbatim from the old page's <ul class="gap-list"> (5 items). The intro
-// paragraph's own "four gaps" wording undercounts them — that mismatch exists
-// in the old page itself, carried across as-is rather than silently fixed.
+// Verbatim from the old page's "Where Katana stops short" section. The first
+// pass of this rebuild dropped all five of these — the largest block of copy
+// on the page, and the part that does the ranking work. They are back.
 const GAPS = [
   {
     lead: 'No BOM versioning or side-by-side comparison.',
@@ -37,19 +32,15 @@ const GAPS = [
     lead: 'No PO variance or lead-time accuracy reporting.',
     body: "Did your supplier deliver what you ordered, on time, at the agreed price? Katana doesn't surface this. Manuva measures promised vs actual on every purchase order — by supplier, component, and time window — so renegotiations happen from data, not gut feel.",
   },
-];
+] as const;
 
-// Verbatim from the old page's <table class="compare-tbl"> — 12 data rows.
 // The 4th element is the OLD PAGE's own verdict class for the Katana column
 // (yes/no/partial), carried across as sourced data rather than re-derived
-// from the verdict text. A text-matching ternary (`=== 'Yes' ? yes : no`)
-// shipped in fix round 1 and silently recoloured Katana's own "14 days" free
-// trial — a TRUE, POSITIVE fact about Katana (source class="yes") — as a
-// red "no" verdict, because the text isn't the literal string "Yes". The
-// Manuva column's class is hardcoded 'yes' below: verified against the old
-// page's own markup, every one of these 12 rows uses class="yes" for the
-// Manuva cell with no exception.
-const COMPARE_ROWS: [string, string, string, 'yes' | 'no' | 'partial'][] = [
+// from the verdict text. A text-matching ternary shipped once before and
+// silently recoloured Katana's own "14 days" free trial — a TRUE, POSITIVE
+// fact about Katana — as a red "no" verdict, because the text isn't the
+// literal string "Yes".
+const MATRIX = [
   ['BOM versioning with comparison', 'Yes', 'No', 'no'],
   ['Yield % per BOM line', 'Yes', 'No', 'no'],
   ['Capacity planning', 'Yes (Pro)', 'No', 'no'],
@@ -61,23 +52,38 @@ const COMPARE_ROWS: [string, string, string, 'yes' | 'no' | 'partial'][] = [
   ['Financial profitability dashboard', 'Yes (Pro)', 'No', 'no'],
   ['Pricing model', 'Flat per account', 'Per user', 'no'],
   ['Free trial', '30 days, full Pro', '14 days', 'yes'],
-];
+] as const;
 
-// Verbatim from the old page's two <div class="price-col">.
-const KATANA_PRICE_ROWS: [string, string][] = [
-  ['1 user', '~$179/mo'],
-  ['5 users', '~$359/mo'],
-  ['10 users', '~$629/mo'],
-  ['15 users', '~$899/mo'],
-];
-const MANUVA_PRICE_ROWS: [string, string][] = [
-  ['Starter — up to 3 users', '$99/mo'],
-  ['Growth — unlimited users', '$249/mo'],
-  ['Pro — full capacity planning', '$499/mo'],
-  ['Enterprise — SSO, multi-site', 'Custom'],
-];
+// Both price ladders, verbatim. Dropped in the first pass, restored here.
+const PRICE_COLS = [
+  {
+    name: 'Katana',
+    sub: 'Per-user pricing. Numbers scale linearly with team size.',
+    rows: [
+      ['1 user', '~$179/mo'],
+      ['5 users', '~$359/mo'],
+      ['10 users', '~$629/mo'],
+      ['15 users', '~$899/mo'],
+    ],
+    callout:
+      'Advanced manufacturing features and additional integrations are gated behind higher tiers. Total cost climbs further as those are added.',
+  },
+  {
+    name: 'Manuva',
+    sub: 'Flat per account. Unlimited users from Growth.',
+    featured: true,
+    rows: [
+      ['Starter — up to 3 users', '$99/mo'],
+      ['Growth — unlimited users', '$249/mo'],
+      ['Pro — full capacity planning', '$499/mo'],
+      ['Enterprise — SSO, multi-site', 'Custom'],
+    ],
+    calloutLead: 'Unlimited users from Growth — no seat charges, ever.',
+    callout:
+      'Manuva pricing in AUD, billed annually. Monthly add ~20%. Katana figures are their published USD list price.',
+  },
+] as const;
 
-// Verbatim from the old page's <div class="adds-grid">.
 const ADDS = [
   {
     title: 'BOM versioning + side-by-side comparison',
@@ -91,35 +97,15 @@ const ADDS = [
     title: 'Capacity planning with staff costing',
     body: 'Model departments, staffing levels, and hours available. Track actual vs planned time per production order. Roll labour costs into unit economics. Available on Pro at the same flat rate as everything else — no per-user surcharge.',
   },
-];
+] as const;
 
-// Verbatim from the old page's <script type="application/ld+json"> FAQPage —
-// same text as the visible <div class="faq-item"> answers.
 const FAQS = [
-  {
-    q: 'Is Manuva a direct replacement for Katana?',
-    a: 'Yes for the core workflows: inventory, BOMs, production orders, purchasing, and Shopify sync. Manuva covers everything a small-to-mid-size Shopify-first manufacturer relies on Katana for, plus capabilities Katana does not ship at any tier — BOM versioning with side-by-side comparison, yield % per component, BOM templates, capacity planning, and PO variance reporting.',
-  },
-  {
-    q: 'Can I import my data from Katana?',
-    a: 'Yes. CSV import is available for components, BOMs, suppliers, purchase orders, and stock balances. Most teams export from Katana, clean up the data, and import in under a day. For larger or more complex migrations, the Manuva team will run the import for you as part of onboarding on Growth and above.',
-  },
-  {
-    q: 'Does Manuva work with Shopify the same way Katana does?',
-    a: 'Manuva uses Shopify webhooks for real-time sync. When an order is placed in Shopify, Manuva allocates inventory and cascades to production orders within seconds — no nightly batch import, no manual refresh. Product and variant catalogues stay in sync automatically, and inventory levels flow back to Shopify as production completes.',
-  },
-  {
-    q: 'What happens to my Katana account if I switch?',
-    a: "Run them in parallel during your 30-day Manuva trial — disconnect Katana's Shopify webhook before connecting Manuva's, so only one system is writing to Shopify at a time. Once you're satisfied, cancel Katana directly with their billing. Manuva will not lock you in: you can export all your data from Manuva at any time, on any plan.",
-  },
-];
+  { q: 'Is Manuva a direct replacement for Katana?', a: 'Yes for the core workflows: inventory, BOMs, production orders, purchasing, and Shopify sync. Manuva covers everything a small-to-mid-size Shopify-first manufacturer relies on Katana for, plus capabilities Katana does not ship at any tier — BOM versioning with side-by-side comparison, yield % per component, BOM templates, capacity planning, and PO variance reporting.' },
+  { q: 'Can I import my data from Katana?', a: 'Yes. CSV import is available for components, BOMs, suppliers, purchase orders, and stock balances. Most teams export from Katana, clean up the data, and import in under a day. For larger or more complex migrations, the Manuva team will run the import for you as part of onboarding on Growth and above.' },
+  { q: 'Does Manuva work with Shopify the same way Katana does?', a: 'Manuva uses Shopify webhooks for real-time sync. When an order is placed in Shopify, Manuva allocates inventory and cascades to production orders within seconds — no nightly batch import, no manual refresh. Product and variant catalogues stay in sync automatically, and inventory levels flow back to Shopify as production completes.' },
+  { q: 'What happens to my Katana account if I switch?', a: "Run them in parallel during your 30-day Manuva trial — disconnect Katana's Shopify webhook before connecting Manuva's, so only one system is writing to Shopify at a time. Once you're satisfied, cancel Katana directly with their billing. Manuva will not lock you in: you can export all your data from Manuva at any time, on any plan." },
+] as const;
 
-// The old page's own <script type="application/ld+json"> — a three-level
-// BreadcrumbList (its middle crumb, "Alternatives" → /alternatives, isn't a
-// route this site builds; carried across as-is rather than dropped, since
-// it's the live page's own real structured data, not something invented
-// here) plus a FAQPage built from FAQS above so the visible <FaqList> and
-// the markup can never drift apart.
 const schema = [
   {
     '@context': 'https://schema.org',
@@ -141,167 +127,39 @@ const schema = [
   },
 ];
 ---
-<Alternative
+<Compare
   title="Katana Alternative for Shopify Manufacturers — Manuva"
-  description={description}
-  ogDescription={ogDescription}
-  twitterDescription={ogDescription}
+  description="Looking for a Katana alternative with BOM versioning, flat-rate pricing, and real Shopify sync? See how Manuva compares — 30-day free trial, no credit card."
+  ogDescription="Looking for a Katana alternative with BOM versioning, flat-rate pricing, and real Shopify sync? See how Manuva compares."
+  twitterDescription="Looking for a Katana alternative with BOM versioning, flat-rate pricing, and real Shopify sync? See how Manuva compares."
   canonical="https://manuva.app/alternatives/katana"
-  {schema}
-  competitor="Katana"
+  them="Katana"
+  otherHref="/alternatives/mrpeasy"
+  otherLabel="MRPeasy"
   heroField="violet"
-  ctaField="flare"
+  cutShape={1}
+  h1Lead="Katana alternatives for Shopify manufacturers:"
+  h1Highlight="why teams switch to Manuva"
+  heroLede="Katana is a good starting point. Manuva is where you go when you've outgrown it — when your BOMs need versioning, your team has hit per-user pricing, or you need capacity planning that a real shop floor can run on. Built for Shopify-first product brands, priced flat, set up in a day."
+  gapsEyebrow="Where Katana stops short"
+  gapTitle="What Katana doesn't do that Shopify manufacturers need"
+  gapBody="Katana covers the basics — inventory, simple BOMs, work orders, and Shopify sync. As your operation matures, five gaps tend to drive teams to evaluate alternatives. Each item below is based on Katana's publicly documented feature set as of May 2026. Check Katana's current site before you decide."
+  gaps={GAPS}
+  matrix={MATRIX}
+  matrixTitle="Manuva vs Katana — feature comparison"
+  matrixBody="Quick reference for the capabilities most teams ask about when evaluating a switch."
+  matrixNote="Comparison based on Katana's publicly documented feature set as of May 2026. We re-check competitor claims quarterly."
+  priceTitle="What you actually pay."
+  priceBody="Both products advertise an entry tier under $200/month, but the trajectories diverge fast. Katana scales with headcount. Manuva scales with capability."
+  priceCols={PRICE_COLS}
+  priceCalloutLead="At 10 users:"
+  priceCallout="Katana's per-user tiers typically work out to ~$600/mo or higher before advanced manufacturing add-ons. Manuva Pro is $499/mo flat — and you get capacity planning, staff costing, and the financial profitability dashboard included. Confirm current Katana pricing on their site before locking in a budget."
+  addsEyebrow="What Manuva adds"
+  addsTitle="What you get that Katana doesn't offer at any price"
+  addsBody="Three categories where Manuva ships meaningful functionality Katana does not."
+  adds={ADDS}
   faqs={FAQS}
-  faqHeading="Switching from Katana — common questions"
-  ctaHeading="Try Manuva free for 30 days"
+  ctaHeading="Try Manuva free for 30 days."
   ctaBody="Full Pro access. No credit card required. Run it in parallel with Katana — switch your Shopify webhook when you're satisfied."
-  ctaSecondActionHref="/about#contact"
-  trialItems={['30-day free trial', 'No credit card', 'Set up in a day']}
->
-  <Fragment slot="hero">
-    <h1 class="mv-display site-alt-hero-title">Katana Alternatives for Shopify Manufacturers: Why Teams Switch to Manuva</h1>
-    <p class="site-alt-hero-sub">
-      Katana is a good starting point. Manuva is where you go when you've outgrown it — when your BOMs need
-      versioning, your team has hit per-user pricing, or you need capacity planning that a real shop floor can run
-      on. Built for Shopify-first product brands, priced flat, set up in a day.
-    </p>
-    {/* "Start free trial" / "Book a demo" used to be relocated here as a
-        workaround, because CtaBand's second action was hardcoded to "Talk to
-        us" and had nowhere else to put "Book a demo" without losing it.
-        CtaBand now carries a real secondActionHref (Task 14, team-lead
-        review, ctaSecondActionHref="/about#contact" above), so both buttons moved
-        back to the closing band where the old page's own cta-section
-        actually has them, and this workaround is gone. page-hero on the old
-        page is eyebrow + h1 + lede only — no buttons. */}
-  </Fragment>
-
-  <Fragment slot="comparison">
-    <div class="site-alt-group">
-      <div class="site-alt-group-head">
-        <span class="mv-eyebrow">Where Katana stops short</span>{' '}
-        <h2 class="mv-display">What Katana doesn't do that Shopify manufacturers need</h2>
-        <p>
-          Katana covers the basics — inventory, simple BOMs, work orders, and Shopify sync. As your operation
-          matures, five gaps tend to drive teams to evaluate alternatives. Each item below is based on Katana's
-          publicly documented feature set as of May 2026. Check Katana's current site before you
-          decide.
-        </p>
-      </div>
-      <div class="site-alt-gap-list">
-        {GAPS.map((g) => (
-          <div class="site-alt-gap-item">
-            {/* {' '} — old markup has real source whitespace between the ×
-                mark and the gap-body div; Astro drops it since they're on
-                separate lines, which would otherwise glue "×" directly onto
-                the bold lead-in with no space. */}
-            <span class="site-alt-gap-mark" aria-hidden="true">×</span>{' '}
-            <div class="site-alt-gap-body"><strong>{g.lead}</strong> {g.body}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-
-    <div class="site-alt-group">
-      <div class="site-alt-group-head">
-        <span class="mv-eyebrow">Head to head</span>{' '}
-        <h2 class="mv-display">Manuva vs Katana — feature comparison</h2>
-        <p>Quick reference for the capabilities most teams ask about when evaluating a switch.</p>
-      </div>
-      <div class="mv-table-scroll">
-        <table class="site-alt-table" aria-label="Manuva vs Katana feature comparison">
-          <thead>
-            <tr>
-              <th scope="col">Capability</th>
-              <th scope="col" class="site-alt-table-manuva">Manuva</th>
-              <th scope="col">Katana</th>
-            </tr>
-          </thead>
-          <tbody>
-            {COMPARE_ROWS.map(([name, manuva, katana, katanaClass]) => (
-              <tr>
-                {/* th scope="row", not td: without it a screen reader reading this
-                    table cell-by-cell gets a bare "No" with no idea which
-                    capability it belongs to. The verdicts here are real text
-                    (unlike the pricing matrix's icons), so they only needed
-                    the row context, not an accessible name. */}
-                <th scope="row">{name}</th>
-                <td class="site-alt-yes">{manuva}</td>
-                <td class={`site-alt-${katanaClass}`}>{katana}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <p class="site-alt-table-foot">
-        Comparison based on Katana's publicly documented feature set as of May 2026. We re-check competitor claims
-        quarterly. <a href="mailto:hello@manuva.app">Spot something out of date?</a>
-      </p>
-    </div>
-
-    <div class="site-alt-group">
-      <div class="site-alt-group-head">
-        <span class="mv-eyebrow">Pricing</span>{' '}
-        <h2 class="mv-display">What you actually pay</h2>
-        <p>
-          Both products advertise an entry tier under $200/month, but the trajectories diverge fast. Katana scales
-          with headcount. Manuva scales with capability.
-        </p>
-      </div>
-      <div class="site-alt-price-cols">
-        <div class="site-alt-price-col">
-          <h3>Katana</h3>
-          <p class="site-alt-price-sub">Per-user pricing. Numbers scale linearly with team size.</p>
-          {KATANA_PRICE_ROWS.map(([label, amount]) => (
-            <div class="site-alt-price-row"><span>{label}</span><span class="site-alt-price-amount">{amount}</span></div>
-          ))}
-          <div class="site-alt-price-callout">
-            Advanced manufacturing features and additional integrations are gated behind higher tiers. Total cost
-            climbs further as those are added.
-          </div>
-        </div>
-        <div class="site-alt-price-col site-alt-price-featured">
-          <h3>Manuva</h3>
-          <p class="site-alt-price-sub">Flat per account. Unlimited users from Growth.</p>
-          {MANUVA_PRICE_ROWS.map(([label, amount]) => (
-            <div class="site-alt-price-row"><span>{label}</span><span class="site-alt-price-amount">{amount}</span></div>
-          ))}
-          <div class="site-alt-price-callout"><strong>Unlimited users from Growth — no seat charges, ever.</strong> Manuva pricing in AUD, billed annually. Monthly add ~20%. Katana figures are their published USD list price.</div>
-        </div>
-      </div>
-      <div class="site-alt-trial-callout">
-        <strong>At 10 users:</strong> Katana's per-user tiers typically work out to ~$600/mo or higher before
-        advanced manufacturing add-ons. Manuva Pro is $499/mo flat — and you get capacity planning, staff costing,
-        and the financial profitability dashboard included. Confirm current Katana pricing on their site before
-        locking in a budget.
-      </div>
-    </div>
-
-    <div class="site-alt-group">
-      <div class="site-alt-group-head">
-        <span class="mv-eyebrow">What Manuva adds</span>{' '}
-        <h2 class="mv-display">What you get that Katana doesn't offer at any price</h2>
-        <p>Three categories where Manuva ships meaningful functionality Katana does not.</p>
-      </div>
-      <div class="mv-cols-3 site-alt-adds-grid">
-        {ADDS.map((a) => (
-          <div class="site-alt-add-card">
-            <h3>{a.title}</h3>
-            <p>{a.body}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  </Fragment>
-
-  <Fragment slot="related">
-    {/* <a> isn't a boundary selector, and the old page's own sibling links
-        are separated only by real source whitespace — {' '} reproduces it
-        so the four labels don't glue into one run. */}
-    <div class="site-alt-related-links">
-      <a href="/features">Full feature list</a>{' '}
-      <a href="/pricing">Pricing &amp; plans</a>{' '}
-      <a href="/alternatives/mrpeasy">vs MRPeasy</a>{' '}
-      <a href="/alternatives">Comparison overview</a>
-    </div>
-  </Fragment>
-</Alternative>
+  {schema}
+/>

@@ -66,8 +66,14 @@
   // 2 · stage — many panels, one pin.
   const stages = [...document.querySelectorAll<HTMLElement>('.stage')].map((s) => {
     const panels = [...s.querySelectorAll<HTMLElement>('.panel')];
-    s.style.height = panels.length * 100 + 'svh';
-    panels.forEach((p, i) => (p.style.zIndex = String(i)));
+    // Not under reduced motion: the pin is released there, so giving the
+    // stage six screens of height would leave six screens of nothing to
+    // scroll past. The design says "pins released"; its own CSS only released
+    // .intro, so the stage kept pinning and swapped panels abruptly.
+    if (!reduce) {
+      s.style.height = panels.length * 100 + 'svh';
+      panels.forEach((p, i) => (p.style.zIndex = String(i)));
+    }
     const t = document.createElement('div');
     t.className = 'ticks';
     t.setAttribute('aria-hidden', 'true');
@@ -188,7 +194,7 @@
   }, { passive: true });
 
   addEventListener('resize', () => {
-    stages.forEach(({ s, panels }) => (s.style.height = panels.length * 100 + 'svh'));
+    if (!reduce) stages.forEach(({ s, panels }) => (s.style.height = panels.length * 100 + 'svh'));
     draw();
   });
 

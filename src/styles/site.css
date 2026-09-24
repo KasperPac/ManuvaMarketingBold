@@ -239,19 +239,26 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid cur
 /* Tier badge inside an .nlist heading. The reference nlist has no slot for
    one, but which plan a feature needs is content — and these link to /pricing,
    which is the only route the 66 features give a reader to the money page. */
-.nlist h3 .tier{display:inline-block;vertical-align:.12em;margin-left:8px;font-family:var(--font-body);font-variation-settings:normal;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:color-mix(in srgb,currentColor 18%,transparent);color:inherit;text-decoration:none;white-space:nowrap}
-.nlist h3 .tier:hover{background:color-mix(in srgb,currentColor 30%,transparent);opacity:1}
+/* The fill mixes toward BLACK, not currentColor. On cobalt, violet and
+   flare the ink is white, so mixing currentColor into the background
+   lightens it — axe measured white-on-#5d7bff at 1.31:1, effectively
+   invisible. Black darkens, which only ever helps white ink, and the
+   four dark-ink fields these also land on (amber 10.27, mint 7.86,
+   aqua 7.82, lime 15.62) have room to give. Same trap, same fix, as the
+   feature cards in MVBOLD-12 and the ghost Pill before them. */
+.nlist h3 .tier{display:inline-block;vertical-align:.12em;margin-left:8px;font-family:var(--font-body);font-variation-settings:normal;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:transparent;box-shadow:inset 0 0 0 1.5px currentColor;color:inherit;text-decoration:none;white-space:nowrap}
+.nlist h3 .tier:hover{background:color-mix(in srgb,currentColor 14%,transparent);opacity:1}
 
-/* The lime highlight keeps its phrase intact.
-   The design gives .hl box-decoration-break:clone, which is the right
-   treatment for when a highlight does wrap — but with nothing stopping the
-   break, "Track it." split into "Track" on one line and "it." on the next as
-   two separate lime blocks. That is the split-pill defect the previous build
-   hit twice and fixed with nowrap, pinned by tests/e2e/responsive.spec.ts at
-   eight viewports (getClientRects().length === 1). clone stays, so a phrase
-   too long to fit still paints correctly; nowrap just stops the breaker
-   choosing a point inside the highlight. */
-.hl{white-space:nowrap}
+/* .hl.keep — a highlight that must not break.
+   "Track it." split into "Track" on one line and "it." on the next, as two
+   separate lime blocks: the split-pill defect the previous build hit twice.
+   nowrap fixes it — but it has to be opt-in, not blanket. Applying it to
+   every .hl overflowed the compare pages immediately, whose highlight is a
+   whole clause ("why teams switch to Manuva") and is meant to wrap. That is
+   exactly what the design's box-decoration-break:clone is for.
+   So: clone stays on every highlight, and .keep is added only where the
+   phrase is short enough that a break would read as an accident. */
+.hl.keep{white-space:nowrap}
 
 /* .mv-field-paper — the one field utility the design system does not ship.
    marketing.css defines cobalt, flare, amber, violet, mint, aqua, lime and
@@ -263,3 +270,204 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid cur
    raising against the design system rather than leaving each consumer to
    rediscover it. */
 .mv-field-paper{background:var(--field-paper);color:var(--on-paper)}
+
+/* Reduced motion: release the STAGE pin too.
+   The design's own spec is "no clip-paths or drift, pins released, intros
+   become normal 100svh sections" — but the media query it ships only releases
+   .intro / .ipin / .cut. .stage kept its 600svh pin and its absolutely
+   positioned panels, so with reduced motion on, the home page was six screens
+   of scrolling that swapped panels abruptly with nothing to look at. That is
+   not a degraded animation, it is a broken page, and it is the state anyone
+   with Windows animation effects off actually gets.
+   Released here the same way the intro is: normal flow, one full-height panel
+   after another, no pin, no clip, no ticks. */
+@media(prefers-reduced-motion:reduce){
+  .stage{height:auto!important}
+  .stage .pin{position:relative;height:auto;overflow:visible}
+  .stage .panel{position:relative;inset:auto;min-height:100svh;visibility:visible!important;clip-path:none!important;transform:none!important}
+  .ticks{display:none}
+  .cut [data-rate],.stage .panel [data-rate]{transform:none!important}
+}
+
+/* Compare pages — the price cards, from the reference page's own inline
+   <style> block. */
+.pgrid{display:grid;gap:12px}
+.pcard{border-radius:28px;padding:28px 24px;display:grid;gap:16px;align-content:start;box-shadow:inset 0 0 0 2px color-mix(in srgb,currentColor 14%,transparent)}
+@media(min-width:721px){.pgrid{grid-template-columns:1fr 1fr}.pcard{padding:40px}}
+
+/* The competitor column carries the old page's own verdict, not one derived
+   from its text — "14 days" is a real positive and "Per user" a real negative,
+   and a text-matching ternary got both backwards once before. */
+.ctable .them[data-verdict="no"]{opacity:.55}
+.ctable .them[data-verdict="partial"]{opacity:.8}
+.ctable .them[data-verdict="yes"]{opacity:.9}
+
+/* A safety net for display headings: a single word longer than its column
+   would otherwise be clipped by the body's overflow-x:hidden rather than
+   wrap. break-word, not anywhere — it only breaks a word that cannot fit on
+   a line of its own. */
+.hero h1,.sec h2.disp,.outro .disp{overflow-wrap:break-word}
+
+/* ===== contrast corrections to the design's own field/ink pairs =====
+   The design's "Done means" asks for contrast checked on every field/ink pair
+   used. Doing that turns up two failures, both of which the previous build had
+   already found and fixed, and both of which came back when this stylesheet
+   was taken from the reference wholesale.
+
+   1. flare + white is 3.33:1 — it fails AA for normal text at full strength,
+      before any opacity is applied. The README lists the pair as
+      "flare #FF4D00/#FFF". Near-black on flare is 5.54:1, so that is what
+      this uses. Every other pair passes at full strength:
+        paper 17.65 · lime 15.62 · ink 13.30 · amber 10.27
+        mint 7.86 · aqua 7.82 · cobalt 4.97 · violet 4.60 · flare 3.33
+      Redeclaring --on-flare site-side breaks the "no token is redeclared"
+      rule. It is done here because the alternative is shipping a known AA
+      failure on every flare surface, and it is RAISED rather than silently
+      absorbed: the pair needs changing in the design system.
+   2. The opacity mutes the reference puts on hero eyebrows and subs
+      (.75, .88) drop cobalt and violet below AA — cobalt 4.97 -> 3.50 at .75,
+      violet 4.60 -> 3.14. There is no headroom to mute into on either. This
+      project already settled that as "full strength on any field, not a
+      per-field contrast audit"; the mutes are released on the three tight
+      fields only, so amber, mint, aqua, lime, ink and paper keep the design's
+      intended softening, all of which clear AA with room to spare. */
+/* Scoped to :root, not .mv-field-flare. CtaBand.astro sets its ink inline
+   as color:var(--on-flare) without the field class, so a class-scoped
+   correction never reached it -- /about and /alternatives were still
+   rendering white on flare at 3.32:1. The value is wrong wherever it is
+   read, so the correction belongs where the value is declared. Still on
+   the list to raise against the design system rather than keep here. */
+:root{--on-flare:#141413}
+.mv-field-cobalt .eyebrow,.mv-field-cobalt .sub,.mv-field-cobalt .pline,
+.mv-field-violet .eyebrow,.mv-field-violet .sub,.mv-field-violet .pline,
+.mv-field-flare .eyebrow,.mv-field-flare .sub,.mv-field-flare .pline{opacity:1!important}
+
+/* Every opacity mute released on the three fields with no headroom.
+   cobalt 4.97, violet 4.60 and flare 3.33 (corrected to 5.54 with near-black
+   ink) leave nothing to mute into: at .92 cobalt is already 4.45 and violet
+   4.09. The reference softens hero eyebrows, subs, panel plines and the
+   compare price-card body with inline opacity between .75 and .92, and every
+   one of those instances failed axe.
+   Blanket rather than per-instance because the mutes arrive from three places
+   — the design's stylesheet, its inline styles, and its page references — and
+   chasing them individually is how one gets missed. The decorative numerals
+   and the tick bar keep their opacity: they carry no text and are
+   aria-hidden. */
+.mv-field-cobalt *:not(.ghostnum):not(.pnum):not(.ticks):not(.ticks i),
+.mv-field-violet *:not(.ghostnum):not(.pnum):not(.ticks):not(.ticks i),
+.mv-field-flare  *:not(.ghostnum):not(.pnum):not(.ticks):not(.ticks i){opacity:1!important}
+
+/* The billing toggle's track lightened cobalt with a white tint, so the
+   unpressed button was white text on a lighter blue. Darkening instead keeps
+   the white label legible, the same direction every other fix here takes. */
+.toggle{background:rgb(0 0 0/.22)}
+
+/* No fill on the tier badge. A tinted fill has to darken on a white-ink
+   field and lighten on a dark-ink one, and CSS cannot branch on which it is:
+   black at 22% over flare took its own 11px label down to 3.57:1. With no
+   fill the label is currentColor on the field itself, which is the pair the
+   whole system guarantees, and the ring is a non-text edge held to 3:1.
+   The hover tint is the only mix left and it never carries the text. */
+
+/* .nlist .i at opacity .7 measured 4.44:1 on aqua, a hair under AA at 15px.
+   .85 clears every field the list appears on. */
+.nlist .i{opacity:.85}
+
+/* The ghost numerals render through CSS, not as text nodes. They are pure
+   decoration -- aria-hidden, 9-16% opacity by design -- so their contrast is
+   deliberately far under AA and axe was right to flag a 1.1:1 text node. The
+   answer is not to raise the opacity and lose the effect: it is that
+   decoration belongs in CSS. This also keeps them out of text selection and
+   the clipboard, which aria-hidden does not do. Markup carries data-n. */
+.ghostnum::before,.pnum::before{content:attr(data-n)}
+
+/* Compare pages — the blocks the old build had and the reference does not:
+   the two price ladders, the seat-math table, the price callout and the
+   related-page row. Built from the same primitives as .ctable so they read
+   as one family, but on paper rather than ink, because a price ladder is a
+   data table and the loud-layer rules keep colour off those. */
+.ptable{display:grid;gap:0}
+.prow{display:flex;align-items:baseline;justify-content:space-between;gap:16px;
+  padding:11px 0;border-top:1.5px solid color-mix(in srgb,currentColor 18%,transparent);
+  font-size:15px;line-height:1.3}
+.prow:first-child{border-top:0}
+.prow .amt{font-size:19px}
+.pnote{margin:0;font-size:14px;line-height:1.5;opacity:.82;text-wrap:pretty}
+.pcallout{margin:0;font-size:16px;line-height:1.55;max-width:66ch;text-wrap:pretty;
+  padding:20px 22px;border-radius:20px;
+  box-shadow:inset 0 0 0 2px color-mix(in srgb,currentColor 16%,transparent)}
+.stable{display:grid;overflow-x:auto}
+.stable .r{display:grid;grid-template-columns:minmax(72px,1fr) repeat(3,minmax(84px,1fr));
+  gap:12px;align-items:baseline;padding:13px 0;
+  border-top:1.5px solid color-mix(in srgb,currentColor 18%,transparent);font-size:15px}
+.stable .r.h{border-top:0}
+.stable .k{font-weight:700}
+.stable .them{opacity:.62}
+.stable .us{font-weight:700}
+.stable .delta{display:block;font-style:normal;font-size:12px;font-weight:700;
+  letter-spacing:.04em;opacity:.7}
+.related{display:flex;flex-wrap:wrap;gap:10px 22px;padding-top:8px;font-size:15px;font-weight:600}
+.related a{text-underline-offset:5px}
+@media(min-width:721px){
+  .pcallout{padding:24px 26px}
+  .stable .r{font-size:16px;gap:20px}
+}
+
+/* Logo / sector rows — names set in the display face at a size that reads as
+   a band rather than a list. No logo files: the old build rendered these as
+   text too, and inventing brand marks is not something this site does. */
+.logorow{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:12px 26px;
+  align-items:baseline;font-family:var(--font-display);
+  font-variation-settings:"wdth" 112,"wght" 800;letter-spacing:-.02em;
+  font-size:clamp(22px,5.4vw,34px);line-height:1.1}
+.logorow li{opacity:.55}
+.logorow.sectors li{opacity:.72}
+@media(min-width:721px){.logorow{gap:14px 40px;font-size:clamp(28px,3.4vw,40px)}}
+
+/* The explainer facade sits in a plain .sec, so it needs its own measure and
+   corner treatment now that it is not inside the old Field component. */
+.sec .site-video{max-width:880px;width:100%;border-radius:24px;overflow:hidden}
+
+/* Each domain's source-area framing: the heading and intro the old nine
+   sections carried, now sitting between the shape cut and the feature list.
+   On a field, so the ink is the field's own and the callout is a ring rather
+   than a tinted fill — a fill has to darken on a white-ink field and lighten
+   on a dark-ink one, and CSS cannot branch on which it is. */
+.arealead{display:grid;gap:12px;max-width:62ch}
+.arealead .disp{font-size:clamp(30px,7vw,46px)}
+.arealead .sub{max-width:58ch;opacity:.88}
+.diff{margin:4px 0 0;font-size:15px;line-height:1.5;max-width:60ch;text-wrap:pretty;
+  padding:14px 18px;border-radius:16px;
+  box-shadow:inset 0 0 0 2px color-mix(in srgb,currentColor 24%,transparent)}
+.dom>.arealead+.arealead{margin-top:6px}
+
+/* Plan tagline and the secondary monthly line, back on the price cards. */
+.plan .tagline{margin:0;font-size:14px;line-height:1.4;opacity:.72;text-wrap:pretty;
+  min-height:calc(1.4em * 3)}
+.plan .note.monthly{opacity:.6}
+/* The "all plans include" strip: the accent beat between the four cards and
+   the 43-row table. Lime as a background with its paired ink, never as text. */
+.trialstrip{margin:0;background:var(--field-lime);color:var(--on-lime);
+  font-weight:700;font-size:15px;letter-spacing:.01em;text-align:center;
+  padding:18px 20px}
+
+/* The platform tiles' chips, back on the home page's numbered list. */
+.nlist .chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+.nlist .chips span{font-size:12px;font-weight:700;letter-spacing:.04em;
+  padding:4px 10px;border-radius:999px;
+  box-shadow:inset 0 0 0 1.5px color-mix(in srgb,currentColor 24%,transparent)}
+
+/* The comparison table's Manuva column. The reference colours this text lime,
+   which the design's own loud-layer rule forbids ("lime is backgrounds and
+   accents only, never text") and which measured 4.21:1 on the cobalt price
+   card. A lime chip keeps the accent exactly where the reference wanted it
+   and puts it back on the right side of the rule. The value cells below no
+   longer need colour: full strength against a muted rival column carries the
+   emphasis on its own.
+   Three more lime-as-text rules remain in the design's own stylesheet
+   (#drawer a[aria-current], .site-foot .cols .eyebrow, .toggle small). Those
+   are the design system's to change, not this site's — raised, not patched. */
+.eyebrow.limechip{display:inline-block;align-self:start;justify-self:start;
+  background:var(--field-lime);color:var(--on-lime);
+  padding:4px 10px;border-radius:999px}
+.ctable .r.h .limechip{margin:-4px 0}

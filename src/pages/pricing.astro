@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import FeatureMatrix from '../components/site/FeatureMatrix.astro';
 import { APP_URL } from '../site';
 
 // Rebuilt on the new design (MVBOLD-17). Motion: none — the handoff is
@@ -12,26 +13,26 @@ import { APP_URL } from '../site';
 
 const PLANS = [
   {
-    name: 'Starter', annual: '$99', monthly: '$119', badge: null,
-    limit: '1 location · 3 users',
+    name: 'Starter', tagline: 'Small brands getting started with manufacturing ops', annual: '$99', monthly: '$119', badge: null,
+    limit: '1 location · 3 users', monthlyLine: 'or $119/mo billed monthly',
     note: 'Billed $1,188/yr', monthlyNote: 'Billed $119/mo',
     feats: ['Inventory management', 'Basic BOM builder', 'Production orders', 'Purchase orders + suppliers', 'Stocktake', 'Email support'],
   },
   {
-    name: 'Growth', annual: '$249', monthly: '$299', badge: 'Most popular',
-    limit: '5 locations · unlimited users',
+    name: 'Growth', tagline: 'Scaling brands with multi-location and deeper workflows', annual: '$249', monthly: '$299', badge: 'Most popular',
+    limit: '5 locations · unlimited users', monthlyLine: 'or $299/mo billed monthly',
     note: 'Billed $2,988/yr', monthlyNote: 'Billed $299/mo',
     feats: ['Everything in Starter', 'Multi-location + bin locations', 'Advanced BOM (yield %, versions)', 'Costing module', 'Reports suite'],
   },
   {
-    name: 'Pro', annual: '$499', monthly: '$599', badge: null,
-    limit: 'Unlimited locations · unlimited users',
+    name: 'Pro', tagline: 'Professional manufacturers needing capacity, costing & advanced reporting', annual: '$499', monthly: '$599', badge: null,
+    limit: 'Unlimited locations · unlimited users', monthlyLine: 'or $599/mo billed monthly',
     note: 'Billed $5,988/yr', monthlyNote: 'Billed $599/mo',
     feats: ['Everything in Growth', 'Capacity planning + staffing', 'Financial profitability', 'Advanced reports + PDF/CSV export', 'Priority support (< 4hr)'],
   },
   {
-    name: 'Enterprise', annual: 'Custom', monthly: 'Custom', badge: null,
-    limit: 'Unlimited · SSO / SAML',
+    name: 'Enterprise', tagline: 'Large operations, custom requirements, dedicated support', annual: 'Custom', monthly: 'Custom', badge: null,
+    limit: 'Unlimited · SSO / SAML', monthlyLine: '',
     note: 'Annual contract · custom onboarding', monthlyNote: 'Annual contract · custom onboarding',
     feats: ['Everything in Pro', 'Dedicated account manager', 'Custom onboarding + training', 'SSO / advanced security', 'SLA + uptime guarantee'],
   },
@@ -111,12 +112,14 @@ const schema = [
             <b>{p.name}</b>
             {p.badge && <span class="badge">{p.badge}</span>}
           </div>
+          <p class="tagline">{p.tagline}</p>
           <div>
             <div class="price">
               <span class="num" data-annual={p.annual} data-monthly={p.monthly}>{p.annual}</span>
               {p.annual !== 'Custom' && <span class="per">/mo</span>}
             </div>
             <p class="note" data-annual={p.note} data-monthly={p.monthlyNote}>{p.note}</p>
+            {p.monthlyLine && <p class="note monthly">{p.monthlyLine}</p>}
           </div>
           <span class="limit">{p.limit}</span>
           <a class={p.badge ? 'pill' : 'pill ink'} href={p.name === 'Enterprise' ? '/about#contact' : APP_URL}>
@@ -128,21 +131,21 @@ const schema = [
     </div>
   </div>
 
+  {/* The strip and the 43-row matrix, both dropped in the first rebuild pass.
+      The matrix is a data table, so it stays on paper — the loud-layer rules
+      are explicit that a field never sits behind one. */}
   <section class="sec">
-    <h2 class="disp">Frequently asked.</h2>
-    <div class="faq">
-      {FAQS.map((f) => (
-        <details>
-          <summary>{f.q}</summary>
-          <p>{f.a}</p>
-        </details>
-      ))}
+    <div style="display:grid;gap:12px">
+      <h2 class="disp">Compare every plan.</h2>
+      <p class="sub" style="color:var(--ink-muted);max-width:56ch">
+        Every feature, every tier. Nine categories, forty-three rows.
+      </p>
     </div>
-    <p class="sub" style="max-width:68ch;font-size:15px;opacity:.7">
-      All prices are in Australian Dollars (AUD); GST is included for Australian customers.
-      Monthly pricing: Starter $119, Growth $299, Pro $599.
-    </p>
+    <FeatureMatrix />
   </section>
+
+  <p class="trialstrip">All plans include a 30-day free trial &middot; No credit card required</p>
+
 
   <section class="sec mv-field-ink">
     <div class="split">
@@ -156,7 +159,7 @@ const schema = [
       <div class="ctable">
         <div class="r h">
           <span></span>
-          <span class="eyebrow" style="color:var(--field-lime)">Manuva</span>
+          <span class="eyebrow limechip">Manuva</span>
           <span class="eyebrow" style="opacity:.5">Per-seat MRP</span>
         </div>
         {COMPARE.map(([k, us, them]) => (
@@ -168,6 +171,22 @@ const schema = [
         ))}
       </div>
     </div>
+  </section>
+
+  <section class="sec">
+    <h2 class="disp">Frequently asked.</h2>
+    <div class="faq">
+      {FAQS.map((f) => (
+        <details>
+          <summary>{f.q}</summary>
+          <p>{f.a}</p>
+        </details>
+      ))}
+    </div>
+    <p class="sub" style="max-width:68ch;font-size:15px;opacity:.7">
+      Monthly pricing: Starter $119, Growth $299, Pro $599. Annual saves approximately 17%.
+      Prices are in Australian Dollars (AUD); GST is included for Australian customers.
+    </p>
   </section>
 
   <section class="outro mv-field-lime">

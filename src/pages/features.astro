@@ -20,6 +20,77 @@ import { APP_URL, DOMAINS } from '../site';
 // Tier badges are kept and still link to /pricing. The reference nlist has no
 // slot for them, but which plan a feature needs is content, and 36 of them
 // dead-ended before MVBOLD-16 gave them somewhere to go.
+// The nine source areas' own framing — heading, intro and the "unique to
+// Manuva" call-out where the old page had one. The first pass of this rebuild
+// condensed nine sections into six domains and dropped all of this with them:
+// 9 headings, 9 intros and 5 differentiators, which is the copy that actually
+// argues the product. It is back, verbatim, keyed to the domain that absorbed
+// each area. A domain with two source areas shows both, in the old order.
+const AREAS: Record<string, { eyebrow: string; heading: string; intro: string; diff?: { lead: string; text: string } }[]> = {
+  inventory: [
+    {
+      eyebrow: 'Inventory',
+      heading: 'Stock counts you can actually trust.',
+      intro: 'Every movement logged. Every adjustment tracked. Bin-level locations mean nothing gets lost on the floor.',
+    },
+  ],
+  purchasing: [
+    {
+      eyebrow: 'Purchasing & Suppliers',
+      heading: 'Purchase orders that close the loop.',
+      intro: "Issue POs, receive deliveries, and surface what your suppliers actually deliver on time. Operational intelligence that competitors don't surface at this price point.",
+      diff: { lead: 'Unique to Manuva:', text: "PO variance, lead-time accuracy reports, and supplier scorecards — operational intelligence that Katana doesn't surface at any tier." },
+    },
+  ],
+  production: [
+    {
+      eyebrow: 'BOMs & Manufacturing',
+      heading: 'Build, version, and run BOMs that keep up with reality.',
+      intro: 'Every component, every version, every change — captured. Cost and margin update automatically as your BOMs evolve.',
+      diff: { lead: 'Unique to Manuva:', text: 'Yield %, BOM versioning with comparison, and templates — none of which Katana offers at any price.' },
+    },
+  ],
+  sales: [
+    {
+      eyebrow: 'Orders & Fulfilment',
+      heading: 'Every order, from sale to shipment.',
+      intro: 'Shopify orders flow in automatically. Manual and B2B orders go in directly. Manuva tracks each line from component allocation through to delivery — so nothing slips.',
+    },
+    {
+      eyebrow: 'Shopify & Platform',
+      heading: 'Built around your Shopify store.',
+      intro: 'Real-time webhook sync, not nightly batch imports. Orders drive production. Inventory stays accurate across every channel.',
+    },
+  ],
+  planning: [
+    {
+      eyebrow: 'Production Planning · Pro',
+      heading: 'Run the floor without a whiteboard.',
+      intro: "Schedule jobs, track steps in sequence, and know exactly what's running and what's blocked — across every department, in real time.",
+    },
+    {
+      eyebrow: 'Capacity & Team · Pro',
+      heading: 'Plan production around the people who actually do the work.',
+      intro: 'Departments, staffing levels, hours available, and what each production run actually cost in labour. No competitor in this segment ships this module at this price.',
+      diff: { lead: 'Manuva-only at this price:', text: 'Capacity planning with staff costing for $499/mo flat, unlimited users. MRPeasy charges per-user — a 10-person team hits $490/mo before any other features.' },
+    },
+  ],
+  reporting: [
+    {
+      eyebrow: 'Costing & Profitability',
+      heading: 'Know your margin before the job starts.',
+      intro: 'Cost up your BOMs automatically. See margin per product. Watch profitability across the whole operation in real time.',
+      diff: { lead: 'Unique to Manuva:', text: 'The financial profitability dashboard at Pro — Katana has no equivalent at any price.' },
+    },
+    {
+      eyebrow: 'Reports & Analytics',
+      heading: "Operational intelligence, not last week's spreadsheet.",
+      intro: 'Live data on stock, supplier performance, PO accuracy, and dead stock — the reports that actually drive decisions.',
+      diff: { lead: 'Unique to Manuva:', text: "PO variance, lead-time accuracy, and inventory integrity reports — operational intelligence buyers won't find in Katana, Qoblex, or Craftybase." },
+    },
+  ],
+};
+
 const FEATURES: Record<string, { title: string; tier?: string; desc: string }[]> = {
   inventory: [
     { title: 'Component & raw material tracking', desc: 'From bolts and fasteners to fabric and chemicals — track every input to your products.' },
@@ -128,12 +199,14 @@ const schema = [
   {schema}
 >
   <section class="hero tall mv-field-ink">
-    <span class="ghostnum num" aria-hidden="true">{pad(DOMAINS.length)}</span>
+    <span class="ghostnum num" aria-hidden="true" data-n={pad(DOMAINS.length)}></span>
     <span class="eyebrow" style="opacity:.75">{pad(DOMAINS.length)} domains &middot; {total} features</span>
-    <h1 class="disp">Everything <span class="hl">on the floor.</span></h1>
-    <p class="sub" style="opacity:.88">
-      Stock, purchasing, builds, orders, planning and reporting — one system, one number everyone trusts.
+    <h1 class="disp">Everything you need to run <span class="hl">manufacturing operations</span></h1>
+    <p class="sub" style="opacity:.88;max-width:50ch">
+      Connected inventory, BOMs, production, purchasing, capacity, costing, and reporting — built specifically
+      for product brands that make what they sell.
     </p>
+    <span style="font-size:14px;opacity:.8">30-day free trial. No credit card. Unlimited users from Growth.</span>
     <ul class="index">
       {DOMAINS.map((d, i) => (
         <li>
@@ -151,7 +224,7 @@ const schema = [
       <div class="intro" data-from={i ? DOMAINS[i - 1].field : 'ink'} data-shape={String(i)}>
         <div class="ipin">
           <div class={`cut mv-field-${d.field}`}>
-            <span class="pnum num" data-rate="30" aria-hidden="true">{pad(i + 1)}</span>
+            <span class="pnum num" data-rate="30" aria-hidden="true" data-n={pad(i + 1)}></span>
             <span class="eyebrow" data-rate="70" style="opacity:.8">
               {pad(i + 1)} / {pad(DOMAINS.length)} &middot; {FEATURES[d.id].length} features
             </span>
@@ -160,6 +233,17 @@ const schema = [
           </div>
         </div>
       </div>
+      {AREAS[d.id].map((a) => (
+        <div class="arealead">
+          {/* Full strength. At .7 this measured 4.44:1 on aqua — a 12px
+              uppercase label has no headroom to mute into, which is the same
+              call this project already made for cobalt, violet and flare. */}
+          <span class="eyebrow">{a.eyebrow}</span>
+          <h3 class="disp">{a.heading}</h3>
+          <p class="sub">{a.intro}</p>
+          {a.diff && <p class="diff"><strong>{a.diff.lead}</strong> {a.diff.text}</p>}
+        </div>
+      ))}
       <ul class="nlist two three">
         {FEATURES[d.id].map((f, j) => (
           <li>
@@ -175,14 +259,27 @@ const schema = [
     </section>
   ))}
 
+  {/* The old page's own "Where to next" block. Dropped in the rebuild; it is
+      the only cross-link out of a very long page. */}
+  <section class="sec" style="padding-block:40px">
+    <span class="eyebrow" style="opacity:.6">Where to next</span>
+    <nav class="related" aria-label="Related pages">
+      <a href="/pricing">Pricing &amp; plans</a>
+      <a href="/alternatives/katana">Manuva vs Katana</a>
+      <a href="/alternatives/mrpeasy">Manuva vs MRPeasy</a>
+      <a href="/about">About Manuva</a>
+    </nav>
+  </section>
+
   <section class="outro mv-field-lime" data-chips-end>
-    <p class="disp">Pick your plan. Keep every number.</p>
-    <p class="sub">Connect your Shopify store and have stock counted by this afternoon.</p>
+    <p class="disp">Ready to see it in action?</p>
+    <p class="sub">Full Pro access for 30 days. No credit card required. Set up in a day, not a quarter.</p>
     <div class="row">
       <a class="pill ink" href="/pricing">See pricing</a>
       <a class="pill ghost" href={APP_URL}>Start free</a>
     </div>
   </section>
+
 
   <nav id="chips" aria-label="Jump to domain"></nav>
 </Base>

@@ -5,9 +5,28 @@ import { ALL_ROUTES } from '../../src/site';
 for (const route of ALL_ROUTES) {
   test(`${route} has no WCAG A or AA violations`, async ({ page }) => {
     await page.goto(route);
+    // axe misreads the background behind the pinned stage panels. Each
+    // .panel is position:absolute inside a sticky, overflow:hidden .pin in
+    // a 600svh section, and axe resolves its background to <body>
+    // (#fafaf9) rather than the panel's own field, reporting white on paper
+    // at 1.04:1. document.elementsFromPoint over that text returns
+    // `span.eyebrow (transparent) -> a.panel bg=rgb(58,94,255) -> div.pin`,
+    // so the real pair is --on-cobalt on --field-cobalt. The panels are
+    // still measured for contrast, by the field test below, which reads
+    // each field's own computed background rather than hit-testing for it.
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .exclude('.stage .panel')
       .analyze();
+    // The panels keep every other rule -- link name, aria, landmarks.
+    if (await page.locator('.stage .panel').count()) {
+      const panels = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        .include('.stage .panel')
+        .disableRules(['color-contrast'])
+        .analyze();
+      results.violations.push(...panels.violations);
+    }
     expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
   });
 }
@@ -15,21 +34,21 @@ for (const route of ALL_ROUTES) {
 test('the drawer traps focus and closes on Escape', async ({ page }) => {
   await page.setViewportSize({ width: 480, height: 900 });
   await page.goto('/');
-  await page.click('.site-burger');
-  await expect(page.locator('#site-drawer')).toBeVisible();
-  await expect(page.locator('.site-burger')).toHaveAttribute('aria-expanded', 'true');
+  await page.click('.burger');
+  await expect(page.locator('#drawer')).toBeVisible();
+  await expect(page.locator('.burger')).toHaveAttribute('aria-expanded', 'true');
   await page.keyboard.press('Escape');
-  await expect(page.locator('#site-drawer')).toBeHidden();
-  await expect(page.locator('.site-burger')).toBeFocused();
+  await expect(page.locator('#drawer')).toBeHidden();
+  await expect(page.locator('.burger')).toBeFocused();
 });
 
 test('the drawer actually traps Tab focus inside itself, in both directions', async ({ page }) => {
   await page.setViewportSize({ width: 480, height: 900 });
   await page.goto('/');
-  await page.click('.site-burger');
-  await expect(page.locator('#site-drawer')).toBeVisible();
+  await page.click('.burger');
+  await expect(page.locator('#drawer')).toBeVisible();
 
-  const focusable = page.locator('#site-drawer a[href], #site-drawer button:not([disabled])');
+  const focusable = page.locator('#drawer a[href], #drawer button:not([disabled])');
   const count = await focusable.count();
   expect(count, 'drawer should have focusable items to trap').toBeGreaterThan(1);
   const first = focusable.first();
@@ -54,10 +73,10 @@ test('the drawer actually traps Tab focus inside itself, in both directions', as
 test('opening the drawer does not shift the page (scroll-lock compensation)', async ({ page }) => {
   await page.setViewportSize({ width: 480, height: 700 });
   await page.goto('/');
-  const burger = page.locator('.site-burger');
+  const burger = page.locator('.burger');
   const before = await burger.boundingBox();
   await burger.click();
-  await expect(page.locator('#site-drawer')).toBeVisible();
+  await expect(page.locator('#drawer')).toBeVisible();
   const after = await burger.boundingBox();
   expect(before).not.toBeNull();
   expect(after).not.toBeNull();
@@ -161,7 +180,11 @@ async function findFieldContrastViolations(page: Page) {
     const REQUIRED = 4.5;
     const violations: { selector: string; text: string; ratio: number }[] = [];
 
-    document.querySelectorAll('[data-fold]').forEach((section) => {
+    // [data-fold] was the old build's field marker. The new build puts the
+    // field class on the surface itself, so checking only [data-fold] left
+    // every hero, panel, cut and outro on the rebuilt pages unmeasured.
+    const seen = new Set<string>();
+    document.querySelectorAll('[data-fold], [class*="mv-field-"]').forEach((section) => {
       section.querySelectorAll('*').forEach((el) => {
         if (SKIP_TAGS.has(el.tagName)) return;
         if (el.children.length > 0) return; // only leaf nodes render their own text run
@@ -185,6 +208,10 @@ async function findFieldContrastViolations(page: Page) {
         const composited = blend(fg, alpha, bg);
         const ratio = contrastRatio(composited, bg);
         if (ratio < REQUIRED - 0.05) {
+          // Fields nest (a card inside a band), so a leaf can be reached twice.
+          const key = `${el.tagName}|${String(el.className)}|${text.slice(0, 40)}`;
+          if (seen.has(key)) return;
+          seen.add(key);
           violations.push({
             selector: el.className
               ? `${el.tagName.toLowerCase()}.${String(el.className).trim().replace(/\s+/g, '.')}`
