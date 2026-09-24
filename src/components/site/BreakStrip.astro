@@ -1,0 +1,34 @@
+---
+import Button from '../ds/Button.astro';
+import { APP_URL } from '../../site';
+import type { FieldName } from '../../site';
+
+export interface Props {
+  field: FieldName;
+  /** One line. Must be copy that is already true elsewhere on the site —
+   * this component exists to break a rhythm and offer a route out, not to
+   * make a new claim. */
+  line: string;
+  cta?: string;
+}
+const { field, line, cta = 'Start free trial' } = Astro.props;
+
+// /features ran nine identical card-grid sections and put its first body CTA
+// at y=10,767 of 11,304 — a visitor scrolled 95% of the page before being
+// offered anything to do. (The sticky nav carries one throughout, but that is
+// chrome, not a moment tied to what someone just read.)
+//
+// This is both fixes at once: a slim full-bleed band that breaks the spine
+// every third section AND carries a decision point. It is the same device the
+// home page's lime marquee and aqua beta strip already are.
+//
+// Placed only between two paper sections — a field either side would put two
+// fields in contact, which tests/unit/field-separation.test.ts rejects.
+---
+<section class="mv-section site-break-strip" data-fold={field} style={`background:var(--field-${field});color:var(--on-${field})`}>
+  <div class="mv-wrap site-break-strip-inner">
+    <p class="site-break-strip-line">{line}</p>
+    <Button as="a" href={APP_URL} size="lg" shape="pill" variant="primary" class="mv-press"
+      style="background:var(--field-paper);color:var(--on-paper);border-color:var(--field-paper)">{cta}</Button>
+  </div>
+</section>

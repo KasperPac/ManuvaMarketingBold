@@ -5,6 +5,7 @@ import Panel from '../components/site/Panel.astro';
 import Tile from '../components/site/Tile.astro';
 import CtaBand from '../components/site/CtaBand.astro';
 import TrialStrip from '../components/site/TrialStrip.astro';
+import BreakStrip from '../components/site/BreakStrip.astro';
 import Icon from '../components/ds/Icon.astro';
 import { FEATURE_LINKS } from '../site';
 import type { FieldName } from '../site';
@@ -346,7 +347,36 @@ const schema = [
   {/* 3 · paper spine of nine detail sections, broken by a full-bleed violet
       Field on #purchasing and a cobalt one on #costing (GROUPS[3].fold and
       GROUPS[6].fold) */}
-  {GROUPS.map((g) => {
+  {GROUPS.map((g, gi) => {
+    // The first two carry the section; the rest are the detail behind it.
+    // Every one of the 66 cards used to be the same size, so the page had no
+    // way of saying which of a twelve-item section mattered — and a features
+    // page that cannot prioritise reads as a database dump. The split follows
+    // the old page's own ordering rather than a judgement made here.
+    const lead = g.feats.slice(0, 2);
+    const rest = g.feats.slice(2);
+    const card = (f: (typeof g.feats)[number], variant: 'lead' | 'rest') => (
+      <div class:list={['site-feat', variant === 'lead' && 'site-feat-lead']}>
+        <div class="site-feat-icon"><Icon name={f.icon} size={variant === 'lead' ? 20 : 16} /></div>
+        <div class="site-feat-body">
+          <p class="site-feat-title">
+            {f.title}
+            {/* A link, not a span. Thirty-six badges told a reader a feature
+                costs more and then dead-ended — the page never mentioned
+                pricing at all. aria-label rather than visually-hidden text
+                so thirty-six links do not all announce as "Growth+", and so
+                no text is added to the DOM, which the copy-parity gate
+                compares on. */}
+            {'tier' in f && f.tier && <> <a
+              href="/pricing"
+              class:list={['site-feat-tier', tierClass(f.tier)]}
+              aria-label={`${f.title}: included from ${f.tier} — see pricing`}
+            >{f.tier}</a></>}
+          </p>
+          <p class="site-feat-desc">{f.desc}</p>
+        </div>
+      </div>
+    );
     const body = (
       <>
         <span class="mv-eyebrow">{g.eyebrow}</span>{' '}
@@ -354,20 +384,14 @@ const schema = [
         <p class="site-feat-intro">{g.intro}</p>
         <div class:list={['site-feat-row', { 'site-feat-row-image': 'image' in g && g.image }]}>
           <div class="site-feat-content">
-            <div class="mv-cols-2 site-feat-grid">
-              {g.feats.map((f) => (
-                <div class="site-feat">
-                  <div class="site-feat-icon"><Icon name={f.icon} size={16} /></div>
-                  <div class="site-feat-body">
-                    <p class="site-feat-title">
-                      {f.title}
-                      {'tier' in f && f.tier && <> <span class:list={['site-feat-tier', tierClass(f.tier)]}>{f.tier}</span></>}
-                    </p>
-                    <p class="site-feat-desc">{f.desc}</p>
-                  </div>
-                </div>
-              ))}
+            <div class="mv-cols-2 site-feat-grid site-feat-grid-lead">
+              {lead.map((f) => card(f, 'lead'))}
             </div>
+            {rest.length > 0 && (
+              <div class="mv-cols-3 site-feat-grid site-feat-grid-rest">
+                {rest.map((f) => card(f, 'rest'))}
+              </div>
+            )}
             {'differentiator' in g && g.differentiator && (
               <div class="site-differentiator">
                 <div class="site-differentiator-icon"><Icon name={g.differentiator.icon} size={20} /></div>
@@ -383,16 +407,48 @@ const schema = [
         </div>
       </>
     );
-    return g.fold ? (
+    const section = g.fold ? (
       <Field field={g.fold} id={g.id} class="site-feat-section">{body}</Field>
     ) : (
       <section class="mv-section site-feat-section" id={g.id}>
         <div class="mv-wrap">{body}</div>
       </section>
     );
+    // Breaks after #orders (1) and after #production-planning (4). Both of
+    // those, and the section following each, are paper — putting one either
+    // side of #purchasing's violet or #costing's cobalt would be two fields
+    // in contact. Both lines are copy that is already true on this page: the
+    // lime strip under the hero states the first, the closing band the second.
+    const breakAfter =
+      gi === 1
+        ? { field: 'amber' as const, line: '30-day free trial. No credit card. Unlimited users from Growth.' }
+        : gi === 4
+          ? { field: 'mint' as const, line: 'Full Pro access for 30 days. Set up in a day, not a quarter.' }
+          : null;
+    return (
+      <>
+        {section}
+        {breakAfter && <BreakStrip field={breakAfter.field} line={breakAfter.line} />}
+      </>
+    );
   })}
 
-  {/* 4 · flare CTA. Heading and body both quote the old page's own closing
+  {/* 4 · a way onward. The page used to stop at the CTA band with no route
+      to pricing, to the comparisons, or to anything else — eleven thousand
+      pixels that dead-ended. Same pattern the two comparison pages close on. */}
+  <section class="mv-section site-next-steps">
+    <div class="mv-wrap">
+      <h2 class="mv-display">Where to next</h2>
+      <div class="site-next-steps-links">
+        <a href="/pricing">Pricing &amp; plans</a>{' '}
+        <a href="/alternatives/katana">Manuva vs Katana</a>{' '}
+        <a href="/alternatives/mrpeasy">Manuva vs MRPeasy</a>{' '}
+        <a href="/about">About Manuva</a>
+      </div>
+    </div>
+  </section>
+
+  {/* 5 · flare CTA. Heading and body both quote the old page's own closing
       cta-section verbatim — real sourced sentences, not assembled.
       secondActionHref matches the old page's own "Book a demo" href
       (index.html?demo=1#contact → /#contact, the query param only ever
