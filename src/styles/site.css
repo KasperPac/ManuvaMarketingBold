@@ -1077,7 +1077,61 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
    own ink, so the card reads without fighting the hue or introducing a
    second background colour to contrast-check. Used by /features (nine
    sections) and /about (the six principles), which share this class. */
+/* Two grids, not one. The lead pair states what the section is for at a
+   size that says so; the rest is the detail, three up and denser. All 66
+   cards being identical is why the page could not signal that anything on
+   it mattered more than anything else, and three-up also takes real height
+   out of the twelve- and eleven-item sections. */
+/* Columns come from .mv-cols-2 / .mv-cols-3, the design system's own
+   collapse utilities — they already carry the steps down (3 -> 2 at 960px,
+   -> 1 at 720px) that a hand-rolled repeat() would have had to restate, and
+   tests/unit/features.test.ts checks the page uses them. Only the gap and
+   the spacing between the two grids live here. */
 .site-feat-grid { gap: var(--space-4); }
+.site-feat-grid-rest { margin-top: var(--space-4); }
+.site-feat-lead { padding: var(--space-6); gap: var(--space-4); }
+.site-feat-lead .site-feat-title { font-size: var(--fs-xl); }
+.site-feat-lead .site-feat-desc { font-size: var(--fs-lg); }
+.site-feat-lead .site-feat-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); }
+@media (max-width: 720px) {
+  .site-feat-lead .site-feat-title { font-size: var(--fs-lg); }
+  .site-feat-lead .site-feat-desc { font-size: var(--fs-md); }
+}
+
+/* The tier badge is a link to /pricing now. It must still read as a badge,
+   so the only additions are a pointer and a hover — no underline, no link
+   colour, which would turn 36 of them into visual noise. */
+a.site-feat-tier { text-decoration: none; cursor: pointer; transition: filter var(--dur-fast) ease; }
+a.site-feat-tier:hover { filter: brightness(.93); }
+a.site-feat-tier:focus-visible { outline: 2px solid var(--brand-2); outline-offset: 2px; }
+[data-fold] a.site-feat-tier:focus-visible { outline-color: currentColor; }
+
+/* --- the break strips ------------------------------------------------- */
+.site-break-strip { padding-block: var(--space-8); }
+.site-break-strip-inner {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+  gap: var(--space-5) var(--space-8);
+}
+.site-break-strip-line {
+  margin: 0; font-family: var(--font-display); font-weight: var(--fw-semibold);
+  font-size: var(--fs-2xl); line-height: var(--lh-snug); letter-spacing: var(--ls-tight);
+  max-width: 34ch; text-wrap: balance;
+}
+@media (max-width: 720px) {
+  .site-break-strip-inner { flex-direction: column; text-align: center; }
+}
+
+/* --- where to next ---------------------------------------------------- */
+.site-next-steps { text-align: center; }
+.site-next-steps h2 { font-size: var(--fs-display-2); margin: 0 0 var(--space-6); }
+.site-next-steps-links { display: flex; gap: var(--space-3); justify-content: center; flex-wrap: wrap; }
+.site-next-steps-links a {
+  padding: var(--space-3) var(--space-6); background: var(--bg-card); border: 1px solid var(--stroke-strong);
+  border-radius: var(--radius-pill); font-size: var(--fs-md); font-weight: var(--fw-medium); color: var(--brand-2);
+  text-decoration: none; box-shadow: var(--shadow-sm);
+}
+.site-next-steps-links a:hover { background: var(--brand-dim); }
+
 .site-feat {
   display: flex; gap: var(--space-3);
   padding: var(--space-5);
