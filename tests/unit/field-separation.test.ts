@@ -51,36 +51,87 @@ for (const route of ALL_ROUTES) {
   });
 }
 
-// Navy is the app's dark end, not a marketing colour (author's call: it stays
-// in the app, where it is a substrate under a single accent; on marketing it
-// was a third blue behind cobalt and aqua). The design system agrees on its own
-// terms — --field-rotation is `cobalt flare amber violet mint aqua` and the
-// readme's loud layer is those six plus lime, with ink in neither list.
+// Navy came OFF the marketing site on an author's call, and went back on in
+// MVBOLD-14 after comparing the two side by side. The reasoning behind the
+// original call still holds for one half of it, so this test now asserts that
+// half instead of the whole thing.
 //
-// Checks the rendered value, not the token name, because navy reached pages
-// through three separate channels: --field-ink (marketing.css), --bg-ink
-// (themes.css, which is what Button's `ink` variant and so every field-less
-// Pill used), and the .mv-field-ink helper class on the footer. Grepping for
-// any one of those would have missed the other two.
+// The half that holds: ink is not a rotation hue. --field-rotation is
+// `cobalt flare amber violet mint aqua` and the readme's loud layer is those
+// six plus lime, with ink in neither list. On marketing, navy as a third blue
+// taking its turn behind cobalt and aqua was the actual problem.
+//
+// The half that did not: ink as STRUCTURE. All three reference layouts in
+// _ds/ui_kits/marketing/ end on an ink footer and carry one full-bleed ink
+// band — Landing (paper·paper·paper·INK·INK), Alternative
+// (paper·paper·INK·paper·paper·INK), Pricing (INK featured card, INK band,
+// INK footer). Removing that left the site with no dark end at all, which is
+// what it was pulled up on.
+//
+// So: ink may be the footer, and at most one band per page. It may not be a
+// hero panel or a CtaBand, which are the rotation's slots.
 const NAVY = /#15314[dD]|rgb\(\s*21\s*,\s*49\s*,\s*77\s*\)/;
 
 for (const route of ALL_ROUTES) {
-  test(`${route} — no navy on the marketing site`, () => {
+  test(`${route} — ink is structure, never a rotation hue`, () => {
     const html = readFileSync(file(route), 'utf8');
-    expect(NAVY.test(html), `${route} still renders the logo navy #15314D`).toBe(false);
-    expect(html).not.toMatch(/mv-field-ink|var\(--field-ink\)|var\(--bg-ink\)/);
+    const $ = load(html);
+
+    // At most one full-bleed ink band. Two would make it a hue that rotates.
+    const inkBands = topLevelFolds(html).filter((f) => f === 'ink');
+    expect(
+      inkBands.length,
+      `${route} declares ${inkBands.length} full-bleed ink bands; the anchor is one per page`,
+    ).toBeLessThanOrEqual(1);
+
+    // Never the hero and never the closing CTA — those are the rotation's
+    // slots, and a navy hero is the "third blue" the original call was about.
+    const heroPanel = $('main > section').first().find('.mv-panel').attr('data-fold');
+    expect(heroPanel, `${route} has a navy hero panel`).not.toBe('ink');
+    const ctaPanel = $('.site-cta-inner').attr('data-fold');
+    expect(ctaPanel, `${route} has a navy closing CTA`).not.toBe('ink');
+
+    // Checked as a rendered value as well as a token name, because navy reaches
+    // pages through three channels: --field-ink (marketing.css), --bg-ink
+    // (themes.css, which is what Button's `ink` variant and every field-less
+    // Pill used), and the .mv-field-ink helper. Grepping one would miss two.
+    // Inline navy is now expected only where a <Field field="ink"> emitted it.
+    const inlineNavy = $('[style]')
+      .toArray()
+      .filter((el) => {
+        const style = $(el).attr('style') ?? '';
+        return style.includes('--field-ink') || NAVY.test(style);
+      });
+    for (const el of inlineNavy) {
+      expect(
+        $(el).attr('data-fold'),
+        `${route}: navy painted on an element that is not a declared ink band`,
+      ).toBe('ink');
+    }
+    // --bg-ink is the app's substrate and still has no business here.
+    expect(html, `${route} uses --bg-ink, which is the app token`).not.toMatch(/var\(--bg-ink\)/);
   });
 }
+
+// The footer is the one place ink appears on every single page — it is what
+// stops each page fading out into paper. It is set in site.css rather than
+// inline, so this asserts the rule is present rather than reading the markup.
+test('the footer is the dark anchor on every page', () => {
+  const css = readFileSync('src/styles/site.css', 'utf8');
+  expect(css).toMatch(/\.site-footer\s*\{[^}]*background:\s*var\(--field-ink\)/);
+});
 
 // The rule above is satisfiable by having no fields at all, which would make it
 // vacuous on exactly the pages it matters most for.
 //
-// Only / and /features carry full-bleed fields at all. Everywhere else the
-// colour lives in nested panels — a hero panel, a CtaBand, the two comparison
-// cards on /alternatives — which this test deliberately does not count, because
-// the separation rule above only governs top-level bands. /pricing, /about and
-// the long-form routes are legitimately colourless besides: the loud-layer rules
-// keep a field off a data table or body copy.
+// / and /features have always carried full-bleed fields. /pricing, /about and
+// /alternatives now do too — the lime trial strip (MVBOLD-13) and the ink
+// anchor band (MVBOLD-14) are both top-level bands, and both comparison pages
+// get the trial strip as well.
+//
+// The long-form routes stay colourless by design, and so does the inside of a
+// data table or a block of body copy: the loud-layer rules keep a field off
+// those, which is why this list is the visual routes and not every route.
 //
 // /product was in this list until the route was removed (author's call: it did
 // not flow with the rest of the site). Substituting /alternatives for it failed
@@ -88,7 +139,7 @@ for (const route of ALL_ROUTES) {
 // hue test that could not see separation: a page can be full of colour and still
 // declare no fold.
 test('the visual routes actually carry full-bleed fields', () => {
-  for (const route of ['/', '/features']) {
+  for (const route of ['/', '/features', '/pricing', '/about', '/alternatives']) {
     const folds = topLevelFolds(readFileSync(file(route), 'utf8')).filter(Boolean);
     expect(folds.length, `${route} declares no full-bleed field`).toBeGreaterThan(0);
   }

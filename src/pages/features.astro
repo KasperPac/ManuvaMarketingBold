@@ -181,10 +181,6 @@ const GROUPS = [
   },
   {
     id: 'capacity',
-    // VARIANT A — the page's dark band. Reference Alternative.jsx and
-    // Landing.jsx both carry one; ours had none, so the spine ran bright
-    // panels on paper with no tonal floor.
-    fold: 'ink',
     eyebrow: 'Capacity & Team · Pro',
     heading: 'Plan production around the people who actually do the work.',
     intro:
@@ -242,6 +238,18 @@ const GROUPS = [
   },
   {
     id: 'shopify',
+    // The page's dark band. Reference Alternative.jsx and Landing.jsx both
+    // carry one; the spine had none, so it ran bright panels on paper with no
+    // tonal floor.
+    //
+    // #shopify, not #capacity, which is where this first went: capacity sits
+    // directly before #costing's cobalt, and two full-bleed fields touching
+    // breaks the loud-layer rule outright. tests/unit/field-separation.test.ts
+    // caught it. Here the neighbours are #reports (paper) and the closing
+    // CtaBand, whose own top-level section is paper with the flare inset in
+    // it — so there is paper on both sides. It also lands the dark band near
+    // the end of the page, which is the shape reference Alternative.jsx has.
+    fold: 'ink',
     eyebrow: 'Shopify & Platform',
     heading: 'Built around your Shopify store.',
     intro: 'Real-time webhook sync, not nightly batch imports. Orders drive production. Inventory stays accurate across every channel.',

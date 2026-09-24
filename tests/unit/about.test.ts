@@ -117,11 +117,16 @@ test('no two adjacent folds share a hue', () => {
 // what made the interior of the site read as a different product. The contact
 // block is four short lines and a button: the one section here that can carry
 // a field without breaking a loud-layer rule.
-test('hero is mint, contact is violet, closing CTA is flare, and prose carries no field', () => {
+// ink was added on the principles in MVBOLD-14: the page's dark anchor band.
+// It is also the one field the loud-layer rules tolerate behind body copy —
+// all three reference layouts in _ds/ui_kits/marketing/ set prose on ink. The
+// principles were on ink before the "navy is off the marketing site" call took
+// them off; this puts them back.
+test('hero is mint, principles are the ink anchor, contact is violet, CTA is flare', () => {
   const folds = [...html().matchAll(/data-fold="([a-z]+)"/g)].map((m) => m[1]);
   expect(folds[0]).toBe('mint');
   expect(folds[folds.length - 1]).toBe('flare');
-  expect(folds).toEqual(['mint', 'violet', 'flare']);
+  expect(folds).toEqual(['mint', 'ink', 'violet', 'flare']);
 });
 
 // Rule: never set an absolute ink inside a <Field>, never opacity-mute text
