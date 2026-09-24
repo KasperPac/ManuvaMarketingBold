@@ -1,56 +1,63 @@
 ---
 import Base from '../layouts/Base.astro';
-import Panel from '../components/site/Panel.astro';
-import PriceCards from '../components/site/PriceCards.astro';
-import FeatureMatrix from '../components/site/FeatureMatrix.astro';
-import FaqList from '../components/site/FaqList.astro';
-import Field from '../components/site/Field.astro';
-import TrialStrip from '../components/site/TrialStrip.astro';
-import CtaBand from '../components/site/CtaBand.astro';
+import { APP_URL } from '../site';
 
-// Verbatim from the old page's five FAQ items — llms.txt only carries four of
-// these (it drops "Can I change tiers after signing up?"); the old page has
-// more, and the old page wins per the task brief.
-const FAQS = [
+// Rebuilt on the new design (MVBOLD-17). Motion: none — the handoff is
+// explicit that nothing pins on pricing. What carries is the full-field hero,
+// display type, the plan cards, the FAQ and the ink comparison.
+//
+// Every figure is this repo's latest: AUD, and a 30-day trial. The handoff
+// still says 14 days and USD; where the two disagree on fact the repo wins,
+// and /terms section 4 is the authority on currency.
+
+const PLANS = [
   {
-    q: 'What counts as a warehouse location?',
-    a: "A location is any physical place you store components or finished goods — a warehouse, a storage room, a third-party facility. Bin/aisle areas within a single location don't count as additional locations.",
+    name: 'Starter', annual: '$99', monthly: '$119', badge: null,
+    limit: '1 location · 3 users',
+    note: 'Billed $1,188/yr', monthlyNote: 'Billed $119/mo',
+    feats: ['Inventory management', 'Basic BOM builder', 'Production orders', 'Purchase orders + suppliers', 'Stocktake', 'Email support'],
   },
   {
-    q: 'What do I get during the free trial?',
-    a: 'Full Pro-level access for 30 days — no credit card required. At the end of the trial, your account downgrades to the tier you selected at sign-up. You can add a card and upgrade at any time during or after the trial.',
+    name: 'Growth', annual: '$249', monthly: '$299', badge: 'Most popular',
+    limit: '5 locations · unlimited users',
+    note: 'Billed $2,988/yr', monthlyNote: 'Billed $299/mo',
+    feats: ['Everything in Starter', 'Multi-location + bin locations', 'Advanced BOM (yield %, versions)', 'Costing module', 'Reports suite'],
   },
   {
-    q: 'Can I change tiers after signing up?',
-    a: 'Yes — you can upgrade or downgrade at any time. Upgrades take effect immediately. Downgrades take effect at the next billing cycle.',
+    name: 'Pro', annual: '$499', monthly: '$599', badge: null,
+    limit: 'Unlimited locations · unlimited users',
+    note: 'Billed $5,988/yr', monthlyNote: 'Billed $599/mo',
+    feats: ['Everything in Growth', 'Capacity planning + staffing', 'Financial profitability', 'Advanced reports + PDF/CSV export', 'Priority support (< 4hr)'],
   },
   {
-    q: 'Is pricing per seat or per account?',
-    a: 'Flat per-account pricing — no per-seat fees. Growth and above include unlimited team members.',
-  },
-  {
-    q: 'Do you offer discounts for annual billing?',
-    a: 'Annual billing saves you around 17% compared to paying month-to-month — put another way, paying monthly costs about 20% more. The toggle above shows you both options.',
+    name: 'Enterprise', annual: 'Custom', monthly: 'Custom', badge: null,
+    limit: 'Unlimited · SSO / SAML',
+    note: 'Annual contract · custom onboarding', monthlyNote: 'Annual contract · custom onboarding',
+    feats: ['Everything in Pro', 'Dedicated account manager', 'Custom onboarding + training', 'SSO / advanced security', 'SLA + uptime guarantee'],
   },
 ];
 
-// The old page's own <title>/<meta description>, verbatim — not the reference
-// layout's copy, which invents its own tagline ("Flat pricing. Unlimited
-// users.") for the hero and never states this page's real head values at all.
+const FAQS = [
+  { q: 'What counts as a warehouse location?', a: "A location is any physical place you store components or finished goods — a warehouse, a storage room, a third-party facility. Bin/aisle areas within a single location don't count as additional locations." },
+  { q: 'What do I get during the free trial?', a: 'Full Pro-level access for 30 days — no credit card required. At the end of the trial, your account downgrades to the tier you selected at sign-up. You can add a card and upgrade at any time during or after the trial.' },
+  { q: 'Can I change tiers after signing up?', a: 'Yes — you can upgrade or downgrade at any time. Upgrades take effect immediately. Downgrades take effect at the next billing cycle.' },
+  { q: 'Is pricing per seat or per account?', a: 'Flat per-account pricing — no per-seat fees. Growth and above include unlimited team members.' },
+  { q: 'Do you offer discounts for annual billing?', a: 'Annual billing saves you around 17% compared to paying month-to-month — put another way, paying monthly costs about 20% more. The toggle above shows you both options.' },
+];
+
+const COMPARE: readonly (readonly [string, string, string])[] = [
+  ['Pricing model', 'Flat per account', 'Per user, per month'],
+  ['A 10-person team', '$249/mo', '$490/mo'],
+  ['Yield % per BOM line', 'Included', 'Not offered'],
+  ['BOM versioning & compare', 'Included', 'Not offered'],
+  ['Capacity planning', 'Included on Pro', 'Not offered'],
+];
+
 const description =
   'Simple pricing for manufacturing teams. One price per tier, no per-seat fees, no usage meters. Start free for 30 days.';
-// Old page's own twitter:description — identical to its og:description,
-// both shorter than the meta description above (they drop the trailing
-// "Start free for 14 days." clause). Base.astro's og:description still
-// defaults to the long `description` (unchanged, not part of this fix);
-// this only supplies the Twitter pair, which previously leaked the long
-// description onto this page.
 const twitterDescription =
   'Simple pricing for manufacturing teams. One price per tier, no per-seat fees, no usage meters.';
 
-// The old page's own <script type="application/ld+json"> — a BreadcrumbList
-// plus a FAQPage. The FAQPage is built from FAQS above (not retyped) so the
-// visible <FaqList> and the markup can never drift apart.
 const schema = [
   {
     '@context': 'https://schema.org',
@@ -71,135 +78,120 @@ const schema = [
   },
 ];
 ---
-<Base title="Pricing — Manuva" description={description} twitterDescription={twitterDescription} canonical="https://manuva.app/pricing" {schema}>
-  {/* 1 · cobalt hero panel, inset on paper (was ink; navy came off the
-      marketing site). Layout comes from the shared page-hero contract. */}
-  <section class="site-hero site-pricing-hero">
-    <div class="mv-wrap">
-      <Panel field="cobalt" data-fold="cobalt" class="site-pricing-hero-panel">
-        {/* old page's own eyebrow is a <div>, not a <span> — that's what isolates
-            "Pricing" as its own short fragment on the old page (a boundary
-            div followed by the h1), so this keeps the same tag, not the mv-eyebrow
-            span pattern the home hero used for a differently-shaped old eyebrow. */}
-        <div class="mv-eyebrow site-pricing-hero-eyebrow">Pricing</div>
-        <h1 class="mv-display site-pricing-hero-title">Simple pricing for manufacturing teams</h1>
-        <p class="site-pricing-hero-sub">
-          One price per tier. No per-seat fees. No usage meters. Start free for 30 days — no credit card required.
-        </p>
-{/* This was <span>s inside an aria-hidden div with no script anywhere — a
-            picture of a control. It looked interactive, invited a click and did
-            nothing, and screen readers skipped it entirely. Now real buttons.
+<Base
+  title="Pricing — Manuva"
+  description={description}
+  twitterDescription={twitterDescription}
+  canonical="https://manuva.app/pricing"
+  current="/pricing"
+  headInk="light"
+  {schema}
+>
+  <section class="hero mv-field-cobalt">
+    <span class="eyebrow" style="opacity:.75">Pricing</span>
+    <h1 class="disp">One price. <span class="hl">Unlimited users.</span></h1>
+    <p class="sub" style="opacity:.88">
+      One price per tier. No per-seat fees. No usage meters. Start free for 30 days — no credit card required.
+    </p>
+    <div class="toggle" role="group" aria-label="Billing period">
+      <button type="button" data-billing="annual" aria-pressed="true">Annual<small>Save 17%</small></button>
+      <button type="button" data-billing="monthly" aria-pressed="false">Monthly</button>
+    </div>
+  </section>
 
-            Old page's two toggle <button>s sit inside one wrapping div with no
-            boundary tag between them, so their text joins into one "Annual
-            Monthly" run (real whitespace from the old file's own indentation) —
-            the explicit {' '} reproduces that, since Astro drops the
-            whitespace-only text node a raw space would leave. Buttons are not
-            boundary tags either, so the join survives the change from spans.
-
-            aria-pressed rather than a radiogroup: two mutually exclusive
-            buttons where the pressed one is the current state is the simpler
-            pattern, and it needs no roving tabindex. */}
-        <div class="site-pricing-toggle">
-          <div class="site-pricing-toggle-pill" role="group" aria-label="Billing period">
-            <button type="button" class="site-pricing-toggle-btn site-pricing-toggle-on" data-billing="annual" aria-pressed="true">Annual</button>{' '}
-            <button type="button" class="site-pricing-toggle-btn" data-billing="monthly" aria-pressed="false">Monthly</button>
+  <div class="mv-field-cobalt">
+    <div class="plans">
+      {/* mv-field-paper, not a bare background. These cards sit inside the
+          cobalt band, so they inherit --on-cobalt (white) — a card with a white
+          background and no paired ink rendered white on white. A field class
+          always sets both halves, which is the rule the whole system runs on. */}
+      {PLANS.map((p) => (
+        <div class={p.badge ? 'plan mv-field-ink' : 'plan mv-field-paper'}>
+          <div class="name">
+            <b>{p.name}</b>
+            {p.badge && <span class="badge">{p.badge}</span>}
           </div>
-          <span class="site-pricing-save">Save ~17%</span>
+          <div>
+            <div class="price">
+              <span class="num" data-annual={p.annual} data-monthly={p.monthly}>{p.annual}</span>
+              {p.annual !== 'Custom' && <span class="per">/mo</span>}
+            </div>
+            <p class="note" data-annual={p.note} data-monthly={p.monthlyNote}>{p.note}</p>
+          </div>
+          <span class="limit">{p.limit}</span>
+          <a class={p.badge ? 'pill' : 'pill ink'} href={p.name === 'Enterprise' ? '/about#contact' : APP_URL}>
+            {p.name === 'Enterprise' ? 'Contact sales' : 'Start free'}
+          </a>
+          <ul>{p.feats.map((f) => <li>{f}</li>)}</ul>
         </div>
-      </Panel>
+      ))}
+    </div>
+  </div>
+
+  <section class="sec">
+    <h2 class="disp">Frequently asked.</h2>
+    <div class="faq">
+      {FAQS.map((f) => (
+        <details>
+          <summary>{f.q}</summary>
+          <p>{f.a}</p>
+        </details>
+      ))}
+    </div>
+    <p class="sub" style="max-width:68ch;font-size:15px;opacity:.7">
+      All prices are in Australian Dollars (AUD); GST is included for Australian customers.
+      Monthly pricing: Starter $119, Growth $299, Pro $599.
+    </p>
+  </section>
+
+  <section class="sec mv-field-ink">
+    <div class="split">
+      <div class="stick" style="display:grid;gap:20px">
+        <span class="eyebrow" style="color:var(--field-amber)">Versus per-seat MRP</span>
+        <h2 class="disp">Your team growing shouldn't cost more.</h2>
+        <p class="sub" style="opacity:.75">
+          Tools that charge per user punish you for putting Manuva on the floor. Growth and Pro include unlimited team members at a flat rate.
+        </p>
+      </div>
+      <div class="ctable">
+        <div class="r h">
+          <span></span>
+          <span class="eyebrow" style="color:var(--field-lime)">Manuva</span>
+          <span class="eyebrow" style="opacity:.5">Per-seat MRP</span>
+        </div>
+        {COMPARE.map(([k, us, them]) => (
+          <div class="r">
+            <span class="k">{k}</span>
+            <span class="us">{us}</span>
+            <span class="them">{them}</span>
+          </div>
+        ))}
+      </div>
     </div>
   </section>
 
-  {/* 2 · paper plan cards — data, never a field behind it */}
-  <section class="mv-section site-plans">
-    <div class="mv-wrap">
-      <PriceCards />
+  <section class="outro mv-field-lime">
+    <p class="disp">Start free. Decide later.</p>
+    <p class="sub">30 days of full Pro access. No credit card required.</p>
+    <div class="row">
+      <a class="pill ink" href={APP_URL}>Start free</a>
+      <a class="pill ghost" href="/features">See every feature</a>
     </div>
   </section>
-
-  {/* 3 · the accent, and a beat between four pale cards and a 43-row table.
-      This is PriceCards' own "All plans include…" line, verbatim, promoted
-      out of .mv-wrap so it can run full-bleed. */}
-  <TrialStrip items={['All plans include a 30-day free trial · No credit card required']} />
-
-  {/* 4 · paper matrix — data, never a field behind it */}
-  <section class="mv-section site-matrix-section">
-    <div class="mv-wrap">
-      <FeatureMatrix />
-    </div>
-  </section>
-
-  {/* 5 · mint FAQ. The page ran cobalt hero → paper → paper → paper → amber
-      CTA: two fields on a long page, both of them chrome. The FAQ is the one
-      block here that can take a field without breaking a loud-layer rule —
-      the plan cards and the 43-row matrix are data, which never gets a colour
-      field behind it. mint, so no two fields on the page share a hue and
-      nothing touches the amber band below (CtaBand's own outer section is
-      paper, so there is always paper between them). */}
-  <Field field="mint" class="site-faq-section">
-    <h2 class="mv-display">Frequently asked questions</h2>
-    <FaqList items={FAQS} />
-  </Field>
-
-  {/* 6 · amber CTA. Heading is a verbatim quote, not an assembled tagline —
-      the old page's own <meta name="description"> sentence (not body copy,
-      but real old-page text all the same): "Simple pricing for manufacturing
-      teams. One price per tier, no per-seat fees, no usage meters. Start
-      free for 30 days." — the middle sentence is the one that fits a CTA.
-      No secondActionHref: pricing.html has no closing cta-section at all
-      (confirmed by reading the raw source, not assumed) — "Start free
-      trial" alone, not a "Book a demo" invented to match every other
-      page's pattern. */}
-  <CtaBand
-    field="amber"
-    heading="One price per tier, no per-seat fees, no usage meters."
-    body="30 days free with full Pro access. No credit card required."
-  />
 </Base>
+
 <script>
-  // Progressive enhancement. The server renders the annual figures — the old
-  // page's own default toggle state, and what the copy-parity gate compares
-  // against — so with this script absent the page is still correct, just not
-  // switchable. Every value it needs is already in the DOM as a data attribute;
-  // nothing is fetched and nothing re-renders.
-  const toggle = document.querySelector<HTMLElement>('.site-pricing-toggle');
+  // Progressive enhancement. The annual figures render server-side, so with
+  // this script absent the page is still correct, just not switchable.
+  const toggle = document.querySelector<HTMLElement>('.toggle');
   if (toggle) {
     const buttons = [...toggle.querySelectorAll<HTMLButtonElement>('[data-billing]')];
-    const save = toggle.querySelector<HTMLElement>('.site-pricing-save');
-
     const apply = (mode: string) => {
-      for (const b of buttons) {
-        const on = b.dataset.billing === mode;
-        b.classList.toggle('site-pricing-toggle-on', on);
-        b.setAttribute('aria-pressed', String(on));
-      }
-      document.querySelectorAll<HTMLElement>('[data-price-annual]').forEach((el) => {
-        el.textContent = mode === 'monthly' ? el.dataset.priceMonthly! : el.dataset.priceAnnual!;
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.billing === mode)));
+      document.querySelectorAll<HTMLElement>('[data-annual]').forEach((el) => {
+        el.textContent = mode === 'monthly' ? el.dataset.monthly! : el.dataset.annual!;
       });
-      document.querySelectorAll<HTMLElement>('[data-note-annual]').forEach((el) => {
-        el.textContent = mode === 'monthly' ? el.dataset.noteMonthly! : el.dataset.noteAnnual!;
-      });
-      // "or $119/mo billed monthly" is the alternative to whatever is showing,
-      // so it is only true while annual is selected. Left visible on monthly it
-      // would sit directly under a monthly price contradicting it.
-      //
-      // A class toggling `visibility: hidden`, not the `hidden` attribute:
-      // `hidden` removes the box, so every card's CTA and feature list jumped
-      // up ~43px on each toggle. visibility keeps the row reserved, which is
-      // the same mechanism that now holds the Enterprise card in line with
-      // the other three (see .site-plan-monthly).
-      document.querySelectorAll<HTMLElement>('.site-plan-monthly').forEach((el) => {
-        el.classList.toggle('is-muted', mode === 'monthly');
-      });
-      // The saving is the reason to pick annual; it is not a claim about the
-      // monthly price.
-      if (save) save.hidden = mode === 'monthly';
     };
-
-    for (const b of buttons) {
-      b.addEventListener('click', () => apply(b.dataset.billing!));
-    }
+    buttons.forEach((b) => b.addEventListener('click', () => apply(b.dataset.billing!)));
   }
 </script>
-

@@ -1,0 +1,31 @@
+---
+import Logo from '../ds/Logo.astro';
+import { FOOTER_GROUPS, CONTACT_EMAIL } from '../../site';
+const year = new Date().getFullYear();
+
+// Ink footer ending on the full-width lockup, per the design. The column
+// groups come from site.ts so the footer and the nav cannot drift apart.
+//
+// <nav> per group with its heading as the accessible name: the groups were
+// bare divs headed by spans before, which gave the footer no landmark and no
+// heading structure. Kept from the previous build.
+---
+<footer class="site-foot">
+  <div class="cols">
+    {FOOTER_GROUPS.map((g) => (
+      <nav aria-labelledby={`foot-${g.heading.toLowerCase()}`}>
+        <h2 class="eyebrow" id={`foot-${g.heading.toLowerCase()}`}>{g.heading}</h2>
+        {g.links.map((l) => <a href={l.href}>{l.label}</a>)}
+      </nav>
+    ))}
+    <nav aria-labelledby="foot-talk">
+      <h2 class="eyebrow" id="foot-talk">Talk to us</h2>
+      <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+    </nav>
+  </div>
+  <span class="logo-big" role="img" aria-label="Manuva"><Logo variant="lockup" fill decorative /></span>
+  <div class="legal">
+    <span>&copy; {year} Pac Technologies Pty Ltd</span>
+    <span>Manufacturing operations, finally simple.</span>
+  </div>
+</footer>

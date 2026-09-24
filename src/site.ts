@@ -6,23 +6,50 @@ export const FIELDS = [
 ] as const;
 export type FieldName = (typeof FIELDS)[number];
 
-// The ten feature areas, for the Features mega menu. Labels and ids mirror
-// features.astro's own DOMAIN_SECTIONS — the "· Pro" tier suffixes are dropped
-// because a nav label is not the place for tier badging, but the ids must match
-// exactly or the links land nowhere. Drift is caught automatically: the e2e
-// suite already asserts every "/route#id" anchor on every page resolves to a
-// real id on its target, and the nav renders on all ten routes.
-export const FEATURE_LINKS = [
-  { href: '/features#boms', label: 'BOMs & Manufacturing' },
-  { href: '/features#orders', label: 'Orders & Fulfilment' },
-  { href: '/features#inventory', label: 'Inventory' },
-  { href: '/features#purchasing', label: 'Purchasing & Suppliers' },
-  { href: '/features#production-planning', label: 'Production Planning' },
-  { href: '/features#capacity', label: 'Capacity & Team' },
-  { href: '/features#costing', label: 'Costing & Profitability' },
-  { href: '/features#reports', label: 'Reports & Analytics' },
-  { href: '/features#shopify', label: 'Shopify & Platform' },
+// The six domains. This is the new design's own model, and it replaces the
+// nine sections the previous build carried — the handoff groups the product
+// into Inventory, Purchasing, Production, Sales, Planning and Reporting, and
+// the home page's pinned stage is one panel per domain.
+//
+// Our nine sections condense into it without losing anything:
+//   Inventory   <- inventory
+//   Purchasing  <- purchasing
+//   Production  <- BOMs & manufacturing
+//   Sales       <- orders & fulfilment + Shopify & platform
+//   Planning    <- production planning + capacity & team
+//   Reporting   <- costing & profitability + reports & analytics
+//
+// `line` is the panel's one-line promise, verbatim from the reference. `field`
+// is fixed per domain here, not rotated, because the stage clips each panel in
+// over the last and the sequence has to be stable for the shapes to read.
+export const DOMAINS = [
+  { id: 'inventory',  name: 'Inventory',  field: 'cobalt', line: 'Counted once. True everywhere.' },
+  { id: 'purchasing', name: 'Purchasing', field: 'amber',  line: 'Lead times that mean something.' },
+  { id: 'production', name: 'Production', field: 'flare',  line: 'Bills of materials you can actually reuse.' },
+  { id: 'sales',      name: 'Sales',      field: 'mint',   line: 'Every Shopify order, allocated.' },
+  { id: 'planning',   name: 'Planning',   field: 'violet', line: 'Every job on one board.' },
+  { id: 'reporting',  name: 'Reporting',  field: 'aqua',   line: 'The whole floor, in numbers.' },
 ] as const;
+
+export type DomainId = (typeof DOMAINS)[number]['id'];
+
+// The old nine anchors still resolve. /features#boms and the rest were live
+// URLs with inbound links; each one now points at the domain that absorbed it
+// rather than 404-ing on a fragment that no longer exists.
+export const LEGACY_FEATURE_ANCHORS: Record<string, DomainId> = {
+  boms: 'production',
+  orders: 'sales',
+  shopify: 'sales',
+  'production-planning': 'planning',
+  capacity: 'planning',
+  costing: 'reporting',
+  reports: 'reporting',
+};
+
+export const FEATURE_LINKS = DOMAINS.map((d) => ({
+  href: `/features#${d.id}`,
+  label: d.name,
+}));
 
 export const NAV_LINKS = [
   { href: '/features', label: 'Features' },

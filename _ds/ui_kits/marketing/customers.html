@@ -1,15 +1,28 @@
-<!-- @dsCard group="Marketing site" viewport="1440x900" name="Customers page" subtitle="Layout is real; quotes and logos are drop slots marked TODO — no customer content exists in the repo yet." -->
-<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Manuva — Customers</title>
-<link rel="stylesheet" href="../../styles.css">
-<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
-<script src="../../_ds_bundle.js"></script>
-<script src="./image-slot.js"></script>
-<script>window.MV = window.ManuvaDesignSystem_169665;</script>
-<style>body{margin:0}a{color:var(--brand-2)}a:hover{color:var(--brand-dark)}</style>
-</head><body><div id="root"></div>
-<script type="text/babel" src="Customers.jsx"></script>
-<script type="text/babel" data-presets="react">
-ReactDOM.createRoot(document.getElementById("root")).render(<Customers/>);
-</script></body></html>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Customers — Manuva</title>
+<link rel="stylesheet" href="../../styles.css"><link rel="stylesheet" href="site.css"><script src="image-slot.js"></script>
+<style>
+.logos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.logos div{aspect-ratio:3/2;position:relative}
+.story{display:grid;border-radius:28px;overflow:hidden}
+.story .ph{position:relative;aspect-ratio:4/3}
+.story .body{padding:28px 24px;display:grid;gap:28px}
+.story blockquote{margin:0;display:grid;gap:18px}
+.story blockquote p{margin:0;font-family:var(--font-display);font-variation-settings:"wdth" 106,"wght" 800;font-size:26px;line-height:1.12;letter-spacing:-.025em;text-wrap:balance}
+.story .metric{display:flex;align-items:baseline;gap:12px;border-top:2px solid color-mix(in srgb,currentColor 24%,transparent);padding-top:18px}
+.story .metric .num{font-size:64px}
+.stories{display:grid;gap:12px}
+@media(min-width:721px){.logos{grid-template-columns:repeat(3,minmax(0,1fr))}.story{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.story .ph{aspect-ratio:auto;min-height:420px}.story:nth-child(even) .ph{order:2}.story .body{padding:48px}.story blockquote p{font-size:32px}}
+@media(min-width:1100px){.logos{grid-template-columns:repeat(6,minmax(0,1fr))}}
+</style>
+</head><body data-page="customers">
+<section class="hero mv-field-ink"><span class="ghostnum num" aria-hidden="true">ANZ</span><span class="eyebrow" style="color:var(--field-lime)">Customers</span><h1 class="disp">People who <span class="hl">make things.</span></h1><p class="sub" style="opacity:.8">Shopify-first manufacturers running real production on Manuva — apparel, skincare, food, furniture.</p></section>
+<section class="sec mv-field-ink" style="padding-top:8px;gap:20px"><span class="eyebrow" style="opacity:.6"><span class="todo">Needs real logos</span>Trusted by manufacturers across ANZ</span><div class="logos"><div><image-slot id="cust-logo-1" shape="rounded" radius="12" fit="contain" placeholder="Customer logo"></image-slot></div><div><image-slot id="cust-logo-2" shape="rounded" radius="12" fit="contain" placeholder="Customer logo"></image-slot></div><div><image-slot id="cust-logo-3" shape="rounded" radius="12" fit="contain" placeholder="Customer logo"></image-slot></div><div><image-slot id="cust-logo-4" shape="rounded" radius="12" fit="contain" placeholder="Customer logo"></image-slot></div><div><image-slot id="cust-logo-5" shape="rounded" radius="12" fit="contain" placeholder="Customer logo"></image-slot></div><div><image-slot id="cust-logo-6" shape="rounded" radius="12" fit="contain" placeholder="Customer logo"></image-slot></div></div></section>
+<section class="mv-field-cobalt" aria-labelledby="h-sectors"><div class="intro" data-from="ink" data-shape="0"><div class="ipin"><div class="cut mv-field-cobalt"><span class="pnum num" data-rate="30" aria-hidden="true">06</span><span class="eyebrow" data-rate="70" style="opacity:.8">Who it's for</span><h2 class="disp" id="h-sectors" data-rate="50">Physical things.</h2><p class="pline" data-rate="90">Built for people who make them.</p></div></div></div>
+<div class="wrap" style="padding-bottom:96px"><ul class="nlist two three"><li><span class="i">01</span><h3>Apparel & textiles</h3><p>Cut, sew and finish — with yield on every fabric line.</p></li><li><span class="i">02</span><h3>Skincare & cosmetics</h3><p>Batch recipes, versioned when a formula changes.</p></li><li><span class="i">03</span><h3>Food & beverage</h3><p>Ingredients, packaging and builds counted in one place.</p></li><li><span class="i">04</span><h3>Furniture & homewares</h3><p>Multi-level BOMs for things with a lot of parts.</p></li><li><span class="i">05</span><h3>Hardware & tools</h3><p>Components, sub-assemblies and suppliers, all linked.</p></li><li><span class="i">06</span><h3>Contract manufacturing</h3><p>Every job costed, every PO traced to the order it served.</p></li></ul></div></section>
+<section class="sec"><h2 class="disp">Their words.</h2><div class="stories">
+<article class="story mv-field-violet"><div class="ph"><image-slot id="cust-1" fit="cover" placeholder="Photo — the floor, the product, the people"></image-slot></div><div class="body"><span class="eyebrow" style="opacity:.75">Apparel · Melbourne</span><blockquote><p><span class="todo">Placeholder</span>“One sentence on what changed, in the operator's own words.”</p><footer style="opacity:.8">Name, Role</footer></blockquote><div class="metric"><span class="num">—</span><span class="eyebrow" style="opacity:.75">Stat worth quoting</span></div></div></article>
+<article class="story mv-field-amber"><div class="ph"><image-slot id="cust-2" fit="cover" placeholder="Photo — the floor, the product, the people"></image-slot></div><div class="body"><span class="eyebrow" style="opacity:.75">Skincare · Auckland</span><blockquote><p><span class="todo">Placeholder</span>“A single concrete claim, not a testimonial cliché.”</p><footer style="opacity:.8">Name, Role</footer></blockquote><div class="metric"><span class="num">—</span><span class="eyebrow" style="opacity:.75">Stat worth quoting</span></div></div></article>
+<article class="story mv-field-mint"><div class="ph"><image-slot id="cust-3" fit="cover" placeholder="Photo — the floor, the product, the people"></image-slot></div><div class="body"><span class="eyebrow" style="opacity:.75">Furniture · Brisbane</span><blockquote><p><span class="todo">Placeholder</span>“Put your strongest story first.”</p><footer style="opacity:.8">Name, Role</footer></blockquote><div class="metric"><span class="num">—</span><span class="eyebrow" style="opacity:.75">Stat worth quoting</span></div></div></article>
+</div></section>
+<section class="outro mv-field-lime"><p class="disp">Add your floor to the list.</p><p class="sub">14 days free with full Pro access. No credit card required.</p><div class="row"><a class="pill ink" href="#">Start free</a><a class="pill ghost" href="#">Book a demo</a></div></section>
+<script src="site.js"></script>
+</body></html>

@@ -1,81 +1,70 @@
 ---
-import { NAV_LINKS, FEATURE_LINKS, APP_URL } from '../../site';
+import Logo from '../ds/Logo.astro';
+import { NAV_LINKS, APP_URL } from '../../site';
 
-// The desktop mega menu is hidden below 960px, where this drawer takes over.
-// Without the feature list here the ten feature areas would be desktop-only —
-// a details/summary keeps them one tap away without making the drawer a wall
-// of links, and needs no script of its own.
+export interface Props {
+  current?: string;
+}
+const { current } = Astro.props;
+
+// The full-screen ink drawer: slides down 400ms, Escape closes, body scroll
+// locked while open. The design specifies all three.
+//
+// The focus trap, the scroll-lock gap compensation and the focus restore are
+// carried over from the previous build rather than rewritten — they were
+// covered by four e2e tests that all still apply, and the handoff explicitly
+// says to port the old site's trap rather than rebuild it.
 ---
-<div id="site-drawer" class="site-drawer" hidden>
-  <div class="site-drawer-panel" role="dialog" aria-modal="true" aria-label="Menu">
-    <button type="button" class="site-drawer-close" aria-label="Close menu">&times;</button>
-    <nav aria-label="Mobile">
-      {NAV_LINKS.map((l) =>
-        l.label === 'Features' ? (
-          <details class="site-drawer-group">
-            <summary>{l.label}</summary>
-            <a href={l.href} class="site-drawer-sub">Feature overview</a>
-            {FEATURE_LINKS.map((f) => <a href={f.href} class="site-drawer-sub">{f.label}</a>)}
-          </details>
-        ) : (
-          <a href={l.href}>{l.label}</a>
-        ),
-      )}
-      <a href={APP_URL}>Sign in</a>
-      <a href={APP_URL} class="site-drawer-cta">Start free trial</a>
-    </nav>
-  </div>
+<div id="drawer" aria-hidden="true">
+  <span class="mark dmark" aria-hidden="true"><Logo variant="lockup" fill decorative /></span>
+  <button class="x" type="button" aria-label="Close menu">&times;</button>
+  {NAV_LINKS.map((l) => (
+    <a href={l.href} aria-current={current === l.href ? 'page' : undefined}>{l.label}</a>
+  ))}
+  <a class="small" href={APP_URL}>Sign in</a>
+  <a class="small" href={APP_URL} style="margin-top:0">Start free &rarr;</a>
 </div>
 
 <script>
-  const drawer = document.getElementById('site-drawer');
-  const burger = document.querySelector('.site-burger');
-  const closeBtn = drawer?.querySelector('.site-drawer-close');
-  if (drawer && burger) {
-    const FOCUSABLE = 'a[href], button:not([disabled])';
-    let lastFocused: HTMLElement | null = null;
+  const drawer = document.getElementById('drawer')!;
+  const burger = document.querySelector<HTMLButtonElement>('.burger')!;
+  const closeBtn = drawer.querySelector<HTMLButtonElement>('.x')!;
+  const FOCUSABLE = 'a[href], button:not([disabled])';
+  let lastFocused: HTMLElement | null = null;
 
-    const open = () => {
+  const setOpen = (open: boolean) => {
+    // Measure before locking scroll: once overflow is hidden the scrollbar
+    // disappears and clientWidth grows, so the gap has to be captured first.
+    const gap = open ? window.innerWidth - document.documentElement.clientWidth : 0;
+    drawer.dataset.open = open ? '1' : '';
+    drawer.setAttribute('aria-hidden', String(!open));
+    burger.setAttribute('aria-expanded', String(open));
+    // The label is the button's whole accessible name — the control is three
+    // bars with no text — so it has to track the state too.
+    burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    document.body.style.overflow = open ? 'hidden' : '';
+    document.body.style.paddingRight = open ? `${gap}px` : '';
+    if (open) {
       lastFocused = document.activeElement as HTMLElement;
-      // Measure before locking scroll: once overflow is hidden the scrollbar
-      // disappears and clientWidth grows, so the gap has to be captured first.
-      // 0 on overlay-scrollbar platforms (mobile), so this is safe everywhere.
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-      drawer.hidden = false;
-      document.body.style.overflow = 'hidden';
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
-      burger.setAttribute('aria-expanded', 'true');
-      // The label is the button's whole accessible name (the control is two
-      // bars, no text), so it has to track the state too — aria-expanded
-      // alone left it announcing "Open menu, expanded" while open.
-      burger.setAttribute('aria-label', 'Close menu');
       drawer.querySelector<HTMLElement>(FOCUSABLE)?.focus();
-    };
-
-    const close = () => {
-      drawer.hidden = true;
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
-      burger.setAttribute('aria-expanded', 'false');
-      burger.setAttribute('aria-label', 'Open menu');
+    } else {
       lastFocused?.focus();
-    };
+    }
+  };
 
-    burger.addEventListener('click', open);
-    closeBtn?.addEventListener('click', close);
-    drawer.addEventListener('click', (e) => { if (e.target === drawer) close(); });
+  burger.addEventListener('click', () => setOpen(true));
+  closeBtn.addEventListener('click', () => setOpen(false));
+  drawer.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
 
-    document.addEventListener('keydown', (e) => {
-      if (drawer.hidden) return;
-      if (e.key === 'Escape') { close(); return; }
-      if (e.key !== 'Tab') return;
-
-      const items = [...drawer.querySelectorAll<HTMLElement>(FOCUSABLE)];
-      if (!items.length) return;
-      const first = items[0];
-      const last = items[items.length - 1];
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-    });
-  }
+  document.addEventListener('keydown', (e) => {
+    if (drawer.dataset.open !== '1') return;
+    if (e.key === 'Escape') { setOpen(false); return; }
+    if (e.key !== 'Tab') return;
+    const items = [...drawer.querySelectorAll<HTMLElement>(FOCUSABLE)];
+    if (!items.length) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
 </script>

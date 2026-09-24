@@ -3,8 +3,19 @@ export interface Props {
   variant?: 'lockup' | 'mark' | 'wordmark';
   height?: number;
   class?: string;
+  /** Fill the parent instead of taking a fixed height. The new design sizes
+   * the logo from CSS in two places — `.mark` is 109×24 and `.logo-big` is
+   * width:100% with an aspect-ratio — and the reference inlines the SVG so it
+   * stretches to whatever box it is in. The mask does the same job without
+   * shipping the markup, but it has to be told to fill rather than compute a
+   * width from a height it is not being given. */
+  fill?: boolean;
+  /** Decorative: the label belongs on an ancestor instead. Used where the
+   * logo sits inside a link or a span that already names itself, so the
+   * accessible name is not announced twice. */
+  decorative?: boolean;
 }
-const { variant = 'lockup', height = 28, class: className } = Astro.props;
+const { variant = 'lockup', height = 28, class: className, fill = false, decorative = false } = Astro.props;
 
 const RATIO = {
   lockup: 2189.357 / 482.347,
@@ -13,12 +24,13 @@ const RATIO = {
 } as const;
 
 const src = `/_ds/assets/logo-${variant}.svg`;
-const width = height * RATIO[variant];
+
+const size = fill
+  ? ['display:block', 'width:100%', 'height:100%']
+  : ['display:inline-block', `height:${height}px`, `width:${height * RATIO[variant]}px`];
 
 const style = [
-  'display:inline-block',
-  `height:${height}px`,
-  `width:${width}px`,
+  ...size,
   'background-color:currentColor',
   `-webkit-mask-image:url("${src}")`,
   `mask-image:url("${src}")`,
@@ -26,6 +38,11 @@ const style = [
   'mask-repeat:no-repeat',
   '-webkit-mask-size:contain',
   'mask-size:contain',
+  'mask-position:center',
 ].join(';');
 ---
-<span role="img" aria-label="Manuva" class={className} style={style}></span>
+{decorative ? (
+  <span aria-hidden="true" class={className} style={style}></span>
+) : (
+  <span role="img" aria-label="Manuva" class={className} style={style}></span>
+)}

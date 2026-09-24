@@ -1,0 +1,49 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Features — Manuva</title>
+<link rel="stylesheet" href="../../styles.css"><link rel="stylesheet" href="site.css">
+<style>.index{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 0;padding:0;list-style:none}.index a{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;text-decoration:none;font-weight:700;font-size:15px;box-shadow:inset 0 0 0 2px rgb(255 255 255/.28)}.index a b{font-family:var(--font-numeral);font-variation-settings:"wdth" 78,"wght" 800;opacity:.6}.dom .nlist{padding:8px 20px 96px}@media(min-width:721px){.dom .nlist{padding:16px 32px 120px}}@media(min-width:1100px){.dom .nlist{padding-inline:max(48px,calc((100% - var(--page-max,1240px))/2))}}</style>
+</head><body data-page="features" class="mv-field-ink">
+<section class="hero tall mv-field-ink"><span class="ghostnum num" aria-hidden="true">06</span><span class="eyebrow" style="opacity:.75" id="count"></span><h1 class="disp">Everything <span class="hl">on the floor.</span></h1><p class="sub" style="opacity:.88">Stock, purchasing, builds, orders, planning and reporting — one system, one number everyone trusts.</p><ul class="index" id="index"></ul></section>
+<main id="domains"></main>
+<section class="outro mv-field-lime" data-chips-end><p class="disp">Pick your plan. Keep every number.</p><p class="sub">Connect your Shopify store and have stock counted by this afternoon.</p><div class="row"><a class="pill ink" href="pricing.html">See pricing</a><a class="pill ghost" href="#">Start free</a></div></section>
+<nav id="chips" aria-label="Jump to domain"></nav>
+<script>
+const D=[
+ {id:"inventory",name:"Inventory",field:"cobalt",line:"Counted once. True everywhere.",f:[
+  ["Components","Every stocked unit with its reorder point, cost and where it's used across your BOMs."],
+  ["Stock movements","Post adjustments and transfers. Every balance keeps its trail."],
+  ["Stocktake","Run cycle counts and reconcile what you counted against what the system says."],
+  ["Warehouse locations","Map aisles, bays and bins so every part has an address."],
+  ["Scan","Count and move stock from a phone with the built-in barcode scanner."]]},
+ {id:"purchasing",name:"Purchasing",field:"amber",line:"Lead times that mean something.",f:[
+  ["Purchase orders","Raise POs line by line and follow each one through to receipt."],
+  ["Suppliers","One record per supplier, reused on every purchase order."],
+  ["Goods inwards","Record deliveries and receipt stock straight into inventory."]]},
+ {id:"production",name:"Production",field:"flare",line:"Bills of materials you can actually reuse.",f:[
+  ["Products & variants","Pulled straight from Shopify, with BOM readiness at a glance."],
+  ["BOM editor","Build bills of materials per variant, with full version history."],
+  ["Templates","Reusable component packs you apply across many BOMs at once."],
+  ["Labour routings","Operations and times per variant, from a shared routing template."]]},
+ {id:"sales",name:"Sales",field:"mint",line:"Every Shopify order, allocated.",f:[
+  ["Shopify orders","Orders import from your store automatically."],
+  ["Allocation","Move each order through allocation against real stock."],
+  ["Order costing","Cost and labour planned on every single order."],
+  ["Integrations","Your Shopify connection, managed from one settings page."]]},
+ {id:"planning",name:"Planning",field:"violet",line:"Every job on one board.",tag:"Upgrade plan",f:[
+  ["Production planning","Schedule jobs and manage production across departments."],
+  ["Floor board","Live department queues and job status, on a screen the floor can see."],
+  ["Shop floor","An operator queue for each department — what's next, nothing else."],
+  ["Departments","Work centres, rate schedules and planning anchors."]]},
+ {id:"reporting",name:"Reporting",field:"aqua",line:"The whole floor, in numbers.",f:[
+  ["Dashboard","Inventory, demand and workflow risk on one screen."],
+  ["Reports","Financial rollups, integrity checks and capacity signals."],
+  ["Dead stock","Find the components that haven't moved, and what they're costing you."],
+  ["Activity log","Search every change anyone made, across the workspace."],
+  ["Trash","Recover archived records before they're gone for good."]]}
+];
+const pad=n=>String(n).padStart(2,"0"),total=D.reduce((a,d)=>a+d.f.length,0);
+document.getElementById("count").textContent=`${pad(D.length)} domains · ${total} features`;
+document.getElementById("index").innerHTML=D.map((d,i)=>`<li><a href="#${d.id}" data-jump="${i}"><b>${pad(i+1)}</b>${d.name}</a></li>`).join("");
+document.getElementById("domains").innerHTML=D.map((d,i)=>`<section class="dom mv-field-${d.field}" id="${d.id}" data-chip="${d.name}" data-field="${d.field}" aria-labelledby="h-${d.id}"><div class="intro" data-from="${i?D[i-1].field:"ink"}" data-shape="${i}"><div class="ipin"><div class="cut mv-field-${d.field}"><span class="pnum num" data-rate="30" aria-hidden="true">${pad(i+1)}</span><span class="eyebrow" data-rate="70" style="opacity:.8">${pad(i+1)} / ${pad(D.length)} · ${d.f.length} features</span><h2 class="disp" id="h-${d.id}" data-rate="50">${d.name}</h2><p class="pline" data-rate="90">${d.line}</p>${d.tag?`<span class="tag" data-rate="110">${d.tag}</span>`:""}</div></div></div><ul class="nlist two three">${d.f.map(([t,p],j)=>`<li><span class="i">${pad(i+1)}.${j+1}</span><h3>${t}</h3><p>${p}</p></li>`).join("")}</ul></section>`).join("");
+</script>
+<script src="site.js"></script>
+</body></html>

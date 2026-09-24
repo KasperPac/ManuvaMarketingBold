@@ -1,7 +1,9 @@
 ---
 import '../styles/site.css';
-import Nav from '../components/site/Nav.astro';
-import Footer from '../components/site/Footer.astro';
+import SiteHead from '../components/site/SiteHead.astro';
+import Drawer from '../components/site/Drawer.astro';
+import SiteFoot from '../components/site/SiteFoot.astro';
+import Motion from '../components/site/Motion.astro';
 
 export interface Props {
   title: string;
@@ -26,12 +28,20 @@ export interface Props {
    * page's <head>; pages that don't pass this get no twitter:title/
    * description at all, same as before Task 10 touched this file. */
   twitterDescription?: string;
-  /** JSON-LD nodes. Populated in Task 13; ignored until then. */
+  /** JSON-LD nodes. */
   schema?: Record<string, unknown>[];
+  /** Which NAV_LINKS href is the current page, for aria-current. */
+  current?: string;
+  /** The field the page opens on. The fixed header takes the ink of whatever
+   * is under it at runtime, but it has to start correct for the first paint
+   * — otherwise every page flashes white-on-white or black-on-black before
+   * the first scroll frame runs. */
+  headInk?: 'light' | 'dark';
 }
 const {
   title, description, canonical, ogImage = '/og-image.png',
   ogDescription = description, ogType = 'website', twitterDescription, schema,
+  current, headInk = 'light',
 } = Astro.props;
 
 // The ten token files are concatenated into /_ds/tokens.css by
@@ -50,7 +60,10 @@ const ogImageUrl = Astro.site ? new URL(ogImage, Astro.site) : ogImage;
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {/* viewport-fit=cover: the chip bar sits on env(safe-area-inset-bottom)
+        and the hero is sized in svh, both of which need the viewport to run
+        under the notch rather than stop at it. */}
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
@@ -94,10 +107,12 @@ const ogImageUrl = Astro.site ? new URL(ogImage, Astro.site) : ogImage;
       <script type="application/ld+json" set:html={JSON.stringify(schema)} />
     )}
   </head>
-  <body>
+  <body data-head-ink={headInk}>
     <a class="skip" href="#main">Skip to content</a>
-    <Nav />
+    <Drawer {current} />
+    <SiteHead {current} />
     <main id="main"><slot /></main>
-    <Footer />
+    <SiteFoot />
+    <Motion />
   </body>
 </html>
