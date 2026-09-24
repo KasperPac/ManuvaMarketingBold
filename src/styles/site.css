@@ -103,9 +103,13 @@ body { background: var(--field-paper); color: var(--ink-strong); }
    so each value moves to the real light-surface token it should have been.
    The logo needs no change — Logo.astro masks `currentColor`, so it follows
    whatever ink is in scope and inverts for free. */
-.site-footer { background: var(--field-paper); color: var(--on-paper); border-top: 1px solid var(--stroke); }
-.site-footer-brand { display: grid; gap: var(--space-5); align-content: start; color: var(--ink-strong); }
-.site-footer-brand p { margin: 0; max-width: 28ch; color: var(--ink-muted); }
+/* VARIANT A — --field-ink as the site's dark anchor, which is what all three
+   reference layouts in _ds/ui_kits/marketing/ do (Landing, Alternative and
+   Pricing all end on an ink footer). Every page previously faded out into
+   paper with no bottom edge. White on ink is 13.3:1. */
+.site-footer { background: var(--field-ink); color: var(--on-ink); border-top: 0; }
+.site-footer-brand { display: grid; gap: var(--space-5); align-content: start; color: var(--on-ink); }
+.site-footer-brand p { margin: 0; max-width: 28ch; color: rgb(255 255 255 / .70); }
 .site-footer-col { display: grid; gap: var(--space-3); align-content: start; }
 /* was --field-amber, which was legible on navy and is 1.9:1 on paper — a field
    used as small text, which the loud-layer rules forbid outright ("never use a
@@ -113,13 +117,14 @@ body { background: var(--field-paper); color: var(--ink-strong); }
    value for exactly this: cobalt as text. */
 /* h2 now, not a span (see Footer.astro) — reset the UA heading margins so the
    grid `gap` stays the only spacing in play and the column looks unchanged. */
-.site-footer-col .mv-eyebrow { color: var(--brand-2); margin: 0; }
-.site-footer a { color: var(--ink-muted); text-decoration: none; }
-.site-footer a:hover { color: var(--ink-strong); }
-.site-footer-base { border-top: 1px solid var(--stroke); }
+/* VARIANT A — lime on ink is 11.28:1; --brand-2 on ink is 1.65:1. */
+.site-footer-col .mv-eyebrow { color: var(--field-lime); margin: 0; }
+.site-footer a { color: rgb(255 255 255 / .74); text-decoration: none; }
+.site-footer a:hover { color: #fff; }
+.site-footer-base { border-top: 1px solid rgb(255 255 255 / .16); }
 .site-footer-base .mv-wrap {
   display: flex; justify-content: space-between;
-  padding-block: var(--space-5); font-size: var(--fs-xs); color: var(--ink-muted);
+  padding-block: var(--space-5); font-size: var(--fs-xs); color: rgb(255 255 255 / .70);
 }
 @media (max-width: 720px) {
   .site-footer-grid { grid-template-columns: 1fr 1fr; }
@@ -594,6 +599,23 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
    rather than relying on the global. */
 .site-compare-foot a { font-weight: var(--fw-semibold); color: var(--brand-2); }
 .site-compare-caption { display: inline-block; margin-top: var(--space-2); font-size: var(--fs-sm); color: var(--ink-muted); }
+/* VARIANT A — this block moved onto an ink Field. Every colour above was
+   written for paper: axe measured --ink-muted on ink at 1.91:1 and --brand-2
+   at 1.65:1. Same rule the project already settled on for the contact block
+   on violet — inherit the field's own paired ink rather than pick new
+   absolutes per field. */
+[data-fold] .site-compare-intro,
+[data-fold] .site-compare-row > div,
+[data-fold] .site-compare-row .site-compare-feat,
+[data-fold] .site-compare-row-head > div,
+[data-fold] .site-compare-foot,
+[data-fold] .site-compare-caption { color: inherit; }
+[data-fold] .site-compare-manuva { color: inherit !important; background: rgb(255 255 255 / .10); }
+[data-fold] .site-compare-table { background: rgb(255 255 255 / .04); border-color: rgb(255 255 255 / .16); }
+[data-fold] .site-compare-row + .site-compare-row,
+[data-fold] .site-compare-table > [role='rowgroup'] + [role='rowgroup'] > .site-compare-row:first-child { border-top-color: rgb(255 255 255 / .16); }
+/* lime, not --brand-2: cobalt-on-navy is 1.65:1. Lime on ink is 11.28:1. */
+[data-fold] .site-compare-foot a { color: var(--field-lime); }
 
 @media (max-width: 720px) {
   .site-compare-row { grid-template-columns: 1.3fr repeat(4, minmax(0, 1fr)); }
@@ -729,7 +751,20 @@ main > section:not([data-fold]) + section:not([data-fold]) { border-top: 1px sol
   position: relative; background: var(--bg-card); border: 1px solid var(--stroke-card); border-radius: var(--radius-lg);
   padding: var(--space-8) var(--space-6); display: grid; align-content: start; gap: var(--space-1);
 }
-.site-plan-featured { border-color: var(--brand-1); border-width: 2px; box-shadow: var(--shadow-lg); }
+/* VARIANT A — reference Pricing.jsx makes the popular card --field-ink with
+   a lime badge and a lime CTA. Ours was a white card with a blue border, so
+   the tier we most want chosen looked the same as the two either side. */
+.site-plan-featured { background: var(--field-ink); color: var(--on-ink); border-color: var(--field-ink); border-width: 2px; box-shadow: var(--shadow-lg); }
+.site-plan-featured .site-plan-tagline,
+.site-plan-featured .site-plan-note,
+.site-plan-featured .site-plan-monthly,
+.site-plan-featured .site-plan-price-per,
+.site-plan-featured .site-plan-feats li { color: rgb(255 255 255 / .78); }
+.site-plan-featured .site-plan-name { color: #fff; }
+.site-plan-featured .site-plan-divider { border-top-color: rgb(255 255 255 / .18); }
+.site-plan-featured .site-plan-chip { background: rgb(255 255 255 / .12); color: #fff; }
+.site-plan-featured .site-plan-chip-ok { background: rgb(200 255 46 / .18); color: var(--field-lime); }
+.site-plan-featured .site-plan-feats li svg { color: var(--field-lime); }
 .site-plan-enterprise { background: var(--brand-dim); }
 .site-plan-badge {
   position: absolute; top: calc(var(--space-3) * -1); left: 50%; transform: translateX(-50%);
@@ -1804,6 +1839,12 @@ iframe.site-video-el {
 .site-onboarding .mv-eyebrow,
 .site-sectors .mv-eyebrow,
 .site-compare .mv-eyebrow { color: var(--brand-2); }
+/* VARIANT A — --brand-2 on ink is 1.65:1. These three eyebrows are the last
+   paper-era absolutes that can now land on a field. */
+[data-fold] .site-onboarding .mv-eyebrow,
+[data-fold] .site-sectors .mv-eyebrow,
+[data-fold].site-compare .mv-eyebrow,
+[data-fold] .site-compare .mv-eyebrow { color: var(--field-lime); }
 
 /* `hidden` has to actually hide. The UA rule is `[hidden] { display: none }`,
    which any class-level `display` outranks — .site-pricing-save is

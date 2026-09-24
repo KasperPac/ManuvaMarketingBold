@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Panel from '../../components/site/Panel.astro';
+import Field from '../../components/site/Field.astro';
 import Icon from '../../components/ds/Icon.astro';
 import CtaBand from '../../components/site/CtaBand.astro';
 
@@ -108,8 +109,8 @@ const schema = [
   {/* The home page's former #compare section, verbatim. Paper, not a field:
       it is a data table, and "never a colour field behind a data table" is the
       rule that took it off ink on the home page in the first place. */}
-  <section class="mv-section site-compare" id="compare">
-    <div class="mv-wrap">
+  <Field field="ink" class="site-compare" id="compare">
+    <div>
     <span class="mv-eyebrow">Why Manuva</span>{' '}
     <h2 class="mv-display site-section-title">Built for the floor, not for the demo</h2>
     <p class="site-compare-intro">
@@ -161,7 +162,7 @@ const schema = [
       <span class="site-compare-caption">Competitor data based on publicly available information, last checked May 2026. Check each vendor's current site before you decide.</span>
     </p>
     </div>
-  </section>
+  </Field>
 
   <CtaBand
     field="flare"
