@@ -2,6 +2,7 @@
 import Base from './Base.astro';
 import Panel from '../components/site/Panel.astro';
 import FaqList from '../components/site/FaqList.astro';
+import Field from '../components/site/Field.astro';
 import CtaBand from '../components/site/CtaBand.astro';
 import TrialStrip from '../components/site/TrialStrip.astro';
 import type { FieldName } from '../site';
@@ -74,13 +75,19 @@ const {
     <div class="mv-wrap"><slot name="comparison" /></div>
   </section>
 
-  <section class="mv-section site-alt-faq-section">
-    <div class="mv-wrap">
-      <span class="mv-eyebrow">FAQ</span>{' '}
-      <h2 class="mv-display">{faqHeading}</h2>
-      <FaqList items={faqs} />
-    </div>
-  </section>
+  {/* The ink anchor. These two pages ran from the lime strip to the closing
+      CTA — about 74% of their height — with no field at all, which made them
+      the flattest pages on the site once everything else had one. The FAQ is
+      the right block to carry it: short question-and-answer pairs, not a
+      table and not long-form prose, so none of the loud-layer rules object.
+      Reference Alternative.jsx also puts its second ink band late on the
+      page. Neighbours are the comparison section and the related links,
+      both paper, so no two fields touch. */}
+  <Field field="ink" class="site-alt-faq-section">
+    <span class="mv-eyebrow">FAQ</span>{' '}
+    <h2 class="mv-display">{faqHeading}</h2>
+    <FaqList items={faqs} />
+  </Field>
 
   {/* mv-display, like every other section h2 on this page. Without it this
       heading inherited a 12px uppercase micro-label treatment — an <h2> set
