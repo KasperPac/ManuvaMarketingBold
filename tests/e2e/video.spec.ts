@@ -27,7 +27,7 @@ async function hitTests(locator: Locator, page: Page, matchClass: string) {
 
 test('the explainer caption and play button are both actually hit-testable in the default, unplayed state', async ({ page }) => {
   await page.goto('/');
-  const figure = page.locator('.site-explainer .site-video');
+  const figure = page.locator('.sec .site-video');
   await figure.scrollIntoViewIfNeeded();
 
   const captionHit = await hitTests(figure.locator('.site-video-caption'), page, 'site-video-caption');

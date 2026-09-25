@@ -44,7 +44,11 @@ test('every footer link points at a route that exists', async () => {
   const internal = hrefsIn(await renderFooter()).filter((h) => h.startsWith('/'));
   expect(internal.length, 'footer rendered no internal links to check').toBeGreaterThan(0);
   for (const href of internal) {
-    expect(ALL_ROUTES, `${href} is not a real route`).toContain(href);
+    // Same treatment as the nav check above: a fragment is not a different
+    // route. The footer's feature column links to /features#<domain>, and the
+    // anchors themselves are covered by the cross-page anchor test.
+    const route = href.split('#')[0];
+    expect(ALL_ROUTES, `${href} is not a real route`).toContain(route);
   }
 });
 

@@ -160,7 +160,7 @@ test('pricing/katana/mrpeasy FAQPage mainEntity matches the FAQ items actually r
   for (const route of ['/pricing', '/alternatives/katana', '/alternatives/mrpeasy'] as const) {
     const html = readFileSync(file(route), 'utf8');
     const $ = load(html);
-    const visibleQuestions = $('.site-faq-q, .site-alt-faq-section .site-faq-q').map((_, el) => $(el).text().trim()).get();
+    const visibleQuestions = $('.faq details summary').map((_, el) => $(el).text().trim()).get();
     const nodes = schemaNodes(html);
     const faq = nodes.find((n) => n['@type'] === 'FAQPage') as
       | { mainEntity: { name: string; acceptedAnswer: { text: string } }[] }

@@ -1,0 +1,33 @@
+---
+import Logo from '../ds/Logo.astro';
+import { NAV_LINKS, APP_URL } from '../../site';
+
+export interface Props {
+  /** Matches NAV_LINKS href, so the current item can carry aria-current. */
+  current?: string;
+}
+const { current } = Astro.props;
+
+// Server-rendered, not injected. The reference builds the header, drawer and
+// footer with document.body.insertAdjacentHTML in site.js — fine for a design
+// prototype, wrong for a site that has to be crawlable and has to work with
+// JavaScript off. The handoff calls this out as prototype shortcut #1 and says
+// to make it real markup in a shared layout, which is what this is.
+//
+// The drawer's focus trap is likewise ported rather than reinvented; see
+// Drawer.astro.
+---
+<header class="site-head">
+  <div class="bar">
+    <a href="/" class="mark" aria-label="Manuva home"><Logo variant="lockup" fill decorative /></a>
+    <nav class="links" aria-label="Primary">
+      {NAV_LINKS.map((l) => (
+        <a href={l.href} aria-current={current === l.href ? 'page' : undefined}>{l.label}</a>
+      ))}
+      <a href={APP_URL} style="margin-left:auto">Sign in</a>
+    </nav>
+    <button class="burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
+      <i></i>
+    </button>
+  </div>
+</header>

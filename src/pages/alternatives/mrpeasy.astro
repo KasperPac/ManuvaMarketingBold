@@ -1,49 +1,40 @@
 ---
-import Alternative from '../../layouts/Alternative.astro';
-import TrialStrip from '../../components/site/TrialStrip.astro';
+import Compare from '../../layouts/Compare.astro';
 
-// Verbatim from the old page's own <head>.
-const description =
-  'MRPeasy alternative built around flat-rate pricing, native Shopify webhook sync, and BOM versioning. See how Manuva compares — 30-day free trial.';
-// Old page's own og:description — shorter than the meta description above
-// (drops the trailing "14-day free trial").
-const ogDescription =
-  'MRPeasy alternative built around flat-rate pricing, native Shopify webhook sync, and BOM versioning. See how Manuva compares.';
-// Old page's own twitter:description — shorter again, drops "See how Manuva
-// compares." too. NOT the same value as ogDescription (Task 14, team-lead
-// review: a prior pass assumed the two were always identical, true for
-// katana but not here — checked this page's own raw <head> independently).
-const twitterDescription =
-  'MRPeasy alternative built around flat-rate pricing, native Shopify webhook sync, and BOM versioning.';
+// Rebuilt on the new design (MVBOLD-17). Motion: one moment — a single shape
+// cut into the feature comparison. Layout and behaviour come from
+// layouts/Compare.astro; everything here is this page's own content, carried
+// across from the previous build rather than retyped.
+//
+// The reference's FAQ answers are stubs marked TODO. These are the real ones.
+//
+// This page argues the per-seat maths rather than listing gaps, so its second
+// section carries the seat table instead of a numbered list. The first pass
+// of this rebuild dropped the table entirely — it is the page's whole case.
 
-// Verbatim from the old page's <table class="seat-table"> — 5 rows. Each
-// Manuva cell is [amount, delta|null] — the source wraps the delta in its
-// own <span class="delta"> at 13px --ink-faint, de-emphasised against the
-// full-strength amount; a first pass flattened both into one plain-text
-// string, losing that de-emphasis (still present as text, but no longer
-// visually secondary). Restored via a real nested span below.
-const SEAT_ROWS: [string, string, [string, string | null], [string, string | null]][] = [
+const SEAT_HEAD = [
+  'Team size',
+  'MRPeasy Professional (per-user)',
+  'Manuva Growth (flat)',
+  'Manuva Pro (flat)',
+] as const;
+
+const SEAT_ROWS = [
   ['3 users', '~$147/mo', ['$249/mo', null], ['$499/mo', null]],
   ['5 users', '~$245/mo', ['$249/mo', null], ['$499/mo', null]],
   ['10 users', '~$490/mo', ['$249/mo', '−$241'], ['$499/mo', null]],
   ['15 users', '~$735/mo', ['$249/mo', '−$486'], ['$499/mo', '−$236']],
   ['25 users', '~$1,225/mo', ['$249/mo', '−$976'], ['$499/mo', '−$726']],
-];
+] as const;
 
-// Verbatim from the old page's <table class="compare-tbl"> — 11 data rows.
-// The 4th element is the OLD PAGE's own verdict class for the MRPeasy
-// column (yes/no/partial) — carried as sourced data, not re-derived from
-// the verdict text. A text-matching ternary (anything not literally "Yes"/
-// "No" falling through to "partial") shipped in fix round 1 and silently
-// softened MRPeasy's own "Per user" pricing (source class="no") to an
-// amber "partial", and sharpened its "15 days" free trial (source
-// class="yes", a true positive fact about MRPeasy) to "partial" too — the
-// same bug class as katana.astro's "14 days" row, and it made the two
-// pages disagree with each other on the identical "Pricing model → Per
-// user" claim. The Manuva column's class is hardcoded 'yes' below: verified
-// against the old page's own markup, every one of these 11 rows uses
-// class="yes" for the Manuva cell with no exception.
-const COMPARE_ROWS: [string, string, string, 'yes' | 'no' | 'partial'][] = [
+// The 4th element is the OLD PAGE's own verdict class for the MRPeasy column
+// (yes/no/partial), carried as sourced data, not re-derived from the verdict
+// text. A text-matching ternary shipped once before and silently softened
+// MRPeasy's own "Per user" pricing to an amber "partial", and sharpened its
+// "15 days" free trial — a true positive fact about MRPeasy — to "partial"
+// too, making the two compare pages disagree with each other on the
+// identical "Pricing model → Per user" claim.
+const MATRIX = [
   ['Pricing model', 'Flat per account', 'Per user', 'no'],
   ['Native Shopify webhook sync', 'Yes', 'Batch connector', 'partial'],
   ['BOM versioning with comparison', 'Yes', 'No', 'no'],
@@ -55,9 +46,8 @@ const COMPARE_ROWS: [string, string, string, 'yes' | 'no' | 'partial'][] = [
   ['Financial profitability dashboard', 'Yes (Pro)', 'No', 'no'],
   ['Free trial', '30 days, full Pro', '15 days', 'yes'],
   ['Setup time', 'Hours to days', 'Days to weeks', 'partial'],
-];
+] as const;
 
-// Verbatim from the old page's <div class="adds-grid">.
 const ADDS = [
   {
     title: 'Native Shopify webhook sync',
@@ -71,10 +61,8 @@ const ADDS = [
     title: 'Flat-rate unlimited users',
     body: 'Growth at $249/mo and Pro at $499/mo include unlimited users — office staff and shop floor. No seat audit at renewal. No surprise bill when you hire. Predictable economics through every growth stage.',
   },
-];
+] as const;
 
-// Verbatim from the old page's <script type="application/ld+json"> FAQPage —
-// same text as the visible <div class="faq-item"> answers.
 const FAQS = [
   {
     q: 'Does Manuva have a per-user pricing tier like MRPeasy?',
@@ -92,14 +80,8 @@ const FAQS = [
     q: 'What MRPeasy features does Manuva not yet have?',
     a: "MRPeasy ships some manufacturing-resource-planning capabilities aimed at industrial operations that Manuva does not currently match — for example, deeper MRP run scheduling, longer-horizon material requirements planning, and certain accounting integrations targeted at MRPeasy's broader industrial customer base. Manuva's focus is product brands selling through Shopify and adjacent channels; for that profile, Manuva's BOM versioning, capacity planning with staff costing, and PO variance reporting cover the gaps that matter most.",
   },
-];
+] as const;
 
-// The old page's own <script type="application/ld+json"> — a three-level
-// BreadcrumbList (its middle crumb, "Alternatives" → /alternatives, isn't a
-// route this site builds; carried across as-is rather than dropped, since
-// it's the live page's own real structured data, not something invented
-// here) plus a FAQPage built from FAQS above so the visible <FaqList> and
-// the markup can never drift apart.
 const schema = [
   {
     '@context': 'https://schema.org',
@@ -121,148 +103,39 @@ const schema = [
   },
 ];
 ---
-<Alternative
-  {/* Em dash before the brand, like the other eight titles — this was the
-      one page using a pipe. Shortened from 70 characters to 57 as well: past
-      ~60 a title is truncated in search results, and "Flat-Rate MRP for
-      Shopify Manufacturers" was the clause being cut. */}
+<Compare
   title="MRPeasy Alternative for Shopify Manufacturers — Manuva"
-  description={description}
-  ogDescription={ogDescription}
-  twitterDescription={twitterDescription}
+  description="MRPeasy alternative built around flat-rate pricing, native Shopify webhook sync, and BOM versioning. See how Manuva compares — 30-day free trial."
+  ogDescription="MRPeasy alternative built around flat-rate pricing, native Shopify webhook sync, and BOM versioning. See how Manuva compares."
+  twitterDescription="MRPeasy alternative built around flat-rate pricing, native Shopify webhook sync, and BOM versioning."
   canonical="https://manuva.app/alternatives/mrpeasy"
-  {schema}
-  competitor="MRPeasy"
-  heroField="amber"
-  ctaField="cobalt"
+  them="MRPeasy"
+  otherHref="/alternatives/katana"
+  otherLabel="Katana"
+  heroField="flare"
+  cutShape={4}
+  h1Lead="MRPeasy alternative:"
+  h1Highlight="flat-rate manufacturing software for growing teams"
+  heroLede="MRPeasy is broad — it serves industrial manufacturers, distributors, and product brands alike. If you're a Shopify-first brand running production, that breadth shows up as per-seat pricing, batch Shopify sync, and a feature set you're paying for but mostly don't use. Manuva is the focused alternative: native Shopify webhooks, flat-rate pricing, capacity planning built for product brands."
+  gapsEyebrow="The per-seat problem"
+  gapTitle="MRPeasy pricing scales with headcount, not capability"
+  gapBody="MRPeasy advertises four tiers — Starter, Professional, Enterprise, Unlimited — each priced per user, per month. The unit economics work fine for a 3-person operation. They get progressively painful as the team grows. The shop floor is where most manufacturing teams add headcount, and you don't want a software bill that scales linearly with it."
+  seatHead={SEAT_HEAD}
+  seatRows={SEAT_ROWS}
+  seatFoot="MRPeasy Professional list pricing as of May 2026 (~$49/user/month billed annually, their published USD list price). Check MRPeasy's current site before you decide. Manuva's Growth and Pro tiers include unlimited users on all plans above Starter."
+  calloutIn="gaps"
+  priceCalloutLead="The break-even is around 5 users."
+  priceCallout="Below that, MRPeasy can be cheaper. From the 5-user mark onward, Manuva Growth wins on flat-rate alone — and you still haven't priced in capacity planning, BOM versioning, or the financial profitability dashboard."
+  matrix={MATRIX}
+  matrixTitle="Manuva vs MRPeasy — feature comparison"
+  matrixBody="The areas where the two products diverge most sharply for a Shopify-first manufacturer."
+  matrixNote="Comparison based on MRPeasy's publicly documented feature set as of May 2026. We re-check competitor claims quarterly."
+  addsEyebrow="What Manuva adds"
+  addsTitle="What you get that MRPeasy doesn't offer in this segment"
+  addsBody="Three capabilities where Manuva is built specifically for Shopify-first product brands."
+  adds={ADDS}
   faqs={FAQS}
-  faqHeading="Switching from MRPeasy — common questions"
-  ctaHeading="Try Manuva free for 30 days"
+  ctaHeading="Try Manuva free for 30 days."
   ctaBody="Full Pro access. No credit card required. Run it alongside MRPeasy during the trial — switch your Shopify webhook only when you're satisfied."
-  ctaSecondActionHref="/about#contact"
-  trialItems={['30-day free trial', 'No credit card', 'Unlimited users from Growth']}
->
-  <Fragment slot="hero">
-    <h1 class="mv-display site-alt-hero-title">MRPeasy Alternative: Flat-Rate Manufacturing Software for Growing Teams</h1>
-    <p class="site-alt-hero-sub">
-      MRPeasy is broad — it serves industrial manufacturers, distributors, and product brands alike. If you're a
-      Shopify-first brand running production, that breadth shows up as per-seat pricing, batch Shopify sync, and a
-      feature set you're paying for but mostly don't use. Manuva is the focused alternative: native Shopify
-      webhooks, flat-rate pricing, capacity planning built for product brands.
-    </p>
-    {/* Same fix as the katana page: "Start free trial" / "Book a demo" moved
-        back to the closing CtaBand now that it carries a real
-        secondActionHref (ctaSecondActionHref="/about#contact" above) instead of
-        staying relocated here as a workaround for CtaBand's old hardcoded
-        "Talk to us". */}
-  </Fragment>
-
-  <Fragment slot="comparison">
-    <div class="site-alt-group">
-      <div class="site-alt-group-head">
-        <span class="mv-eyebrow">The per-seat problem</span>{' '}
-        <h2 class="mv-display">MRPeasy pricing scales with headcount, not capability</h2>
-        <p>
-          MRPeasy advertises four tiers — Starter, Professional, Enterprise, Unlimited — each priced{' '}
-          <strong>per user, per month</strong>. The unit economics work fine for a 3-person operation. They get
-          progressively painful as the team grows. The shop floor is where most manufacturing teams add headcount,
-          and you don't want a software bill that scales linearly with it.
-        </p>
-      </div>
-      <div class="mv-table-scroll">
-        <table class="site-alt-table site-alt-seat-table" aria-label="MRPeasy per-user cost vs Manuva flat tiers by team size">
-          <thead>
-            <tr>
-              <th scope="col">Team size</th>
-              <th scope="col">MRPeasy Professional (per-user)</th>
-              <th scope="col" class="site-alt-table-manuva">Manuva Growth (flat)</th>
-              <th scope="col" class="site-alt-table-manuva">Manuva Pro (flat)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {SEAT_ROWS.map(([users, mrp, growth, pro]) => (
-              <tr>
-                {/* The team size is this row's label, so it is its header. */}
-                <th scope="row" class="site-alt-users">{users}</th>
-                <td class="site-alt-mrp-cell">{mrp}</td>
-                <td class="site-alt-manuva-cell">{growth[0]}{growth[1] && <>{' '}<span class="site-alt-delta">{growth[1]}</span></>}</td>
-                <td class="site-alt-manuva-cell">{pro[0]}{pro[1] && <>{' '}<span class="site-alt-delta">{pro[1]}</span></>}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <p class="site-alt-table-foot">
-        MRPeasy Professional list pricing as of May 2026 (~$49/user/month billed annually, their published USD
-        list price). Check MRPeasy's current site before you decide. Manuva's Growth and Pro tiers include unlimited users on all plans above
-        Starter.
-      </p>
-      <div class="site-alt-trial-callout">
-        <strong>The break-even is around 5 users.</strong> Below that, MRPeasy can be cheaper. From the 5-user mark
-        onward, Manuva Growth wins on flat-rate alone — and you still haven't priced in capacity planning, BOM
-        versioning, or the financial profitability dashboard.
-      </div>
-    </div>
-
-    <div class="site-alt-group">
-      <div class="site-alt-group-head">
-        <span class="mv-eyebrow">Head to head</span>{' '}
-        <h2 class="mv-display">Manuva vs MRPeasy — feature comparison</h2>
-        <p>The areas where the two products diverge most sharply for a Shopify-first manufacturer.</p>
-      </div>
-      <div class="mv-table-scroll">
-        <table class="site-alt-table" aria-label="Manuva vs MRPeasy feature comparison">
-          <thead>
-            <tr>
-              <th scope="col">Capability</th>
-              <th scope="col" class="site-alt-table-manuva">Manuva</th>
-              <th scope="col">MRPeasy</th>
-            </tr>
-          </thead>
-          <tbody>
-            {COMPARE_ROWS.map(([name, manuva, mrpeasy, mrpeasyClass]) => (
-              <tr>
-                {/* th scope="row" — see the same change on the katana page. */}
-                <th scope="row">{name}</th>
-                <td class="site-alt-yes">{manuva}</td>
-                <td class={`site-alt-${mrpeasyClass}`}>{mrpeasy}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <p class="site-alt-table-foot">
-        Comparison based on MRPeasy's publicly documented feature set as of May 2026. We re-check competitor claims
-        quarterly. <a href="mailto:hello@manuva.app">Spot something out of date?</a>
-      </p>
-    </div>
-
-    <div class="site-alt-group">
-      <div class="site-alt-group-head">
-        <span class="mv-eyebrow">What Manuva adds</span>{' '}
-        <h2 class="mv-display">What you get that MRPeasy doesn't offer in this segment</h2>
-        <p>Three capabilities where Manuva is built specifically for Shopify-first product brands.</p>
-      </div>
-      <div class="mv-cols-3 site-alt-adds-grid">
-        {ADDS.map((a) => (
-          <div class="site-alt-add-card">
-            <h3>{a.title}</h3>
-            <p>{a.body}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  </Fragment>
-
-  <Fragment slot="related">
-    {/* <a> isn't a boundary selector, and the old page's own sibling links
-        are separated only by real source whitespace — {' '} reproduces it
-        so the four labels don't glue into one run. */}
-    <div class="site-alt-related-links">
-      <a href="/features">Full feature list</a>{' '}
-      <a href="/pricing">Pricing &amp; plans</a>{' '}
-      <a href="/alternatives/katana">vs Katana</a>{' '}
-      <a href="/alternatives">Comparison overview</a>
-    </div>
-  </Fragment>
-</Alternative>
+  {schema}
+/>

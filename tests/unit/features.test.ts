@@ -25,20 +25,29 @@ test('every source section heading survives', () => {
   }
 });
 
-test('uses collapse utilities rather than fixed column counts', () => {
+test("uses the design's own column modifiers, not hand-rolled column counts", () => {
+  // Was mv-cols-*, which the app-surface library provided. The marketing
+  // layer's equivalent is .nlist's `two`/`three` modifiers, which carry the
+  // breakpoints with them. The half that matters is unchanged: no page
+  // hand-rolls repeat(N, 1fr) and re-invents the responsive contract.
   const h = html();
-  expect(h).toMatch(/mv-cols-[2346]/);
-  expect(h).not.toMatch(/grid-template-columns:\s*repeat\(\d,\s*1fr\)/);
+  expect(h).toMatch(/class="nlist[^"]*\b(two|three)\b/);
+  expect(h).not.toMatch(/grid-template-columns:\s*repeat\(\d+\s*,\s*1fr\)/);
 });
 
-test('no two adjacent folds share a hue', () => {
-  // See Task 7 — data-fold marks fold-level colour; the six-tile grid is exempt.
-  const folds = [...html().matchAll(/data-fold="([a-z]+)"/g)].map((m) => m[1]);
-  expect(folds.length, 'page should declare its folds').toBeGreaterThan(2);
-  for (let i = 1; i < folds.length; i++) {
-    expect(folds[i], `${folds[i]} repeats at fold ${i}`).not.toBe(folds[i - 1]);
-  }
+
+test('every domain arrives on its own field, in the rotation order', () => {
+  // Was 'no two adjacent folds share a hue', reading data-fold, which this
+  // build does not emit — so it asserted nothing at all. Adjacency belongs to
+  // field-separation.test.ts now (and it caught a real lime-on-aqua seam at
+  // the foot of this page the moment it could see the new markers). What is
+  // this file's own is that all six domains are there and none repeats a
+  // field.
+  const fields = [...html().matchAll(/<section class="dom mv-field-([a-z]+)"/g)].map((m) => m[1]);
+  expect(fields.length, 'the six domain sections should each declare a field').toBe(6);
+  expect(new Set(fields).size, 'two domains share a field').toBe(6);
 });
+
 
 // Field.astro used to drop any `id` prop (no `...rest` spread), so the two
 // sections wrapped in <Field> never got their anchor id — the domain grid's
@@ -56,13 +65,13 @@ test('every in-page anchor link resolves to a real id on the page', () => {
   }
 });
 
-test('the nine domain-grid links target the nine real section ids, including the full-bleed Field sections', () => {
+test('the six domain links target the six real section ids', () => {
+  // Nine areas became six domains (MVBOLD-17). The legacy anchors are kept as
+  // a redirect map in site.ts so the old /features#boms links still land.
   const h = html();
-  for (const id of [
-    'boms', 'orders', 'inventory', 'purchasing',
-    'production-planning', 'capacity', 'costing', 'reports', 'shopify',
-  ]) {
+  for (const id of ['inventory', 'purchasing', 'production', 'sales', 'planning', 'reporting']) {
     expect(h, `id="${id}" missing`).toContain(`id="${id}"`);
     expect(h, `href="#${id}" missing`).toContain(`href="#${id}"`);
   }
 });
+

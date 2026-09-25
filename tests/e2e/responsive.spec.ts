@@ -18,15 +18,15 @@ for (const width of WIDTHS) {
 test('the burger replaces the nav links below 960px', async ({ page }) => {
   await page.setViewportSize({ width: 720, height: 900 });
   await page.goto('/');
-  await expect(page.locator('.site-burger')).toBeVisible();
-  await expect(page.locator('.site-nav-links')).toBeHidden();
+  await expect(page.locator('.burger')).toBeVisible();
+  await expect(page.locator('.links')).toBeHidden();
 });
 
 test('the nav links replace the burger above 960px', async ({ page }) => {
   await page.setViewportSize({ width: 1200, height: 900 });
   await page.goto('/');
-  await expect(page.locator('.site-nav-links')).toBeVisible();
-  await expect(page.locator('.site-burger')).toBeHidden();
+  await expect(page.locator('.links')).toBeVisible();
+  await expect(page.locator('.burger')).toBeHidden();
 });
 
 test('the pricing matrix becomes cards below 720px', async ({ page }) => {
@@ -109,13 +109,35 @@ for (const route of ALL_ROUTES) {
 // against silently passing everywhere because tableColumnReport stopped
 // finding any tables at all (a selector typo, a markup change dropping
 // <table> for a div grid, etc.) rather than because every table is healthy.
-test('at least five routes carry a real <table>, matching what the source pages are known to have', async ({ page }) => {
-  let totalTables = 0;
+test('the tabular data still has table semantics on at least five routes', async ({ page }) => {
+  // This guard did its job: the rebuild replaced the compare matrices with
+  // .ctable div grids and dropped their rows, columns and header associations
+  // for anyone on a screen reader. The grid is needed for the layout, so the
+  // semantics are stated with ARIA instead — which is why role="table" counts
+  // here alongside a real <table>. A row of divs with no role still does not.
+  let total = 0;
   for (const route of ALL_ROUTES) {
     await page.goto(route);
-    totalTables += await page.locator('table').count();
+    total += await page.locator('table, [role="table"]').count();
   }
-  expect(totalTables, 'total <table> elements found across all 8 routes').toBeGreaterThanOrEqual(5);
+  expect(total, 'tables (real or ARIA) found across every route').toBeGreaterThanOrEqual(5);
+});
+
+test('every ARIA table states its rows, its columns and its own name', async ({ page }) => {
+  // A bare role="table" is worse than no role: it promises structure that
+  // is not there. Each one has to carry rows, a header row and a name.
+  for (const route of ALL_ROUTES) {
+    await page.goto(route);
+    const tables = page.locator('[role="table"]');
+    for (let i = 0; i < (await tables.count()); i++) {
+      const t = tables.nth(i);
+      const label = (await t.getAttribute('aria-label')) ?? '';
+      expect(label.trim(), `${route}: an ARIA table has no accessible name`).not.toEqual('');
+      expect(await t.locator('[role="row"]').count(), `${route}: "${label}" has no rows`).toBeGreaterThan(1);
+      expect(await t.locator('[role="columnheader"]').count(), `${route}: "${label}" has no column headers`).toBeGreaterThan(0);
+      expect(await t.locator('[role="cell"]').count(), `${route}: "${label}" has no cells`).toBeGreaterThan(0);
+    }
+  }
 });
 
 // --- anchor landing clearance -----------------------------------------------
@@ -140,14 +162,14 @@ for (const { route, id } of ANCHOR_CASES) {
       await page.goto(route);
       await page.locator(`a[href="#${id}"]`).first().click();
       await expect.poll(async () => page.evaluate((hid) => {
-        const nav = document.querySelector('.site-nav');
+        const nav = document.querySelector('.site-head');
         const heading = document.getElementById(hid);
         if (!nav || !heading) return null;
         return heading.getBoundingClientRect().top - nav.getBoundingClientRect().bottom;
       }, id)).not.toBeNull();
 
       const clearance = await page.evaluate((hid) => {
-        const nav = document.querySelector('.site-nav')!;
+        const nav = document.querySelector('.site-head')!;
         const heading = document.getElementById(hid)!;
         return heading.getBoundingClientRect().top - nav.getBoundingClientRect().bottom;
       }, id);
@@ -164,7 +186,7 @@ for (const { route, id } of ANCHOR_CASES) {
 // tuned for the old two-clause headline and never revisited for the new
 // three-clause punchline. text-wrap: balance picks its break point from
 // nothing but that container width, with no awareness that one span inside
-// the heading (.site-hero-mark, "Track it.") is a single visual unit — so at
+// the heading (.hero .hl, "Track it.") is a single visual unit — so at
 // several widths the balance point landed inside the span, and
 // box-decoration-break: clone faithfully painted two disconnected lime pills
 // on a diagonal instead of one. Unit tests can't see this at all: the markup
@@ -178,9 +200,9 @@ for (const width of HERO_MARK_WIDTHS) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/');
     const rectCount = await page.evaluate(
-      () => document.querySelector('.site-hero-mark')!.getClientRects().length,
+      () => document.querySelector('.hero .hl')!.getClientRects().length,
     );
-    expect(rectCount, `.site-hero-mark painted ${rectCount} rects at ${width}px, expected 1`).toBe(1);
+    expect(rectCount, `.hero .hl painted ${rectCount} rects at ${width}px, expected 1`).toBe(1);
   });
 }
 
@@ -217,8 +239,22 @@ for (const route of MARKETING_ROUTES) {
     const sections = await page.$$eval('main > section', (els) =>
       els.map((e) => {
         const cs = getComputedStyle(e);
+        // A section can be transparent and still paint a full-bleed field,
+        // because the field is on its first child — which is how the pinned
+        // stage works, and how the shape-cut domain sections arrive. Read
+        // that child's background as the section's own for this purpose.
+        const opaque = (c: string) => c !== 'rgba(0, 0, 0, 0)' && c !== 'transparent';
+        // Walk down the leading edge: the stage paints its field on
+        // .stage > .pin > .panel, two levels below the section.
+        let childBg = 'rgba(0, 0, 0, 0)';
+        let node: Element | null = e.firstElementChild;
+        for (let d = 0; node && d < 3; d++) {
+          const bg = getComputedStyle(node).backgroundColor;
+          if (opaque(bg)) { childBg = bg; break; }
+          node = node.firstElementChild;
+        }
         return {
-          bg: cs.backgroundColor,
+          bg: opaque(cs.backgroundColor) ? cs.backgroundColor : childBg,
           borderTopWidth: parseFloat(cs.borderTopWidth) || 0,
           borderTopColor: cs.borderTopColor,
         };

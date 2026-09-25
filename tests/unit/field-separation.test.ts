@@ -25,11 +25,31 @@ const file = (route: string) => (route === '/' ? 'dist/index.html' : `dist${rout
 // and /alternatives' two comparison cards are panels inside one. None of those
 // is a fold. Only a full-bleed <Field> emits a top-level section
 // carrying data-fold, which is precisely what this rule governs.
+// The new design marks a field with the class itself (mv-field-<name>) rather
+// than the old build's data-fold attribute. Reading only data-fold made this
+// gate pass vacuously on every rebuilt page — it found no folds at all, so it
+// found no adjacent ones. It reads both now.
+//
+// .marquee and .stage are the two deliberate exemptions and the only ones.
+// The marquee is a lime rule the design itself places directly under the
+// cobalt hero, and the stage is a single pinned fold whose six panels overlay
+// each other in one viewport rather than stacking down the page.
 function topLevelFolds(html: string): (string | null)[] {
   const $ = load(html);
-  return $('main > section')
+  return $('main > section, main > div')
     .toArray()
-    .map((el) => $(el).attr('data-fold') ?? null);
+    .map((el) => {
+      const $el = $(el);
+      if ($el.hasClass('marquee') || $el.hasClass('stage')) return null;
+      const fold = $el.attr('data-fold');
+      const cls = ($el.attr('class') ?? '').split(/\s+/).find((c) => c.startsWith('mv-field-'));
+      const name = fold ?? (cls ? cls.replace('mv-field-', '') : null);
+      // A section that opens on a shape cut declares the field it is arriving
+      // from and animates the handover across a whole viewport. That IS the
+      // transition the rule asks for, so it is not a naked seam.
+      const cut = $el.find('.intro[data-from]').length > 0;
+      return name === null ? null : `${name}${cut ? '|cut' : ''}`;
+    });
 }
 
 for (const route of ALL_ROUTES) {
@@ -41,9 +61,17 @@ for (const route of ALL_ROUTES) {
 
     const folds = topLevelFolds(readFileSync(path, 'utf8'));
     for (let i = 1; i < folds.length; i++) {
-      if (folds[i] && folds[i - 1]) {
+      const a = folds[i - 1], b = folds[i];
+      // paper is the separator the rule tells you to use, not a field.
+      const isField = (f: string | null) => !!f && !f.startsWith('paper');
+      const hue = (f: string | null) => (f ?? '').split('|')[0];
+      // Three things are not the defect this rule is about:
+      //   - the same field twice in a row: one continuous band, no seam;
+      //   - a section that arrives on a shape cut (see topLevelFolds);
+      //   - paper or ink between two fields, which is the prescribed fix.
+      if (isField(a) && isField(b) && hue(a) !== hue(b) && !b.endsWith('|cut')) {
         expect.fail(
-          `${route}: fields "${folds[i - 1]}" and "${folds[i]}" are adjacent top-level sections ` +
+          `${route}: fields "${hue(a)}" and "${hue(b)}" are adjacent top-level sections ` +
             `(positions ${i - 1} and ${i} of ${folds.length}). Put a paper section between them.`,
         );
       }
@@ -118,7 +146,7 @@ for (const route of ALL_ROUTES) {
 // inline, so this asserts the rule is present rather than reading the markup.
 test('the footer is the dark anchor on every page', () => {
   const css = readFileSync('src/styles/site.css', 'utf8');
-  expect(css).toMatch(/\.site-footer\s*\{[^}]*background:\s*var\(--field-ink\)/);
+  expect(css).toMatch(/\.site-foot\s*\{[^}]*background:\s*var\(--field-ink\)/);
 });
 
 // The rule above is satisfiable by having no fields at all, which would make it
