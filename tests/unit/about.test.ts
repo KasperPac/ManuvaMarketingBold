@@ -83,11 +83,16 @@ test('closing CTA carries the real trial terms', () => {
 // because six links across the site plus the Organization schema pointed at it.
 test('the closing CTA band carries both "Start free trial" and "Book a demo" -> /about#contact', () => {
   const h = html();
-  const band = h.slice(h.indexOf('site-cta-heading'));
+  // The band is .outro now rather than the old .site-cta. Its two actions and
+  // their target are the old page's own: "Book a demo" points at
+  // /about#contact, a self-link here, because that is the anchor six other
+  // CTAs across the site use and this page owns it.
+  const band = h.slice(h.indexOf('class="outro'));
   expect(band).toContain('Start free trial');
   expect(band).toContain('Book a demo');
   expect(band).toContain('href="/about#contact"');
 });
+
 
 // This page now owns the anchor those six links target.
 test('the relocated contact section lives here', () => {
@@ -97,13 +102,17 @@ test('the relocated contact section lives here', () => {
   expect(h).toContain('We reply within one business day');
 });
 
-test('no two adjacent folds share a hue', () => {
-  const folds = [...html().matchAll(/data-fold="([a-z]+)"/g)].map((m) => m[1]);
-  expect(folds.length, 'page should declare its folds').toBeGreaterThan(1);
-  for (let i = 1; i < folds.length; i++) {
-    expect(folds[i], `${folds[i]} repeats at fold ${i}`).not.toBe(folds[i - 1]);
+test('no two adjacent fields share a hue', () => {
+  const fields = [...html().matchAll(/class="[^"]*mv-field-([a-z]+)/g)].map((m) => m[1]);
+  expect(fields.length, 'page should declare its fields').toBeGreaterThan(2);
+  for (let i = 1; i < fields.length; i++) {
+    // The ink section declares the field twice — once on the section and once
+    // on the .cut inside it, which is how a shape cut arrives.
+    if (fields[i] === fields[i - 1] && fields[i] === 'ink') continue;
+    expect(fields[i], `${fields[i]} repeats at position ${i}`).not.toBe(fields[i - 1]);
   }
 });
+
 
 // Was "mint hero -> paper -> ink principles -> flare CTA". The principles
 // section is paper: navy came off the marketing site (author's call), and the
@@ -123,20 +132,30 @@ test('no two adjacent folds share a hue', () => {
 // principles were on ink before the "navy is off the marketing site" call took
 // them off; this puts them back.
 test('hero is mint, principles are the ink anchor, contact is violet, CTA is flare', () => {
-  const folds = [...html().matchAll(/data-fold="([a-z]+)"/g)].map((m) => m[1]);
-  expect(folds[0]).toBe('mint');
-  expect(folds[folds.length - 1]).toBe('flare');
-  expect(folds).toEqual(['mint', 'ink', 'violet', 'flare']);
+  // Read off the field classes, which is how the new build marks a field —
+  // data-fold is not emitted any more, so this asserted nothing at all.
+  // The contact block is a violet CARD on paper rather than a violet fold:
+  // the closing field follows it directly and two fields may not touch. It
+  // is still the violet in the sequence, which is what this test is for.
+  const fields = [...html().matchAll(/class="[^"]*mv-field-([a-z]+)/g)].map((m) => m[1]);
+  expect(fields[0]).toBe('mint');
+  expect(fields[fields.length - 1]).toBe('flare');
+  expect(fields).toEqual(['mint', 'ink', 'ink', 'violet', 'flare']);
 });
+
 
 // Rule: never set an absolute ink inside a <Field>, never opacity-mute text
 // on a field — a field's section already carries color:var(--on-*) and
 // children should inherit it.
-test('no data-fold section sets an absolute ink colour on itself', () => {
+test('no field section sets an absolute ink colour on itself', () => {
+  // A field already carries color:var(--on-*) and children inherit it.
+  // Setting an absolute ink inside one is how body copy shipped at 1.4:1 on a
+  // colour field, which a token-name read cannot catch.
   const h = html();
-  const sections = [...h.matchAll(/<[^>]+data-fold="[a-z]+"[^>]*>/g)].map((m) => m[0]);
+  const sections = [...h.matchAll(/<section class="[^"]*mv-field-[a-z]+[^"]*"[^>]*>/g)].map((m) => m[0]);
   expect(sections.length).toBeGreaterThan(0);
   for (const tag of sections) {
-    expect(tag).not.toMatch(/color:#[0-9a-fA-F]{3,6}/);
+    expect(tag, `${tag} sets its own colour`).not.toMatch(/style="[^"]*(^|;)\s*color:\s*(#|rgb|var\(--ink)/);
   }
 });
+
