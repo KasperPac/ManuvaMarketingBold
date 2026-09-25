@@ -6,8 +6,18 @@ and URLs already exist and perform, so only the visual layer is new.
 
 ## Task tracking
 
-- **monday.com board:** `ManuvaMarketingBold` (id `5101754034`, Software Automation workspace)
-- **Task code prefix:** `MVBOLD`
+- **monday.com board:** `Manuva` (id `5099992950`, Software Automation workspace) — the
+  product board, shared with the Assemblio/Manuva app. There is no separate
+  `ManuvaMarketingBold` board; the id `5101754034` recorded here until 2026-09-25 did not
+  resolve, so none of MVBOLD-1..17 was ever tracked. Marketing-site work goes on the Manuva
+  board and takes **that board's own `MANUVA-n` codes**, because `Task No` is per-board and a
+  second numbering sequence on one board would collide.
+- **Task code prefix:** `MANUVA` on the board. `MVBOLD-n` stays in commit messages and branch
+  names — it is the history's own reference and rewriting it would break every existing commit
+  — so an item names both, e.g. `MANUVA-28 … (MVBOLD-17)`.
+- The board description carries `[repo: KasperPac/Assemblio]`. This repo is
+  `KasperPac/ManuvaMarketingBold`, so the dashboard's repo join is wrong for these items.
+  Worth fixing when someone decides whether the marketing site deserves its own board.
 
 ## Governing documents
 
