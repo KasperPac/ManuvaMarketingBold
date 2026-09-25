@@ -103,6 +103,33 @@ const ogImageUrl = Astro.site ? new URL(ogImage, Astro.site) : ogImage;
 
     <link rel="stylesheet" href="/_ds/tokens.css" />
 
+    {/* Whether motion runs is decided here, once, before first paint, and
+        written to <html data-motion>. Both the CSS and Motion.astro read that
+        attribute rather than the media query directly, so there is one answer
+        instead of two that can disagree — and so a visitor can override it.
+        The OS preference is only the default. Inline and synchronous: a
+        deferred script would let the pinned layout paint and then collapse. */}
+    <script is:inline>
+      (() => {
+        let m = null;
+        try { m = localStorage.getItem('mv-motion'); } catch {}
+        if (m !== 'on' && m !== 'off') {
+          m = matchMedia('(prefers-reduced-motion:reduce)').matches ? 'off' : 'on';
+        }
+        document.documentElement.dataset.motion = m;
+      })();
+    </script>
+    {/* With JS off the attribute is never set, and the stage would paint six
+        absolutely-positioned panels stacked in one 100svh box. The flat
+        layout is the correct no-JS rendering. */}
+    <noscript><style>
+      .intro{height:auto}.ipin{position:relative;height:auto;min-height:100svh}
+      .cut{position:relative;min-height:100svh}
+      .stage{height:auto}.stage .pin{position:relative;height:auto;overflow:visible}
+      .stage .panel{position:relative;inset:auto;min-height:100svh}
+      .ticks{display:none}
+    </style></noscript>
+
     {schema && schema.length > 0 && (
       <script type="application/ld+json" set:html={JSON.stringify(schema)} />
     )}

@@ -160,7 +160,14 @@ img{max-width:100%;display:block}
  .split>.stick{position:sticky;top:120px}
  .outro .disp{font-size:clamp(72px,7vw,128px)}
 }
-@media(prefers-reduced-motion:reduce){.intro{height:auto}.ipin{position:relative;height:auto;min-height:100svh}.cut{position:relative;min-height:100svh}}
+/* The design keys this off @media(prefers-reduced-motion:reduce). It keys off
+   :root[data-motion="off"] here instead, which Base.astro sets from that same
+   media query unless the visitor has chosen otherwise. Same default, but now
+   overridable — and the JS reads the same attribute, so CSS and script cannot
+   disagree about which mode the page is in. */
+:root[data-motion="off"] .intro{height:auto}
+:root[data-motion="off"] .ipin{position:relative;height:auto;min-height:100svh}
+:root[data-motion="off"] .cut{position:relative;min-height:100svh}
 
 /* ============== this site's own additions ==============
    Surfaces the reference does not cover. Everything above this line is the
@@ -286,13 +293,17 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid cur
    with Windows animation effects off actually gets.
    Released here the same way the intro is: normal flow, one full-height panel
    after another, no pin, no clip, no ticks. */
-@media(prefers-reduced-motion:reduce){
-  .stage{height:auto!important}
-  .stage .pin{position:relative;height:auto;overflow:visible}
-  .stage .panel{position:relative;inset:auto;min-height:100svh;visibility:visible!important;clip-path:none!important;transform:none!important}
-  .ticks{display:none}
-  .cut [data-rate],.stage .panel [data-rate]{transform:none!important}
-}
+/* Keyed off the attribute for the same reason as the block above. The
+   !important declarations are load-bearing: they beat the inline styles the
+   motion engine writes, which is how the flat mode stays flat even if a
+   stale draw lands. It also means nothing can force the motion back on from
+   script alone — the attribute is the only switch. */
+:root[data-motion="off"] .stage{height:auto!important}
+:root[data-motion="off"] .stage .pin{position:relative;height:auto;overflow:visible}
+:root[data-motion="off"] .stage .panel{position:relative;inset:auto;min-height:100svh;visibility:visible!important;clip-path:none!important;transform:none!important}
+:root[data-motion="off"] .ticks{display:none}
+:root[data-motion="off"] .cut [data-rate],
+:root[data-motion="off"] .stage .panel [data-rate]{transform:none!important}
 
 /* Compare pages — the price cards, from the reference page's own inline
    <style> block. */
@@ -455,7 +466,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid cur
 .site-video-play:hover{transform:scale(1.06)}
 .site-video-play:focus-visible{outline:none;box-shadow:var(--shadow-focus)}
 .site-video-caption{margin-top:var(--space-3);font-size:var(--fs-sm);color:inherit;opacity:.72}
-@media(prefers-reduced-motion:reduce){.site-video-play{transition:none}}
+:root[data-motion="off"] .site-video-play{transition:none}
 /* Facade and still modes render only absolutely-positioned children, so the
    frame has no in-flow content to take its height from and height:auto
    collapses to 0 — the poster then never becomes visible. 16/9 matches the
@@ -594,3 +605,23 @@ main [id]{scroll-margin-top:80px}
   .site-about-hero-panel,
   .site-alt-index-hero-panel{padding:var(--space-10)}
 }
+
+/* The motion control, in the footer legal row. A visitor who has reduced
+   motion set system-wide still gets the calm version by default; this only
+   exists so the choice is theirs per-site rather than all-or-nothing. */
+.motion-toggle{appearance:none;background:none;border:0;padding:0;margin:0;
+  font:inherit;font-size:12px;color:inherit;cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px;min-height:44px;
+  justify-self:start;align-self:start}
+/* Full strength. .6 composited white over the ink footer to 3.05:1 on a 12px
+   label and .8 to 4.27:1, both under AA — and inside .legal, whose own
+   opacity:.6 a child cannot escape, no value would have worked. Muting small
+   text on a field is the mistake this codebase has now made three times, so
+   the rule stands: full strength on any field. */
+.motion-toggle:hover,.motion-toggle:focus-visible{opacity:1}
+.motion-toggle i{display:block;width:26px;height:14px;border-radius:999px;flex:none;
+  box-shadow:inset 0 0 0 1.5px currentColor;position:relative}
+.motion-toggle i::after{content:"";position:absolute;top:3px;left:3px;width:8px;height:8px;
+  border-radius:50%;background:currentColor;transition:transform 160ms var(--ease-out)}
+.motion-toggle[aria-pressed="true"] i::after{transform:translateX(12px)}
+@media(prefers-reduced-motion:reduce){.motion-toggle i::after{transition:none}}
