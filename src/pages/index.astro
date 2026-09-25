@@ -38,56 +38,6 @@ const MARQUEE = [
   '30-day free trial',
 ];
 
-// The platform grid — the old page's PILLARS and PILLARS_EXTRA, verbatim.
-// They were four tiles plus four; as one numbered list they read as the
-// eight things the product is, which is what the section claims.
-const PLATFORM = [
-  {
-    title: 'Inventory & Production',
-    chips: ['Stock control', 'Production orders', 'Mfg planning', 'Stocktaking'],
-    href: '/features#inventory',
-    body: 'From raw materials to finished goods — live stock counts, production orders, manufacturing plans, and stocktakes. Everything that keeps the floor moving.',
-  },
-  {
-    title: 'Bills of Materials & Costing',
-    chips: ['BOM builder', 'Cost management'],
-    href: '/features#production',
-    body: 'Build a versioned bill of materials for every variant, then roll up costs automatically. Know your margin before the job starts, not after.',
-  },
-  {
-    title: 'Warehouse & Stock Movement',
-    chips: ['Delivery receipts', 'Stock adjustments', 'Bin locations', 'Transfers'],
-    href: '/features#purchasing',
-    body: 'Every delivery receipt, transfer, and adjustment updates your stock automatically. Bin-level locations mean nothing gets lost on the floor.',
-  },
-  {
-    title: 'Team & Integrations',
-    chips: ['Staff capacity', 'Shopify', 'Reporting'],
-    href: '/features#planning',
-    body: "Plan around your team's capacity, sell through Shopify with inventory synced automatically, and get the reports that matter — on-time rate, scrap, stock turn.",
-  },
-  {
-    title: 'Orders & Fulfilment',
-    href: '/features#sales',
-    body: 'Shopify orders flow in automatically. Manual and B2B orders go in directly. Manuva tracks each line from component allocation through to delivery — so nothing slips.',
-  },
-  {
-    title: 'Production Planning',
-    href: '/features#planning',
-    body: "Schedule jobs, track steps in sequence, and know exactly what's running and what's blocked — across every department, in real time.",
-  },
-  {
-    title: 'Reports & Analytics',
-    href: '/features#reporting',
-    body: 'Live data on stock, supplier performance, PO accuracy, and dead stock — the reports that actually drive decisions.',
-  },
-  {
-    title: 'Shopify & Platform',
-    href: '/features#sales',
-    body: 'Real-time webhook sync, not nightly batch imports. Orders drive production. Inventory stays accurate across every channel.',
-  },
-] as const satisfies readonly { title: string; href: string; body: string; chips?: readonly string[] }[];
-
 const HIGHLIGHT = {
   section: 'Reports & analytics',
   heading: "Operational intelligence, not last week's spreadsheet.",
@@ -243,6 +193,25 @@ const pad = (n: number) => String(n).padStart(2, '0');
     />
   </section>
 
+  {/* The stage's lead-in. This heading and sub used to head an eight-item
+      platform grid below the stage — which restated the same six domains
+      under the nine older area names, two of them pointing at anchors the
+      panels already link to. You read the product's shape twice, the second
+      time in a longer and less confident form, and it was the first of three
+      numbered lists in a row. The grid is gone; its heading does the more
+      useful job of introducing the stage instead of leaving it to arrive
+      cold, and its four sentences that were not already on /features moved
+      there. */}
+  <section class="sec stage-lead">
+    <span class="eyebrow" style="opacity:.6">The platform</span>
+    <h2 class="disp">Everything your shop needs. Nothing it doesn't.</h2>
+    <p class="sub" style="color:var(--ink-muted);max-width:58ch">
+      One system covering the whole shop floor — from raw materials in to finished goods out. No modules to
+      bolt on, no consultants to hire.
+    </p>
+    <a class="pill ink" href="/features" style="justify-self:start">Explore the full feature set &rarr;</a>
+  </section>
+
   {/* The pinned stage. Six panels, one pin, each clipping in over the last on
       its own shape. Panel 0 carries no data-shape — it is the backdrop the
       other five land on. */}
@@ -260,28 +229,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
         </a>
       ))}
     </div>
-  </section>
-
-  <section class="sec">
-    <div style="display:grid;gap:12px">
-      <span class="eyebrow" style="opacity:.6">The platform</span>
-      <h2 class="disp">Everything your shop needs. Nothing it doesn't.</h2>
-      <p class="sub" style="color:var(--ink-muted);max-width:58ch">
-        One system covering the whole shop floor — from raw materials in to finished goods out. No modules to
-        bolt on, no consultants to hire.
-      </p>
-    </div>
-    <ul class="nlist two">
-      {PLATFORM.map((p, i) => (
-        <li>
-          <span class="i">{pad(i + 1)}</span>
-          <h3><a href={p.href}>{p.title}</a></h3>
-          <p>{p.body}</p>
-          {'chips' in p && <p class="chips">{p.chips.map((c) => <span>{c}</span>)}</p>}
-        </li>
-      ))}
-    </ul>
-    <a class="pill ink" href="/features" style="justify-self:start">Explore the full feature set &rarr;</a>
   </section>
 
   <section class="sec mv-field-amber">
@@ -314,12 +261,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
         <p class="sub" style="color:var(--ink-muted)">{HIGHLIGHT.body}</p>
         <a class="pill ink" href={HIGHLIGHT.href} style="justify-self:start">See every report &rarr;</a>
       </div>
-      <ul class="nlist">
-        {HIGHLIGHT.feats.map((f, i) => (
-          <li>
-            <span class="i">{pad(i + 1)}</span>
-            <h3>{f}</h3>
-          </li>
+      {/* Unnumbered. These are three facts, not three steps, and as a
+          numbered list they were visually identical to the onboarding
+          sequence above — two counted lists competing, only one of them
+          actually a sequence. */}
+      <ul class="nlist plain">
+        {HIGHLIGHT.feats.map((f) => (
+          <li><h3>{f}</h3></li>
         ))}
       </ul>
     </div>
