@@ -192,9 +192,20 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid cur
 .index{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 0;padding:0;list-style:none}
 .index a{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;text-decoration:none;font-weight:700;font-size:15px;box-shadow:inset 0 0 0 2px rgb(255 255 255/.28)}
 .index a b{font-family:var(--font-numeral);font-variation-settings:"wdth" 78,"wght" 800;opacity:.6}
+/* The gutter on a .dom section lives on its children, not on the section —
+   .dom itself is a full-bleed field. .arealead has to be in here with the
+   list or it sits flush against the viewport edge, which is exactly what it
+   did when it was added. */
 .dom .nlist{padding:8px 20px 96px}
-@media(min-width:721px){.dom .nlist{padding:16px 32px 120px}}
-@media(min-width:1100px){.dom .nlist{padding-inline:max(48px,calc((100% - var(--page-max,1240px))/2))}}
+.dom .arealead{padding-inline:20px}
+@media(min-width:721px){
+  .dom .nlist{padding:16px 32px 120px}
+  .dom .arealead{padding-inline:32px}
+}
+@media(min-width:1100px){
+  .dom .nlist,
+  .dom .arealead{padding-inline:max(48px,calc((100% - var(--page-max,1240px))/2))}
+}
 
 /* /pricing — lifted from the reference page's own <style> block, which is
    where the design put the plan cards, the billing toggle and the matrix.
@@ -224,21 +235,26 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid cur
 @media(min-width:721px){.plans{grid-template-columns:repeat(2,minmax(0,1fr));padding:16px 32px 104px}.matrix{font-size:16px}.matrix .r{grid-template-columns:minmax(0,1fr) repeat(4,minmax(64px,110px))}.matrix .r.h{top:76px}}
 @media(min-width:1100px){.plans{grid-template-columns:repeat(4,minmax(0,1fr));padding-inline:max(48px,calc((100% - var(--page-max,1240px))/2))}.plan .price .num{font-size:76px}}
 
-/* The long-form legal documents and /about: paper, no motion, same shell. */
-.doc{padding:120px 20px 96px;display:grid;gap:28px;max-width:78ch;margin-inline:auto}
-.doc h1{font-size:clamp(40px,9vw,72px)}
-.doc h2{font-family:var(--font-display);font-variation-settings:"wdth" 112,"wght" 800;font-size:clamp(24px,4vw,32px);line-height:1.1;letter-spacing:-.02em;margin:24px 0 0}
-.doc h3{font-family:var(--font-display);font-variation-settings:"wdth" 106,"wght" 800;font-size:19px;margin:18px 0 0}
-.doc p,.doc li{font-size:16px;line-height:1.65;margin:0;text-wrap:pretty}
-.doc ul,.doc ol{display:grid;gap:8px;padding-left:22px;margin:0}
-.doc section{display:grid;gap:12px}
-.doc .meta{display:flex;flex-wrap:wrap;gap:8px 24px;font-size:14px;opacity:.7}
-.doc .toc{display:grid;gap:8px;padding:22px;border-radius:20px;background:color-mix(in srgb,var(--ink-strong) 5%,transparent)}
-.doc .toc ol{padding-left:20px}
-.doc .toc a{font-size:15px}
-.doc .note{padding:18px 20px;border-radius:16px;background:color-mix(in srgb,var(--field-amber) 22%,transparent);font-size:15px;line-height:1.55}
-@media(min-width:721px){.doc{padding:150px 32px 120px}}
-@media(min-width:1100px){.doc{padding-inline:max(48px,calc((100% - var(--page-max,1240px))/2))}}
+/* The long-form legal documents and /about: paper, no motion, same shell.
+   .site-doc is in every selector because that is the class /privacy and
+   /terms actually render — the pre-rebuild one. These rules matched only
+   .doc, so both pages had no document layout at all: no measure, no gutter,
+   and a title sitting on the viewport edge. Lost in the same reseed that
+   took the hero contract and the video styles. */
+.doc,.site-doc{padding:120px 20px 96px;display:grid;gap:28px;max-width:78ch;margin-inline:auto}
+.doc h1,.site-doc h1{font-size:clamp(40px,9vw,72px)}
+.doc h2,.site-doc h2{font-family:var(--font-display);font-variation-settings:"wdth" 112,"wght" 800;font-size:clamp(24px,4vw,32px);line-height:1.1;letter-spacing:-.02em;margin:24px 0 0}
+.doc h3,.site-doc h3{font-family:var(--font-display);font-variation-settings:"wdth" 106,"wght" 800;font-size:19px;margin:18px 0 0}
+.doc p,.doc li,.site-doc p,.site-doc li{font-size:16px;line-height:1.65;margin:0;text-wrap:pretty}
+.doc ul,.doc ol,.site-doc ul,.site-doc ol{display:grid;gap:8px;padding-left:22px;margin:0}
+.doc section,.site-doc section{display:grid;gap:12px}
+.doc .meta,.site-doc .meta{display:flex;flex-wrap:wrap;gap:8px 24px;font-size:14px;opacity:.7}
+.doc .toc,.site-doc .toc{display:grid;gap:8px;padding:22px;border-radius:20px;background:color-mix(in srgb,var(--ink-strong) 5%,transparent)}
+.doc .toc ol,.site-doc .toc ol{padding-left:20px}
+.doc .toc a,.site-doc .toc a{font-size:15px}
+.doc .note,.site-doc .note{padding:18px 20px;border-radius:16px;background:color-mix(in srgb,var(--field-amber) 22%,transparent);font-size:15px;line-height:1.55}
+@media(min-width:721px){.doc,.site-doc{padding:150px 32px 120px}}
+@media(min-width:1100px){.doc,.site-doc{padding-inline:max(48px,calc((100% - var(--page-max,1240px))/2))}}
 
 /* /alternatives index: two cards on paper, no motion of its own. */
 .altcards{display:grid;gap:16px}
@@ -685,3 +701,16 @@ main [id]{scroll-margin-top:80px}
 @media(min-width:721px){
   .ctable.wide .r{grid-template-columns:minmax(0,1.6fr) repeat(4,minmax(0,1fr))}
 }
+
+/* The company block on /about reuses the price ladder rows: label left, value
+   right, hairline between. Its values run long, so the row wraps instead of
+   crushing them, and it is not a price so the value is not set in the numeral
+   face. */
+.ptable.company .prow{align-items:baseline;gap:20px}
+.ptable.company .prow span:first-child{flex:none;min-width:11ch;font-weight:700;opacity:.62}
+.ptable.company .prow span:last-child{text-align:right;text-wrap:pretty}
+
+/* The contact card is a single wide card rather than one of a pair, so it
+   does not inherit .pgrid's column sizing. */
+.contact-card{display:grid;gap:18px;justify-items:start;max-width:72ch}
+.contact-card .ptable{width:100%;max-width:34ch}

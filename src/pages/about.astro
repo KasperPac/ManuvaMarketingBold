@@ -1,71 +1,51 @@
 ---
-
-// Carried from the home page (MVBOLD-21) along with its line.
-const SECTORS = [
-  'Furniture', 'Food', 'Cosmetics', 'Supplements',
-  'Apparel', 'Hardware', 'Electronics', 'Manufacturing',
-] as const;
 import Base from '../layouts/Base.astro';
-import Field from '../components/site/Field.astro';
-import Panel from '../components/site/Panel.astro';
-import CtaBand from '../components/site/CtaBand.astro';
-import Pill from '../components/site/Pill.astro';
-import Icon from '../components/ds/Icon.astro';
 import { APP_URL, CONTACT_EMAIL } from '../site';
 
-// The old page's own <title>/<meta description>/og:*/twitter:*, verbatim —
-// all four (meta description, og:description, twitter:description) are the
-// same string on the source page's own <head>, unlike / and /pricing which
-// each trim a clause for the shorter variants. Confirmed by reading the old
-// page's raw <head>, not assembled.
+// Rebuilt on the new design (MVBOLD-24). The last page on the pre-rebuild
+// components; nothing on the site runs on the old design after this.
+//
+// Motion: one moment — a single shape cut into the principles. It takes the
+// shutter (shape 5), which no other page uses, so every page in the site now
+// animates differently from its neighbours.
+//
+// Every word is carried across, including the sectors row that moved here
+// from the home page in MVBOLD-21 and the contact block that moved here from
+// the home page before that. Six links across the site plus the Organization
+// schema's contactPoint.url target #contact, so that anchor stays.
+
 const description =
   'Manuva is manufacturing operations software for Shopify-first product brands, operated by Pac Technologies Pty Ltd in Sydney, Australia.';
 
 // The old page's own six principle cards, verbatim titles and body copy.
-// Icons are decorative on the old page too — its SVGs carry no data-lucide
-// attribute at all (unlike features.html's icons), so tokenizeIcons() strips
-// them as plain chrome on the source side and the parity gate carries no
-// expectation for a specific glyph name here. Picked for semantic fit from
-// lucide-static@0.544.0 rather than reverse-engineered from the old inline
-// SVG paths.
 const PRINCIPLES = [
   {
-    icon: 'banknote',
     title: 'Flat pricing, no per-seat tax',
     desc: 'Software bills should not scale with the size of your shop floor. Manuva charges per account, not per user — so adding a packer, a QC lead, or a third-shift supervisor never raises your invoice.',
   },
   {
-    icon: 'zap',
     title: 'Live, not batch',
     desc: 'Shopify orders cascade to production within seconds via webhooks — not nightly batch imports. Stock counts update as production completes and orders ship. The number on screen is the number on the floor.',
   },
   {
-    icon: 'workflow',
     title: 'Built around real workflows',
     desc: 'Bin locations, yield %, BOM versioning with rollback, PO variance, supplier lead-time accuracy — the operational details that hide in spreadsheets at most shops. Manuva surfaces them as first-class features.',
   },
   {
-    icon: 'rocket',
     title: 'Days, not quarters',
     desc: 'Setup happens in days. Migration tools, CSV imports, and Shopify connection take care of the mechanical work. You should be running production through Manuva within the first week, not waiting for an implementation consultant.',
   },
   {
-    icon: 'shield-check',
     title: 'Your data is yours',
     desc: "Full export on every plan. No vendor lock-in. We don't use customer data to train, fine-tune, or evaluate any machine-learning or artificial-intelligence model.",
   },
   {
-    icon: 'history',
     title: 'Quarterly competitor checks',
     desc: 'When we make a comparison claim about Katana, MRPeasy, or any other tool, we date-stamp it and re-verify every quarter. If we get something wrong, write to us — corrections ship in the next release.',
   },
 ] as const;
 
-// The old page's own eight company-info rows, verbatim label/value pairs —
-// "Sectors served" kept as a JS string (not bare markup) so Astro escapes
-// its "&" the same way every other page's copy arrays already do (see
-// features.astro's DOMAINS "BOMs & Manufacturing" etc.), instead of writing
-// a raw ampersand into static template text.
+// The old page's own company-info rows, verbatim label/value pairs.
 const COMPANY = [
   { label: 'Operating entity', value: 'Pac Technologies Pty Ltd' },
   { label: 'Headquarters', value: 'Sydney, Australia' },
@@ -73,13 +53,15 @@ const COMPANY = [
   { label: 'Sectors served', value: 'Manufacturing & product brands selling on Shopify, WooCommerce, Amazon, Etsy' },
 ] as const;
 
-// The old page's own <script type="application/ld+json"> — a BreadcrumbList
-// plus an AboutPage node whose mainEntity references the Organization node
-// declared on / (same @id, "https://manuva.app/#org" — cross-page reference,
-// not a duplicate Organization definition). AboutPage's own description is
-// its own real field on the source page, distinct from (though overlapping)
-// this page's <meta name="description"> above — read from about.html's
-// <head>, not reused from `description` above under the assumption they match.
+// Carried from the home page in MVBOLD-21, where this row and its line were a
+// whole section earning very little. The eyebrow it used there was "Who runs
+// Manuva" — this page's own heading — so it was always describing what
+// belongs here.
+const SECTORS = [
+  'Furniture', 'Food', 'Cosmetics', 'Supplements',
+  'Apparel', 'Hardware', 'Electronics', 'Manufacturing',
+] as const;
+
 const schema = [
   {
     '@context': 'https://schema.org',
@@ -99,189 +81,140 @@ const schema = [
       'About Manuva — manufacturing operations software for Shopify-first product brands, operated by Pac Technologies Pty Ltd in Sydney, Australia.',
   },
 ];
+
+const pad = (n: number) => String(n).padStart(2, '0');
 ---
 <Base
   title="About Manuva — Manufacturing Operations Software"
-  description={description}
+  {description}
+  ogDescription={description}
   twitterDescription={description}
   canonical="https://manuva.app/about"
+  ogType="article"
+  current="/about"
+  headInk="light"
   {schema}
 >
-  {/* 1 · mint hero, inset on paper. Old page's own hero has no buttons at
-      all (confirmed: page-hero is eyebrow + h1 + lede only). A first pass
-      relocated the closing cta-section's "Start free trial" / "Book a demo"
-      pair up here as a workaround, because CtaBand's second action was
-      hardcoded to "Talk to us" and had nowhere else to put "Book a demo"
-      without losing it. CtaBand now carries a real secondActionHref (Task
-      14, team-lead review), so that workaround is gone too — its own reason
-      for existing went with it. Restoring a bare hero matches the source
-      exactly, and avoids showing the same two buttons twice on one page,
-      which the old page never did either. */}
-  <section class="site-hero site-about-hero">
-    <div class="mv-wrap">
-      <Panel field="mint" data-fold="mint" class="site-about-hero-panel">
-        <span class="mv-eyebrow">About Manuva</span>{' '}
-        <h1 class="mv-display site-about-hero-title">Manufacturing operations software, built for product brands that ship.</h1>
-        <p class="site-about-hero-sub">
-          Manuva is a connected platform for inventory, bills of materials, production, purchasing, capacity,
-          costing, and reporting — built specifically for small and mid-size manufacturers that sell through
-          Shopify and adjacent channels.
-        </p>
-      </Panel>
-    </div>
+  {/* mint: the principles below are ink, the contact card violet and the
+      close flare, so the hero repeats nothing. */}
+  <section class="hero mv-field-mint">
+    <span class="ghostnum num" aria-hidden="true" data-n="06"></span>
+    <span class="eyebrow" style="opacity:.75">About Manuva</span>
+    <h1 class="disp" style="max-width:15ch">
+      Manufacturing operations software, built for <span class="hl">product brands that ship.</span>
+    </h1>
+    <p class="sub" style="opacity:.9;max-width:52ch">
+      Manuva is a connected platform for inventory, bills of materials, production, purchasing, capacity,
+      costing, and reporting — built specifically for small and mid-size manufacturers that sell through
+      Shopify and adjacent channels.
+    </p>
   </section>
 
-  {/* 2 · paper — "what we build", plain prose, no field behind long-form copy */}
-  <section class="mv-section site-about-build">
-    <div class="mv-wrap">
-      <div class="site-about-group-head">
-        <span class="mv-eyebrow">What we build</span>{' '}
-        <h2 class="mv-display site-about-heading">One system covering the whole shop floor.</h2>
+  <section class="sec">
+    <div class="split">
+      <div class="stick" style="display:grid;gap:18px">
+        <span class="eyebrow" style="opacity:.6">What we build</span>
+        <h2 class="disp" style="font-size:clamp(36px,7vw,64px)">One system covering the whole shop floor.</h2>
       </div>
-      <p class="site-about-body">
-        Manuva replaces the spreadsheets, fragmented apps, and legacy MRP systems that most product brands run
-        their operations on. Inventory counts, bills of materials, work orders, purchase orders, capacity plans,
-        cost rollups, and Shopify sync — all in one place, all live, all priced flat.
-      </p>
-      <p class="site-about-body">
-        The product is built for shops that <strong>make what they sell</strong>: furniture, food, cosmetics,
-        supplements, apparel, hardware, electronics. Tools designed for large industrial manufacturers tend to be
-        priced and structured for an audience Manuva isn't. Tools designed for retailers don't cover production.
-        Manuva fills the gap.
-      </p>
+      <div style="display:grid;gap:20px">
+        <p class="sub" style="color:var(--ink-muted);max-width:62ch">
+          Manuva replaces the spreadsheets, fragmented apps, and legacy MRP systems that most product brands run
+          their operations on. Inventory counts, bills of materials, work orders, purchase orders, capacity plans,
+          cost rollups, and Shopify sync — all in one place, all live, all priced flat.
+        </p>
+        <p class="sub" style="color:var(--ink-muted);max-width:62ch">
+          The product is built for shops that <strong>make what they sell</strong>: furniture, food, cosmetics,
+          supplements, apparel, hardware, electronics. Tools designed for large industrial manufacturers tend to be
+          priced and structured for an audience Manuva isn't. Tools designed for retailers don't cover production.
+          Manuva fills the gap.
+        </p>
+      </div>
     </div>
   </section>
 
-  {/* 3 · ink — the six principles, reusing the .site-feat-* icon/title/desc
-      pattern (already AA-verified on data-fold sections via the generic
-      [data-fold] .site-feat-icon/.site-feat-desc overrides) rather than
-      inventing a parallel "card on a field" treatment. */}
-  {/* principles — paper, was ink. Six principle items of body copy in a 2-col
-      grid; "never a colour field behind long-form body copy" is the same rule
-      the comparison table on the home page now follows. With navy off the
-      marketing site there is no neutral dark left to hold it, and a rotation
-      hue behind this much reading would be the loudest thing on the page. */}
-  <Field field="ink" class="site-about-principles">
-    <div>
-    <div class="site-about-group-head">
-      <span class="mv-eyebrow">How we build</span>{' '}
-      <h2 class="mv-display site-about-heading">The principles behind the product.</h2>
-      <p class="site-about-lede">A small set of opinionated decisions that shape how Manuva looks, runs, and prices.</p>
-    </div>
-    <div class="mv-cols-2 site-feat-grid">
-      {PRINCIPLES.map((p) => (
-        <div class="site-feat">
-          <div class="site-feat-icon"><Icon name={p.icon} size={16} /></div>
-          <div class="site-feat-body">
-            <h3 class="site-feat-title">{p.title}</h3>
-            <p class="site-feat-desc">{p.desc}</p>
-          </div>
+  {/* The page's one pinned moment. ink, because six principles is long-form
+      body copy and a rotation hue behind that much reading would be the
+      loudest thing on the page. */}
+  <section class="mv-field-ink">
+    <div class="intro" data-from="paper" data-shape="5">
+      <div class="ipin">
+        <div class="cut mv-field-ink">
+          <span class="pnum num" data-rate="30" aria-hidden="true" data-n={pad(PRINCIPLES.length)}></span>
+          <span class="eyebrow" data-rate="70" style="color:var(--field-lime)">How we build</span>
+          <h2 class="disp" data-rate="50">The principles behind the product.</h2>
+          <p class="pline" data-rate="90">Six of them, and we are held to all six.</p>
         </div>
-      ))}
+      </div>
     </div>
+    <div class="wrap" style="padding-bottom:96px">
+      <ul class="nlist two">
+        {PRINCIPLES.map((p, i) => (
+          <li>
+            <span class="i">{pad(i + 1)}</span>
+            <h3>{p.title}</h3>
+            <p>{p.desc}</p>
+          </li>
+        ))}
+      </ul>
     </div>
-  </Field>
+  </section>
 
-  {/* 4 · paper — company info. No colour field behind this table-like data,
-      same rule pricing.astro's matrix follows. */}
-  <section class="mv-section site-about-company-section">
-    <div class="mv-wrap">
-      <div class="site-about-group-head">
-        <span class="mv-eyebrow">Company</span>{' '}
-        <h2 class="mv-display site-about-heading">Who runs Manuva.</h2>
-        <p class="site-about-lede">
+  <section class="sec">
+    <div class="split">
+      <div class="stick" style="display:grid;gap:18px">
+        <span class="eyebrow" style="opacity:.6">Who runs Manuva</span>
+        <h2 class="disp" style="font-size:clamp(36px,7vw,64px)">Who runs Manuva.</h2>
+        <p class="sub" style="color:var(--ink-muted)">
           Manuva is operated by Pac Technologies Pty Ltd, an Australian private company based in Sydney. The
           platform launched publicly in 2026.
         </p>
-        {/* Carried from the home page, where this row and its heading were a
-            whole section earning very little. The eyebrow it used there was
-            "Who runs Manuva" — this section's own heading — so it was always
-            describing what belongs here. */}
-        <p class="site-about-lede" style="margin-top:8px">Built for shops that make what they sell.</p>
+        <p class="sub" style="color:var(--ink-muted)">Built for shops that make what they sell.</p>
         <ul class="logorow sectors">
           {SECTORS.map((name) => <li>{name}</li>)}
         </ul>
       </div>
-      {/* Row is a <div> (a real boundary — rows never glue into each other).
-          Label/value are <span>s deliberately, not the usual div/td/th rule:
-          the old page glues its own label+value into one run per row (spans,
-          not divs, with only real inter-tag whitespace between them), and
-          several of these rows are long enough to be phrase-tier matches —
-          swapping in a boundary tag here would insert a "|" mid-phrase and
-          break the exact-substring match the parity gate runs on the old
-          page's own combined text. */}
-      <div class="mv-cols-2 site-about-company">
+      <div class="ptable company">
         {COMPANY.map((row) => (
-          <div class="site-about-company-row">
-            <span class="site-about-company-label">{row.label}</span>{' '}
-            <span class="site-about-company-value">{row.value}</span>
-          </div>
+          <div class="prow"><span>{row.label}</span><span>{row.value}</span></div>
         ))}
-        <div class="site-about-company-row">
-          <span class="site-about-company-label">Contact</span>{' '}
-          <span class="site-about-company-value"><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></span>
-        </div>
-        <div class="site-about-company-row">
-          <span class="site-about-company-label">Application</span>{' '}
-          <span class="site-about-company-value"><a href={APP_URL}>app.manuva.app</a></span>
-        </div>
-        <div class="site-about-company-row">
-          <span class="site-about-company-label">Privacy</span>{' '}
-          <span class="site-about-company-value"><a href="/privacy">Privacy policy</a></span>
-        </div>
-        <div class="site-about-company-row">
-          <span class="site-about-company-label">Terms</span>{' '}
-          <span class="site-about-company-value"><a href="/terms">Terms of service</a></span>
-        </div>
+        <div class="prow"><span>Contact</span><span><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></span></div>
+        <div class="prow"><span>Application</span><span><a href={APP_URL}>app.manuva.app</a></span></div>
+        <div class="prow"><span>Privacy</span><span><a href="/privacy">Privacy policy</a></span></div>
+        <div class="prow"><span>Terms</span><span><a href="/terms">Terms of service</a></span></div>
       </div>
     </div>
   </section>
 
-  {/* Contact — moved here from the home page (author's call: "remove the get in
-      touch from the landing page"). Deliberately relocated rather than deleted:
-      six links across the site plus the Organization schema's contactPoint.url
-      target #contact, and the copy is the old home page's own contact section,
-      verbatim. /about is where someone looking for the company already is, and
-      this page already carries the company block directly above.
-
-      Everything below is unchanged from its home-page form, including the two
-      extraction notes, which still apply — they describe how this markup keeps
-      each fragment boundary-isolated for the parity gate. The one change is the
-      anchor's owner: /about#contact, not /#contact. */}
-  {/* violet. This page ran mint hero → paper → paper → paper → flare CTA.
-      "What we build" and the six principles are long-form body copy and the
-      company block is data, so all three are off-limits for a field; the
-      contact block is four short lines and a button, which is exactly what a
-      field is for. violet shares a hue with neither the mint above nor the
-      flare below. */}
-  <Field field="violet" class="site-contact" id="contact">
-    <div class="site-contact-inner">
-      <h2 class="mv-display site-about-heading">Get in touch</h2>
-      <p class="site-contact-sub">
+  {/* Six links across the site and the Organization schema's contactPoint.url
+      target this anchor, so #contact stays on this element. */}
+  <section class="sec" id="contact">
+    {/* A violet card on paper, not a full-bleed violet fold: the closing
+        field follows directly and two fields may not touch. The old page
+        carried this as a panel for the same reason. */}
+    <article class="pcard mv-field-violet contact-card">
+      <span class="eyebrow" style="opacity:.8">Get in touch</span>
+      <h2 class="disp" style="font-size:clamp(32px,5.4vw,52px);margin:0">Get in touch</h2>
+      <p class="sub" style="opacity:.9;max-width:54ch">
         Whether you're ready to start a trial or just want to see how Manuva fits your shop, we'd love to talk.
       </p>
-      {/* No Icon before the label: it would stamp a "[icon:mail]" token right
-          before "Email". div, not span, for label/meta so each is its own
-          boundary-isolated segment; the mailto link needs an explicit {' '}
-          before "We reply…" since Astro drops the whitespace-only text node
-          that would otherwise separate them. */}
-      <div class="site-contact-info">
-        <div class="site-contact-label">Email</div>
-        <a href={`mailto:${CONTACT_EMAIL}`} class="site-contact-value">{CONTACT_EMAIL}</a>{' '}
-        <div class="site-contact-meta">We reply within one business day</div>
+      <div class="ptable">
+        <div class="prow"><span>Email</span><span><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></span></div>
+        <div class="prow"><span>Response</span><span>We reply within one business day</span></div>
       </div>
-      <Pill href={`mailto:${CONTACT_EMAIL}`} field="paper">Email us</Pill>
-    </div>
-  </Field>
+      <a class="pill white" href={`mailto:${CONTACT_EMAIL}`} style="justify-self:start">Email us</a>
+    </article>
+  </section>
 
-  {/* 5 · flare CTA. Heading and body are the old page's own closing
-      cta-section text, verbatim — not an assembled tagline. secondActionHref
-      matches the old page's own "Book a demo" href (same query-param-drop
-      as features.astro above). */}
-  <CtaBand
-    field="flare"
-    heading="See Manuva in action"
-    body="30-day free trial, full Pro access. No credit card required. Set up in a day."
-    secondActionHref="/about#contact"
-  />
+  {/* flare, and both of the old band's own actions with their own labels.
+      "Book a demo" targets /about#contact — a self-link on this page, which
+      is what the old band did: the anchor is this page's and the label is
+      the one six other CTAs across the site use. */}
+  <section class="outro mv-field-flare">
+    <p class="disp">See Manuva in action.</p>
+    <p class="sub">30-day free trial, full Pro access. No credit card required. Set up in a day.</p>
+    <div class="row">
+      <a class="pill white" href={APP_URL}>Start free trial &rarr;</a>
+      <a class="pill ghost" href="/about#contact">Book a demo</a>
+    </div>
+  </section>
 </Base>
