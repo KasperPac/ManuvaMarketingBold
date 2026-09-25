@@ -13,7 +13,11 @@
 // scroll cannot strand a transition, and clip-path/transform only.
 ---
 <script>
-  const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  // Base.astro decided this before first paint and wrote it to
+  // <html data-motion>, seeded from prefers-reduced-motion unless the visitor
+  // overrode it. Reading the attribute rather than the media query keeps the
+  // script and the stylesheet on the same answer.
+  const reduce = document.documentElement.dataset.motion !== 'on';
   const ease = (u: number) => (u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2);
   const cl = (v: number) => Math.min(1, Math.max(0, v));
 

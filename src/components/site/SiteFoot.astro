@@ -29,8 +29,44 @@ const slug = (h: string) => `foot-${h.toLowerCase().replace(/[^a-z0-9]+/g, '-')}
     </nav>
   </div>
   <span class="logo-big" role="img" aria-label="Manuva"><Logo variant="lockup" fill decorative /></span>
+  {/* Outside .legal on purpose: that row sets opacity:.6, and a parent's
+      opacity is a group a child cannot opt out of — the label composited to
+      4.27:1 there and nothing on the button could lift it. aria-pressed and
+      the text are set by the script from the real state rather than rendered
+      here, because this is a static build and any baked-in state would be
+      wrong for half the visitors. */}
+  <button class="motion-toggle" type="button" aria-pressed="false">
+    <i aria-hidden="true"></i><span class="motion-label">Motion</span>
+  </button>
   <div class="legal">
     <span>&copy; {year} Pac Technologies Pty Ltd</span>
     <span>Manufacturing operations, finally simple.</span>
   </div>
 </footer>
+
+<script>
+  // The engine initialises once from <html data-motion>, so changing the mode
+  // reloads rather than trying to tear down and rebuild six pinned panels,
+  // the marquee loop and the chip bar in place. A preference toggle is a
+  // reasonable place to spend a reload; a half-reinitialised stage is not.
+  const btn = document.querySelector<HTMLButtonElement>('.motion-toggle');
+  if (btn) {
+    const label = btn.querySelector('.motion-label')!;
+    const sync = () => {
+      const on = document.documentElement.dataset.motion === 'on';
+      btn.setAttribute('aria-pressed', String(on));
+      label.textContent = on ? 'Motion on' : 'Motion off';
+      btn.title = on
+        ? 'Turn off the scroll animations'
+        : 'Turn on the scroll animations';
+    };
+    sync();
+    btn.addEventListener('click', () => {
+      const next = document.documentElement.dataset.motion === 'on' ? 'off' : 'on';
+      try { localStorage.setItem('mv-motion', next); } catch {}
+      document.documentElement.dataset.motion = next;
+      sync();
+      location.reload();
+    });
+  }
+</script>
