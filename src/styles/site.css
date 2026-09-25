@@ -675,3 +675,13 @@ main [id]{scroll-margin-top:80px}
 /* The cobalt band ran ~104px past the cards for no reason. */
 .plans{padding-bottom:56px}
 @media(min-width:721px){.plans{padding-bottom:72px}}
+
+/* A five-column .ctable, for the one comparison that runs Manuva against
+   three others rather than one. Scrolls rather than crushing the columns on a
+   phone: four verdicts plus a label do not fit 375px, and a table that
+   wraps its cells is harder to read than one you swipe. */
+.ctable.wide{overflow-x:auto}
+.ctable.wide .r{grid-template-columns:minmax(150px,1.4fr) repeat(4,minmax(86px,1fr))}
+@media(min-width:721px){
+  .ctable.wide .r{grid-template-columns:minmax(0,1.6fr) repeat(4,minmax(0,1fr))}
+}
