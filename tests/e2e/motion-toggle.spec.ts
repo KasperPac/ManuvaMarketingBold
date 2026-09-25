@@ -95,3 +95,75 @@ test('the control is a real button with an accessible name in both states', asyn
   const box = await btn.boundingBox();
   expect(box!.height, 'the target is at least 44px tall').toBeGreaterThanOrEqual(44);
 });
+
+// --- smoothness -------------------------------------------------------------
+//
+// The design writes each shape straight from the scroll offset. That is exact
+// but steppy, because a mouse wheel moves in ~100px notches: measured on the
+// deployed home page, one notch moved the iris from 75.8% to 115.7% in a
+// single frame — 39.9% of its travel — which is what "rigid" was. The engine
+// damps the rendered progress toward the scroll-derived target instead, so a
+// notch arrives as a sweep over roughly a quarter second.
+//
+// Asserted as a property rather than a number: after a jump the shape must be
+// somewhere between where it was and where it is going, on at least one frame.
+// A snapped implementation can never satisfy that.
+test.describe('smoothness', () => {
+  test.use({ reducedMotion: 'no-preference' });
+
+  test('a scroll jump sweeps the shape rather than snapping it', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/');
+    await page.waitForTimeout(300);
+
+    const t = await page.evaluate(async () => {
+      const s = document.querySelector('.stage') as HTMLElement;
+      const top = s.getBoundingClientRect().top + scrollY;
+      const per = (s.offsetHeight - innerHeight) / 5;
+      const radius = () =>
+        parseFloat((getComputedStyle(s.querySelectorAll('.panel')[1]).clipPath.match(/[\d.]+/) || ['0'])[0]);
+
+      scrollTo(0, top + per * 0.5);
+      await new Promise((r) => setTimeout(r, 500));   // let it settle
+      const from = radius();
+
+      scrollTo(0, top + per * 0.5 + 100);             // one wheel notch
+      const mid: number[] = [];
+      for (let i = 0; i < 4; i++) {
+        await new Promise((r) => requestAnimationFrame(() => r(null)));
+        mid.push(radius());
+      }
+      await new Promise((r) => setTimeout(r, 600));   // settle again
+      return { from, mid, to: radius() };
+    });
+
+    expect(t.to, 'the shape still ends where the scroll position says').toBeGreaterThan(t.from);
+    // At least one sampled frame strictly between the two — the signature of a
+    // follower. A snapped value is already at `to` on the first frame.
+    const between = t.mid.filter((v) => v > t.from + 0.5 && v < t.to - 0.5);
+    expect(between.length, `frames sampled: ${JSON.stringify(t.mid)} between ${t.from} and ${t.to}`)
+      .toBeGreaterThan(0);
+  });
+
+  test('the loop idles off-screen and wakes again on scroll', async ({ page }) => {
+    // The marquee used to hold a permanently-running rAF open. The shared loop
+    // stops when nothing is near the viewport, which is only safe if scrolling
+    // back restarts it — otherwise the stage silently stops animating for the
+    // rest of the session.
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/');
+    await page.evaluate(() => scrollTo(0, document.body.scrollHeight));
+    await page.waitForTimeout(700);
+
+    const revived = await page.evaluate(async () => {
+      const s = document.querySelector('.stage') as HTMLElement;
+      const top = s.getBoundingClientRect().top + scrollY;
+      const per = (s.offsetHeight - innerHeight) / 5;
+      scrollTo(0, top + per * 1.5);
+      await new Promise((r) => setTimeout(r, 700));
+      return getComputedStyle(s.querySelectorAll('.panel')[2]).clipPath;
+    });
+    expect(revived, 'the second shape animates after the loop had idled').not.toBe('none');
+    expect(revived).toMatch(/polygon\(/);
+  });
+});
