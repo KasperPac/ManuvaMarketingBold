@@ -627,3 +627,36 @@ main [id]{scroll-margin-top:80px}
    up rather than carrying a full section's bottom padding. */
 .stage-lead{padding-bottom:28px}
 @media(min-width:721px){.stage-lead{padding-bottom:36px}}
+
+/* Hero with the explainer in it. One column until 1100, where the video goes
+   beside the copy rather than under it. The copy keeps the leading edge: on a
+   phone the punchline and the CTAs come first and the video follows. */
+.hero-split{display:grid;gap:30px;align-items:center;width:100%}
+.hero-copy{display:grid;gap:22px;justify-items:start;min-width:0}
+.hero-media{display:grid;gap:12px;min-width:0}
+.hero .site-video{margin:0;width:100%;max-width:none}
+@media(min-width:1100px){
+  .hero-split{grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);gap:56px}
+  /* The headline gives up some size for the column it now shares — but not
+     as much as it first did. At 5.6vw it rendered 71.7px at 1280, below the
+     72px section h2 below it, which inverted the page's own hierarchy: the
+     lead-in and the onboarding heading were both louder than the headline.
+     6.8vw keeps it above every h2 at every width from 1100 up. */
+  .hero-split .hero-copy h1{font-size:clamp(68px,6.8vw,104px)}
+}
+
+/* The header, docked. Transparent over the hero, an opaque bar once it is
+   over anything else — Motion.astro fills in the background and ink of the
+   field beneath it. The hairline only appears when docked, so the hero keeps
+   its clean edge. */
+.site-head{transition:color 200ms,background-color 200ms,transform 260ms var(--ease-out)}
+.site-head[data-dock="1"]{box-shadow:inset 0 -1px 0 color-mix(in srgb,currentColor 16%,transparent)}
+.site-head[data-hide="1"]{transform:translateY(-100%)}
+/* The drawer sits above the header and must not ride it off-screen. */
+.site-head[data-hide="1"]:has(.burger[aria-expanded="true"]){transform:none}
+@media(prefers-reduced-motion:reduce){.site-head{transition:color 200ms,background-color 200ms}}
+
+/* The stage lead-in is an introduction, not the page's biggest statement. At
+   the section default it rendered 76.8px against a 71.7px h1 — louder than
+   the headline it follows. */
+.stage-lead h2.disp{font-size:clamp(32px,4.6vw,58px);max-width:20ch}

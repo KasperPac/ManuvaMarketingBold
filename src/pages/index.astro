@@ -27,7 +27,13 @@ import { APP_URL, DOMAINS } from '../site';
 // Field rhythm, per the loud-layer rules — one full-bleed field per fold and
 // never two touching:
 //   cobalt hero → lime marquee → paper → STAGE → paper → amber → paper →
-//   ink → paper → aqua → paper → flare outro
+//   ink → paper → flare outro
+//
+// The aqua beta band and the sectors row came off this page: both were
+// full sections earning very little, and the tail was the part that read as
+// crowded. Neither was deleted — the beta offer is on /pricing, where an
+// offer belongs, and the sectors row joined /about's own "Who runs Manuva."
+// section, which is the heading this row already borrowed its eyebrow from.
 // The hero/marquee pairing is the design's own and is kept as it ships.
 
 const MARQUEE = [
@@ -58,11 +64,6 @@ const ONBOARDING = [
 ] as const;
 
 const INTEGRATIONS = ['Shopify', 'WooCommerce', 'Amazon', 'Etsy', 'Xero', 'QuickBooks', 'MYOB'];
-
-const SECTORS = [
-  'Furniture', 'Food', 'Cosmetics', 'Supplements',
-  'Apparel', 'Hardware', 'Electronics', 'Manufacturing',
-] as const;
 
 // The old site's own #compare rows. They moved to /alternatives when the home
 // page dropped that section; the new design puts a three-column comparison
@@ -160,17 +161,38 @@ const pad = (n: number) => String(n).padStart(2, '0');
   headInk="light"
   {schema}
 >
+  {/* The explainer lives in the hero rather than in a fold of its own. It was
+      a whole section to scroll past before reaching the stage, which is the
+      page's actual argument — and the hero had the room, particularly on a
+      wide screen where it was mostly empty. Two columns from 1100 up, stacked
+      below that with the video after the CTAs so the punchline and the
+      buttons still come first on a phone. */}
   <section class="hero tall mv-field-cobalt" style="align-content:center">
     <span class="ghostnum num" aria-hidden="true" style="top:auto;bottom:-.2em" data-n="06"></span>
-    <span class="eyebrow" style="opacity:.75">MRP for Shopify manufacturers</span>
-    <h1 class="disp">Make it. <span class="hl keep">Track it.</span> Ship it.</h1>
-    <p class="sub" style="opacity:.88;max-width:46ch">
-      Manuva replaces the spreadsheets and legacy MRP your team is fighting with. Inventory, BOMs, work
-      orders, and stock control — connected, live, and built for the floor.
-    </p>
-    <div class="row">
-      <a class="pill" href={APP_URL}>Start free</a>
-      <a class="pill ghost" href="/about#contact" style="box-shadow:inset 0 0 0 2px rgb(255 255 255/.42)">Book a demo</a>
+    <div class="hero-split">
+      <div class="hero-copy">
+        <span class="eyebrow" style="opacity:.75">MRP for Shopify manufacturers</span>
+        <h1 class="disp">Make it. <span class="hl keep">Track it.</span> Ship it.</h1>
+        <p class="sub" style="opacity:.88;max-width:40ch">
+          Manuva replaces the spreadsheets and legacy MRP your team is fighting with. Inventory, BOMs, work
+          orders, and stock control — connected, live, and built for the floor.
+        </p>
+        <div class="row">
+          <a class="pill" href={APP_URL}>Start free</a>
+          <a class="pill ghost" href="/about#contact" style="box-shadow:inset 0 0 0 2px rgb(255 255 255/.42)">Book a demo</a>
+        </div>
+      </div>
+      <div class="hero-media">
+        <span class="eyebrow" style="opacity:.75">See it in 32 seconds</span>
+        {/* The caption carries "What Manuva actually does", which was the h2
+            of the section this replaced — the sentence stays on the page. */}
+        <Video
+          youtubeId="Vr4rkatHggA"
+          poster="/video/explainer-poster.jpg"
+          alt="Manuva title card reading Manufacturing operations software — What is Manuva?"
+          title="What Manuva actually does"
+        />
+      </div>
     </div>
   </section>
 
@@ -180,19 +202,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
   {/* The explainer. A facade, not an embed: the poster and button are static
       markup and nothing reaches youtube-nocookie.com until someone clicks. */}
-  <section class="sec">
-    <div style="display:grid;gap:12px">
-      <span class="eyebrow" style="opacity:.6">See it in 32 seconds</span>
-      <h2 class="disp">What Manuva actually does.</h2>
-    </div>
-    <Video
-      youtubeId="Vr4rkatHggA"
-      poster="/video/explainer-poster.jpg"
-      alt="Manuva title card reading Manufacturing operations software — What is Manuva?"
-      title="What is Manuva"
-    />
-  </section>
-
   {/* The stage's lead-in. This heading and sub used to head an eight-item
       platform grid below the stage — which restated the same six domains
       under the nine older area names, two of them pointing at anchors the
@@ -303,22 +312,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
     <p class="eyebrow" style="opacity:.6;margin:0">Integrates with the tools you already use</p>
     <ul class="logorow">
       {INTEGRATIONS.map((name) => <li>{name}</li>)}
-    </ul>
-  </section>
-
-  <section class="sec mv-field-aqua">
-    <h2 class="disp">Beta testers get <span class="hl">a free month of Pro</span>.</h2>
-    <p class="sub" style="opacity:.85;max-width:52ch">
-      Shape the roadmap with us. Tell us what features your team needs and we'll build them with you.
-    </p>
-    <a class="pill white" href={APP_URL} style="justify-self:start">Start free trial &rarr;</a>
-  </section>
-
-  <section class="sec">
-    <span class="eyebrow" style="opacity:.6">Who runs Manuva</span>
-    <h2 class="disp">Built for shops that make what they sell.</h2>
-    <ul class="logorow sectors">
-      {SECTORS.map((name) => <li>{name}</li>)}
     </ul>
   </section>
 
