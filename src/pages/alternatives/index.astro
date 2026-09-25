@@ -1,23 +1,25 @@
 ---
 import Base from '../../layouts/Base.astro';
-import Panel from '../../components/site/Panel.astro';
-import Field from '../../components/site/Field.astro';
-import Icon from '../../components/ds/Icon.astro';
-import CtaBand from '../../components/site/CtaBand.astro';
+import { APP_URL } from '../../site';
 
-// This route exists to fix a real navigation gap the author found: nav
-// "Compare" pointed at /alternatives/katana specifically, so /alternatives/
-// mrpeasy had no primary-nav path at all. It was reachable — the footer links
-// it from all nine pages and the Katana page cross-links it — but nothing in
-// the main nav did, and removing the home page's comparison section cut two
-// more links to it. Picking one of two competitor pages to be "Compare" was
-// always arbitrary; this is the parent both of them were missing.
+// Rebuilt on the new design (MVBOLD-23). It was the last page besides /about
+// still on the pre-rebuild components, which is also why its header looked
+// wrong: the old .site-hero centres its content, so the logo sat alone on the
+// left gutter with nothing beneath it to line up against.
 //
-// The comparison table below is the old home page's own #compare section,
-// moved here verbatim rather than deleted when the author removed it from the
-// landing page — same rows, same intro, same caption, same footnote links.
-// That keeps the copy on the site instead of losing it, and it lands on the
-// page whose whole subject it is.
+// Motion: one moment — a single shape cut into the comparison, the same
+// ration the two pages it points at get. It takes the blade (shape 4) since
+// katana uses the diagonal slab and mrpeasy the column wipe, so no two pages
+// in this family animate identically.
+//
+// This route exists to fix a real navigation gap: nav "Compare" pointed at
+// /alternatives/katana specifically, so /alternatives/mrpeasy had no
+// primary-nav path at all. Picking one of two competitor pages to be
+// "Compare" was always arbitrary; this is the parent both were missing.
+//
+// The comparison table is the old home page's own #compare section, carried
+// here verbatim when that section came off the landing page — same rows, same
+// intro, same caption, same footnote links.
 const COMPARE_ROWS = [
   ['Real-time inventory', 'yes', 'yes', 'Batch sync', 'no'],
   ['BOM versioning', 'yes', 'Manual', 'no', 'no'],
@@ -29,28 +31,29 @@ const COMPARE_ROWS = [
   ['Setup time', 'Days', 'Days–weeks', 'Weeks', 'Hours'],
 ] as const;
 
+const COLUMNS = ['Manuva', 'Katana', 'MRPeasy', 'Spreadsheets'] as const;
+
 // Each card's blurb is the target page's own <meta description>, verbatim —
 // not a written summary. Both are already reviewed, ranking copy.
 const COMPARISONS = [
   {
     href: '/alternatives/katana',
-    field: 'cobalt' as const,
+    field: 'violet' as const,
     name: 'Manuva vs Katana',
     blurb:
       'Katana alternative for Shopify manufacturers. Compare pricing, BOM versioning, bin locations, and capacity planning — Manuva starts at $99/mo with unlimited floor users.',
   },
   {
     href: '/alternatives/mrpeasy',
-    field: 'violet' as const,
+    field: 'flare' as const,
     name: 'Manuva vs MRPeasy',
     blurb:
       'MRPeasy alternative built for Shopify product brands. Compare per-seat pricing, setup time, real-time sync, and shop-floor usability against Manuva at $99/mo.',
   },
 ];
 
-// Authored head values — this route has no old counterpart, the same situation
-// /product is in. Only the second set of authored head values on the site;
-// both need reading as copy at review rather than checking against a source.
+// Authored head values — this route has no old counterpart, so both need
+// reading as copy at review rather than checking against a source.
 const TITLE = 'Manuva vs the alternatives — MRP comparisons';
 const DESCRIPTION =
   'Compare Manuva against Katana, MRPeasy, and spreadsheets — pricing, BOM versioning, bin locations, capacity planning, and setup time, side by side.';
@@ -65,109 +68,121 @@ const schema = [
     ],
   },
 ];
+
+// How many capabilities the spreadsheet column simply does not have. Counted,
+// not asserted — the ghost numeral has to be a figure the page can prove.
+const gaps = COMPARE_ROWS.filter((r) => r[4] === 'no').length;
 ---
 <Base
   title={TITLE}
   description={DESCRIPTION}
   twitterDescription={DESCRIPTION}
   canonical="https://manuva.app/alternatives"
+  current="/alternatives"
+  headInk="light"
   {schema}
 >
-  {/* 1 · aqua hero panel, inset on paper — the shared page-hero contract.
-      This page previously shipped a bare .mv-section with no panel and no
-      field, so .mv-display fell through to its base value and the h1
-      rendered at 28px against 68px on every other page, with the eyebrow
-      sitting 2px off it. aqua rather than one of the hues below it: the two
-      comparison cards are cobalt and violet and the closing band is flare,
-      so this is the one field on the page that repeats nothing. */}
-  <section class="site-hero site-alt-index-hero">
-    <div class="mv-wrap">
-      <Panel field="aqua" data-fold="aqua" class="site-alt-index-hero-panel">
-        <span class="mv-eyebrow">Compare</span>{' '}
-        <h1 class="mv-display site-alt-index-hero-title">Manuva vs the alternatives</h1>
-        <p class="site-alt-index-hero-sub">
-          Honest, dated comparisons against the tools Shopify manufacturers actually evaluate.
-        </p>
-      </Panel>
-    </div>
-  </section>
-
-  <section class="mv-section">
-    <div class="mv-wrap">
-      <div class="mv-cols-2">
-        {COMPARISONS.map((c) => (
-          <Panel field={c.field} data-fold={c.field} class="site-alt-index-card">
-            <h2 class="mv-display site-alt-index-card-title">{c.name}</h2>
-            <p class="site-alt-index-card-body">{c.blurb}</p>
-            <a href={c.href} class="site-alt-index-card-link">Read the full comparison →</a>
-          </Panel>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  {/* The home page's former #compare section, verbatim. Paper, not a field:
-      it is a data table, and "never a colour field behind a data table" is the
-      rule that took it off ink on the home page in the first place. */}
-  <Field field="ink" class="site-compare" id="compare">
-    <div>
-    <span class="mv-eyebrow">Why Manuva</span>{' '}
-    <h2 class="mv-display site-section-title">Built for the floor, not for the demo</h2>
-    <p class="site-compare-intro">
-      Other tools either started as accounting software or as Trello-for-factories. Manuva was built from day
-      one for the way real shops run production.
+  {/* aqua: the two cards below are violet and flare and the closing band is
+      lime, so this is the one field on the page that repeats nothing. */}
+  <section class="hero mv-field-aqua">
+    <span class="ghostnum num" aria-hidden="true" data-n="vs"></span>
+    <span class="eyebrow" style="opacity:.8">Compare</span>
+    <h1 class="disp">Manuva vs <span class="hl">the alternatives</span></h1>
+    <p class="sub" style="opacity:.9;max-width:46ch">
+      Honest, dated comparisons against the tools Shopify manufacturers actually evaluate.
     </p>
-    {/* This table was the worst of the three for a screen reader, because
-        BOTH verdicts were aria-hidden glyphs: a row came back as
-        `"Real-time inventory" | "" | "" | "Batch sync" | ""`, so Manuva's yes
-        and a competitor's no were indistinguishable and the table read as
-        though nobody had anything.
+    <div class="row">
+      <a class="pill ink" href={APP_URL}>Start free</a>
+      <a class="pill ghost" href="/pricing">See pricing</a>
+    </div>
+  </section>
 
-        `cell` renders the verdict with an accessible name and no added text
-        (see Icon.astro's `label` prop). The row label is now role="rowheader"
-        rather than role="cell", and the head and body rows sit in explicit
-        role="rowgroup" wrappers, so the ARIA table is actually complete
-        rather than a grid of anonymous cells. */}
-    <div class="site-compare-table" role="table" aria-label="Feature comparison: Manuva vs competitors">
-      <div role="rowgroup">
-        <div class="site-compare-row site-compare-row-head" role="row">
-          <div role="columnheader">Capability</div>
-          <div role="columnheader" class="site-compare-manuva">Manuva</div>
-          <div role="columnheader">Katana</div>
-          <div role="columnheader">MRPeasy</div>
-          <div role="columnheader">Spreadsheets</div>
+  <section class="sec">
+    <div style="display:grid;gap:12px">
+      <span class="eyebrow" style="opacity:.6">Head to head</span>
+      <h2 class="disp">Two comparisons, both current.</h2>
+    </div>
+    <div class="pgrid">
+      {COMPARISONS.map((c) => (
+        <article class={`pcard mv-field-${c.field}`}>
+          <h3 class="disp" style="font-size:clamp(28px,4.4vw,38px);margin:0">{c.name}</h3>
+          <p style="margin:0;font-size:16px;line-height:1.5;opacity:.9">{c.blurb}</p>
+          <a class="pill ghost" href={c.href} style="justify-self:start">Read the full comparison &rarr;</a>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  {/* The page's one pinned moment. */}
+  <section class="mv-field-ink" id="compare">
+    <div class="intro" data-from="paper" data-shape="4">
+      <div class="ipin">
+        <div class="cut mv-field-ink">
+          <span class="pnum num" data-rate="30" aria-hidden="true" data-n={String(gaps).padStart(2, '0')}></span>
+          <span class="eyebrow" data-rate="70" style="color:var(--field-lime)">Why Manuva</span>
+          <h2 class="disp" data-rate="50">Built for the floor, not for the demo.</h2>
+          {/* Not a repeat of the paragraph below it — that copy is carried
+              verbatim and stays there. This is the figure the numeral shows,
+              counted off the table rather than asserted. */}
+          <p class="pline" data-rate="90">{gaps} things a spreadsheet can't do.</p>
         </div>
       </div>
-      <div role="rowgroup">
+    </div>
+    <div class="wrap" style="padding-bottom:96px;display:grid;gap:24px">
+      <p class="sub" style="opacity:.8;font-size:16px;max-width:62ch">
+        Other tools either started as accounting software or as Trello-for-factories. Manuva was built from day
+        one for the way real shops run production.
+      </p>
+      {/* A real ARIA table. Both verdicts used to be aria-hidden glyphs, so a
+          row came back as `"Real-time inventory" | "" | "" | "Batch sync" | ""`
+          — Manuva's yes and a competitor's no were indistinguishable and the
+          table read as though nobody had anything. The verdict is a word now,
+          so it carries itself and needs no icon label at all. */}
+      <div class="ctable wide" role="table" aria-label="Feature comparison: Manuva vs competitors">
+        <div class="r h" role="row">
+          <span role="columnheader"></span>
+          {COLUMNS.map((c, i) => (
+            i === 0
+              ? <span class="eyebrow limechip" role="columnheader">{c}</span>
+              : <span class="eyebrow" role="columnheader" style="opacity:.5">{c}</span>
+          ))}
+        </div>
         {COMPARE_ROWS.map(([name, ...verdicts]) => (
-          <div class="site-compare-row" role="row">
-            <div role="rowheader" class="site-compare-feat">{name}</div>
+          <div class="r" role="row">
+            <span class="k" role="rowheader" style="opacity:.85">{name}</span>
             {verdicts.map((v, i) => (
-              <div role="cell" class:list={[{ 'site-compare-manuva': i === 0 }]}>
-                {v === 'yes'
-                  ? <Icon name="check" size={16} label="Yes" />
-                  : v === 'no'
-                    ? <Icon name="x" size={16} label="No" />
-                    : v}
-              </div>
+              <span
+                class={i === 0 ? 'us' : 'them'}
+                role="cell"
+                data-verdict={i === 0 ? undefined : v === 'yes' ? 'yes' : v === 'no' ? 'no' : 'partial'}
+              >{v === 'yes' ? 'Yes' : v === 'no' ? 'No' : v}</span>
             ))}
           </div>
         ))}
       </div>
+      <p class="sub" style="opacity:.7;font-size:15px;max-width:62ch">
+        Competitor data based on publicly available information, last checked May 2026. Check each vendor's
+        current site before you decide.
+      </p>
     </div>
-    <p class="site-compare-foot">
-      See full comparison:{' '}
-      <a href="/alternatives/katana">Manuva vs Katana</a> · <a href="/alternatives/mrpeasy">Manuva vs MRPeasy</a>
-      <br />
-      <span class="site-compare-caption">Competitor data based on publicly available information, last checked May 2026. Check each vendor's current site before you decide.</span>
-    </p>
-    </div>
-  </Field>
+  </section>
 
-  <CtaBand
-    field="flare"
-    heading="See Manuva in action"
-    body="30-day free trial, full Pro access. No credit card required. Set up in a day."
-    secondActionHref="/about#contact"
-  />
+  <section class="sec" style="padding-block:40px">
+    <span class="eyebrow" style="opacity:.6">See full comparison</span>
+    <nav class="related" aria-label="Related pages">
+      <a href="/alternatives/katana">Manuva vs Katana</a>
+      <a href="/alternatives/mrpeasy">Manuva vs MRPeasy</a>
+      <a href="/features">Full feature list</a>
+      <a href="/pricing">Pricing &amp; plans</a>
+    </nav>
+  </section>
+
+  <section class="outro mv-field-lime">
+    <p class="disp">See Manuva in action.</p>
+    <p class="sub">30-day free trial, full Pro access. No credit card required. Set up in a day.</p>
+    <div class="row">
+      <a class="pill ink" href={APP_URL}>Start free</a>
+      <a class="pill ghost" href="/about#contact">Book a demo</a>
+    </div>
+  </section>
 </Base>
