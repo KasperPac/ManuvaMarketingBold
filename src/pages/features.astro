@@ -240,16 +240,26 @@ const schema = [
           </div>
         </div>
       </div>
+      {/* Two columns from 1100 up, the same .split the rest of the site uses
+          for a heading against its body. As one narrow block it read as a
+          column crushed against the left while the feature list below it ran
+          the full width. The comment sits above the map: inside the returned
+          expression it is a block, not a comment, and the build fails. */}
       {AREAS[d.id].map((a) => (
-        <div class="arealead">
-          {/* Full strength. At .7 this measured 4.44:1 on aqua — a 12px
-              uppercase label has no headroom to mute into, which is the same
-              call this project already made for cobalt, violet and flare. */}
-          <span class="eyebrow">{a.eyebrow}</span>
-          <h3 class="disp">{a.heading}</h3>
-          <p class="sub">{a.intro}</p>
-          {a.carried && <p class="sub">{a.carried}</p>}
-          {a.diff && <p class="diff"><strong>{a.diff.lead}</strong> {a.diff.text}</p>}
+        <div class="arealead split">
+          <div class="leadhead">
+            {/* Full strength. At .7 this measured 4.44:1 on aqua — a 12px
+                uppercase label has no headroom to mute into, which is the
+                same call this project already made for cobalt, violet and
+                flare. */}
+            <span class="eyebrow">{a.eyebrow}</span>
+            <h3 class="disp">{a.heading}</h3>
+          </div>
+          <div class="leadbody">
+            <p class="sub">{a.intro}</p>
+            {a.carried && <p class="sub">{a.carried}</p>}
+            {a.diff && <p class="diff"><strong>{a.diff.lead}</strong> {a.diff.text}</p>}
+          </div>
         </div>
       ))}
       <ul class="nlist two three">
