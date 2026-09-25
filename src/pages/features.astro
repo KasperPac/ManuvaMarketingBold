@@ -26,12 +26,16 @@ import { APP_URL, DOMAINS } from '../site';
 // 9 headings, 9 intros and 5 differentiators, which is the copy that actually
 // argues the product. It is back, verbatim, keyed to the domain that absorbed
 // each area. A domain with two source areas shows both, in the old order.
-const AREAS: Record<string, { eyebrow: string; heading: string; intro: string; diff?: { lead: string; text: string } }[]> = {
+// `carried` holds a sentence that used to live in the home page's platform
+// grid. That grid restated the stage and was cut, so the four of its bodies
+// that were not already on this page came here rather than leaving the site.
+const AREAS: Record<string, { eyebrow: string; heading: string; intro: string; carried?: string; diff?: { lead: string; text: string } }[]> = {
   inventory: [
     {
       eyebrow: 'Inventory',
       heading: 'Stock counts you can actually trust.',
       intro: 'Every movement logged. Every adjustment tracked. Bin-level locations mean nothing gets lost on the floor.',
+      carried: 'From raw materials to finished goods — live stock counts, production orders, manufacturing plans, and stocktakes. Everything that keeps the floor moving.',
     },
   ],
   purchasing: [
@@ -40,6 +44,7 @@ const AREAS: Record<string, { eyebrow: string; heading: string; intro: string; d
       heading: 'Purchase orders that close the loop.',
       intro: "Issue POs, receive deliveries, and surface what your suppliers actually deliver on time. Operational intelligence that competitors don't surface at this price point.",
       diff: { lead: 'Unique to Manuva:', text: "PO variance, lead-time accuracy reports, and supplier scorecards — operational intelligence that Katana doesn't surface at any tier." },
+      carried: 'Every delivery receipt, transfer, and adjustment updates your stock automatically. Bin-level locations mean nothing gets lost on the floor.',
     },
   ],
   production: [
@@ -48,6 +53,7 @@ const AREAS: Record<string, { eyebrow: string; heading: string; intro: string; d
       heading: 'Build, version, and run BOMs that keep up with reality.',
       intro: 'Every component, every version, every change — captured. Cost and margin update automatically as your BOMs evolve.',
       diff: { lead: 'Unique to Manuva:', text: 'Yield %, BOM versioning with comparison, and templates — none of which Katana offers at any price.' },
+      carried: 'Build a versioned bill of materials for every variant, then roll up costs automatically. Know your margin before the job starts, not after.',
     },
   ],
   sales: [
@@ -67,6 +73,7 @@ const AREAS: Record<string, { eyebrow: string; heading: string; intro: string; d
       eyebrow: 'Production Planning · Pro',
       heading: 'Run the floor without a whiteboard.',
       intro: "Schedule jobs, track steps in sequence, and know exactly what's running and what's blocked — across every department, in real time.",
+      carried: "Plan around your team's capacity, sell through Shopify with inventory synced automatically, and get the reports that matter — on-time rate, scrap, stock turn.",
     },
     {
       eyebrow: 'Capacity & Team · Pro',
@@ -241,6 +248,7 @@ const schema = [
           <span class="eyebrow">{a.eyebrow}</span>
           <h3 class="disp">{a.heading}</h3>
           <p class="sub">{a.intro}</p>
+          {a.carried && <p class="sub">{a.carried}</p>}
           {a.diff && <p class="diff"><strong>{a.diff.lead}</strong> {a.diff.text}</p>}
         </div>
       ))}

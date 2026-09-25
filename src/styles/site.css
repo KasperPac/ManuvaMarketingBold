@@ -515,16 +515,6 @@ iframe.site-video-el{position:absolute;inset:0;width:100%;height:100%;border:0}
   font-weight:700;font-size:15px;letter-spacing:.01em;text-align:center;
   padding:18px 20px}
 
-/* The platform tiles' chips, back on the home page's numbered list. */
-/* grid-column:2 is load-bearing. .nlist li is a two-column grid whose .i
-   spans both rows, so a fourth child auto-places into column 1 — the narrow
-   index track — and the chips then set that track's width, pushing the text
-   column off the right edge (138px of page scroll at 375). */
-.nlist .chips{grid-column:2;display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
-.nlist .chips span{font-size:12px;font-weight:700;letter-spacing:.04em;
-  padding:4px 10px;border-radius:999px;
-  box-shadow:inset 0 0 0 1.5px color-mix(in srgb,currentColor 24%,transparent)}
-
 /* The comparison table's Manuva column. The reference colours this text lime,
    which the design's own loud-layer rule forbids ("lime is backgrounds and
    accents only, never text") and which measured 4.21:1 on the cobalt price
@@ -625,3 +615,15 @@ main [id]{scroll-margin-top:80px}
   border-radius:50%;background:currentColor;transition:transform 160ms var(--ease-out)}
 .motion-toggle[aria-pressed="true"] i::after{transform:translateX(12px)}
 @media(prefers-reduced-motion:reduce){.motion-toggle i::after{transition:none}}
+
+/* An .nlist without the count. Three facts are not three steps, and the
+   numerals made the reports list read as a second sequence beside the
+   onboarding one — identical treatment, so neither won. Same hairlines and
+   rhythm, one column, no index. */
+.nlist.plain li{grid-template-columns:minmax(0,1fr)}
+.nlist.plain h3{font-size:19px;line-height:1.3;max-width:46ch}
+
+/* The stage's lead-in sits directly on top of the first panel, so it closes
+   up rather than carrying a full section's bottom padding. */
+.stage-lead{padding-bottom:28px}
+@media(min-width:721px){.stage-lead{padding-bottom:36px}}
