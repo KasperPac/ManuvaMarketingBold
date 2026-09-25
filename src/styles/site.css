@@ -117,8 +117,13 @@ img{max-width:100%;display:block}
 .outro .disp{font-size:14vw;max-width:10ch}
 /* footer */
 .site-foot{background:var(--field-ink);color:#fff;padding:56px 20px 28px;display:grid;gap:40px}
-.site-foot .cols{display:grid;grid-template-columns:1fr 1fr;gap:32px}
-.site-foot .cols div{display:grid;gap:12px;align-content:start}
+.site-foot .cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px}
+/* `.cols div` never matched: the columns are <nav> elements, so they were
+   never made grids and their links flowed inline as a single run. With two
+   short columns that happened to fit; a six-link column set the first 1fr
+   track to its 391px min-content width and put 207px of horizontal scroll
+   on every page at 375. minmax(0,1fr) stops a long word doing the same. */
+.site-foot .cols > *{display:grid;gap:12px;align-content:start}
 .site-foot .cols .eyebrow{color:var(--field-lime)}
 .site-foot a{text-decoration:none;font-size:15px;opacity:.8}
 .logo-big{width:100%;aspect-ratio:2189/482}
@@ -140,7 +145,7 @@ img{max-width:100%;display:block}
  .ctable .k{font-size:16px}.ctable .us{font-size:17px}.ctable .them{font-size:16px}
  .faq summary{font-size:24px}
  .outro{padding:96px 32px}.outro .disp{font-size:9vw}
- .site-foot{padding:80px 32px 32px}.site-foot .cols{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .site-foot{padding:80px 32px 32px}.site-foot .cols{grid-template-columns:repeat(5,minmax(0,1fr))}
 }
 @media(min-width:1100px){
  .wrap,.bar,.hero,.sec,.cut,.stage .panel,.outro,.site-foot{padding-inline:max(48px,calc((100% - var(--page-max,1240px))/2))}
@@ -426,7 +431,42 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid cur
 
 /* The explainer facade sits in a plain .sec, so it needs its own measure and
    corner treatment now that it is not inside the old Field component. */
-.sec .site-video{max-width:880px;width:100%;border-radius:24px;overflow:hidden}
+/* The explainer facade. Every .site-video* rule was lost when site.css was
+   reseeded from the design's own stylesheet for the rebuild, so the component
+   has been rendering unstyled since: no 16/9 frame, a poster that did not
+   cover, and a player that came back 150px tall. These are the baseline's own
+   rules, carried across with the reasoning that earned them.
+   margin:0 is load-bearing too: <figure> carries a 40px UA side margin, so
+   the explainer sat 40px in from the left and ran past the right edge at 375. */
+.sec .site-video{margin:0;max-width:880px;width:100%}
+/* The positioning context for the poster/play overlay is this frame, not the
+   figure — it wraps only the visual elements, never the caption. inset:0 +
+   height:100% on an absolutely positioned child resolves against its own
+   containing block's content height; if that block were the figure, the
+   <figcaption> sibling would stretch it taller and the poster would cover the
+   caption's area regardless of DOM order or opacity. */
+.site-video-frame{position:relative;border-radius:var(--radius-tile);overflow:hidden}
+.site-video-el,.site-video-poster{display:block;width:100%;height:auto}
+.site-video-poster{position:absolute;inset:0;height:100%;object-fit:cover}
+.site-video-play{position:absolute;inset:0;margin:auto;width:72px;height:72px;
+  border-radius:var(--radius-pill);display:grid;place-items:center;
+  background:var(--field-lime);color:var(--on-lime);border:0;cursor:pointer;
+  font-size:var(--fs-lg);transition:transform var(--dur-fast) var(--ease-out)}
+.site-video-play:hover{transform:scale(1.06)}
+.site-video-play:focus-visible{outline:none;box-shadow:var(--shadow-focus)}
+.site-video-caption{margin-top:var(--space-3);font-size:var(--fs-sm);color:inherit;opacity:.72}
+@media(prefers-reduced-motion:reduce){.site-video-play{transition:none}}
+/* Facade and still modes render only absolutely-positioned children, so the
+   frame has no in-flow content to take its height from and height:auto
+   collapses to 0 — the poster then never becomes visible. 16/9 matches the
+   real video (1920x1080) and every poster shipped. */
+[data-mode="still"] .site-video-frame,
+[data-mode="facade"] .site-video-frame{aspect-ratio:16/9}
+/* .site-video-el sets height:auto, which is right for the <video> self mode
+   uses because it has intrinsic dimensions. An iframe has none, so height:auto
+   falls back to the HTML default of 150px: the frame stayed a correct 880x495
+   while the player inside rendered 880x150. */
+iframe.site-video-el{position:absolute;inset:0;width:100%;height:100%;border:0}
 
 /* Each domain's source-area framing: the heading and intro the old nine
    sections carried, now sitting between the shape cut and the feature list.
@@ -442,8 +482,21 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid cur
 .dom>.arealead+.arealead{margin-top:6px}
 
 /* Plan tagline and the secondary monthly line, back on the price cards. */
+/* No min-height guess. Reserving three lines was wrong the moment Pro's
+   tagline wrapped to four at 1280 and pushed its CTA 19px below the other
+   three — the four most important targets on the page stopped forming a
+   line. The cards are siblings in .plans, so subgrid makes their internal
+   rows share the grid's tracks and align exactly, whatever the copy does.
+   The min-height stays as the fallback where subgrid is unsupported. */
 .plan .tagline{margin:0;font-size:14px;line-height:1.4;opacity:.72;text-wrap:pretty;
   min-height:calc(1.4em * 3)}
+@supports (grid-template-rows: subgrid){
+  @media(min-width:721px){
+    .plans{grid-auto-rows:min-content}
+    .plan{grid-row:span 6;grid-template-rows:subgrid;align-content:stretch}
+    .plan .tagline{min-height:0}
+  }
+}
 .plan .note.monthly{opacity:.6}
 /* The "all plans include" strip: the accent beat between the four cards and
    the 43-row table. Lime as a background with its paired ink, never as text. */
@@ -452,7 +505,11 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid cur
   padding:18px 20px}
 
 /* The platform tiles' chips, back on the home page's numbered list. */
-.nlist .chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+/* grid-column:2 is load-bearing. .nlist li is a two-column grid whose .i
+   spans both rows, so a fourth child auto-places into column 1 — the narrow
+   index track — and the chips then set that track's width, pushing the text
+   column off the right edge (138px of page scroll at 375). */
+.nlist .chips{grid-column:2;display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
 .nlist .chips span{font-size:12px;font-weight:700;letter-spacing:.04em;
   padding:4px 10px;border-radius:999px;
   box-shadow:inset 0 0 0 1.5px color-mix(in srgb,currentColor 24%,transparent)}
@@ -471,3 +528,69 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid cur
   background:var(--field-lime);color:var(--on-lime);
   padding:4px 10px;border-radius:999px}
 .ctable .r.h .limechip{margin:-4px 0}
+
+/* .faq summary is a flex row, so its question text is an anonymous flex item
+   whose min-width is auto -- it cannot shrink below its longest word, and
+   mrpeasy asks about "manufacturing-resource-planning". overflow-wrap:anywhere
+   is the one value that actually lowers the min-content size (break-word does
+   not, per spec), and it only breaks a word when there is no other way. Worth
+   5px of page scroll at 375 on that route. */
+/* A grid, not the design's flex row. As flex, the question is an anonymous
+   flex item with min-width:auto, so it cannot shrink below its own
+   min-content and the longest question pushed 25px past the summary box --
+   5px of page scroll at 375 on /alternatives/mrpeasy. minmax(0,1fr) lets the
+   text column shrink and wrap, which is the same idiom .nlist li and
+   .ctable .r already use in this stylesheet. The marker stays on the right
+   without needing space-between. */
+.faq summary{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;overflow-wrap:break-word}
+
+/* The header is position:fixed, so anything jumped to by fragment lands
+   underneath it unless it says otherwise. /privacy#retention was arriving
+   76px behind the bar. .bar is 64px, 76px from 721 up, so the offset follows
+   it with a little breathing room rather than being guessed once. */
+main [id]{scroll-margin-top:80px}
+@media(min-width:721px){main [id]{scroll-margin-top:96px}}
+
+/* A rule between two calm sections. The design divides the page with
+   full-bleed fields and shape cuts, which works wherever a field is next --
+   but two paper sections in a row have generous padding and nothing else, and
+   an undivided run of paper is the specific thing that read as "big grey
+   sections that look unfinished". Scoped to paper-on-paper so it never draws
+   inside a field run or fights a cut. Same 2px hairline the numbered lists
+   already use, so it is the page's own vocabulary. */
+.sec:not([class*="mv-field-"]) + .sec:not([class*="mv-field-"]){
+  border-top:2px solid color-mix(in srgb,var(--ink-strong) 12%,transparent)}
+
+/* The same rule for /about and /alternatives, which still render on the
+   pre-rebuild components (.mv-section) and have the same undivided runs of
+   paper. Removable with those pages when they are rebuilt. */
+.mv-section + .mv-section,
+.site-hero + .mv-section{
+  border-top:2px solid color-mix(in srgb,var(--ink-strong) 12%,transparent)}
+
+/* The shared page-hero contract, for the two pages still on the pre-rebuild
+   components. Replacing site.css took these rules with it, and both pages
+   dropped to a 28px h1 — the base .mv-display value — against 115px on every
+   rebuilt page. That is the exact defect hero-contract.spec.ts exists for,
+   reintroduced. These are the baseline's own declarations, not new ones:
+   an inset panel carrying a field, centred, the eyebrow a block sibling at
+   one gap from the panel's own grid, the h1 at --fs-display-4.
+   opacity:1 on the eyebrow is load-bearing and was the mistake in my first
+   attempt at this: a blanket .6 muted /about's eyebrow on its mint panel to
+   3.52:1. Full strength on any field is the call this project already made.
+   Removable with those two pages when they are rebuilt. */
+.site-about-hero-panel,
+.site-alt-index-hero-panel{display:grid;grid-template-columns:minmax(0,1fr);
+  justify-items:center;text-align:center;gap:var(--space-6);padding:var(--space-16)}
+.site-about-hero-panel > .mv-eyebrow,
+.site-alt-index-hero-panel > .mv-eyebrow{display:block;opacity:1}
+.site-about-hero-title,
+.site-alt-index-hero-title{font-size:var(--fs-display-4);margin:0;
+  overflow-wrap:break-word}
+.site-about-hero-sub,
+.site-alt-index-hero-sub{margin:0;font-size:var(--fs-lg);
+  line-height:var(--lh-normal);text-wrap:pretty;opacity:1}
+@media(max-width:720px){
+  .site-about-hero-panel,
+  .site-alt-index-hero-panel{padding:var(--space-10)}
+}

@@ -156,17 +156,17 @@ const schema = [
           Tools that charge per user punish you for putting Manuva on the floor. Growth and Pro include unlimited team members at a flat rate.
         </p>
       </div>
-      <div class="ctable">
-        <div class="r h">
-          <span></span>
-          <span class="eyebrow limechip">Manuva</span>
-          <span class="eyebrow" style="opacity:.5">Per-seat MRP</span>
+      <div class="ctable" role="table" aria-label="Manuva compared with per-seat MRP">
+        <div class="r h" role="row">
+          <span role="columnheader"></span>
+          <span class="eyebrow limechip" role="columnheader">Manuva</span>
+          <span class="eyebrow" role="columnheader" style="opacity:.5">Per-seat MRP</span>
         </div>
         {COMPARE.map(([k, us, them]) => (
-          <div class="r">
-            <span class="k">{k}</span>
-            <span class="us">{us}</span>
-            <span class="them">{them}</span>
+          <div class="r" role="row">
+            <span class="k" role="rowheader">{k}</span>
+            <span class="us" role="cell">{us}</span>
+            <span class="them" role="cell">{them}</span>
           </div>
         ))}
       </div>
@@ -209,6 +209,12 @@ const schema = [
       buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.billing === mode)));
       document.querySelectorAll<HTMLElement>('[data-annual]').forEach((el) => {
         el.textContent = mode === 'monthly' ? el.dataset.monthly! : el.dataset.annual!;
+      });
+      // "or $119/mo billed monthly" is the alternative to whatever is
+      // showing. Left up while monthly is selected it sits directly under
+      // $119 offering $119, which reads as a second, different price.
+      document.querySelectorAll<HTMLElement>('.note.monthly').forEach((el) => {
+        el.hidden = mode === 'monthly';
       });
     };
     buttons.forEach((b) => b.addEventListener('click', () => apply(b.dataset.billing!)));

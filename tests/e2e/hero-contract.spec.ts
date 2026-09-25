@@ -16,83 +16,90 @@ import { test, expect, type Page } from '@playwright/test';
 
 // Every page carrying the contract. / is deliberately excluded and asserted
 // separately below.
-const INTERIOR = [
+// The contract itself was rebuilt with the site (MVBOLD-17). It is no longer
+// "an inset .mv-panel carrying a field, centred, at 68px" — every page now
+// opens on a full-bleed field hero with the display scale, left-aligned. The
+// thing this file protects is unchanged: the interior pages do not each grow
+// their own hero and drift apart. Only the shape being asserted moved.
+//
+// /about and /alternatives are still on the pre-rebuild components; the user
+// is rebuilding them separately. They are held to the part of the contract
+// that must be true of any hero (it does not collapse to body scale) and not
+// to the part that depends on the new markup. Replacing site.css had already
+// dropped them to a 28px h1 — the original defect, reintroduced — which is
+// why they are listed rather than skipped.
+const REBUILT = [
   '/features',
   '/pricing',
-  '/about',
-  '/alternatives',
   '/alternatives/katana',
   '/alternatives/mrpeasy',
 ] as const;
+const PENDING_REBUILD = ['/about', '/alternatives'] as const;
 
 const px = (v: string) => Number.parseFloat(v);
 
 async function heroMetrics(page: Page) {
   return page.evaluate(() => {
     const hero = document.querySelector('main > section');
-    const panel = hero?.querySelector('.mv-panel');
-    const eyebrow = panel?.querySelector(':scope > .mv-eyebrow') as HTMLElement | null;
     const h1 = document.querySelector('h1') as HTMLElement | null;
+    const eyebrow = hero?.querySelector(':scope > .eyebrow, :scope > .mv-eyebrow') as HTMLElement | null;
     return {
-      hasPanel: !!panel,
-      field: panel ? getComputedStyle(panel).backgroundColor : null,
+      heroClass: hero ? (hero as HTMLElement).className : null,
+      field: hero ? getComputedStyle(hero as HTMLElement).backgroundColor : null,
       eyebrowDisplay: eyebrow ? getComputedStyle(eyebrow).display : null,
-      gap:
-        eyebrow && h1
-          ? Math.round(h1.getBoundingClientRect().top - eyebrow.getBoundingClientRect().bottom)
-          : null,
       h1Align: h1 ? getComputedStyle(h1).textAlign : null,
-      h1Size: h1 ? getComputedStyle(h1).fontSize : null,
+      h1Size: h1 ? Number.parseFloat(getComputedStyle(h1).fontSize) : null,
     };
   });
 }
 
 test.describe('the shared page-hero contract', () => {
-  for (const route of INTERIOR) {
+  for (const route of ['/', ...REBUILT] as const) {
     test(`${route} renders the contract, not its own hero`, async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 900 });
       await page.goto(route);
       const m = await heroMetrics(page);
 
-      // A panel carrying a real field. /alternatives shipped without one.
-      expect(m.hasPanel, 'hero has an inset panel').toBe(true);
-      expect(m.field, 'hero panel carries a field, not the paper background').not.toBe(
-        'rgba(0, 0, 0, 0)',
-      );
+      // One hero component, and it carries a real field. /alternatives once
+      // shipped without one and fell through to the paper background.
+      expect(m.heroClass!.split(' '), 'the page opens on the shared .hero').toContain('hero');
+      expect(m.heroClass, 'the hero carries a field').toContain('mv-field-');
+      expect(m.field, 'the field actually paints').not.toBe('rgba(0, 0, 0, 0)');
 
-      // .mv-eyebrow ships display:inline with no margin; the contract makes it
-      // a block and lets the panel's own grid gap do the spacing. 2px was
-      // /alternatives before the fix.
+      // .eyebrow ships display:inline; the hero's own grid makes it a block
+      // sibling and lets the grid gap do the spacing. 2px was /alternatives
+      // before the original fix.
       expect(m.eyebrowDisplay, 'eyebrow is a block sibling').toBe('block');
-      expect(m.gap, 'eyebrow-to-h1 gap comes from the panel grid gap').toBe(24);
 
-      expect(m.h1Align, 'headings are centred').toBe('center');
-      expect(px(m.h1Size!), 'h1 is --fs-display-4').toBe(68);
+      // Left-aligned at the display scale, the same on every page: 9vw
+      // clamped to 96-156px, so 115.2px at 1280.
+      expect(m.h1Align, 'headings are left-aligned').toBe('start');
+      expect(m.h1Size, 'h1 is the hero display size').toBeCloseTo(115.2, 1);
     });
   }
 
-  // The home page is the documented exception, and it is asserted rather than
-  // merely commented so nobody has to guess whether it is intentional. Its
-  // composition is genuinely different (badge eyebrow, split headline carrying
-  // the lime mark, display lede, two CTAs, meta), and .site-hero-title's
-  // width calc plus .site-hero-mark's white-space:nowrap are load-bearing
-  // against the split-pill defect responsive.spec.ts pins at eight viewports.
-  test('/ keeps its own larger, left-aligned hero on purpose', async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto('/');
-    const m = await heroMetrics(page);
-    expect(m.hasPanel).toBe(true);
-    expect(px(m.h1Size!), 'home h1 is --fs-display-6').toBe(120);
-    expect(m.h1Align).not.toBe('center');
-  });
+  for (const route of PENDING_REBUILD) {
+    test(`${route} — its hero has not collapsed to body scale`, async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 900 });
+      await page.goto(route);
+      const m = await heroMetrics(page);
+      const body = await page.evaluate(() =>
+        Number.parseFloat(getComputedStyle(document.body).fontSize));
+      expect(m.h1Size!, `h1 is ${m.h1Size}px against body copy at ${body}px`).toBeGreaterThan(body * 3);
+    });
+  }
 });
 
-// The closing CTA band used to render at --fs-display-5 (88px), which made it
-// the largest type on six of seven pages — the call to action outranking the
-// page title. It is --fs-display-3 (52px) now: above the 40px section h2,
-// below the 68px h1, which is the order the document outline already claims.
+// The closing CTA band used to render at 88px, which made it the largest type
+// on six of seven pages — the call to action outranking the page title.
+//
+// One class of h2 is allowed above the h1 and it is stated here rather than
+// left to be rediscovered: the headings inside a shape cut (.cut) or a pinned
+// stage panel. Those are full-screen moments that own the whole viewport, and
+// the design sizes them at clamp(96px, 10vw, 180px) deliberately, above the
+// hero's own 9vw. Nothing else gets to.
 test.describe('heading scale', () => {
-  for (const route of ['/', ...INTERIOR] as const) {
+  for (const route of ['/', ...REBUILT, ...PENDING_REBUILD] as const) {
     test(`${route} — no h2 renders larger than the page's own h1`, async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 900 });
       await page.goto(route);
@@ -101,6 +108,7 @@ test.describe('heading scale', () => {
         if (!h1) return ['no h1 on the page'];
         const h1Size = Number.parseFloat(getComputedStyle(h1).fontSize);
         return [...document.querySelectorAll('main h2')]
+          .filter((h) => !h.closest('.cut, .stage .panel'))
           .map((h) => ({
             text: (h.textContent || '').trim().slice(0, 40),
             size: Number.parseFloat(getComputedStyle(h).fontSize),
@@ -108,13 +116,12 @@ test.describe('heading scale', () => {
           .filter((h) => h.size > h1Size)
           .map((h) => `"${h.text}" is ${h.size}px against an h1 of ${h1Size}px`);
       });
-      expect(offenders, offenders.join('\n')).toEqual([]);
+      expect(offenders, offenders.join(String.fromCharCode(10))).toEqual([]);
     });
   }
 
   // "Explore further" was an <h2> rendering at 12px — smaller than body copy
-  // and smaller than the links beneath it, because the layout emitted it
-  // without .mv-display and no fallback rule existed.
+  // and smaller than the links beneath it.
   for (const route of ['/alternatives/katana', '/alternatives/mrpeasy'] as const) {
     test(`${route} — no h2 renders smaller than body copy`, async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 900 });
@@ -129,79 +136,58 @@ test.describe('heading scale', () => {
           .filter((h) => h.size < body)
           .map((h) => `"${h.text}" is ${h.size}px against body copy at ${body}px`);
       });
-      expect(tooSmall, tooSmall.join('\n')).toEqual([]);
+      expect(tooSmall, tooSmall.join(String.fromCharCode(10))).toEqual([]);
     });
   }
 });
 
-// Nine tiles in a six-column grid rendered as two rows with three orphans in
-// the second, left-aligned inside a centre-aligned section. The grid is a
-// centred flex wrap now, so a short row sits under the middle of the one
-// above it instead of hanging off the left edge.
-test('the features index band centres a short final row', async ({ page }) => {
+// Nine coloured tiles in a six-column grid became six ghost pills wrapping
+// inside the hero (MVBOLD-17). Two tests covered the tiles and neither can
+// mean anything now:
+//
+//   - "centres a short final row" was about orphans hanging off the left of a
+//     centre-aligned section. The pills sit in a left-aligned hero, so a short
+//     final row lining up on the left is correct rather than ragged.
+//   - "no touching same-hue tiles" was a loud-layer rule about a grid of
+//     coloured tiles. The pills carry no hue at all — they are ghost outlines
+//     on the hero's own field — so there is nothing to clash. Left as-is it
+//     would have passed forever by finding no tiles, which is the failure
+//     mode this suite keeps running into.
+//
+// What replaces them is what the band is actually for: it is the index, so it
+// has to list every domain and every entry has to land on its section.
+test('the features index band lists every domain and lands on each section', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto('/features');
-  const geometry = await page.evaluate(() => {
-    const grid = document.querySelector('.site-domain-grid') as HTMLElement;
-    const tiles = [...grid.children] as HTMLElement[];
-    const gridBox = grid.getBoundingClientRect();
-    const tops = tiles.map((t) => Math.round(t.getBoundingClientRect().top));
-    const lastTop = Math.max(...tops);
-    const lastRow = tiles.filter((t) => Math.round(t.getBoundingClientRect().top) === lastTop);
-    const first = lastRow[0].getBoundingClientRect();
-    const last = lastRow[lastRow.length - 1].getBoundingClientRect();
-    return {
-      rows: new Set(tops).size,
-      lastRowCount: lastRow.length,
-      tileCount: tiles.length,
-      // How far the last row's own centre sits from the grid's centre.
-      centreOffset: Math.abs((first.left + last.right) / 2 - (gridBox.left + gridBox.right) / 2),
-    };
-  });
-  expect(geometry.tileCount, 'nine feature areas').toBe(9);
-  // Three columns at 1280px, so nine tiles fill three rows exactly.
-  expect(geometry.rows).toBe(3);
-  expect(geometry.lastRowCount).toBe(3);
-  // Whatever the row count, a short row must be centred rather than ragged.
-  expect(geometry.centreOffset, 'final row is centred in the grid').toBeLessThan(2);
-});
+  const band = page.locator('.index');
+  await expect(band).toBeVisible();
 
-// "No two adjacent panels share a hue" is a loud-layer rule, and a grid of
-// coloured tiles can satisfy it at one column count and break it at another —
-// moving this band from six columns to three put two flare tiles directly
-// above one another, an adjacency the six-column layout happened to avoid.
-// Checked at all three steps rather than by eye at one width.
-for (const width of [1280, 900, 480]) {
-  test(`the features index band has no touching same-hue tiles at ${width}px`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 900 });
-    await page.goto('/features');
-    const clashes = await page.evaluate(() => {
-      const tiles = [...document.querySelectorAll('.site-domain-tile')].map((t) => {
-        const r = t.getBoundingClientRect();
-        return {
-          label: (t.textContent || '').trim().slice(0, 28),
-          bg: getComputedStyle(t).backgroundColor,
-          x: Math.round(r.left),
-          y: Math.round(r.top),
-          right: Math.round(r.right),
-          bottom: Math.round(r.bottom),
-        };
-      });
-      const out: string[] = [];
-      for (const a of tiles) {
-        for (const b of tiles) {
-          if (a === b || a.bg !== b.bg) continue;
-          // Side by side on the same row, or stacked in the same column.
-          const sameRow = a.y === b.y && Math.abs(a.right - b.x) < 40;
-          const sameCol = a.x === b.x && Math.abs(a.bottom - b.y) < 40;
-          if (sameRow || sameCol) out.push(`${a.label} touches ${b.label} — both ${a.bg}`);
-        }
-      }
-      return out;
+  const entries = await page.evaluate(() =>
+    [...document.querySelectorAll('.index a')].map((a) => ({
+      href: a.getAttribute('href') ?? '',
+      label: (a.textContent || '').trim(),
+    })),
+  );
+  expect(entries.length, 'one entry per domain').toBe(6);
+
+  for (const e of entries) {
+    expect(e.href.startsWith('#'), `"${e.label}" does not link to a section`).toBe(true);
+    const target = page.locator(e.href);
+    await expect(target, `${e.href} is not on the page`).toHaveCount(1);
+  }
+
+  // Wrapped rows share the hero's own left edge rather than drifting.
+  const lefts = await page.evaluate(() => {
+    const rows = new Map<number, number>();
+    document.querySelectorAll('.index a').forEach((a) => {
+      const r = a.getBoundingClientRect();
+      const top = Math.round(r.top);
+      if (!rows.has(top) || r.left < rows.get(top)!) rows.set(top, Math.round(r.left));
     });
-    expect(clashes, clashes.join('\n')).toEqual([]);
+    return [...rows.values()];
   });
-}
+  expect(new Set(lefts).size, `rows start at ${lefts.join(', ')}`).toBe(1);
+});
 
 // The Enterprise plan card had no "/mo" suffix and no "or $X/mo billed
 // monthly" line, and nothing reserved that space — so its CTA, chips, divider
@@ -212,10 +198,10 @@ test('every plan card lines its CTA up with the others', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto('/pricing');
   const offsets = await page.evaluate(() =>
-    [...document.querySelectorAll('.site-plan')].map((card) => {
-      const cta = card.querySelector('.site-plan-cta')!.getBoundingClientRect();
+    [...document.querySelectorAll('.plan')].map((card) => {
+      const cta = card.querySelector('.pill')!.getBoundingClientRect();
       return {
-        name: card.querySelector('.site-plan-name')!.textContent!.trim(),
+        name: card.querySelector('.name b')!.textContent!.trim(),
         top: Math.round(cta.top - card.getBoundingClientRect().top),
       };
     }),

@@ -42,18 +42,17 @@ test('lime is never used as a text colour', () => {
   expect(h).not.toMatch(/color:\s*#C8FF2E/i);
 });
 
-test('no two adjacent folds share a hue', () => {
-  // data-fold marks fold-level colour only. Tiles are exempt: a tile grid is one
-  // composed unit with paper between every tile, so its hues never "touch". Threshold
-  // covers the marquee's own data-fold too (cobalt, lime, aqua, amber, violet, ink,
-  // flare = 7) — this and the old "marquee included" variant were the same assertion
-  // with two different length floors, collapsed into one (team-lead review, round 2).
-  const folds = [...html().matchAll(/data-fold="([a-z]+)"/g)].map((m) => m[1]);
-  expect(folds.length, 'page should declare its folds').toBeGreaterThan(4);
-  for (let i = 1; i < folds.length; i++) {
-    expect(folds[i], `${folds[i]} repeats at fold ${i}`).not.toBe(folds[i - 1]);
-  }
+test('the page rotates fields rather than repeating one', () => {
+  // Was 'no two adjacent folds share a hue', reading data-fold — which the
+  // new build does not emit, so it asserted nothing. Adjacency itself is now
+  // field-separation.test.ts's job, and it asserts separation rather than
+  // mere difference. What is left for this file is the rotation: a page that
+  // reaches for the same field over and over has stopped rotating.
+  const fields = [...html().matchAll(/class="[^"]*mv-field-([a-z]+)/g)].map((m) => m[1]);
+  expect(fields.length, 'page should declare its fields').toBeGreaterThan(4);
+  expect(new Set(fields).size, 'too few distinct fields to read as a rotation').toBeGreaterThan(3);
 });
+
 
 test('the hero leads with the design system punchline', () => {
   const h = html();
@@ -81,32 +80,57 @@ test('title and description are still byte-identical to the old page', () => {
 test('lime highlights the middle clause as a background, never as text colour', () => {
   const h = html();
   const h1 = (h.match(/<h1[^>]*>([\s\S]*?)<\/h1>/) || [])[1] || '';
-  expect(h1).toContain('var(--field-lime)');
+  // The highlight is the .hl class now instead of an inline background. The
+  // rule is the same one: lime carries the clause as a background, and never
+  // as the text colour.
+  expect(h1).toMatch(/<span class="hl[^"]*">/);
   expect(h1).not.toMatch(/color:\s*var\(--field-lime\)/);
+  const css = readFileSync('src/styles/site.css', 'utf8');
+  const hl = css.match(/^\.hl\{([^}]*)\}/m);
+  expect(hl, '.hl rule not found').toBeTruthy();
+  expect(hl![1]).toMatch(/background:\s*var\(--field-lime\)/);
+  expect(hl![1]).not.toMatch(/(^|;)\s*color:\s*var\(--field-lime\)/);
 });
 
-test('the marquee declares its fold so adjacency checks can see it', () => {
-  expect(html()).toMatch(/data-fold="lime"/);
+test('the marquee is still the lime rule under the hero', () => {
+  // Was: it declares data-fold so adjacency checks can see it. The new build
+  // marks fields by class, and field-separation.test.ts exempts the marquee
+  // by name — it is the design's own lime rule directly under the cobalt
+  // hero. So what is worth asserting here is that it is still there.
+  const h = html();
+  expect(h).toMatch(/<div class="marquee"/);
+  const css = readFileSync('src/styles/site.css', 'utf8');
+  expect(css).toMatch(/^\.marquee\{[^}]*background:var\(--field-lime\)/m);
 });
+
 
 test('lime never touches mint again', () => {
-  const folds = [...html().matchAll(/data-fold="([a-z]+)"/g)].map((m) => m[1]);
-  for (let i = 1; i < folds.length; i++) {
-    const pair = [folds[i - 1], folds[i]].sort().join('+');
-    expect(pair, `greens touching at fold ${i}`).not.toBe('lime+mint');
+  const fields = [...html().matchAll(/class="[^"]*mv-field-([a-z]+)/g)].map((m) => m[1]);
+  expect(fields.length, 'page should declare its fields').toBeGreaterThan(4);
+  for (let i = 1; i < fields.length; i++) {
+    const pair = [fields[i - 1], fields[i]].sort().join('+');
+    expect(pair, `greens touching at position ${i}`).not.toBe('lime+mint');
   }
 });
+
 
 // The band was ink until navy came off the marketing site. What the test is
 // actually protecting is the position — hero, then marquee, then the explainer
 // as the page's second beat — so that survives the hue change; the hue itself
 // is now guarded by the no-navy test in field-separation.test.ts, which covers
 // every route rather than this one line.
-test('the explainer band is the third fold, directly after hero and marquee', () => {
-  const folds = [...html().matchAll(/data-fold="([a-z]+)"/g)].map((m) => m[1]);
-  expect(folds.slice(0, 2)).toEqual(['cobalt', 'lime']);
-  expect(folds[2]).toBe('violet');
+test('the explainer sits third, directly after hero and marquee', () => {
+  const h = html();
+  const hero = h.indexOf('class="hero tall mv-field-cobalt"');
+  const marquee = h.indexOf('<div class="marquee"');
+  const explainer = h.indexOf('See it in 32 seconds');
+  const stage = h.indexOf('<section class="stage"');
+  expect(hero).toBeGreaterThan(-1);
+  expect(marquee).toBeGreaterThan(hero);
+  expect(explainer).toBeGreaterThan(marquee);
+  expect(stage).toBeGreaterThan(explainer);
 });
+
 
 // Was "self-hosted and preloads nothing". The explainer moved to YouTube, so
 // the property being protected changed shape: there is no longer a file to
@@ -146,5 +170,7 @@ test('the highlighted latest feature replaced the showcase split', () => {
   // Was the lot-tracking panel until 2026-09-22; lot tracking is not built,
   // so the highlight names the reports suite instead.
   expect(h).toContain('Operational intelligence, not last week&#39;s spreadsheet.');
-  expect(h).toContain('/features#reports');
+  // #reports was one of the nine areas; reporting is the domain that
+  // absorbed it.
+  expect(h).toContain('/features#reporting');
 });

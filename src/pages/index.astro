@@ -334,17 +334,17 @@ const pad = (n: number) => String(n).padStart(2, '0');
           Flat pricing, unlimited users from Growth up. Connect Shopify, import your BOMs, run your first job today.
         </p>
       </div>
-      <div class="ctable">
-        <div class="r h">
-          <span></span>
-          <span class="eyebrow limechip">Manuva</span>
-          <span class="eyebrow" style="opacity:.5">Per-seat MRP</span>
+      <div class="ctable" role="table" aria-label="Manuva compared with per-seat MRP">
+        <div class="r h" role="row">
+          <span role="columnheader"></span>
+          <span class="eyebrow limechip" role="columnheader">Manuva</span>
+          <span class="eyebrow" role="columnheader" style="opacity:.5">Per-seat MRP</span>
         </div>
         {COMPARE.map(([k, us, them]) => (
-          <div class="r">
-            <span class="k">{k}</span>
-            <span class="us">{us}</span>
-            <span class="them">{them}</span>
+          <div class="r" role="row">
+            <span class="k" role="rowheader">{k}</span>
+            <span class="us" role="cell">{us}</span>
+            <span class="them" role="cell">{them}</span>
           </div>
         ))}
       </div>

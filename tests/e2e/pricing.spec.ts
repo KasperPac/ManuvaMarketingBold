@@ -10,7 +10,7 @@ import { test, expect } from '@playwright/test';
 const PLANS = { annual: ['$99', '$249', '$499', 'Custom'], monthly: ['$119', '$299', '$599', 'Custom'] };
 
 const prices = (page: import('@playwright/test').Page) =>
-  page.locator('.site-plan-price-val').allTextContents();
+  page.locator('.plan .price .num').allTextContents();
 
 test('the billing toggle actually swaps the prices', async ({ page }) => {
   await page.goto('/pricing');
@@ -27,7 +27,7 @@ test('the billing toggle actually swaps the prices', async ({ page }) => {
 test('the notes follow the price, so no card contradicts itself', async ({ page }) => {
   await page.goto('/pricing');
 
-  const notes = () => page.locator('.site-plan-note').allTextContents();
+  const notes = () => page.locator('.plan .note:not(.monthly)').allTextContents();
   expect((await notes())[0]).toBe('Billed $1,188/yr');
 
   await page.click('[data-billing="monthly"]');
@@ -35,16 +35,20 @@ test('the notes follow the price, so no card contradicts itself', async ({ page 
 
   // "or $119/mo billed monthly" is the alternative to what is showing. Left up
   // while monthly is selected it would sit directly under $119 offering $119.
-  const alt = page.locator('.site-plan-monthly').first();
+  const alt = page.locator('.plan .note.monthly').first();
   await expect(alt, 'the alternative line is still offering the price already shown').toBeHidden();
 
-  // Same for the saving: it is the reason to choose annual, not a claim about
-  // the monthly price.
-  await expect(page.locator('.site-pricing-save')).toBeHidden();
+  // The saving used to be a badge beside the price, which had to come down
+  // under monthly or it read as a claim about the monthly price. The design's
+  // toggle carries it on the Annual control itself, where it is a reason to
+  // pick that option and is never adjacent to a monthly figure — so it stays
+  // up in both states, and what is worth asserting is that it labels annual.
+  const save = page.locator('.toggle [data-billing="annual"] small');
+  await expect(save).toBeVisible();
+  await expect(save).toHaveText(/Save 17%/);
 
   await page.click('[data-billing="annual"]');
   await expect(alt).toBeVisible();
-  await expect(page.locator('.site-pricing-save')).toBeVisible();
 });
 
 test('the toggle is operable by keyboard and reports its state', async ({ page }) => {

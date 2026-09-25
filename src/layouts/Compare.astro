@@ -150,16 +150,18 @@ const pad = (n: number) => String(n).padStart(2, '0');
       )}
       {seatRows && seatHead && (
         <div style="display:grid;gap:14px">
-          <div class="stable">
-            <div class="r h">
-              {seatHead.map((h, i) => <span class="eyebrow" style={i ? 'opacity:.6' : undefined}>{h}</span>)}
+          <div class="stable" role="table" aria-label={`${them} per-user cost against Manuva’s flat tiers by team size`}>
+            <div class="r h" role="row">
+              {seatHead.map((h, i) => (
+                <span class="eyebrow" role="columnheader" style={i ? 'opacity:.6' : undefined}>{h}</span>
+              ))}
             </div>
             {seatRows.map(([users, theirs, growth, pro]) => (
-              <div class="r">
-                <span class="k">{users}</span>
-                <span class="them">{theirs}</span>
-                <span class="us">{growth[0]}{growth[1] && <i class="delta">{growth[1]}</i>}</span>
-                <span class="us">{pro[0]}{pro[1] && <i class="delta">{pro[1]}</i>}</span>
+              <div class="r" role="row">
+                <span class="k" role="rowheader">{users}</span>
+                <span class="them" role="cell">{theirs}</span>
+                <span class="us" role="cell">{growth[0]}{growth[1] && <i class="delta">{growth[1]}</i>}</span>
+                <span class="us" role="cell">{pro[0]}{pro[1] && <i class="delta">{pro[1]}</i>}</span>
               </div>
             ))}
           </div>
@@ -189,17 +191,17 @@ const pad = (n: number) => String(n).padStart(2, '0');
         <h3 class="disp" style="font-size:clamp(28px,5vw,40px)">{matrixTitle}</h3>
         <p class="sub" style="opacity:.75;font-size:16px;max-width:52ch">{matrixBody}</p>
       </div>
-      <div class="ctable">
-        <div class="r h">
-          <span></span>
-          <span class="eyebrow limechip">Manuva</span>
-          <span class="eyebrow" style="opacity:.5">{them}</span>
+      <div class="ctable" role="table" aria-label={`Manuva compared with ${them}`}>
+        <div class="r h" role="row">
+          <span role="columnheader"></span>
+          <span class="eyebrow limechip" role="columnheader">Manuva</span>
+          <span class="eyebrow" role="columnheader" style="opacity:.5">{them}</span>
         </div>
         {matrix.map(([label, ours, theirs, verdict]) => (
-          <div class="r">
-            <span class="k" style="opacity:.85">{label}</span>
-            <span class="us">{ours}</span>
-            <span class="them" data-verdict={verdict}>{theirs}</span>
+          <div class="r" role="row">
+            <span class="k" role="rowheader" style="opacity:.85">{label}</span>
+            <span class="us" role="cell">{ours}</span>
+            <span class="them" role="cell" data-verdict={verdict}>{theirs}</span>
           </div>
         ))}
       </div>

@@ -98,7 +98,7 @@ test('the feature matrix has all 41 data rows across its 9 categories, with spec
 // exactly how this got through the first time.
 test('the billing toggle is a real control, not a picture of one', () => {
   const h = html();
-  const region = h.slice(h.indexOf('site-pricing-toggle'), h.indexOf('site-pricing-toggle') + 900);
+  const region = h.slice(h.indexOf('class="toggle"'), h.indexOf('class="toggle"') + 900);
   expect(region, 'toggle is still spans').toContain('<button');
   expect(region, 'toggle is still hidden from assistive tech').not.toContain('aria-hidden');
   expect(region).toContain('data-billing="annual"');
@@ -109,8 +109,8 @@ test('the billing toggle is a real control, not a picture of one', () => {
 test('both billing figures ship in the markup so the toggle needs no fetch', () => {
   const h = html();
   for (const [annual, monthly] of [['$99', '$119'], ['$249', '$299'], ['$499', '$599']]) {
-    expect(h, `missing annual ${annual}`).toContain(`data-price-annual="${annual}"`);
-    expect(h, `missing monthly ${monthly}`).toContain(`data-price-monthly="${monthly}"`);
+    expect(h, `missing annual ${annual}`).toContain(`data-annual="${annual}"`);
+    expect(h, `missing monthly ${monthly}`).toContain(`data-monthly="${monthly}"`);
   }
 });
 
@@ -119,6 +119,6 @@ test('both billing figures ship in the markup so the toggle needs no fetch', () 
 // gate would fail on figures that are correct but in the wrong default.
 test('the server renders the annual figures, not the monthly ones', () => {
   const h = html();
-  const shown = [...h.matchAll(/class="site-plan-price-val"[^>]*>([^<]+)</g)].map((m) => m[1]);
+  const shown = [...h.matchAll(/<span class="num" data-annual="[^"]*" data-monthly="[^"]*">([^<]+)</g)].map((m) => m[1]);
   expect(shown).toEqual(['$99', '$249', '$499', 'Custom']);
 });
