@@ -10,9 +10,16 @@ test('states the trial correctly', () => {
   expect(h).not.toMatch(/free forever/i);
 });
 
-test('carries the beta-tester strip', () => {
-  expect(html()).toMatch(/a free month of Pro/i);
+test('the beta-tester offer moved to /pricing rather than being dropped', () => {
+  // It was a full aqua band on the home page in a tail that read as crowded.
+  // An offer belongs on the pricing page; what must not happen is it leaving
+  // the site, which is the mistake this rebuild already made once.
+  expect(html(), 'the home page no longer carries it').not.toMatch(/a free month of Pro/i);
+  const pricing = readFileSync('dist/pricing.html', 'utf8');
+  expect(pricing).toMatch(/a free month of Pro/i);
+  expect(pricing).toContain('Shape the roadmap with us');
 });
+
 
 test('ships none of the invented reference figures', () => {
   const h = html();
@@ -119,17 +126,23 @@ test('lime never touches mint again', () => {
 // as the page's second beat — so that survives the hue change; the hue itself
 // is now guarded by the no-navy test in field-separation.test.ts, which covers
 // every route rather than this one line.
-test('the explainer sits third, directly after hero and marquee', () => {
+test('the explainer is in the hero, not a fold of its own', () => {
+  // It used to be its own section between the marquee and the stage — one
+  // more thing to scroll past before the page made its argument. It moved
+  // into the hero, which had the room.
   const h = html();
   const hero = h.indexOf('class="hero tall mv-field-cobalt"');
-  const marquee = h.indexOf('<div class="marquee"');
-  const explainer = h.indexOf('See it in 32 seconds');
-  const stage = h.indexOf('<section class="stage"');
+  const heroEnd = h.indexOf('</section>', hero);
+  const video = h.indexOf('data-youtube-id=');
   expect(hero).toBeGreaterThan(-1);
-  expect(marquee).toBeGreaterThan(hero);
-  expect(explainer).toBeGreaterThan(marquee);
-  expect(stage).toBeGreaterThan(explainer);
+  expect(video, 'the explainer sits inside the hero section').toBeGreaterThan(hero);
+  expect(video, 'the explainer sits inside the hero section').toBeLessThan(heroEnd);
+  expect(h, 'the line the old section was headed by survives as the caption')
+    .toContain('What Manuva actually does');
+  expect(h.indexOf('<section class="stage"'), 'the stage follows the hero directly')
+    .toBeGreaterThan(heroEnd);
 });
+
 
 
 // Was "self-hosted and preloads nothing". The explainer moved to YouTube, so

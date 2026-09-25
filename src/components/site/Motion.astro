@@ -69,7 +69,31 @@
       if (bgc && bgc !== 'rgba(0, 0, 0, 0)' && bgc !== 'transparent') break;
       n = n.parentElement;
     }
-    head.style.color = getComputedStyle(n || document.body).color;
+    const under = getComputedStyle(n || document.body);
+    head.style.color = under.color;
+    // The design leaves the bar transparent and only recolours its ink, which
+    // works over a full-bleed field and not at all over a paper section: the
+    // links sat directly on the copy and competed with it. Docked, the bar
+    // takes the background of whatever it is over as well as the ink, so it
+    // reads as a bar rather than as floating text.
+    head.style.background = head.dataset.dock === '1' ? under.backgroundColor : '';
+  }
+
+  // Out of the way on the way down, back on the way up. The header is fixed
+  // and the page is long; a bar that never leaves is a bar you are always
+  // reading past.
+  let headLast = scrollY, headShown = true;
+  function headDock() {
+    if (!head) return;
+    const y = scrollY;
+    const top = y < 64;
+    const down = y > headLast + 6;
+    const up = y < headLast - 6;
+    if (down && y > innerHeight * 0.6) headShown = false;
+    else if (up || top) headShown = true;
+    headLast = y;
+    head.dataset.dock = top ? '' : '1';
+    head.dataset.hide = headShown ? '' : '1';
   }
 
   // 1 · intros — one pinned shape cut. The backdrop is the field you came from.
@@ -171,6 +195,7 @@
     if (scrollY !== headAt && now >= headDue) {
       headAt = scrollY;
       headDue = now + 80;
+      headDock();
       headColor();
     }
 

@@ -42,7 +42,12 @@ async function heroMetrics(page: Page) {
   return page.evaluate(() => {
     const hero = document.querySelector('main > section');
     const h1 = document.querySelector('h1') as HTMLElement | null;
-    const eyebrow = hero?.querySelector(':scope > .eyebrow, :scope > .mv-eyebrow') as HTMLElement | null;
+    // The home hero puts its copy in .hero-copy so the video can share the
+    // row, so the eyebrow is a grandchild there. Still one eyebrow, still a
+    // block sibling of the h1 with the grid gap doing the spacing.
+    const eyebrow = hero?.querySelector(
+      ':scope > .eyebrow, :scope > .mv-eyebrow, :scope > .hero-split > .hero-copy > .eyebrow',
+    ) as HTMLElement | null;
     return {
       heroClass: hero ? (hero as HTMLElement).className : null,
       field: hero ? getComputedStyle(hero as HTMLElement).backgroundColor : null,
@@ -54,7 +59,7 @@ async function heroMetrics(page: Page) {
 }
 
 test.describe('the shared page-hero contract', () => {
-  for (const route of ['/', ...REBUILT] as const) {
+  for (const route of REBUILT) {
     test(`${route} renders the contract, not its own hero`, async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 900 });
       await page.goto(route);
@@ -77,6 +82,33 @@ test.describe('the shared page-hero contract', () => {
       expect(m.h1Size, 'h1 is the hero display size').toBeCloseTo(115.2, 1);
     });
   }
+
+  // The home page is the documented exception and is asserted rather than
+  // merely commented, so nobody has to guess whether it is intentional. Its
+  // hero carries the explainer beside the copy, so the headline is sized for
+  // a shared row instead of the full width. What still has to hold is the
+  // part that matters: it is the shared .hero on a real field, and it is the
+  // largest heading on its own page — the interior pages' fixed 115.2px is a
+  // consistency rule between them, not a law about type size.
+  test('/ sizes its headline for the row it shares, and still leads the page', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/');
+    const m = await heroMetrics(page);
+    expect(m.heroClass!.split(' '), 'the home page opens on the shared .hero').toContain('hero');
+    expect(m.heroClass, 'the hero carries a field').toContain('mv-field-');
+    expect(m.eyebrowDisplay, 'eyebrow is a block sibling').toBe('block');
+    expect(m.h1Align, 'headings are left-aligned').toBe('start');
+
+    // Same exclusion as the heading-scale test below: a heading inside a
+    // shape cut or a pinned stage panel owns the whole viewport and is
+    // deliberately the biggest type on the page.
+    const biggest = await page.evaluate(() =>
+      Math.max(...[...document.querySelectorAll('main h2, main h3')]
+        .filter((h) => !h.closest('.cut, .stage .panel'))
+        .map((h) => Number.parseFloat(getComputedStyle(h).fontSize))));
+    expect(m.h1Size!, `h1 is ${m.h1Size}px against a largest h2/h3 of ${biggest}px`)
+      .toBeGreaterThan(biggest);
+  });
 
   for (const route of PENDING_REBUILD) {
     test(`${route} — its hero has not collapsed to body scale`, async ({ page }) => {

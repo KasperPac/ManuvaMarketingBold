@@ -1,4 +1,10 @@
 ---
+
+// Carried from the home page (MVBOLD-21) along with its line.
+const SECTORS = [
+  'Furniture', 'Food', 'Cosmetics', 'Supplements',
+  'Apparel', 'Hardware', 'Electronics', 'Manufacturing',
+] as const;
 import Base from '../layouts/Base.astro';
 import Field from '../components/site/Field.astro';
 import Panel from '../components/site/Panel.astro';
@@ -187,6 +193,14 @@ const schema = [
           Manuva is operated by Pac Technologies Pty Ltd, an Australian private company based in Sydney. The
           platform launched publicly in 2026.
         </p>
+        {/* Carried from the home page, where this row and its heading were a
+            whole section earning very little. The eyebrow it used there was
+            "Who runs Manuva" — this section's own heading — so it was always
+            describing what belongs here. */}
+        <p class="site-about-lede" style="margin-top:8px">Built for shops that make what they sell.</p>
+        <ul class="logorow sectors">
+          {SECTORS.map((name) => <li>{name}</li>)}
+        </ul>
       </div>
       {/* Row is a <div> (a real boundary — rows never glue into each other).
           Label/value are <span>s deliberately, not the usual div/td/th rule:
