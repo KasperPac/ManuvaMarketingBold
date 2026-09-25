@@ -119,6 +119,6 @@ test('both billing figures ship in the markup so the toggle needs no fetch', () 
 // gate would fail on figures that are correct but in the wrong default.
 test('the server renders the annual figures, not the monthly ones', () => {
   const h = html();
-  const shown = [...h.matchAll(/<span class="num" data-annual="[^"]*" data-monthly="[^"]*">([^<]+)</g)].map((m) => m[1]);
+  const shown = [...h.matchAll(/<span class="num(?: word)?" data-annual="[^"]*" data-monthly="[^"]*">([^<]+)</g)].map((m) => m[1]);
   expect(shown).toEqual(['$99', '$249', '$499', 'Custom']);
 });

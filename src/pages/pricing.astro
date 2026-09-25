@@ -115,7 +115,15 @@ const schema = [
           <p class="tagline">{p.tagline}</p>
           <div>
             <div class="price">
-              <span class="num" data-annual={p.annual} data-monthly={p.monthly}>{p.annual}</span>
+              {/* A word is not a number and must not be set like one. "Custom"
+                  at the price size measured 222px in a 273px card — 81% of
+                  the card against $499's 51% — so Enterprise read as the
+                  loudest tier and the price ladder inverted. */}
+              <span
+                class={p.annual.startsWith('$') ? 'num' : 'num word'}
+                data-annual={p.annual}
+                data-monthly={p.monthly}
+              >{p.annual}</span>
               {p.annual !== 'Custom' && <span class="per">/mo</span>}
             </div>
             <p class="note" data-annual={p.note} data-monthly={p.monthlyNote}>{p.note}</p>
