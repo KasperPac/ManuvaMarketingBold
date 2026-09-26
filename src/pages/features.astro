@@ -180,8 +180,6 @@ const FEATURES: Record<string, { title: string; tier?: string; desc: string }[]>
 };
 
 const pad = (n: number) => String(n).padStart(2, '0');
-// How many features per domain get the full treatment.
-const HEADLINE = 4;
 const total = Object.values(FEATURES).reduce((a, f) => a + f.length, 0);
 
 const description =
@@ -248,7 +246,7 @@ const schema = [
           the full width. The comment sits above the map: inside the returned
           expression it is a block, not a comment, and the build fails. */}
       {AREAS[d.id].map((a) => (
-        <div class="arealead split">
+        <div class="arealead">
           <div class="leadhead">
             {/* Full strength. At .7 this measured 4.44:1 on aqua — a 12px
                 uppercase label has no headroom to mute into, which is the
@@ -264,20 +262,21 @@ const schema = [
           </div>
         </div>
       ))}
-      {/* Two tiers of emphasis, not two tiers of content. The design's own
-          features page carries 25 features, 3–5 per domain; this one carries
-          66, because the page it replaced did and the copy is worth keeping.
-          Poured into one treatment at one size that meant nothing was
-          subordinate to anything and every item competed.
-          The first four of each domain get the full treatment and the rest
-          keep their titles, descriptions and tier badges in a quieter grid.
-          Four because that is the density the component was drawn for, and
-          the first four because the source list is already ordered with the
-          core capability first and the tiered extras after — a ranking that
-          was already made, not one invented here. */}
-      <ul class="nlist two nonum">
-        {FEATURES[d.id].slice(0, HEADLINE).map((f) => (
-          <li>
+      {/* One grid, one treatment, one column count. This has been three
+          things in three days: 66 items at one size in three columns (nothing
+          subordinate, everything competing), then a four-item headline list
+          in two columns above a denser three-column remainder — which fixed
+          the ranking and broke the rhythm, because the lead, the headline
+          list and the remainder each ran a different number of columns in the
+          same section.
+          Cards instead. Every feature is the same object at the same size in
+          the same grid; the boundary does the separating that size and
+          density were failing to do, and the eye reads a set rather than a
+          wall. The heading block above is the entry point and the only thing
+          that outranks them. */}
+      <ul class="fcards">
+        {FEATURES[d.id].map((f) => (
+          <li class="fcard">
             <h3>
               {f.title}
               {f.tier && <> <a href="/pricing" class="tier" aria-label={`${f.title}: included from ${f.tier} — see pricing`}>{f.tier}</a></>}
@@ -286,22 +285,6 @@ const schema = [
           </li>
         ))}
       </ul>
-      {FEATURES[d.id].length > HEADLINE && (
-        <div class="also">
-          <span class="eyebrow">Also in {d.name.toLowerCase()}</span>
-          <ul class="minilist">
-            {FEATURES[d.id].slice(HEADLINE).map((f) => (
-              <li>
-                <h4>
-                  {f.title}
-                  {f.tier && <> <a href="/pricing" class="tier" aria-label={`${f.title}: included from ${f.tier} — see pricing`}>{f.tier}</a></>}
-                </h4>
-                <p>{f.desc}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </section>
   ))}
 

@@ -274,8 +274,10 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid cur
    four dark-ink fields these also land on (amber 10.27, mint 7.86,
    aqua 7.82, lime 15.62) have room to give. Same trap, same fix, as the
    feature cards in MVBOLD-12 and the ghost Pill before them. */
-.nlist h3 .tier{display:inline-block;vertical-align:.12em;margin-left:8px;font-family:var(--font-body);font-variation-settings:normal;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:transparent;box-shadow:inset 0 0 0 1.5px currentColor;color:inherit;text-decoration:none;white-space:nowrap}
-.nlist h3 .tier:hover{background:color-mix(in srgb,currentColor 14%,transparent);opacity:1}
+/* Scoped to itself, not to .nlist h3 — it was, and it turned into plain
+   bold text the moment the features became cards. */
+.tier{display:inline-block;vertical-align:.12em;margin-left:8px;font-family:var(--font-body);font-variation-settings:normal;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:transparent;box-shadow:inset 0 0 0 1.5px currentColor;color:inherit;text-decoration:none;white-space:nowrap}
+.tier:hover{background:color-mix(in srgb,currentColor 14%,transparent);opacity:1}
 
 /* .hl.keep — a highlight that must not break.
    "Track it." split into "Track" on one line and "it." on the next, as two
@@ -504,11 +506,16 @@ iframe.site-video-el{position:absolute;inset:0;width:100%;height:100%;border:0}
    max-width counts the gutter padding: at 1920 the 300px gutters left the
    heading and intro 202px of a 1320px column while the feature list below ran
    the full width. The measure belongs on the text, not on the container. */
-.arealead{display:grid;gap:12px}
-.arealead .leadhead{display:grid;gap:12px;align-content:start}
+/* The domain's header: one block across the top, not a column beside another
+   column. It was a two-column split, which put a third column count into a
+   section that already had two. No max-width on the block — box-sizing is
+   border-box, so that counts the gutter padding and crushed it to 202px at
+   1920. The measure goes on the text. */
+.arealead{display:grid;gap:14px;padding-bottom:26px}
+.arealead .leadhead{display:grid;gap:12px}
 .arealead .leadbody{display:grid;gap:14px;min-width:0}
-.arealead .disp{font-size:clamp(30px,7vw,46px);max-width:18ch}
-.arealead .sub{max-width:58ch;opacity:.88}
+.arealead .disp{font-size:clamp(30px,6vw,52px);max-width:22ch}
+.arealead .sub{max-width:68ch;opacity:.88}
 .diff{margin:4px 0 0;font-size:15px;line-height:1.5;max-width:60ch;text-wrap:pretty;
   padding:14px 18px;border-radius:16px;
   box-shadow:inset 0 0 0 2px color-mix(in srgb,currentColor 24%,transparent)}
@@ -724,40 +731,22 @@ main [id]{scroll-margin-top:80px}
 .contact-card{display:grid;gap:18px;justify-items:start;max-width:72ch}
 .contact-card .ptable{width:100%;max-width:34ch}
 
-/* The quieter half of a domain's features. Everything is here — title,
-   description, tier badge — at a size that reads as secondary, which is what
-   gives the four above it somewhere to be read from. Denser columns than the
-   headline list on purpose: the contrast in density is the hierarchy. */
-.also{display:grid;gap:14px;padding-bottom:96px}
-.also > .eyebrow{opacity:.75}
-.minilist{list-style:none;margin:0;padding:0;display:grid;gap:0}
-.minilist li{display:grid;gap:4px;padding:14px 0;
-  border-top:1.5px solid color-mix(in srgb,currentColor 20%,transparent)}
-/* No closing rule. In a multi-column grid only one column holds the actual
-   last child, so a :last-child border lands under one column and not the
-   others and the block ends ragged. Top borders alone read as even. */
-.minilist h4{font-family:var(--font-display);font-variation-settings:"wdth" 106,"wght" 800;
-  font-size:16px;line-height:1.2;letter-spacing:-.01em;margin:0}
-.minilist p{margin:0;font-size:14px;line-height:1.45;max-width:46ch;opacity:.88;text-wrap:pretty}
-.minilist .tier{font-size:10px;padding:2px 6px}
+
+/* One card per feature: same object, same size, same grid, one column count
+   for the whole section. The ring is the separator — no fill, so the card
+   never shifts the background its text is measured against and the field's
+   own ink pairing holds exactly. */
+.fcards{list-style:none;margin:0;padding:0 20px 96px;display:grid;gap:12px}
+.fcard{display:grid;gap:8px;align-content:start;padding:20px;border-radius:18px;
+  box-shadow:inset 0 0 0 1.5px color-mix(in srgb,currentColor 22%,transparent)}
+.fcard h3{font-family:var(--font-display);font-variation-settings:"wdth" 108,"wght" 800;
+  font-size:19px;line-height:1.15;letter-spacing:-.01em;margin:0;text-wrap:balance}
+.fcard p{margin:0;font-size:15px;line-height:1.5;text-wrap:pretty;opacity:.9}
 @media(min-width:721px){
-  .minilist{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:40px}
+  .fcards{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:0 32px 120px}
+  .fcard{padding:22px}
 }
 @media(min-width:1100px){
-  .minilist{grid-template-columns:repeat(3,minmax(0,1fr));column-gap:40px}
-}
-/* The `also` block needs the same gutter as the list and the lead — .dom is
-   full-bleed and hands the gutter to its children. */
-.dom .also{padding-inline:20px}
-@media(min-width:721px){.dom .also{padding-inline:32px}}
-@media(min-width:1100px){
-  .dom .also{padding-inline:max(48px,calc((100% - var(--page-max,1240px))/2))}
-}
-/* The headline list no longer needs the list's own bottom padding: `also`
-   carries it now, and where a domain has no `also` the list keeps it. */
-.dom .nlist.nonum{padding-bottom:28px}
-.dom .nlist.nonum:last-child{padding-bottom:96px}
-@media(min-width:721px){
-  .dom .nlist.nonum{padding-bottom:36px}
-  .dom .nlist.nonum:last-child{padding-bottom:120px}
+  .fcards{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;
+    padding-inline:max(48px,calc((100% - var(--page-max,1240px))/2))}
 }
