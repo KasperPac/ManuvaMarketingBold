@@ -25,15 +25,30 @@ test('every source section heading survives', () => {
   }
 });
 
-test("uses the design's own column modifiers, not hand-rolled column counts", () => {
-  // Was mv-cols-*, which the app-surface library provided. The marketing
-  // layer's equivalent is .nlist's `two`/`three` modifiers, which carry the
-  // breakpoints with them. The half that matters is unchanged: no page
-  // hand-rolls repeat(N, 1fr) and re-invents the responsive contract.
+test('lays out on a named grid component, not hand-rolled column counts', () => {
+  // Was .nlist two/three, which the features moved off when each one became a
+  // card. The half that matters is unchanged: the column counts live on a
+  // named component in the stylesheet, declared at the site's own
+  // breakpoints, and no page writes repeat(N, 1fr) into its own markup and
+  // re-invents the responsive contract.
   const h = html();
-  expect(h).toMatch(/class="nlist[^"]*\b(two|three)\b/);
-  expect(h).not.toMatch(/grid-template-columns:\s*repeat\(\d+\s*,\s*1fr\)/);
+  expect(h, 'the features grid is a named component').toMatch(/class="(fcards|nlist[^"]*(two|three))"/);
+  expect(h, 'no inline column count in the markup')
+    .not.toMatch(/style="[^"]*grid-template-columns:\s*repeat\(/);
+
+  // And it declares a two- and a three-column form, each inside one of the
+  // site's two documented breakpoints rather than at a width of its own.
+  const css = readFileSync('src/styles/site.css', 'utf8');
+  const rules = [...css.matchAll(/@media\(min-width:(\d+)px\)\{([\s\S]*?\.fcards\{[^}]*\})/g)]
+    .map((m) => ({ at: Number(m[1]), body: m[2].slice(m[2].lastIndexOf('.fcards{')) }));
+  const steps = rules.filter((r) => r.body.includes('grid-template-columns'));
+  expect(steps.map((r) => r.at).sort((a, b) => a - b), 'column steps')
+    .toEqual([721, 1100]);
+  expect(steps.find((r) => r.at === 721)!.body).toContain('repeat(2');
+  expect(steps.find((r) => r.at === 1100)!.body).toContain('repeat(3');
 });
+
+
 
 
 test('every domain arrives on its own field, in the rotation order', () => {
