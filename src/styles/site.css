@@ -642,7 +642,10 @@ main [id]{scroll-margin-top:80px}
    numerals made the reports list read as a second sequence beside the
    onboarding one — identical treatment, so neither won. Same hairlines and
    rhythm, one column, no index. */
-.nlist.plain li{grid-template-columns:minmax(0,1fr)}
+/* No index column. `plain` also quietens the heading; `nonum` is the
+   layout on its own, for lists that keep their full heading size. */
+.nlist.plain li,
+.nlist.nonum li{grid-template-columns:minmax(0,1fr)}
 .nlist.plain h3{font-size:19px;line-height:1.3;max-width:46ch}
 
 /* The stage's lead-in sits directly on top of the first panel, so it closes
@@ -720,3 +723,41 @@ main [id]{scroll-margin-top:80px}
    does not inherit .pgrid's column sizing. */
 .contact-card{display:grid;gap:18px;justify-items:start;max-width:72ch}
 .contact-card .ptable{width:100%;max-width:34ch}
+
+/* The quieter half of a domain's features. Everything is here — title,
+   description, tier badge — at a size that reads as secondary, which is what
+   gives the four above it somewhere to be read from. Denser columns than the
+   headline list on purpose: the contrast in density is the hierarchy. */
+.also{display:grid;gap:14px;padding-bottom:96px}
+.also > .eyebrow{opacity:.75}
+.minilist{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.minilist li{display:grid;gap:4px;padding:14px 0;
+  border-top:1.5px solid color-mix(in srgb,currentColor 20%,transparent)}
+/* No closing rule. In a multi-column grid only one column holds the actual
+   last child, so a :last-child border lands under one column and not the
+   others and the block ends ragged. Top borders alone read as even. */
+.minilist h4{font-family:var(--font-display);font-variation-settings:"wdth" 106,"wght" 800;
+  font-size:16px;line-height:1.2;letter-spacing:-.01em;margin:0}
+.minilist p{margin:0;font-size:14px;line-height:1.45;max-width:46ch;opacity:.88;text-wrap:pretty}
+.minilist .tier{font-size:10px;padding:2px 6px}
+@media(min-width:721px){
+  .minilist{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:40px}
+}
+@media(min-width:1100px){
+  .minilist{grid-template-columns:repeat(3,minmax(0,1fr));column-gap:40px}
+}
+/* The `also` block needs the same gutter as the list and the lead — .dom is
+   full-bleed and hands the gutter to its children. */
+.dom .also{padding-inline:20px}
+@media(min-width:721px){.dom .also{padding-inline:32px}}
+@media(min-width:1100px){
+  .dom .also{padding-inline:max(48px,calc((100% - var(--page-max,1240px))/2))}
+}
+/* The headline list no longer needs the list's own bottom padding: `also`
+   carries it now, and where a domain has no `also` the list keeps it. */
+.dom .nlist.nonum{padding-bottom:28px}
+.dom .nlist.nonum:last-child{padding-bottom:96px}
+@media(min-width:721px){
+  .dom .nlist.nonum{padding-bottom:36px}
+  .dom .nlist.nonum:last-child{padding-bottom:120px}
+}
