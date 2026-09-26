@@ -180,6 +180,8 @@ const FEATURES: Record<string, { title: string; tier?: string; desc: string }[]>
 };
 
 const pad = (n: number) => String(n).padStart(2, '0');
+// How many features per domain get the full treatment.
+const HEADLINE = 4;
 const total = Object.values(FEATURES).reduce((a, f) => a + f.length, 0);
 
 const description =
@@ -262,10 +264,20 @@ const schema = [
           </div>
         </div>
       ))}
-      <ul class="nlist two three">
-        {FEATURES[d.id].map((f, j) => (
+      {/* Two tiers of emphasis, not two tiers of content. The design's own
+          features page carries 25 features, 3–5 per domain; this one carries
+          66, because the page it replaced did and the copy is worth keeping.
+          Poured into one treatment at one size that meant nothing was
+          subordinate to anything and every item competed.
+          The first four of each domain get the full treatment and the rest
+          keep their titles, descriptions and tier badges in a quieter grid.
+          Four because that is the density the component was drawn for, and
+          the first four because the source list is already ordered with the
+          core capability first and the tiered extras after — a ranking that
+          was already made, not one invented here. */}
+      <ul class="nlist two nonum">
+        {FEATURES[d.id].slice(0, HEADLINE).map((f) => (
           <li>
-            <span class="i">{pad(i + 1)}.{j + 1}</span>
             <h3>
               {f.title}
               {f.tier && <> <a href="/pricing" class="tier" aria-label={`${f.title}: included from ${f.tier} — see pricing`}>{f.tier}</a></>}
@@ -274,6 +286,22 @@ const schema = [
           </li>
         ))}
       </ul>
+      {FEATURES[d.id].length > HEADLINE && (
+        <div class="also">
+          <span class="eyebrow">Also in {d.name.toLowerCase()}</span>
+          <ul class="minilist">
+            {FEATURES[d.id].slice(HEADLINE).map((f) => (
+              <li>
+                <h4>
+                  {f.title}
+                  {f.tier && <> <a href="/pricing" class="tier" aria-label={`${f.title}: included from ${f.tier} — see pricing`}>{f.tier}</a></>}
+                </h4>
+                <p>{f.desc}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </section>
   ))}
 
