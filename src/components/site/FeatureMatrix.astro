@@ -1,4 +1,10 @@
 ---
+
+// The page owns the heading. This component used to render its own <h2>
+// ("Compare plans") directly under the page's ("Compare every plan."), which
+// put two headings on one section and two entries in the outline.
+export interface Props { labelledby?: string }
+const { labelledby = 'matrix-heading' } = Astro.props;
 import Icon from '../ds/Icon.astro';
 
 // Verbatim from the old pricing page's 43-row / 9-category comparison table.
@@ -135,10 +141,9 @@ const DIFFERENTIATORS = [
   ] },
 ];
 ---
-<h2 id="matrix-heading" class="mv-display site-matrix-heading">Compare plans</h2>
 
 <div class="mv-table-scroll">
-  <table class="mv-matrix site-matrix-table" aria-labelledby="matrix-heading">
+  <table class="mv-matrix site-matrix-table" aria-labelledby={labelledby}>
     <thead>
       <tr>
         <th scope="col">Feature</th>
