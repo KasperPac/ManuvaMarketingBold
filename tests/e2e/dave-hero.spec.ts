@@ -38,7 +38,7 @@ test('the eyebrow, sub-copy and both buttons are the first thing after the hero'
   await page.goto('/');
   const band = page.locator('.hero.dave + .hero-intro');
   await expect(band).toHaveCount(1);
-  await expect(band.locator('.eyebrow').first()).toHaveText('MRP for Shopify manufacturers');
+  await expect(band.locator('.eyebrow').first()).toHaveText('What it does');
   await expect(band.locator('.sub')).toContainText('Manuva replaces the spreadsheets');
   await band.scrollIntoViewIfNeeded();
   await expect(band.locator('.pill')).toHaveText(['Start free', 'Book a demo']);

@@ -208,7 +208,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
   <section class="sec hero-intro">
     <div class="split">
       <div style="display:grid;gap:18px;align-content:start;justify-items:start">
-        <span class="eyebrow" style="opacity:.6">MRP for Shopify manufacturers</span>
+        {/* The hero's first frame now carries "MRP for Shopify manufacturers";
+            repeating it one scroll later read as a stutter (MVBOLD-31). */}
+        <span class="eyebrow" style="opacity:.6">What it does</span>
         <p class="sub" style="color:var(--ink-muted);max-width:52ch">
           Manuva replaces the spreadsheets and legacy MRP your team is fighting with. Inventory, BOMs, work
           orders, and stock control — connected, live, and built for the floor.

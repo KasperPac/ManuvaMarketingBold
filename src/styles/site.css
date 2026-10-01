@@ -1124,3 +1124,40 @@ main [id]{scroll-margin-top:80px}
 .site-matrix-all ul{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14px}
 .site-matrix-all li{display:flex;justify-content:space-between;gap:12px;padding-bottom:6px;
   border-bottom:1px solid color-mix(in srgb,var(--ink-strong) 10%,transparent)}
+
+/* ===== Re-score round, UI (MVBOLD-31) ===== */
+/* The logo is the scrub's payoff. The scene is anchored at 31% across so
+   Dave stays in view as the sides crop, which on 4:3 and 5:4 screens cut the
+   logo on the right-hand wall ("Manuv"). From 16:10 down it anchors at 60%:
+   Dave and the logo both fit. Portrait tablets are wider than the portrait
+   crop, so the scene overflows top and bottom and the wall above the window
+   (where the logo sits on a phone) is above the screen. There the logo goes
+   smaller onto the open wall right of the window, with the scene still
+   centred so Dave stays clear of the tagline. Phones are unchanged. */
+@media(max-aspect-ratio:16/10) and (min-aspect-ratio:4/5){.dave-scene{left:60%;transform:translate(-60%,-50%)}}
+@media(max-aspect-ratio:4/5) and (min-aspect-ratio:3/5){.dave-logo{left:57%;top:24%;width:39%}}
+
+/* Section headings wrap to three or four lines at their size, and at .92
+   descenders met the next line ("system" on "covering"). And below 1100 a
+   .split is a plain block, so a heading sat directly on the body beneath it. */
+.sec h2.disp{line-height:.98}
+@media(max-width:1099px){.split{display:grid;gap:28px}}
+
+/* A sentence-length hero headline steps down one size, so the sub-copy and
+   Start free land in the first screen (the comparison pages and /about). */
+@media(min-width:721px){.hero.long:not(.dave) h1{font-size:min(8vw,calc(100cqi / var(--fit)))}}
+@media(min-width:1100px){.hero.long:not(.dave) h1{font-size:min(clamp(72px,6.4vw,112px),calc(100cqi / var(--fit)))}}
+
+/* /mrpeasy seat table on phones: whole words, small enough to fit. */
+@media(max-width:720px){
+  .stable .r.h .eyebrow{overflow-wrap:normal;font-size:10px;letter-spacing:.03em}
+}
+
+/* Panel lines: balanced, so none ends on one word. */
+.cut .pline,.stage .panel .pline{text-wrap:balance;max-width:34ch}
+
+/* Hover: the header Start free inverts to ink with paper text (lime text
+   breaks the loud-layer rule even on hover); the motion switch tints. */
+.head-cta:hover{background:var(--ink-strong);color:#fff}
+.motion-toggle:hover i{background:color-mix(in srgb,currentColor 22%,transparent)}
+@media(min-width:721px){.hero.long{padding-top:108px;gap:24px}}

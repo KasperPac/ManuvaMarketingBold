@@ -34,7 +34,7 @@ test.each(pages)('%s has no stub FAQ answers', (_n, _o, newPath) => {
 
 test('the two pages use different hero hues so they do not read as one page', () => {
   const hero = (f: string) =>
-    (readFileSync(f, 'utf8').match(/<section class="hero mv-field-([a-z]+)"/) ?? [])[1];
+    (readFileSync(f, 'utf8').match(/<section class="hero (?:long )?mv-field-([a-z]+)"/) ?? [])[1];
   const k = hero('dist/alternatives/katana.html');
   const m = hero('dist/alternatives/mrpeasy.html');
   expect(k, 'katana hero has no field class').toBeTruthy();

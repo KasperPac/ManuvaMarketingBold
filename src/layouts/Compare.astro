@@ -110,7 +110,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
   headInk="light"
   {schema}
 >
-  <section class={`hero mv-field-${heroField}`}>
+  {/* .long: a sentence-length headline steps down one size, so its
+      sub-copy and Start free land in the first screen (MVBOLD-31). */}
+  <section class={`hero long mv-field-${heroField}`}>
     <span class="ghostnum num" aria-hidden="true" data-n="vs"></span>
     <span class="eyebrow" style="opacity:.8">Manuva vs {them}</span>
     {/* No inline font-size. The reference hard-codes 11vw here, which beats
@@ -121,7 +123,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
         The breakpoint system is the responsive contract per the README, so
         it gets to size this. Only the measure is set here. */}
     <h1 class="disp" style="max-width:16ch">{h1Lead} <span class="hl">{h1Highlight}</span></h1>
-    <p class="sub" style="opacity:.9;max-width:52ch">{heroLede}</p>
+    <p class="sub" style="opacity:.9;max-width:62ch">{heroLede}</p>
     <div class="row">
       <a class="pill" href={SIGNUP_URL}>Start free</a>
       <a class="pill ghost" href="/pricing">See pricing</a>

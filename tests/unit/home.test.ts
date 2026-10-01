@@ -118,7 +118,8 @@ test('the band straight after the hero carries its copy and the video', () => {
   expect(h.slice(heroEnd, band).replace(/<!--[\s\S]*?-->/g, '').trim(), 'something sits between the hero and the band')
     .toBe('</section>');
   const body = h.slice(band, bandEnd);
-  expect(body).toContain('MRP for Shopify manufacturers');
+  // The descriptor moved up into the hero's first frame (MVBOLD-31).
+  expect(body).toContain('What it does');
   expect(body).toContain('Manuva replaces the spreadsheets and legacy MRP your team is fighting with.');
   expect(body).toMatch(/href="https:\/\/app\.manuva\.app\/signup"[^>]*>Start free</);
   expect(body).toMatch(/href="\/about#contact"[^>]*>Book a demo</);

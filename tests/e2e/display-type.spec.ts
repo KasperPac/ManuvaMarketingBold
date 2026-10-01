@@ -23,7 +23,9 @@ for (const path of PAGES) {
           let n: Node | null;
           while ((n = walker.nextNode())) {
             const text = n.textContent ?? '';
-            const re = /\S+/g;
+            // A hyphenated compound may break at its hyphen ("flat- / rate"):
+            // that is typography. Any other break inside a word is the defect.
+            const re = /[^\s-]+-?/g;
             let m: RegExpExecArray | null;
             while ((m = re.exec(text))) {
               const r = document.createRange();

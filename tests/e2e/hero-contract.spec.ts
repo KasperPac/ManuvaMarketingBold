@@ -76,10 +76,14 @@ test.describe('the shared page-hero contract', () => {
       // before the original fix.
       expect(m.eyebrowDisplay, 'eyebrow is a block sibling').toBe('block');
 
-      // Left-aligned at the display scale, the same on every page: 9vw
-      // clamped to 96-156px, so 115.2px at 1280.
+      // Left-aligned at the display scale: 9vw clamped to 96-156px, so
+      // 115.2px at 1280. A sentence-length headline (.hero.long: the two
+      // comparison pages) steps down one size, 6.4vw clamped to 72-112px, so
+      // 81.92px at 1280, so its sub-copy and Start free reach the first
+      // screen (MVBOLD-31). Every hero of each kind is the same size.
       expect(m.h1Align, 'headings are left-aligned').toBe('start');
-      expect(m.h1Size, 'h1 is the hero display size').toBeCloseTo(115.2, 1);
+      const long = m.heroClass!.split(' ').includes('long');
+      expect(m.h1Size, long ? 'h1 is the long-headline size' : 'h1 is the hero display size').toBeCloseTo(long ? 81.92 : 115.2, 1);
     });
   }
 
