@@ -27,7 +27,7 @@ const { current } = Astro.props;
       {/* The motion switch, here as well as in the footer: 12,000px down was
           too far for the one control that changes how the site behaves
           (MVBOLD-31). SiteFoot.astro's script drives every copy. */}
-      <span class="head-motion"><button class="motion-toggle" type="button" aria-pressed="false"><i aria-hidden="true"></i><span class="motion-label">Motion</span></button></span>
+      <span class="head-motion"><button class="motion-toggle" type="button" aria-pressed="false"><i aria-hidden="true"></i><span class="motion-label">Motion</span><span class="motion-word" aria-hidden="true">Motion</span></button></span>
       <a href={APP_URL}>Sign in</a>
       <a class="pill head-cta" href={SIGNUP_URL}>Start free</a>
     </nav>

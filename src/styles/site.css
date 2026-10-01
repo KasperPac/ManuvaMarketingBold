@@ -1099,3 +1099,28 @@ main [id]{scroll-margin-top:80px}
 
 /* Short panel lines left one word alone on the last line. */
 .cut .pline,.stage .panel .pline{text-wrap:pretty}
+
+/* ===== Re-score round (MVBOLD-31) ===== */
+/* A home panel fills the pinned viewport, so an outset ring is drawn off
+   screen: inset it. */
+.stage .panel:focus-visible{outline-offset:-12px;border-radius:16px}
+/* Integration names at .55 measured 4.05:1 on paper; .72, as the sector row. */
+.logorow li{opacity:.72}
+/* "Less chaos." always owns the first line. With the narrower fallback face
+   the whole tagline fitted on one line at 1440, and the swap to Archivo
+   broke it onto two and moved the copy and its scrim 136px. */
+.hero.dave h1 .line{display:block}
+/* The header switch keeps a visible word at tablet widths; the full
+   "Motion on/off" label stays for screen readers. */
+.motion-word{display:none}
+@media(min-width:721px) and (max-width:1099px){.head-motion .motion-word{display:inline;font-size:13px}}
+/* Every matrix row for a plan, behind a disclosure on the phone cards. */
+.site-matrix-all{border-top:1.5px solid color-mix(in srgb,var(--ink-strong) 12%,transparent);padding-top:12px}
+.site-matrix-all summary{cursor:pointer;font-weight:700;font-size:15px;min-height:44px;display:flex;align-items:center;
+  list-style:none;text-decoration:underline;text-underline-offset:5px}
+.site-matrix-all summary::-webkit-details-marker{display:none}
+.site-matrix-all-group{display:grid;gap:6px;margin-top:14px}
+.site-matrix-all-head{margin:0;font-family:var(--font-display);font-variation-settings:"wdth" 108,"wght" 800;font-size:15px}
+.site-matrix-all ul{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14px}
+.site-matrix-all li{display:flex;justify-content:space-between;gap:12px;padding-bottom:6px;
+  border-bottom:1px solid color-mix(in srgb,var(--ink-strong) 10%,transparent)}

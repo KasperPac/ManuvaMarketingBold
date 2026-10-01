@@ -140,6 +140,8 @@ const DIFFERENTIATORS = [
     { label: 'Support', v: 'Dedicated' },
   ] },
 ];
+const PLAN_INDEX: Record<string, number> = { Starter: 0, Growth: 1, Pro: 2, Enterprise: 3 };
+const ROW_COUNT = CATEGORIES.reduce((n, c) => n + c.rows.length, 0);
 ---
 
 <div class="mv-table-scroll">
@@ -217,6 +219,33 @@ const DIFFERENTIATORS = [
           </li>
         ))}
       </ul>
+      {/* Every row of the matrix for this plan. The design system replaces the
+          table with these cards below 720px and forbids scrolling it, which
+          left phones with 5 rows of 43 under copy that promises all of them
+          (MVBOLD-31). A disclosure keeps the card short and the rows reachable. */}
+      <details class="site-matrix-all">
+        <summary>All {ROW_COUNT} features in {d.plan}</summary>
+        {CATEGORIES.map((cat) => (
+          <div class="site-matrix-all-group">
+            <p class="site-matrix-all-head">{cat.label}</p>
+            <ul>
+              {cat.rows.map((row) => {
+                const v = row.v[PLAN_INDEX[d.plan]];
+                return (
+                  <li>
+                    <span>{row.name}</span>{' '}
+                    <strong>{v === true
+                      ? <Icon name="check" size={14} label="Included" />
+                      : v === false
+                        ? <span role="img" aria-label="Not included">—</span>
+                        : v}</strong>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+      </details>
     </div>
   ))}
 </div>

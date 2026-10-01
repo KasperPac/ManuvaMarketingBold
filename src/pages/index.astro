@@ -194,7 +194,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
           calm frame stay the tagline and the logo. */}
       <div class="dave-copy">
         <div class="dave-fold"><div><span class="eyebrow">MRP for Shopify manufacturers</span></div></div>
-        <h1 class="disp">Less chaos. <span class="hl keep">More making.</span></h1>
+        <h1 class="disp"><span class="line">Less chaos.</span> <span class="hl keep">More making.</span></h1>
         <div class="dave-fold"><div><div class="dave-go"><a class="pill" href={SIGNUP_URL}>Start free</a></div></div></div>
       </div>
       <span class="dave-hint" aria-hidden="true"></span>
@@ -326,6 +326,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
         <p class="sub" style="opacity:.75">
           Flat pricing, unlimited users from Growth up. Connect Shopify, import your BOMs, run your first job today.
         </p>
+        {/* The section argued price with nowhere to go next (MVBOLD-31). */}
+        <a class="pill ghost" href="/pricing" style="justify-self:start">See pricing</a>
       </div>
       <div class="ctable" role="table" aria-label="Manuva compared with per-seat MRP">
         <div class="r h" role="row">
