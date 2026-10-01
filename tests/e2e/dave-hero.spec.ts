@@ -1,8 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 
 // The Dave hero (MVBOLD-29): a full-bleed claymation frame over the cobalt
-// field, the copy in a poster layout or (from 1200px, landscape) in the right
-// half. The layout half of this file is what reduced-motion and no-JS
+// field, the copy in a poster layout or (from 1280px, landscape) in the right
+// 54%. The layout half of this file is what reduced-motion and no-JS
 // visitors get; the scrub half below covers the stop-motion itself.
 
 async function ctasOnScreen(page: Page) {
@@ -213,6 +213,80 @@ test.describe('scrub, motion on', () => {
     expect(img.src).toMatch(/\/000\.webp$/);
     expect(img.complete && img.w > 0, JSON.stringify(img)).toBe(true);
   });
+
+  // Final review, finding 1: a frame that never arrives must not keep the
+  // shared animation loop awake. Past the hero the scrub wants frame 47
+  // forever; if 47 failed, "waiting for it" pinned the loop at 60Hz for the
+  // rest of the visit.
+  test('the loop goes idle past the hero even when the last frame never loads', async ({ page }) => {
+    await page.addInitScript(() => {
+      const raf = window.requestAnimationFrame.bind(window);
+      (window as unknown as { __raf: number }).__raf = 0;
+      window.requestAnimationFrame = (cb) => {
+        (window as unknown as { __raf: number }).__raf++;
+        return raf(cb);
+      };
+    });
+    let aborted = 0;
+    await page.route(/\/hero\/dave\/l\/(?!000)\d{3}\.webp$/, (route) => { aborted++; return route.abort(); });
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/');
+    await expect.poll(() => aborted, { timeout: 15_000 }).toBeGreaterThan(40);
+    await page.evaluate(() => scrollTo(0, document.body.scrollHeight));
+    await page.waitForTimeout(1500);
+    const a = await page.evaluate(() => (window as unknown as { __raf: number }).__raf);
+    await page.waitForTimeout(1000);
+    const b = await page.evaluate(() => (window as unknown as { __raf: number }).__raf);
+    expect(b - a, 'animation frames requested in one idle second at the foot of the page').toBeLessThan(5);
+  });
+
+  // Final review, finding 2: the new set's first frame goes through the same
+  // decode guard as every other frame, so a failed fetch after a rotation
+  // leaves the last good frame up (cropped by object-fit) instead of a
+  // broken-image icon.
+  test('a rotation whose portrait frames all fail keeps the last good frame up', async ({ page }) => {
+    await page.route(/\/hero\/dave\/p\/\d{3}\.webp$/, (route) => route.abort());
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/');
+    await expect(page.locator('.hero.dave')).toHaveAttribute('data-set', 'l');
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(page.locator('.hero.dave')).toHaveAttribute('data-set', 'p', { timeout: 5_000 });
+    await page.waitForTimeout(1500);
+    const img = await page.locator('.dave-scene img').evaluate((i: HTMLImageElement) => ({
+      src: i.currentSrc || i.src, complete: i.complete, w: i.naturalWidth,
+    }));
+    expect(img.complete && img.w > 0, JSON.stringify(img)).toBe(true);
+    expect(img.src).toMatch(/\/hero\/dave\/l\//);
+  });
+
+  // Final review, finding 6: in the calm frames the room is lime, and the
+  // sub-copy's left edge sat where the scrim was still thin (~3:1). Measured
+  // on real pixels just left of the copy column, which is lighter than
+  // anything under the text, so passing here means passing under it.
+  for (const width of [1280, 1440, 1920]) {
+    test(`the copy keeps AA contrast over the calm room at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/');
+      await expect.poll(() => framesFetched(page, 'l'), { timeout: 20_000 }).toBe(48);
+      await heroScrollTo(page, 1);
+      await expect.poll(() => imgSrc(page), { timeout: 5_000 }).toMatch(/\/047\.webp$/);
+      await page.waitForTimeout(400);
+      const r = await page.evaluate(() => {
+        const copy = document.querySelector('.dave-copy')!.getBoundingClientRect();
+        const sub = document.querySelector('.dave-foot .sub')!.getBoundingClientRect();
+        return { x: Math.round(copy.left) - 14, y: Math.round(sub.top), h: Math.round(sub.height) };
+      });
+      const png = await page.screenshot({ clip: { x: r.x, y: r.y, width: 12, height: r.h } });
+      const { default: sharp } = await import('sharp');
+      const { data, info } = await sharp(png).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+      const lin = (c: number) => { const s = c / 255; return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4; };
+      let worst = 0;
+      for (let i = 0; i < info.width * info.height * 3; i += 3) {
+        worst = Math.max(worst, 0.2126 * lin(data[i]) + 0.7152 * lin(data[i + 1]) + 0.0722 * lin(data[i + 2]));
+      }
+      expect(1.05 / (worst + 0.05), 'white copy against the brightest scrim pixel beside it').toBeGreaterThanOrEqual(4.5);
+    });
+  }
 
   // Review Focus 4
   test('Save-Data stops after the coarse pass', async ({ page }) => {

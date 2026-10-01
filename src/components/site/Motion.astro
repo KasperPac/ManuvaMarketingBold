@@ -212,7 +212,9 @@
       // script owns the choice, so it goes, and the <img> takes the set's URL
       // directly; the browser already has that file.
       h.querySelector('.dave-scene source')?.remove();
-      img.src = frameUrl(o.set, 0);
+      // Only when it differs (the portrait set): re-assigning the URL the
+      // markup is still loading can log a second request for it.
+      if (img.getAttribute('src') !== frameUrl(o.set, 0)) img.src = frameUrl(o.set, 0);
     }
     return o;
   });
@@ -220,12 +222,16 @@
   type Scrub = (typeof scrubs)[number];
 
   // Fetch and decode the set off-screen, four at a time. `gen` lets a set
-  // change abandon a load already in flight.
+  // change abandon a load already in flight. Frame 0 is fetched too unless it
+  // is already loaded (it is, from the markup, for the set the page opened
+  // on; after a rotation it is not, and must pass the same decode guard as
+  // every other frame rather than be written straight into the <img>).
   async function loadFrames(o: Scrub) {
     const gen = ++o.gen;
-    const order = loadOrder(o.n).filter((i) => i !== 0);
-    const limit = lean ? coarseCount(o.n) - 1 : order.length;
-    const queue = order.slice(0, limit);
+    const order = loadOrder(o.n).filter((i) => !o.loaded.has(i));
+    // On Save-Data or a slow connection, the coarse pass only.
+    const coarse = new Set(loadOrder(o.n).slice(0, coarseCount(o.n)));
+    const queue = lean ? order.filter((i) => coarse.has(i)) : order;
     const worker = async () => {
       while (queue.length && gen === o.gen) {
         const i = queue.shift()!;
@@ -256,10 +262,13 @@
     scrubs.forEach((o) => {
       o.set = PORTRAIT.matches ? 'p' : 'l';
       o.h.dataset.set = o.set;
-      o.loaded = new Set([0]);
-      o.shown = 0;
+      // Nothing of the new set is loaded yet. The old frame stays up
+      // (object-fit keeps it cropped, not stretched) until the new set's
+      // first decoded frame replaces it through the normal swap path; -1
+      // forces that swap even if the index happens to match.
+      o.loaded = new Set();
+      o.shown = -1;
       o.lastSwap = -Infinity;
-      o.img.src = frameUrl(o.set, 0);
       void loadFrames(o);
     });
     wake();
@@ -283,7 +292,8 @@
           o.lastSwap = now;
         } else busy = true; // a swap is owed; keep the loop alive to pay it
       }
-      if (show >= 0 && show !== want) busy = true; // waiting on a frame still loading
+      // No "waiting on a frame" busy here: loadFrames wakes the loop after
+      // every decode, and a frame that never arrives must not hold it awake.
 
       o.h.dataset.scrub = o.shown >= o.calm ? 'calm' : 'pre';
       if (o.hint) o.hint.style.opacity = String(1 - cl(o.p / 0.05));

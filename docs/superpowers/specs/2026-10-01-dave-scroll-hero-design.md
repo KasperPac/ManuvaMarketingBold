@@ -50,11 +50,14 @@ single-camera transformation possible.
 </section>
 ```
 
-- The section keeps `mv-field-cobalt`. The cobalt paints behind the image while
-  frame 0 loads and is otherwise covered. This keeps the hero inside the shared
+- The section keeps `mv-field-cobalt`, which keeps the hero inside the shared
   hero contract (`tests/e2e/hero-contract.spec.ts`: the home hero carries a field
-  that paints) and keeps the header's light ink with no special case
-  (`headInk="light"` stays).
+  that paints) and the header's light ink with no special case (`headInk="light"`
+  stays). The cobalt is never seen: the pin paints `--ink-strong` behind the
+  frame, which is the placeholder while frame 0 loads and what the docked header
+  takes as its bar colour over the scene. The pin is `100dvh` (falling back to
+  `100svh`), so no band of the field shows beneath it when a phone's URL bar
+  collapses.
 - The ghost numeral "06" comes off the hero.
 - H1: `Less chaos. <span class="hl keep">More making.</span>`
   - With JS and motion on, the hero carries `data-scrub="pre"` until frame K, and
@@ -71,9 +74,11 @@ single-camera transformation possible.
   never a rotation hue"; a navy hero is the third blue), and inline navy outside a
   declared ink band fails it. The mock-ups used navy; this is the one visual
   change from them.
-- **Desktop / landscape:** copy block right-aligned at roughly 40% width,
-  vertically centred, over a scrim from transparent at ~30% to ~0.85 alpha at the
-  right edge. Dave keeps the left 55%.
+- **Layout A (wide landscape):** the copy block takes the right 54% of the
+  viewport, its right edge on a 1680px container, vertically centred. The scrim
+  ramps from transparent at 34% to 0.74 alpha at 44%, so it is dark before the
+  copy starts (~46%): in the calm frames the wall behind the copy is lime, and
+  white body copy needs 4.5:1 against it (measured in `dave-hero.spec.ts`).
 - **Phone / portrait** (`(max-aspect-ratio: 4/5)`): the frame is a portrait crop
   centred on Dave. Eyebrow + H1 sit in the plain-wall band at the top over a
   top-down scrim; sub + CTAs sit at the foot over a short bottom-up scrim. Dave's
@@ -81,19 +86,25 @@ single-camera transformation possible.
 - **Which applies where.** The frame set follows the viewport's shape: the
   portrait set at `(max-aspect-ratio: 4/5)`, the landscape set otherwise. The copy
   layout follows the room the headline needs: layout A at
-  `(min-width: 1200px) and (min-aspect-ratio: 1/1)`, the poster layout
-  everywhere else. "More making." is one unbreakable highlight (`.hl.keep`), and
-  below ~1200px a half-width column cannot hold it at a size that still beats the
-  page's 72px section headings. Landscape phones and narrower landscape windows
-  therefore get the poster layout over landscape frames. The one combination
-  that cannot occur is the portrait set under layout A.
+  `(min-width: 1280px) and (min-aspect-ratio: 1/1)`, the poster layout
+  everywhere else. "More making." is one unbreakable highlight (`.hl.keep`),
+  7.68em wide (measured), and the h1 must stay larger than the section h2s,
+  which run at `clamp(64px, 6vw, 104px)` from 1100px. Below 1280px no column
+  that leaves Dave clear can do both. Landscape phones and narrower landscape
+  windows therefore get the poster layout over landscape frames; screens no
+  taller than 500px close up the poster's padding and cap the headline at
+  11svh so both CTAs stay on screen. The one combination that cannot occur is
+  the portrait set under layout A.
+- **Known gap:** on phones the h1 (about 42px at 375px wide) is smaller than the
+  section h2s (12vw, 45px): the unbreakable highlight cannot be larger in that
+  width. Logged for a design decision rather than settled here.
 
 ### 3.3 Scrub behaviour
 
 - The hero is `100svh` plus a scrub length of `150svh`; the inner stage is sticky.
 - Progress `p` is the hero's scroll offset over its scroll length, damped by the
   existing `TAU = 90 ms` follower in `Motion.astro`.
-- Frame index = `floor(p_damped × (N − 1))`, held to **at most 12 changes per
+- Frame index = `round(p_damped / 0.9 × (N − 1))` (the last 10% holds the final frame), held to **at most 12 changes per
   second** so it reads as stop-motion, never as smeared video.
 - No blending between frames. Each step is a hard swap.
 - K, the frame where the room first reads as calm (walls lime), is picked by eye

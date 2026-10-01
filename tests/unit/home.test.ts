@@ -98,6 +98,16 @@ test('the scroll hint is decoration in CSS, not a text node', () => {
   expect(css).toMatch(/\.dave-hint::before\s*\{\s*content:\s*"Scroll"\s*\}/);
 });
 
+test('the pinned stage follows the dynamic viewport, so no field shows under it on phones', () => {
+  // Final review, finding 5. At 100svh the pin is the small viewport; once a
+  // phone's URL bar collapses the viewport is taller, and the band beneath
+  // the pin painted the section's cobalt field across the bottom of the scene.
+  const css = readFileSync('src/styles/site.css', 'utf8');
+  const pin = css.match(/\.hero\.dave>\.dave-pin\{([^}]*)\}/);
+  expect(pin, '.dave-pin rule not found').toBeTruthy();
+  expect(pin![1]).toMatch(/height:100dvh/);
+});
+
 test('the hero carries no navy', () => {
   // field-separation.test.ts: ink is structure, never a hero. The scrim is
   // --ink-strong, not --field-ink.
