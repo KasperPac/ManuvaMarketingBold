@@ -1,11 +1,16 @@
 ---
 import Base from '../layouts/Base.astro';
 import Video from '../components/site/Video.astro';
+import Logo from '../components/ds/Logo.astro';
 import { APP_URL, DOMAINS } from '../site';
+// Frame count and the frame where the room turns calm, from the manifest the
+// frame script reads, so the page and the frames cannot disagree.
+import heroFrames from '../../scripts/hero-frames.json';
 
 // Rebuilt on the new design (MVBOLD-17): full-field hero with a ghost
 // numeral, the live marquee, the pinned stage of six shape-cut domain
-// panels, and the closing field, with full motion.
+// panels, and the closing field, with full motion. MVBOLD-29 replaced the
+// hero with Dave's office and took the marquee off (below).
 //
 // The first pass of that rebuild kept only those blocks and dropped 46 of
 // the page's 53 sentences with them — the explainer, the platform grid, the
@@ -19,30 +24,27 @@ import { APP_URL, DOMAINS } from '../site';
 // prices are AUD, both of which the handoff still carries at their older
 // values (14 days, USD). Where the two disagree on fact, the repo wins.
 //
-// The ghost numeral has to be real. The reference uses "1,240" and its own
-// README flags it — "decorative only, but confirm it isn't read as a claim."
-// We have no such figure, so this uses the one count the page can prove: the
-// six domains it is about.
+// The hero's ghost numeral ("06", the six domains) came off in MVBOLD-29: the
+// hero is now a claymation frame, and a giant numeral over it was noise. The
+// stage panels keep their own numerals.
 //
 // Field rhythm, per the loud-layer rules — one full-bleed field per fold and
 // never two touching:
-//   cobalt hero → lime marquee → paper → STAGE → paper → amber → paper →
-//   ink → paper → flare outro
+//   Dave hero (cobalt field, never seen) → paper → paper → STAGE → paper →
+//   amber → paper → ink → paper → flare outro
 //
 // The aqua beta band and the sectors row came off this page: both were
 // full sections earning very little, and the tail was the part that read as
 // crowded. Neither was deleted — the beta offer is on /pricing, where an
 // offer belongs, and the sectors row joined /about's own "Who runs Manuva."
 // section, which is the heading this row already borrowed its eyebrow from.
-// The hero/marquee pairing is the design's own and is kept as it ships.
-
-const MARQUEE = [
-  'Yield % on every BOM line',
-  'BOM versioning with rollback',
-  'Unlimited users on Growth',
-  'Real-time Shopify webhooks',
-  '30-day free trial',
-];
+//
+// The marquee came off in MVBOLD-29 (preview feedback): its constant drift
+// right under the scrubbing hero was too distracting, so the page goes
+// straight from the hero to the video. Every fact it carried is still stated
+// on /features (yield %, BOM versioning and "roll back", unlimited users on
+// Growth, real-time webhook sync) and the 30-day trial on /features and
+// /pricing (checked 2026-10-01).
 
 const HIGHLIGHT = {
   section: 'Reports & analytics',
@@ -161,47 +163,72 @@ const pad = (n: number) => String(n).padStart(2, '0');
   headInk="light"
   {schema}
 >
-  {/* The explainer lives in the hero rather than in a fold of its own. It was
-      a whole section to scroll past before reaching the stage, which is the
-      page's actual argument — and the hero had the room, particularly on a
-      wide screen where it was mostly empty. Two columns from 1100 up, stacked
-      below that with the video after the CTAs so the punchline and the
-      buttons still come first on a phone. */}
-  <section class="hero tall mv-field-cobalt" style="align-content:center">
-    <span class="ghostnum num" aria-hidden="true" style="top:auto;bottom:-.2em" data-n="06"></span>
-    <div class="hero-split">
-      <div class="hero-copy">
-        <span class="eyebrow" style="opacity:.75">MRP for Shopify manufacturers</span>
-        <h1 class="disp">Make it. <span class="hl keep">Track it.</span> Ship it.</h1>
-        <p class="sub" style="opacity:.88;max-width:40ch">
+  {/* Dave's office (MVBOLD-29). The first frame of the chaos-to-calm clip is
+      plain markup: it is the LCP image and the whole hero for reduced-motion,
+      Save-Data and no-JS visitors. Motion.astro pins .dave-pin and, after
+      load, lays the clip itself over the still and scrubs it with the scroll.
+      The hero carries only the tagline and the Manuva logo, which is painted
+      onto the lime wall when the room turns calm (data-calm, in seconds of
+      the clip) — .dave-scene is a box with the frame's own aspect, so the logo
+      sits in the room's coordinates rather than the viewport's. The eyebrow,
+      sub-copy and buttons are the band directly below, beside the video. */}
+  <section class="hero dave mv-field-cobalt" data-calm={heroFrames.calm}>
+    <div class="dave-pin">
+      <div class="dave-scene">
+        <picture>
+          <source media="(max-aspect-ratio: 4/5)" srcset="/hero/dave/p.webp" width="500" height="1080" />
+          <img
+            src="/hero/dave/l.webp"
+            width="1280"
+            height="720"
+            fetchpriority="high"
+            alt="Claymation: Dave at his desk in a grey office full of spreadsheets and sticky notes. Scrolling tidies it into a calm, lime-green room with his feet up."
+          />
+        </picture>
+        <div class="dave-logo"><Logo variant="lockup" fill decorative /></div>
+      </div>
+      <div class="dave-copy">
+        <h1 class="disp">Less chaos. <span class="hl keep">More making.</span></h1>
+      </div>
+      <span class="dave-hint" aria-hidden="true"></span>
+    </div>
+  </section>
+
+  {/* The hero's own copy, moved out of the scene so the scene can be seen,
+      and the video beside it: the page goes straight from the hero to the
+      video (preview feedback). Word for word what the hero carried; the
+      buttons are the first thing after the scrub. */}
+  <section class="sec hero-intro">
+    <div class="split">
+      <div style="display:grid;gap:18px;align-content:start;justify-items:start">
+        <span class="eyebrow" style="opacity:.6">MRP for Shopify manufacturers</span>
+        <p class="sub" style="color:var(--ink-muted);max-width:52ch">
           Manuva replaces the spreadsheets and legacy MRP your team is fighting with. Inventory, BOMs, work
           orders, and stock control — connected, live, and built for the floor.
         </p>
-        <div class="row">
+        <div class="row hero-intro-ctas">
           <a class="pill" href={APP_URL}>Start free</a>
-          <a class="pill ghost" href="/about#contact" style="box-shadow:inset 0 0 0 2px rgb(255 255 255/.42)">Book a demo</a>
+          <a class="pill ghost" href="/about#contact">Book a demo</a>
         </div>
       </div>
-      <div class="hero-media">
-        <span class="eyebrow" style="opacity:.75">See it in 32 seconds</span>
-        {/* The caption carries "What Manuva actually does", which was the h2
-            of the section this replaced — the sentence stays on the page. */}
+      <div class="lead-media">
+        <span class="eyebrow" style="opacity:.6">See it in 60 seconds</span>
+        {/* The Dave ad (MANUVA-36). A facade, not an embed: the poster and
+            button are static markup and nothing reaches youtube-nocookie.com
+            until someone clicks. The poster is the ad's own end card, self-
+            hosted. The caption carries "What Manuva actually does", the h2 of
+            the section the explainer once replaced — the sentence stays on the
+            page. */}
         <Video
-          youtubeId="Vr4rkatHggA"
-          poster="/video/explainer-poster.jpg"
-          alt="Manuva title card reading Manufacturing operations software — What is Manuva?"
+          youtubeId="JXB4FgHRm_Y"
+          poster="/video/dave-ad-poster.jpg"
+          alt="Claymation: Dave relaxing with a mug of tea and his feet on his desk, beside the Manuva logo and the line Less chaos. More making."
           title="What Manuva actually does"
         />
       </div>
     </div>
   </section>
 
-  <div class="marquee" aria-label="Highlights">
-    <div class="track">{MARQUEE.map((w) => <span>{w}</span>)}</div>
-  </div>
-
-  {/* The explainer. A facade, not an embed: the poster and button are static
-      markup and nothing reaches youtube-nocookie.com until someone clicks. */}
   {/* The stage's lead-in. This heading and sub used to head an eight-item
       platform grid below the stage — which restated the same six domains
       under the nine older area names, two of them pointing at anchors the

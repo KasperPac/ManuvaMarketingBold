@@ -236,7 +236,11 @@ const MARKETING_ROUTES = ALL_ROUTES.filter((r) => r !== '/privacy' && r !== '/te
 for (const route of MARKETING_ROUTES) {
   test(`${route} — every section boundary is visible`, async ({ page }) => {
     await page.goto(route);
-    const sections = await page.$$eval('main > section', (els) =>
+    // The marquee is a <div>, but it is a full-bleed lime band between two
+    // sections and separates them as plainly as any field does. Counting only
+    // <section>s made the home page's paper band (MVBOLD-29) and paper stage
+    // lead-in look adjacent with nothing between them.
+    const sections = await page.$$eval('main > section, main > .marquee', (els) =>
       els.map((e) => {
         const cs = getComputedStyle(e);
         // A section can be transparent and still paint a full-bleed field,

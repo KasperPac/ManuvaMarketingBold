@@ -1,0 +1,10 @@
+{
+  "_about": "Inputs for scripts/hero-frames.mjs (MVBOLD-29). focalX is in the clip's 1920px-wide pixel space. calm is the time, in seconds, at which the back walls are first fully lime; it drives the headline highlight and the logo. video.gop is the keyframe spacing: a seek decodes from the keyframe before it.",
+  "clip": "../MarketingAndPromotion/video/manuva-stopmotion/flow-kit/downloads/T1.mp4",
+  "calm": 5.5,
+  "poster": { "quality": 60 },
+  "video": { "crf": 25, "gop": 4 },
+  "landscape": { "width": 1280, "height": 720 },
+  "portrait": { "width": 500, "height": 1080, "focalX": 630 },
+  "budgetKB": { "l": 3500, "p": 2100 }
+}

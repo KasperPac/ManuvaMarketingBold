@@ -386,10 +386,13 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid cur
    — the design's stylesheet, its inline styles, and its page references — and
    chasing them individually is how one gets missed. The decorative numerals
    and the tick bar keep their opacity: they carry no text and are
-   aria-hidden. */
-.mv-field-cobalt *:not(.ghostnum):not(.pnum):not(.ticks):not(.ticks i),
-.mv-field-violet *:not(.ghostnum):not(.pnum):not(.ticks):not(.ticks i),
-.mv-field-flare  *:not(.ghostnum):not(.pnum):not(.ticks):not(.ticks i){opacity:1!important}
+   aria-hidden. So does the Dave hero's "Scroll" hint (MVBOLD-29): it is
+   aria-hidden, its word comes from CSS rather than a text node, it sits on
+   the dark scrim rather than the field, and its opacity is how it fades out
+   once the scrub starts. */
+.mv-field-cobalt *:not(.ghostnum):not(.pnum):not(.ticks):not(.ticks i):not(.dave-hint),
+.mv-field-violet *:not(.ghostnum):not(.pnum):not(.ticks):not(.ticks i):not(.dave-hint),
+.mv-field-flare  *:not(.ghostnum):not(.pnum):not(.ticks):not(.ticks i):not(.dave-hint){opacity:1!important}
 
 /* The billing toggle's track lightened cobalt with a white tint, so the
    unpressed button was white text on a lighter blue. Darkening instead keeps
@@ -660,22 +663,102 @@ main [id]{scroll-margin-top:80px}
 .stage-lead{padding-bottom:28px}
 @media(min-width:721px){.stage-lead{padding-bottom:36px}}
 
-/* Hero with the explainer in it. One column until 1100, where the video goes
-   beside the copy rather than under it. The copy keeps the leading edge: on a
-   phone the punchline and the CTAs come first and the video follows. */
-.hero-split{display:grid;gap:30px;align-items:center;width:100%}
-.hero-copy{display:grid;gap:22px;justify-items:start;min-width:0}
-.hero-media{display:grid;gap:12px;min-width:0}
-.hero .site-video{margin:0;width:100%;max-width:none}
-@media(min-width:1100px){
-  .hero-split{grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);gap:56px}
-  /* The headline gives up some size for the column it now shares — but not
-     as much as it first did. At 5.6vw it rendered 71.7px at 1280, below the
-     72px section h2 below it, which inverted the page's own hierarchy: the
-     lead-in and the onboarding heading were both louder than the headline.
-     6.8vw keeps it above every h2 at every width from 1100 up. */
-  .hero-split .hero-copy h1{font-size:clamp(68px,6.8vw,104px)}
+/* The Dave hero (MVBOLD-29). A full-bleed claymation frame over the cobalt
+   field, which never shows (see .dave-pin). Motion.astro gives the section its
+   scroll length and steps the frame; without it (reduced motion, no JS) the
+   section is one screen and the sticky pin has nothing to do.
+
+   The scene carries only the tagline, bottom-left over a fade along the
+   bottom edge, and the Manuva logo, painted onto the lime wall when the room
+   turns calm. The top of the scene stays clear: preview feedback was that copy
+   and scrim over it made it hard to see what was going on.
+
+   The h1 still has to lead the page: larger than the section h2s, which run
+   at clamp(64px,6vw,104px) from 1100. "More making." is one unbreakable
+   highlight, 7.68em wide in .disp (measured); 7.9 is that plus a margin, and
+   the headline-fits test in dave-hero.spec.ts holds it true.
+
+   The fade (on .dave-copy) is --ink-strong, never navy: a navy hero is the "third blue"
+   field-separation.test.ts exists to stop. */
+/* Two .hero defaults are wrong for a pinned track and are reset here.
+   align-content:end — browsers now apply align-content to block containers
+   too, and it would sit the 100svh pin at the bottom of the 250svh track.
+   overflow:hidden — it makes the section a scroll container, and a sticky
+   child sticks to its nearest scroll container, so the pin would never stick
+   to the page. clip still clips and is not a scroll container. */
+.hero.dave{display:block;align-content:start;overflow:clip;padding:0;gap:0;min-height:100svh}
+/* The pin paints --ink-strong behind the frame: it is the placeholder while
+   the first frame loads, and it is what the docked header picks up from under itself
+   (Motion.astro's headColor), so the bar over the scene is the scene's ink
+   rather than the cobalt field hidden behind the frames. Its height is the
+   dynamic viewport (svh first, as the fallback): at 100svh, once a phone's
+   URL bar collapsed, the band beneath the pin showed the cobalt field. */
+.hero.dave>.dave-pin{position:sticky;top:0;height:100svh;height:100dvh;overflow:hidden;display:grid;background-color:var(--ink-strong)}
+/* The scene is a box with the frame's own aspect, sized to cover the pin —
+   object-fit:cover done by hand, so that the logo inside it is placed in the
+   room's coordinates and stays on the same patch of wall at any viewport.
+   left:31% with translateX(-31%) is object-position:31%: Dave stays in view
+   as the sides crop. The portrait set is already cropped on Dave. */
+.dave-scene{position:absolute;left:31%;top:50%;transform:translate(-31%,-50%);aspect-ratio:16/9;width:max(100%,calc(100svh * 16 / 9));width:max(100%,calc(100dvh * 16 / 9))}
+.dave-scene picture,.dave-scene img{display:block;width:100%;height:100%}
+/* The scrub clip (Motion.astro adds it after load) lies over the still, in the
+   same box, and shows only once its first seek has landed: until then, and
+   while its source is changing, the still underneath is the picture.
+   visibility, not opacity, which the field's full-strength override pins. */
+.dave-scene video{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;visibility:hidden}
+.hero.dave[data-video="ready"] .dave-scene video{visibility:visible}
+@media(max-aspect-ratio:4/5){
+  .dave-scene{left:50%;transform:translate(-50%,-50%);aspect-ratio:500/1080;width:max(100%,calc(100svh * 500 / 1080));width:max(100%,calc(100dvh * 500 / 1080))}
 }
+/* The logo, on the empty lime wall right of the corner (landscape) or across
+   the top of the wall above the window (portrait). It wipes on left to right
+   like fresh paint when the room turns calm; clip-path rather than opacity,
+   which the field's full-strength override would pin at 1. Ink on lime:
+   --on-lime. Hidden whenever data-scrub is not "calm", which includes reduced
+   motion and no JS, where the scene is the chaos frame. */
+.dave-logo{position:absolute;left:59%;top:21%;width:27%;aspect-ratio:2189.357/482.347;color:var(--on-lime);clip-path:inset(0 100% 0 0);transition:clip-path 700ms var(--ease-out)}
+@media(max-aspect-ratio:4/5){.dave-logo{left:12%;top:11%;width:76%}}
+.hero.dave[data-scrub="calm"] .dave-logo{clip-path:inset(0)}
+.dave-copy{position:relative;isolation:isolate;align-self:end;box-sizing:border-box;width:100%;padding:0 20px 36px}
+/* The fade belongs to the copy, not the viewport: it starts 60% of the copy's
+   own height above it and is still two-thirds ink at the headline's first
+   line, so the line is covered however large the headline grows, and the
+   fade is only as tall as the copy needs. The white first line is large text
+   and must hold 3:1 over the lime room (measured in dave-hero.spec.ts). */
+.dave-copy::before{content:"";position:absolute;inset:-60% 0 0 0;z-index:-1;pointer-events:none;background:linear-gradient(0deg,color-mix(in srgb,var(--ink-strong) 88%,transparent) 0%,color-mix(in srgb,var(--ink-strong) 66%,transparent) 62.5%,transparent 100%)}
+.hero.dave h1{font-size:min(15.5vw,calc((100vw - 40px) / 7.9));max-width:none}
+.dave-hint{display:none;position:absolute;left:50%;bottom:12px;transform:translateX(-50%);font:600 11px/1 var(--font-body);letter-spacing:.14em;text-transform:uppercase;opacity:.8;pointer-events:none}
+/* The word is decoration, so it lives in CSS like the ghost numerals: no text
+   node to select, copy or read out (feat-contrast-cascade.test.ts). */
+.dave-hint::before{content:"Scroll"}
+@media(min-width:721px){.dave-copy{padding:0 32px 48px}.hero.dave h1{font-size:min(11vw,112px,calc((100vw - 64px) / 7.9))}}
+@media(min-width:1100px){
+  .dave-copy{padding:0 max(48px,calc((100vw - var(--page-max,1240px)) / 2)) 56px}
+  .hero.dave h1{font-size:min(clamp(76px,6.4vw,112px),calc((100vw - 96px) / 7.9))}
+}
+/* A landscape phone is ~390px tall: a width-sized headline would fill it. */
+@media(max-height:500px) and (min-aspect-ratio:1/1){
+  .dave-copy{padding:0 24px 20px}
+  .hero.dave h1{font-size:min(11svh,calc((100vw - 48px) / 7.9))}
+}
+/* The chip on "More making." lands as the walls turn lime (data-scrub,
+   written by Motion.astro). With motion off or no JS the attribute is never
+   set and the chip simply shows: the markup is the finished state. */
+.hero.dave .hl{transition:background-color 220ms var(--ease-out),color 220ms var(--ease-out)}
+.hero.dave[data-scrub="pre"] .hl{background-color:transparent;color:inherit}
+:root[data-motion="on"] .hero.dave[data-scrub] .dave-hint{display:block}
+/* end Dave hero */
+
+/* The hero's own copy, in the band directly under it (MVBOLD-29). */
+.hero-intro .split{align-items:center;row-gap:40px}
+.hero-intro-ctas{flex-wrap:wrap}
+
+/* The video, beside the hero's own copy in the band straight under the hero
+   (MVBOLD-29). With the marquee gone, that band and the stage lead-in are two
+   paper sections in a row, so the lead-in takes the site's hairline. */
+.lead-media{display:grid;gap:12px;min-width:0;align-content:start}
+.hero-intro .site-video{margin:0;width:100%;max-width:none}
+.hero-intro + .stage-lead{border-top:2px solid color-mix(in srgb,currentColor 12%,transparent)}
 
 /* The header, docked. Transparent over the hero, an opaque bar once it is
    over anything else — Motion.astro fills in the background and ink of the

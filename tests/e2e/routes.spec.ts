@@ -102,8 +102,11 @@ test.describe('no third-party contact before interaction', () => {
     test(`${route} makes no cross-origin request on load`, async ({ page }) => {
       const external: string[] = [];
       page.on('request', (r) => {
-        const url = new URL(r.url());
-        if (!['localhost', '127.0.0.1'].includes(url.hostname)) external.push(r.url());
+        // By origin, not hostname: a blob: URL (the home hero's clip plays
+        // from one) has no hostname of its own, and its origin is the page's.
+        const { origin } = new URL(r.url());
+        const host = origin === 'null' ? '' : new URL(origin).hostname;
+        if (!['localhost', '127.0.0.1'].includes(host)) external.push(r.url());
       });
       await page.goto(route, { waitUntil: 'networkidle' });
       // fonts.googleapis.com is the known, accepted gap until fonts-selfhost.css
@@ -138,7 +141,7 @@ test('the explainer reaches YouTube only after a click', async ({ page }) => {
   await expect.poll(() => yt.length, { timeout: 10_000 }).toBeGreaterThan(0);
   await expect(page.locator('iframe')).toHaveAttribute(
     'src',
-    /youtube-nocookie\.com\/embed\/Vr4rkatHggA/,
+    /youtube-nocookie\.com\/embed\/JXB4FgHRm_Y/,
   );
 
   // The player has to fill the frame it replaced. Checking the src alone said

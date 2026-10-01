@@ -61,12 +61,100 @@ test('the page rotates fields rather than repeating one', () => {
 });
 
 
-test('the hero leads with the design system punchline', () => {
+test('the hero says what the room does', () => {
+  // "Make it. Track it. Ship it." came from the design handoff. The hero is
+  // now Dave's office going from chaos to calm, and the headline is the ad's
+  // own end line (MVBOLD-29).
+  const h1 = (html().match(/<h1[^>]*>([\s\S]*?)<\/h1>/) || [])[1] || '';
+  expect(h1).toContain('Less chaos.');
+  expect(h1).toMatch(/<span class="hl keep">More making\.<\/span>/);
+  expect(h1).not.toContain('Make it.');
+});
+
+const daveHero = () => {
   const h = html();
-  const h1 = (h.match(/<h1[^>]*>([\s\S]*?)<\/h1>/) || [])[1] || '';
-  expect(h1).toContain('Make it.');
-  expect(h1).toContain('Track it.');
-  expect(h1).toContain('Ship it.');
+  const start = h.indexOf('class="hero dave mv-field-cobalt"');
+  return start < 0 ? '' : h.slice(start, h.indexOf('</section>', start));
+};
+
+test('the hero opens on the first frame as a plain, high-priority picture', () => {
+  const hero = daveHero();
+  expect(hero, 'hero not found').not.toBe('');
+  // The calm moment, in seconds of the clip: the highlight and the logo land there.
+  expect(hero).toMatch(/data-calm="5\.5"/);
+  expect(hero).not.toContain('data-frames');
+  expect(hero).toContain('<div class="dave-scene"><picture>');
+  expect(hero).toContain('srcset="/hero/dave/p.webp"');
+  expect(hero).toMatch(/<img[^>]+src="\/hero\/dave\/l\.webp"[^>]+fetchpriority="high"/);
+  expect(hero, 'the LCP image must not be lazy').not.toContain('loading="lazy"');
+  // The scrub clip is the script's to add, after `load`: the markup is the
+  // still that reduced-motion and no-JS visitors keep.
+  expect(hero).not.toContain('<video');
+});
+
+test('the hero carries only the tagline and the logo', () => {
+  // Preview feedback: the copy and its scrim hid the scene. The hero keeps the
+  // tagline and the Manuva logo (revealed on the lime wall at the calm frame);
+  // everything else moved to the band directly under it.
+  const hero = daveHero();
+  for (const gone of ['MRP for Shopify manufacturers', 'Manuva replaces the spreadsheets', 'Start free', 'Book a demo']) {
+    expect(hero, `"${gone}" is still in the hero`).not.toContain(gone);
+  }
+  expect(hero).toMatch(/<div class="dave-logo"><span aria-hidden="true"[^>]*><\/span><\/div>/);
+});
+
+test('the band straight after the hero carries its copy and the video', () => {
+  // Preview feedback, in two steps: the copy left the scene, then the marquee
+  // went ("too distracting") so the page goes straight from the hero to the
+  // video. The band holds the hero's own copy, word for word, and the video.
+  const h = html();
+  const heroEnd = h.indexOf('</section>', h.indexOf('class="hero dave'));
+  const band = h.indexOf('<section class="sec hero-intro"');
+  const bandEnd = h.indexOf('</section>', band);
+  expect(band, 'band not found').toBeGreaterThan(-1);
+  expect(h.slice(heroEnd, band).replace(/<!--[\s\S]*?-->/g, '').trim(), 'something sits between the hero and the band')
+    .toBe('</section>');
+  const body = h.slice(band, bandEnd);
+  expect(body).toContain('MRP for Shopify manufacturers');
+  expect(body).toContain('Manuva replaces the spreadsheets and legacy MRP your team is fighting with.');
+  expect(body).toMatch(/href="https:\/\/app\.manuva\.app"[^>]*>Start free</);
+  expect(body).toMatch(/href="\/about#contact"[^>]*>Book a demo</);
+  expect(body).toContain('data-youtube-id="JXB4FgHRm_Y"');
+  expect(body).toContain('See it in 60 seconds');
+});
+
+test('the scroll hint is decoration in CSS, not a text node', () => {
+  // It is exempt from the full-strength opacity override because its opacity
+  // is its fade. feat-contrast-cascade.test.ts allows that only for elements
+  // that carry no text, so the word comes from CSS, as the ghost numerals do.
+  const hero = daveHero();
+  expect(hero).toContain('<span class="dave-hint" aria-hidden="true"></span>');
+  const css = readFileSync('src/styles/site.css', 'utf8');
+  expect(css).toMatch(/\.dave-hint::before\s*\{\s*content:\s*"Scroll"\s*\}/);
+});
+
+test('the pinned stage follows the dynamic viewport, so no field shows under it on phones', () => {
+  // Final review, finding 5. At 100svh the pin is the small viewport; once a
+  // phone's URL bar collapses the viewport is taller, and the band beneath
+  // the pin painted the section's cobalt field across the bottom of the scene.
+  const css = readFileSync('src/styles/site.css', 'utf8');
+  const pin = css.match(/\.hero\.dave>\.dave-pin\{([^}]*)\}/);
+  expect(pin, '.dave-pin rule not found').toBeTruthy();
+  expect(pin![1]).toMatch(/height:100dvh/);
+});
+
+test('the hero carries no navy', () => {
+  // field-separation.test.ts: ink is structure, never a hero. The scrim is
+  // --ink-strong, not --field-ink.
+  const hero = daveHero();
+  expect(hero, 'hero not found').not.toBe('');
+  expect(hero).not.toMatch(/--field-ink|--bg-ink|#15314d/i);
+  const css = readFileSync('src/styles/site.css', 'utf8');
+  const start = css.indexOf('/* The Dave hero');
+  const daveCss = start < 0 ? '' : css.slice(start, css.indexOf('/* end Dave hero */'));
+  expect(daveCss, 'Dave hero CSS block not found').not.toBe('');
+  expect(daveCss).not.toMatch(/--field-ink|--bg-ink|#15314d/i);
+  expect(daveCss).toContain('--ink-strong');
 });
 
 test('the keyword line survives as the lede, not the h1', () => {
@@ -99,15 +187,10 @@ test('lime highlights the middle clause as a background, never as text colour', 
   expect(hl![1]).not.toMatch(/(^|;)\s*color:\s*var\(--field-lime\)/);
 });
 
-test('the marquee is still the lime rule under the hero', () => {
-  // Was: it declares data-fold so adjacency checks can see it. The new build
-  // marks fields by class, and field-separation.test.ts exempts the marquee
-  // by name — it is the design's own lime rule directly under the cobalt
-  // hero. So what is worth asserting here is that it is still there.
-  const h = html();
-  expect(h).toMatch(/<div class="marquee"/);
-  const css = readFileSync('src/styles/site.css', 'utf8');
-  expect(css).toMatch(/^\.marquee\{[^}]*background:var\(--field-lime\)/m);
+test('the marquee is gone from the home page', () => {
+  // Preview feedback (MVBOLD-29): its constant drift under the scrubbing hero
+  // was too distracting, so the page goes straight to the video instead.
+  expect(html()).not.toMatch(/<div class="marquee"/);
 });
 
 
@@ -126,21 +209,18 @@ test('lime never touches mint again', () => {
 // as the page's second beat — so that survives the hue change; the hue itself
 // is now guarded by the no-navy test in field-separation.test.ts, which covers
 // every route rather than this one line.
-test('the explainer is in the hero, not a fold of its own', () => {
-  // It used to be its own section between the marquee and the stage — one
-  // more thing to scroll past before the page made its argument. It moved
-  // into the hero, which had the room.
+test('the video is the first thing under the hero, ahead of the stage lead-in', () => {
   const h = html();
-  const hero = h.indexOf('class="hero tall mv-field-cobalt"');
-  const heroEnd = h.indexOf('</section>', hero);
+  const band = h.indexOf('<section class="sec hero-intro"');
+  const bandEnd = h.indexOf('</section>', band);
   const video = h.indexOf('data-youtube-id=');
-  expect(hero).toBeGreaterThan(-1);
-  expect(video, 'the explainer sits inside the hero section').toBeGreaterThan(hero);
-  expect(video, 'the explainer sits inside the hero section').toBeLessThan(heroEnd);
-  expect(h, 'the line the old section was headed by survives as the caption')
-    .toContain('What Manuva actually does');
-  expect(h.indexOf('<section class="stage"'), 'the stage follows the hero directly')
-    .toBeGreaterThan(heroEnd);
+  const lead = h.indexOf('class="sec stage-lead"');
+  expect(video, 'the video sits in the band under the hero').toBeGreaterThan(band);
+  expect(video, 'the video sits in the band under the hero').toBeLessThan(bandEnd);
+  expect(h, 'the line the old section was headed by survives as the caption').toContain('What Manuva actually does');
+  expect(lead).toBeGreaterThan(bandEnd);
+  expect(h.slice(lead, h.indexOf('</section>', lead)), 'the lead-in no longer carries a video').not.toContain('site-video');
+  expect(h.indexOf('<section class="stage"')).toBeGreaterThan(lead);
 });
 
 
@@ -153,10 +233,10 @@ test('the explainer is in the hero, not a fold of its own', () => {
 // requests; this covers the markup.
 test('the explainer is a click-to-load facade, not an embedded player', () => {
   const h = html();
-  expect(h).toContain('data-youtube-id="Vr4rkatHggA"');
+  expect(h).toContain('data-youtube-id="JXB4FgHRm_Y"');
   expect(h, 'an iframe in the static markup would load YouTube on page load').not.toContain('<iframe');
   expect(h, 'the self-hosted asset is gone').not.toContain('/video/explainer.mp4');
-  expect(h, 'the poster still has to render before any click').toContain('/video/explainer-poster.jpg');
+  expect(h, 'the poster still has to render before any click').toContain('/video/dave-ad-poster.jpg');
 });
 
 test('the dashboard screenshot has left the home page for /product', () => {
