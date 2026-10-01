@@ -78,8 +78,15 @@ single-camera transformation possible.
   centred on Dave. Eyebrow + H1 sit in the plain-wall band at the top over a
   top-down scrim; sub + CTAs sit at the foot over a short bottom-up scrim. Dave's
   face and hands stay clear in the middle.
-- The same media query picks the frame set (§4.2) and the copy layout, so a
-  viewport never gets a portrait crop with landscape copy or the reverse.
+- **Which applies where.** The frame set follows the viewport's shape: the
+  portrait set at `(max-aspect-ratio: 4/5)`, the landscape set otherwise. The copy
+  layout follows the room the headline needs: layout A at
+  `(min-width: 1200px) and (min-aspect-ratio: 1/1)`, the poster layout
+  everywhere else. "More making." is one unbreakable highlight (`.hl.keep`), and
+  below ~1200px a half-width column cannot hold it at a size that still beats the
+  page's 72px section headings. Landscape phones and narrower landscape windows
+  therefore get the poster layout over landscape frames. The one combination
+  that cannot occur is the portrait set under layout A.
 
 ### 3.3 Scrub behaviour
 
