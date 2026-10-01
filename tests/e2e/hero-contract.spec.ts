@@ -42,11 +42,11 @@ async function heroMetrics(page: Page) {
   return page.evaluate(() => {
     const hero = document.querySelector('main > section');
     const h1 = document.querySelector('h1') as HTMLElement | null;
-    // The home hero puts its copy in .hero-copy so the video can share the
-    // row, so the eyebrow is a grandchild there. Still one eyebrow, still a
+    // The home hero (MVBOLD-29) pins a stage over a claymation frame, so its
+    // eyebrow sits in .dave-head inside that stage. Still one eyebrow, still a
     // block sibling of the h1 with the grid gap doing the spacing.
     const eyebrow = hero?.querySelector(
-      ':scope > .eyebrow, :scope > .mv-eyebrow, :scope > .hero-split > .hero-copy > .eyebrow',
+      ':scope > .eyebrow, :scope > .mv-eyebrow, :scope .dave-head > .eyebrow',
     ) as HTMLElement | null;
     return {
       heroClass: hero ? (hero as HTMLElement).className : null,
@@ -85,8 +85,8 @@ test.describe('the shared page-hero contract', () => {
 
   // The home page is the documented exception and is asserted rather than
   // merely commented, so nobody has to guess whether it is intentional. Its
-  // hero carries the explainer beside the copy, so the headline is sized for
-  // a shared row instead of the full width. What still has to hold is the
+  // headline sits in a half-width column over Dave's office, so it is sized
+  // for that column instead of the full width. What still has to hold is the
   // part that matters: it is the shared .hero on a real field, and it is the
   // largest heading on its own page — the interior pages' fixed 115.2px is a
   // consistency rule between them, not a law about type size.

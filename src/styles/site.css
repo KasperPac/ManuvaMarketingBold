@@ -660,22 +660,58 @@ main [id]{scroll-margin-top:80px}
 .stage-lead{padding-bottom:28px}
 @media(min-width:721px){.stage-lead{padding-bottom:36px}}
 
-/* Hero with the explainer in it. One column until 1100, where the video goes
-   beside the copy rather than under it. The copy keeps the leading edge: on a
-   phone the punchline and the CTAs come first and the video follows. */
-.hero-split{display:grid;gap:30px;align-items:center;width:100%}
-.hero-copy{display:grid;gap:22px;justify-items:start;min-width:0}
-.hero-media{display:grid;gap:12px;min-width:0}
-.hero .site-video{margin:0;width:100%;max-width:none}
-@media(min-width:1100px){
-  .hero-split{grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);gap:56px}
-  /* The headline gives up some size for the column it now shares — but not
-     as much as it first did. At 5.6vw it rendered 71.7px at 1280, below the
-     72px section h2 below it, which inverted the page's own hierarchy: the
-     lead-in and the onboarding heading were both louder than the headline.
-     6.8vw keeps it above every h2 at every width from 1100 up. */
-  .hero-split .hero-copy h1{font-size:clamp(68px,6.8vw,104px)}
+/* The Dave hero (MVBOLD-29). A full-bleed claymation frame over the cobalt
+   field, which only shows while frame 0 loads. Motion.astro gives the section
+   its scroll length and steps the frame; without it (reduced motion, no JS)
+   the section is one screen and the sticky pin has nothing to do.
+
+   Two copy layouts. The poster (default): eyebrow and headline in the plain
+   wall band at the top, sub-copy and buttons at the foot, Dave clear in the
+   middle. Layout A from 1280px on a landscape screen: the copy in the right
+   54% over a scrim from the right.
+
+   Why 1280 and why 54%: "More making." is one unbreakable highlight, 7.68em
+   wide in .disp (measured), and the h1 has to stay larger than the section
+   h2s, which run at clamp(64px,6vw,104px) from 1100. A half column under the
+   page's 1240 container cannot do that at any width — the container padding
+   grows faster than the column. 54vw with the right edge on a wider 1680
+   container keeps the h1 ahead from 1280 up; the poster covers the rest.
+   7.9 is that 7.68em plus a margin, and the headline-fits test in
+   dave-hero.spec.ts holds it true.
+
+   The scrim is --ink-strong, never navy: a navy hero is the "third blue"
+   field-separation.test.ts exists to stop. */
+.hero.dave{display:block;padding:0;gap:0;min-height:100svh}
+.hero.dave>.dave-pin{position:sticky;top:0;height:100svh;overflow:hidden;display:grid}
+.dave-scene{position:absolute;inset:0;margin:0}
+.dave-scene img{display:block;width:100%;height:100%;object-fit:cover;object-position:31% 50%}
+.dave-scrim{position:absolute;inset:0;pointer-events:none;background:
+  linear-gradient(180deg,color-mix(in srgb,var(--ink-strong) 80%,transparent) 0%,color-mix(in srgb,var(--ink-strong) 45%,transparent) 30%,transparent 52%),
+  linear-gradient(0deg,color-mix(in srgb,var(--ink-strong) 85%,transparent) 0%,color-mix(in srgb,var(--ink-strong) 50%,transparent) 22%,transparent 42%)}
+.dave-copy{position:relative;display:grid;align-content:space-between;gap:24px;height:100%;box-sizing:border-box;padding:96px 20px 36px}
+.dave-head,.dave-foot{display:grid;gap:18px;justify-items:start;min-width:0}
+.hero.dave h1{font-size:min(15.5vw,calc((100vw - 40px) / 7.9));max-width:none}
+.dave-hint{display:none;position:absolute;left:50%;bottom:12px;transform:translateX(-50%);font:600 11px/1 var(--font-body);letter-spacing:.14em;text-transform:uppercase;opacity:.8;pointer-events:none}
+@media(min-width:721px){.dave-copy{padding:112px 32px 48px}.hero.dave h1{font-size:min(11vw,112px,calc((100vw - 64px) / 7.9))}}
+@media(max-aspect-ratio:4/5){.dave-scene img{object-position:50% 50%}}
+/* A landscape phone is ~390px tall: the poster's padding and a width-sized
+   headline would push the buttons below the fold, so both close up. */
+@media(max-height:500px) and (min-aspect-ratio:1/1){
+  .dave-copy{padding:74px 24px 12px;gap:8px}
+  .dave-head,.dave-foot{gap:10px}
+  .hero.dave h1{font-size:min(11svh,calc((100vw - 48px) / 7.9))}
+  .dave-foot .sub{font-size:15px}
 }
+@media(min-width:1280px) and (min-aspect-ratio:1/1){
+  .dave-scrim{background:linear-gradient(90deg,transparent 30%,color-mix(in srgb,var(--ink-strong) 70%,transparent) 58%,color-mix(in srgb,var(--ink-strong) 85%,transparent))}
+  .dave-copy{align-content:center;justify-self:end;width:54vw;height:auto;gap:28px;padding:120px max(48px,calc((100vw - 1680px) / 2)) 80px 0}
+  .hero.dave h1{font-size:min(clamp(76px,6.6vw,128px),calc((54vw - max(48px,(100vw - 1680px) / 2)) / 7.9))}
+}
+/* end Dave hero */
+
+/* The explainer, in the stage lead-in since MVBOLD-29. */
+.lead-media{display:grid;gap:12px;min-width:0;align-content:start}
+.stage-lead .site-video{margin:0;width:100%;max-width:none}
 
 /* The header, docked. Transparent over the hero, an opaque bar once it is
    over anything else — Motion.astro fills in the background and ink of the

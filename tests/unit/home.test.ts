@@ -61,12 +61,45 @@ test('the page rotates fields rather than repeating one', () => {
 });
 
 
-test('the hero leads with the design system punchline', () => {
+test('the hero says what the room does', () => {
+  // "Make it. Track it. Ship it." came from the design handoff. The hero is
+  // now Dave's office going from chaos to calm, and the headline is the ad's
+  // own end line (MVBOLD-29).
+  const h1 = (html().match(/<h1[^>]*>([\s\S]*?)<\/h1>/) || [])[1] || '';
+  expect(h1).toContain('Less chaos.');
+  expect(h1).toMatch(/<span class="hl keep">More making\.<\/span>/);
+  expect(h1).not.toContain('Make it.');
+});
+
+const daveHero = () => {
   const h = html();
-  const h1 = (h.match(/<h1[^>]*>([\s\S]*?)<\/h1>/) || [])[1] || '';
-  expect(h1).toContain('Make it.');
-  expect(h1).toContain('Track it.');
-  expect(h1).toContain('Ship it.');
+  const start = h.indexOf('class="hero dave mv-field-cobalt"');
+  return start < 0 ? '' : h.slice(start, h.indexOf('</section>', start));
+};
+
+test('the hero opens on frame 0 as a plain, high-priority picture', () => {
+  const hero = daveHero();
+  expect(hero, 'hero not found').not.toBe('');
+  expect(hero).toMatch(/data-frames="48"/);
+  expect(hero).toMatch(/data-calm="\d+"/);
+  expect(hero).toContain('<picture class="dave-scene">');
+  expect(hero).toContain('srcset="/hero/dave/p/000.webp"');
+  expect(hero).toMatch(/<img[^>]+src="\/hero\/dave\/l\/000\.webp"[^>]+fetchpriority="high"/);
+  expect(hero, 'the LCP image must not be lazy').not.toContain('loading="lazy"');
+});
+
+test('the hero carries no navy', () => {
+  // field-separation.test.ts: ink is structure, never a hero. The scrim is
+  // --ink-strong, not --field-ink.
+  const hero = daveHero();
+  expect(hero, 'hero not found').not.toBe('');
+  expect(hero).not.toMatch(/--field-ink|--bg-ink|#15314d/i);
+  const css = readFileSync('src/styles/site.css', 'utf8');
+  const start = css.indexOf('/* The Dave hero');
+  const daveCss = start < 0 ? '' : css.slice(start, css.indexOf('/* end Dave hero */'));
+  expect(daveCss, 'Dave hero CSS block not found').not.toBe('');
+  expect(daveCss).not.toMatch(/--field-ink|--bg-ink|#15314d/i);
+  expect(daveCss).toContain('--ink-strong');
 });
 
 test('the keyword line survives as the lede, not the h1', () => {
@@ -126,21 +159,23 @@ test('lime never touches mint again', () => {
 // as the page's second beat — so that survives the hue change; the hue itself
 // is now guarded by the no-navy test in field-separation.test.ts, which covers
 // every route rather than this one line.
-test('the explainer is in the hero, not a fold of its own', () => {
-  // It used to be its own section between the marquee and the stage — one
-  // more thing to scroll past before the page made its argument. It moved
-  // into the hero, which had the room.
+test('the explainer sits in the stage lead-in, after the hero', () => {
+  // It sat in the hero beside the copy until the hero became Dave's office
+  // (MVBOLD-29). It is still the page's second beat: straight after the
+  // marquee, introducing the stage. MANUVA-36 swaps it for the Dave cut.
   const h = html();
-  const hero = h.indexOf('class="hero tall mv-field-cobalt"');
-  const heroEnd = h.indexOf('</section>', hero);
+  const heroStart = h.indexOf('class="hero dave');
+  const heroEnd = h.indexOf('</section>', heroStart);
+  const lead = h.indexOf('class="sec stage-lead"');
+  const leadEnd = h.indexOf('</section>', lead);
   const video = h.indexOf('data-youtube-id=');
-  expect(hero).toBeGreaterThan(-1);
-  expect(video, 'the explainer sits inside the hero section').toBeGreaterThan(hero);
-  expect(video, 'the explainer sits inside the hero section').toBeLessThan(heroEnd);
-  expect(h, 'the line the old section was headed by survives as the caption')
-    .toContain('What Manuva actually does');
-  expect(h.indexOf('<section class="stage"'), 'the stage follows the hero directly')
-    .toBeGreaterThan(heroEnd);
+  expect(heroStart).toBeGreaterThan(-1);
+  expect(lead).toBeGreaterThan(heroEnd);
+  expect(video, 'the explainer sits inside the stage lead-in').toBeGreaterThan(lead);
+  expect(video, 'the explainer sits inside the stage lead-in').toBeLessThan(leadEnd);
+  expect(h).toContain('What Manuva actually does');
+  expect(h).toContain('See it in 32 seconds');
+  expect(h.indexOf('<section class="stage"')).toBeGreaterThan(leadEnd);
 });
 
 

@@ -2,6 +2,9 @@
 import Base from '../layouts/Base.astro';
 import Video from '../components/site/Video.astro';
 import { APP_URL, DOMAINS } from '../site';
+// Frame count and the frame where the room turns calm, from the manifest the
+// frame script reads, so the page and the frames cannot disagree.
+import heroFrames from '../../scripts/hero-frames.json';
 
 // Rebuilt on the new design (MVBOLD-17): full-field hero with a ghost
 // numeral, the live marquee, the pinned stage of six shape-cut domain
@@ -19,10 +22,9 @@ import { APP_URL, DOMAINS } from '../site';
 // prices are AUD, both of which the handoff still carries at their older
 // values (14 days, USD). Where the two disagree on fact, the repo wins.
 //
-// The ghost numeral has to be real. The reference uses "1,240" and its own
-// README flags it — "decorative only, but confirm it isn't read as a claim."
-// We have no such figure, so this uses the one count the page can prove: the
-// six domains it is about.
+// The hero's ghost numeral ("06", the six domains) came off in MVBOLD-29: the
+// hero is now a claymation frame, and a giant numeral over it was noise. The
+// stage panels keep their own numerals.
 //
 // Field rhythm, per the loud-layer rules — one full-bleed field per fold and
 // never two touching:
@@ -161,38 +163,41 @@ const pad = (n: number) => String(n).padStart(2, '0');
   headInk="light"
   {schema}
 >
-  {/* The explainer lives in the hero rather than in a fold of its own. It was
-      a whole section to scroll past before reaching the stage, which is the
-      page's actual argument — and the hero had the room, particularly on a
-      wide screen where it was mostly empty. Two columns from 1100 up, stacked
-      below that with the video after the CTAs so the punchline and the
-      buttons still come first on a phone. */}
-  <section class="hero tall mv-field-cobalt" style="align-content:center">
-    <span class="ghostnum num" aria-hidden="true" style="top:auto;bottom:-.2em" data-n="06"></span>
-    <div class="hero-split">
-      <div class="hero-copy">
-        <span class="eyebrow" style="opacity:.75">MRP for Shopify manufacturers</span>
-        <h1 class="disp">Make it. <span class="hl keep">Track it.</span> Ship it.</h1>
-        <p class="sub" style="opacity:.88;max-width:40ch">
-          Manuva replaces the spreadsheets and legacy MRP your team is fighting with. Inventory, BOMs, work
-          orders, and stock control — connected, live, and built for the floor.
-        </p>
-        <div class="row">
-          <a class="pill" href={APP_URL}>Start free</a>
-          <a class="pill ghost" href="/about#contact" style="box-shadow:inset 0 0 0 2px rgb(255 255 255/.42)">Book a demo</a>
+  {/* Dave's office (MVBOLD-29). Frame 0 of the chaos-to-calm sequence is plain
+      markup: it is the LCP image and the whole hero for reduced-motion and
+      no-JS visitors. Motion.astro pins .dave-pin and steps the <img> through
+      the rest as the page scrolls. The explainer that used to sit here moved
+      to the stage lead-in below. */}
+  <section class="hero dave mv-field-cobalt" data-frames={heroFrames.count} data-calm={heroFrames.calm}>
+    <div class="dave-pin">
+      <picture class="dave-scene">
+        <source media="(max-aspect-ratio: 4/5)" srcset="/hero/dave/p/000.webp" width="500" height="1080" />
+        <img
+          src="/hero/dave/l/000.webp"
+          width="1280"
+          height="720"
+          fetchpriority="high"
+          alt="Claymation: Dave at his desk in a grey office full of spreadsheets and sticky notes. Scrolling tidies it into a calm, lime-green room with his feet up."
+        />
+      </picture>
+      <div class="dave-scrim" aria-hidden="true"></div>
+      <div class="dave-copy">
+        <div class="dave-head">
+          <span class="eyebrow" style="opacity:.75">MRP for Shopify manufacturers</span>
+          <h1 class="disp">Less chaos. <span class="hl keep">More making.</span></h1>
+        </div>
+        <div class="dave-foot">
+          <p class="sub" style="opacity:.88;max-width:40ch">
+            Manuva replaces the spreadsheets and legacy MRP your team is fighting with. Inventory, BOMs, work
+            orders, and stock control — connected, live, and built for the floor.
+          </p>
+          <div class="row">
+            <a class="pill" href={APP_URL}>Start free</a>
+            <a class="pill ghost" href="/about#contact" style="box-shadow:inset 0 0 0 2px rgb(255 255 255/.42)">Book a demo</a>
+          </div>
         </div>
       </div>
-      <div class="hero-media">
-        <span class="eyebrow" style="opacity:.75">See it in 32 seconds</span>
-        {/* The caption carries "What Manuva actually does", which was the h2
-            of the section this replaced — the sentence stays on the page. */}
-        <Video
-          youtubeId="Vr4rkatHggA"
-          poster="/video/explainer-poster.jpg"
-          alt="Manuva title card reading Manufacturing operations software — What is Manuva?"
-          title="What Manuva actually does"
-        />
-      </div>
+      <span class="dave-hint" aria-hidden="true">Scroll</span>
     </div>
   </section>
 
@@ -200,8 +205,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
     <div class="track">{MARQUEE.map((w) => <span>{w}</span>)}</div>
   </div>
 
-  {/* The explainer. A facade, not an embed: the poster and button are static
-      markup and nothing reaches youtube-nocookie.com until someone clicks. */}
   {/* The stage's lead-in. This heading and sub used to head an eight-item
       platform grid below the stage — which restated the same six domains
       under the nine older area names, two of them pointing at anchors the
@@ -212,13 +215,31 @@ const pad = (n: number) => String(n).padStart(2, '0');
       cold, and its four sentences that were not already on /features moved
       there. */}
   <section class="sec stage-lead">
-    <span class="eyebrow" style="opacity:.6">The platform</span>
-    <h2 class="disp">Everything your shop needs. Nothing it doesn't.</h2>
-    <p class="sub" style="color:var(--ink-muted);max-width:58ch">
-      One system covering the whole shop floor — from raw materials in to finished goods out. No modules to
-      bolt on, no consultants to hire.
-    </p>
-    <a class="pill ink" href="/features" style="justify-self:start">Explore the full feature set &rarr;</a>
+    <div class="split">
+      <div style="display:grid;gap:18px;align-content:start">
+        <span class="eyebrow" style="opacity:.6">The platform</span>
+        <h2 class="disp">Everything your shop needs. Nothing it doesn't.</h2>
+        <p class="sub" style="color:var(--ink-muted);max-width:58ch">
+          One system covering the whole shop floor — from raw materials in to finished goods out. No modules to
+          bolt on, no consultants to hire.
+        </p>
+        <a class="pill ink" href="/features" style="justify-self:start">Explore the full feature set &rarr;</a>
+      </div>
+      <div class="lead-media">
+        <span class="eyebrow" style="opacity:.6">See it in 32 seconds</span>
+        {/* The explainer. A facade, not an embed: the poster and button are
+            static markup and nothing reaches youtube-nocookie.com until someone
+            clicks. The caption carries "What Manuva actually does", which was
+            the h2 of the section this once replaced — the sentence stays on the
+            page. MANUVA-36 swaps the YouTube id and poster for the Dave cut. */}
+        <Video
+          youtubeId="Vr4rkatHggA"
+          poster="/video/explainer-poster.jpg"
+          alt="Manuva title card reading Manufacturing operations software — What is Manuva?"
+          title="What Manuva actually does"
+        />
+      </div>
+    </div>
   </section>
 
   {/* The pinned stage. Six panels, one pin, each clipping in over the last on
