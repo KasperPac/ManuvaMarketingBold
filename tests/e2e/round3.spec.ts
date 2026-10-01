@@ -107,3 +107,27 @@ test('the video poster has no dark line along its top edge', async ({ request })
   };
   expect(rowLum(0), 'top row against row 12').toBeGreaterThan(rowLum(12) - 25);
 });
+
+// N-8: each home stage panel is one link, and the design system's a:hover
+// repainted its text in --brand-dark: 2.4:1 on violet, about 2.2:1 on
+// cobalt. Present on the live site since the rebuild; the critic's scripts
+// never had the pointer over the stage until the fourth pass.
+test('hovering a home stage panel keeps its field ink', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  for (const i of [0, 4]) {
+    await page.evaluate((i) => {
+      const s = document.querySelector('.stage') as HTMLElement;
+      const top = s.getBoundingClientRect().top + scrollY;
+      scrollTo(0, top + (s.offsetHeight - innerHeight) * (i / 5));
+    }, i);
+    await page.waitForTimeout(900);
+    const h2 = page.locator('.stage .panel').nth(i).locator('h2');
+    await page.mouse.move(10, 10);
+    const before = await h2.evaluate((h) => getComputedStyle(h).color);
+    await page.mouse.move(720, 450);
+    await page.waitForTimeout(300);
+    const after = await h2.evaluate((h) => getComputedStyle(h).color);
+    expect(after, `panel ${i}`).toBe(before);
+  }
+});

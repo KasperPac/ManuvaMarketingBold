@@ -1167,3 +1167,17 @@ main [id]{scroll-margin-top:80px}
    full-strength override pins. */
 .stage .panel :is(.eyebrow,h2,.pline,.more){transition:color 240ms var(--ease-out)}
 .stage .panel[data-leaving="1"] :is(.eyebrow,h2,.pline,.more){color:transparent}
+/* A link that is itself a field (each home stage panel, the /alternatives
+   cards) keeps its field's ink on hover. The design system's a:hover
+   repainted the whole panel in --brand-dark: 2.4:1 on violet, about 2.2:1 on
+   cobalt (the critic's N-8). The hover shows as a heavier "See ..." line. */
+a.mv-field-cobalt:hover{color:var(--on-cobalt)}
+a.mv-field-violet:hover{color:var(--on-violet)}
+a.mv-field-flare:hover{color:var(--on-flare)}
+a.mv-field-amber:hover{color:var(--on-amber)}
+a.mv-field-mint:hover{color:var(--on-mint)}
+a.mv-field-aqua:hover{color:var(--on-aqua)}
+a.mv-field-lime:hover{color:var(--on-lime)}
+a.mv-field-ink:hover{color:var(--on-ink)}
+a.mv-field-paper:hover{color:var(--on-paper)}
+.stage .panel:hover .more,.altcard:hover .more{text-decoration-thickness:3px}
