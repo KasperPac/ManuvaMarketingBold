@@ -140,10 +140,15 @@ output is committed. Vercel never sees the clip.
 
 ### 4.2 Sets and budget
 
-| Set | Size | Per frame (measured on A1) | Budget at ~48 frames |
+| Set | Size | Per frame (measured on T1, WebP q60) | Budget at 48 frames |
 |---|---|---|---|
-| Landscape | 1280×720 | 31 KB | ≤ 1.6 MB |
-| Portrait | crop of the 1080p download, ~500×1080 | ~25 KB (estimated) | ≤ 1.3 MB |
+| Landscape | 1280×720 | 43 KB | ≤ 2.1 MB |
+| Portrait | crop of the 1080p download, 500×1080 | 25 KB | ≤ 1.3 MB |
+
+The landscape budget was 1.6 MB, estimated from the ad's A1 clip. T1 carries more
+clay grain and came in at 2.07 MB. Lower quality barely moves it, and a denoise
+that does (a 3px median) strips the fingerprint texture the hero is for. All of
+it loads after `load`, so it does not touch LCP.
 
 - 1280×720 because that is the clip's native generation size; the 1080p download
   is an upscale. Phone sharpness depends on the 1080p download.

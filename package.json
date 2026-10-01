@@ -17,7 +17,8 @@
     "parity": "node scripts/parity/check.js",
     "parity:strict": "node scripts/parity/check.js --require-all",
     "test:e2e": "playwright test",
-    "poster": "node scripts/extract-poster.mjs"
+    "poster": "node scripts/extract-poster.mjs",
+    "hero:frames": "node scripts/hero-frames.mjs"
   },
   "dependencies": {
     "astro": "^7.2.0"

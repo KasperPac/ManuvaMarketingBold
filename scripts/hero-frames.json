@@ -1,0 +1,12 @@
+{
+  "_about": "Inputs for scripts/hero-frames.mjs (MVBOLD-29). focalX is in the clip's 1920px-wide pixel space. calm is the first frame whose back walls are fully lime; it drives the headline highlight.",
+  "clip": "../MarketingAndPromotion/video/manuva-stopmotion/flow-kit/downloads/T1.mp4",
+  "in": 0,
+  "out": 8,
+  "count": 48,
+  "calm": 32,
+  "quality": 60,
+  "landscape": { "width": 1280, "height": 720 },
+  "portrait": { "width": 500, "height": 1080, "focalX": 630 },
+  "budgetKB": { "l": 2100, "p": 1300 }
+}
