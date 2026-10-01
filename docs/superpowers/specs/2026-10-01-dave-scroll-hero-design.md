@@ -28,8 +28,9 @@ without moving a single CTA out of reach.
 | Placement | Full-bleed hero backdrop over the cobalt field. |
 | Interaction | Scroll-scrubbed stop-motion, pinned. |
 | Footage | **One transformation clip, T1**: `before.png` → `after.png` (`frames/keys/v3/`), Veo 3.1 Fast frames-to-video in Google Flow, 8 s. The ad's story shots (A1–E1) are not used by the hero. |
-| Desktop copy | Layout A — copy right, dark scrim from the right. |
-| Phone copy | Layout 1 "poster" — eyebrow + H1 over the wall at top, sub + CTAs at the foot. |
+| Hero copy | **Only the tagline**, bottom-left over a fade along the bottom edge, at every size. Revised after the first preview: copy and scrim over the scene hid it. (Was layout A on desktop and a poster layout on phones.) |
+| Logo | The exact Manuva logo is **wiped onto the lime wall as the room turns calm**: right of the corner on landscape, across the top of the wall on phones. A clay picture frame for it was tried and rejected (the clean logo in a clay frame looked off). |
+| Eyebrow, sub-copy, buttons | Word for word, in a band directly under the hero, before the marquee. |
 | Headline | **Less chaos. More making.** (the ad's own end line). Was "Make it. Track it. Ship it." |
 | Explainer video | Moves to the stage lead-in now; swapped for the Dave cut later (MANUVA-36). |
 
@@ -43,11 +44,16 @@ single-camera transformation possible.
 
 ```
 <section class="hero dave mv-field-cobalt" data-frames="N" data-calm="K">
-  <picture class="dave-scene">          ← frame 0 is the LCP image
-  <div class="dave-scrim">              ← --ink-strong at alpha, direction per layout
-  <div class="dave-copy">               ← eyebrow, H1, sub, CTAs — unchanged except H1
-  <span class="dave-hint">Scroll</span> ← fades out after 5% progress
+  <div class="dave-pin">                      ← sticky, 100dvh, paints --ink-strong
+    <div class="dave-scene">                  ← the frame's own aspect, sized to cover
+      <picture>…frame 0…</picture>            ← the LCP image
+      <div class="dave-logo"><Logo/></div>    ← placed in the room's coordinates
+    </div>
+    <div class="dave-copy"><h1>…</h1></div>   ← the tagline; its ::before is the fade
+    <span class="dave-hint"></span>           ← "Scroll", from CSS; fades out by 5%
+  </div>
 </section>
+<section class="sec hero-intro">              ← eyebrow, sub-copy, both buttons
 ```
 
 - The section keeps `mv-field-cobalt`, which keeps the hero inside the shared
@@ -58,46 +64,48 @@ single-camera transformation possible.
   takes as its bar colour over the scene. The pin is `100dvh` (falling back to
   `100svh`), so no band of the field shows beneath it when a phone's URL bar
   collapses.
-- The ghost numeral "06" comes off the hero.
+- The ghost numeral "06" comes off the hero, and so does the eyebrow: the home
+  hero is the hero contract's documented exception.
 - H1: `Less chaos. <span class="hl keep">More making.</span>`
   - With JS and motion on, the hero carries `data-scrub="pre"` until frame K, and
     the `.hl` chip on "More making." is hidden until then. It lands as the walls
-    turn lime.
+    turn lime, together with the logo.
   - With no JS or with reduced motion the chip is simply shown. Progressive
-    enhancement: the markup is the finished state.
-- Eyebrow, sub-copy and both CTAs are word for word what ships today.
+    enhancement: the markup is the finished state. The logo stays hidden there:
+    the static scene is the chaos frame, and the grey wall is not its moment.
+- `.dave-scene` does `object-fit: cover` by hand (a box with the frame's aspect,
+  `max(100%, 100dvh × aspect)` wide, its 31% point on the pin's 31% point), so
+  the logo is positioned in the room's coordinates and stays on the same patch
+  of wall at any viewport.
 
-### 3.2 Layouts and scrim
+### 3.2 Tagline, fade and logo
 
-- **Scrim colour is `--ink-strong` (#141413) at alpha, never navy.**
+- **The fade is `--ink-strong` (#141413) at alpha, never navy.**
   `tests/unit/field-separation.test.ts` forbids a navy hero ("ink is structure,
   never a rotation hue"; a navy hero is the third blue), and inline navy outside a
-  declared ink band fails it. The mock-ups used navy; this is the one visual
-  change from them.
-- **Layout A (wide landscape):** the copy block takes the right 54% of the
-  viewport, its right edge on a 1680px container, vertically centred. The scrim
-  ramps from transparent at 34% to 0.74 alpha at 44%, so it is dark before the
-  copy starts (~46%): in the calm frames the wall behind the copy is lime, and
-  white body copy needs 4.5:1 against it (measured in `dave-hero.spec.ts`).
-- **Phone / portrait** (`(max-aspect-ratio: 4/5)`): the frame is a portrait crop
-  centred on Dave. Eyebrow + H1 sit in the plain-wall band at the top over a
-  top-down scrim; sub + CTAs sit at the foot over a short bottom-up scrim. Dave's
-  face and hands stay clear in the middle.
-- **Which applies where.** The frame set follows the viewport's shape: the
-  portrait set at `(max-aspect-ratio: 4/5)`, the landscape set otherwise. The copy
-  layout follows the room the headline needs: layout A at
-  `(min-width: 1280px) and (min-aspect-ratio: 1/1)`, the poster layout
-  everywhere else. "More making." is one unbreakable highlight (`.hl.keep`),
-  7.68em wide (measured), and the h1 must stay larger than the section h2s,
-  which run at `clamp(64px, 6vw, 104px)` from 1100px. Below 1280px no column
-  that leaves Dave clear can do both. Landscape phones and narrower landscape
-  windows therefore get the poster layout over landscape frames; screens no
-  taller than 500px close up the poster's padding and cap the headline at
-  11svh so both CTAs stay on screen. The one combination that cannot occur is
-  the portrait set under layout A.
+  declared ink band fails it.
+- **The fade belongs to the copy**, not the viewport: it starts 60% of the copy
+  box's height above it and is still two-thirds ink at the headline's first
+  line, so it is only as tall as the tagline needs and the white first line keeps
+  3:1 (large text) over the lime room at any headline size (measured on pixels in
+  `dave-hero.spec.ts`).
+- **Headline size:** `min(15.5vw, (100vw − 40px) / 7.9)` on phones,
+  `min(11vw, 112px, (100vw − 64px) / 7.9)` from 721px, and
+  `min(clamp(76px, 6.4vw, 112px), (100vw − 96px) / 7.9)` from 1100px.
+  "More making." is one unbreakable highlight (`.hl.keep`), 7.68em wide
+  (measured; 7.9 adds a margin), and the h1 must stay larger than the section
+  h2s, which run at `clamp(64px, 6vw, 104px)` from 1100px. Screens no taller than
+  500px cap it at 11svh.
+- **Logo:** the lockup, `--on-lime` ink, revealed by a 700ms left-to-right
+  `clip-path` wipe when `data-scrub` becomes `calm`. Clip-path, not opacity: the
+  cobalt field's full-strength override pins descendants at opacity 1.
+  Landscape: 59% across, 21% down, 27% of the scene's width. Portrait: 12%
+  across, 11% down, 76% wide, clear of the header bar.
+- **Frame set** follows the viewport's shape: the portrait set at
+  `(max-aspect-ratio: 4/5)`, the landscape set otherwise.
 - **Known gap:** on phones the h1 (about 42px at 375px wide) is smaller than the
   section h2s (12vw, 45px): the unbreakable highlight cannot be larger in that
-  width. Logged for a design decision rather than settled here.
+  width. Logged as MANUVA-38 for a design decision.
 
 ### 3.3 Scrub behaviour
 

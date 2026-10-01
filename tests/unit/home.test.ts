@@ -82,10 +82,37 @@ test('the hero opens on frame 0 as a plain, high-priority picture', () => {
   expect(hero, 'hero not found').not.toBe('');
   expect(hero).toMatch(/data-frames="48"/);
   expect(hero).toMatch(/data-calm="\d+"/);
-  expect(hero).toContain('<picture class="dave-scene">');
+  expect(hero).toContain('<div class="dave-scene"><picture>');
   expect(hero).toContain('srcset="/hero/dave/p/000.webp"');
   expect(hero).toMatch(/<img[^>]+src="\/hero\/dave\/l\/000\.webp"[^>]+fetchpriority="high"/);
   expect(hero, 'the LCP image must not be lazy').not.toContain('loading="lazy"');
+});
+
+test('the hero carries only the tagline and the logo', () => {
+  // Preview feedback: the copy and its scrim hid the scene. The hero keeps the
+  // tagline and the Manuva logo (revealed on the lime wall at the calm frame);
+  // everything else moved to the band directly under it.
+  const hero = daveHero();
+  for (const gone of ['MRP for Shopify manufacturers', 'Manuva replaces the spreadsheets', 'Start free', 'Book a demo']) {
+    expect(hero, `"${gone}" is still in the hero`).not.toContain(gone);
+  }
+  expect(hero).toMatch(/<div class="dave-logo"><span aria-hidden="true"[^>]*><\/span><\/div>/);
+});
+
+test('the copy that left the hero is the band straight after it, before the marquee', () => {
+  const h = html();
+  const heroEnd = h.indexOf('</section>', h.indexOf('class="hero dave'));
+  const band = h.indexOf('<section class="sec hero-intro"');
+  const bandEnd = h.indexOf('</section>', band);
+  expect(band, 'band not found').toBeGreaterThan(-1);
+  expect(h.slice(heroEnd, band).replace(/<!--[\s\S]*?-->/g, '').trim(), 'something sits between the hero and the band')
+    .toBe('</section>');
+  const body = h.slice(band, bandEnd);
+  expect(body).toContain('MRP for Shopify manufacturers');
+  expect(body).toContain('Manuva replaces the spreadsheets and legacy MRP your team is fighting with.');
+  expect(body).toMatch(/href="https:\/\/app\.manuva\.app"[^>]*>Start free</);
+  expect(body).toMatch(/href="\/about#contact"[^>]*>Book a demo</);
+  expect(h.indexOf('<div class="marquee"')).toBeGreaterThan(bandEnd);
 });
 
 test('the scroll hint is decoration in CSS, not a text node', () => {

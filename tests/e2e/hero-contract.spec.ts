@@ -85,18 +85,20 @@ test.describe('the shared page-hero contract', () => {
 
   // The home page is the documented exception and is asserted rather than
   // merely commented, so nobody has to guess whether it is intentional. Its
-  // headline sits in a half-width column over Dave's office, so it is sized
-  // for that column instead of the full width. What still has to hold is the
-  // part that matters: it is the shared .hero on a real field, and it is the
-  // largest heading on its own page — the interior pages' fixed 115.2px is a
-  // consistency rule between them, not a law about type size.
-  test('/ sizes its headline for the row it shares, and still leads the page', async ({ page }) => {
+  // hero is Dave's office with only the tagline over it (MVBOLD-29): no
+  // eyebrow — that moved, with the sub-copy and buttons, to the band directly
+  // under the hero — and a headline sized for the scene rather than the
+  // interior pages' 115.2px. What still has to hold is the part that matters:
+  // it is the shared .hero on a real field, and it is the largest heading on
+  // its own page — the interior pages' fixed 115.2px is a consistency rule
+  // between them, not a law about type size.
+  test('/ sizes its headline for the scene, and still leads the page', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/');
     const m = await heroMetrics(page);
     expect(m.heroClass!.split(' '), 'the home page opens on the shared .hero').toContain('hero');
     expect(m.heroClass, 'the hero carries a field').toContain('mv-field-');
-    expect(m.eyebrowDisplay, 'eyebrow is a block sibling').toBe('block');
+    expect(m.eyebrowDisplay, 'the home hero carries no eyebrow; it is in the band below').toBeNull();
     expect(m.h1Align, 'headings are left-aligned').toBe('start');
 
     // Same exclusion as the heading-scale test below: a heading inside a

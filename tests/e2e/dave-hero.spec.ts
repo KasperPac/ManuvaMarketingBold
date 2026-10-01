@@ -1,28 +1,38 @@
 import { test, expect, type Page } from '@playwright/test';
 
 // The Dave hero (MVBOLD-29): a full-bleed claymation frame over the cobalt
-// field, the copy in a poster layout or (from 1280px, landscape) in the right
-// 54%. The layout half of this file is what reduced-motion and no-JS
-// visitors get; the scrub half below covers the stop-motion itself.
+// field, carrying only the tagline at the bottom and the Manuva logo, which is
+// revealed on the lime wall as the room turns calm. The eyebrow, sub-copy and
+// buttons sit in a band directly under the hero. The layout half of this file
+// is what reduced-motion and no-JS visitors get; the scrub half covers the
+// stop-motion itself.
 
-async function ctasOnScreen(page: Page) {
-  return page.evaluate(() =>
-    [...document.querySelectorAll('.dave-foot .pill')].map((a) => {
-      const r = a.getBoundingClientRect();
-      return { text: (a.textContent || '').trim(), inView: r.top >= 0 && r.bottom <= innerHeight && r.width > 0 };
-    }),
-  );
-}
-
-for (const [w, h] of [[1280, 900], [1440, 900], [390, 844], [844, 390]] as const) {
-  test(`both CTAs are on screen on load at ${w}x${h}`, async ({ page }) => {
+for (const [w, h] of [[1280, 800], [1440, 900], [390, 844], [844, 390]] as const) {
+  test(`the hero shows only the tagline, at the bottom, at ${w}x${h}`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
     await page.goto('/');
-    const ctas = await ctasOnScreen(page);
-    expect(ctas.map((c) => c.text)).toEqual(['Start free', 'Book a demo']);
-    expect(ctas.every((c) => c.inView), JSON.stringify(ctas)).toBe(true);
+    const m = await page.evaluate(() => {
+      const hero = document.querySelector('.hero.dave')!;
+      const h1 = hero.querySelector('h1')!.getBoundingClientRect();
+      return { top: h1.top, bottom: h1.bottom, vh: innerHeight, extra: hero.querySelectorAll('.eyebrow, .sub, .pill').length };
+    });
+    expect(m.extra, 'eyebrow, sub-copy or buttons still in the hero').toBe(0);
+    expect(m.top, 'the tagline sits in the lower half of the scene').toBeGreaterThan(m.vh * 0.5);
+    expect(m.bottom).toBeLessThanOrEqual(m.vh);
   });
 }
+
+test('the eyebrow, sub-copy and both buttons are the first thing after the hero', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/');
+  const band = page.locator('.hero.dave + .hero-intro');
+  await expect(band).toHaveCount(1);
+  await expect(band.locator('.eyebrow')).toHaveText('MRP for Shopify manufacturers');
+  await expect(band.locator('.sub')).toContainText('Manuva replaces the spreadsheets');
+  await band.scrollIntoViewIfNeeded();
+  await expect(band.locator('.pill')).toHaveText(['Start free', 'Book a demo']);
+  await expect(band.locator('.pill').first()).toBeVisible();
+});
 
 const WIDTHS = [320, 375, 414, 768, 1024, 1200, 1279, 1280, 1366, 1440, 1920, 2560];
 for (const width of WIDTHS) {
@@ -43,10 +53,9 @@ for (const width of WIDTHS) {
   });
 }
 
-// The reason layout A starts at 1280 and takes 54%: below that, a column that
-// can hold the unbreakable "More making." cannot also keep the h1 ahead of the
-// section h2s, which run at clamp(64px, 6vw, 104px). hero-contract.spec.ts
-// checks 1280 only; this checks the whole layout-A range.
+// The h1 has to stay larger than the section h2s, which run at
+// clamp(64px, 6vw, 104px) from 1100px. hero-contract.spec.ts checks 1280 only;
+// this checks the desktop range.
 for (const width of [1280, 1366, 1440, 1920, 2560]) {
   test(`the headline still leads every section heading at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
@@ -60,24 +69,6 @@ for (const width of [1280, 1366, 1440, 1920, 2560]) {
     expect(m.h1, `h1 ${m.h1}px against h2 ${m.h2}px`).toBeGreaterThan(m.h2);
   });
 }
-
-test('layout A puts the copy on the right from 1280px', async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 900 });
-  await page.goto('/');
-  const left = await page.locator('.dave-copy').evaluate((el) => el.getBoundingClientRect().left);
-  expect(left).toBeGreaterThanOrEqual(1280 * 0.45);
-});
-
-test('the poster layout puts the headline at the top and the buttons at the foot', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
-  const m = await page.evaluate(() => ({
-    h1: document.querySelector('.hero.dave h1')!.getBoundingClientRect().top,
-    cta: document.querySelector('.dave-foot .row')!.getBoundingClientRect().bottom,
-  }));
-  expect(m.h1).toBeLessThan(844 * 0.4);
-  expect(m.cta).toBeGreaterThan(844 * 0.75);
-});
 
 test('a portrait viewport loads the portrait frame', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -206,6 +197,35 @@ test.describe('scrub, motion on', () => {
     await expect.poll(() => hint.evaluate((e) => Number(getComputedStyle(e).opacity))).toBeLessThan(0.05);
   });
 
+  test('the logo is painted onto the lime wall as the room turns calm', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/');
+    const logo = page.locator('.dave-logo');
+    const clip = () => logo.evaluate((e) => getComputedStyle(e).clipPath);
+    expect(await clip(), 'hidden on the chaos frames').toMatch(/^inset\(0px 100%/);
+    await expect.poll(() => framesFetched(page, 'l'), { timeout: 20_000 }).toBeGreaterThanOrEqual(7);
+    await heroScrollTo(page, 1);
+    await expect(page.locator('.hero.dave')).toHaveAttribute('data-scrub', 'calm', { timeout: 10_000 });
+    await expect.poll(clip, { timeout: 3_000 }).toMatch(/^(none|inset\(0px\))$/);
+    const r = await logo.evaluate((e) => e.getBoundingClientRect().toJSON());
+    expect(r.left, 'on the right-hand wall').toBeGreaterThan(1280 * 0.5);
+    expect(r.top + r.height / 2, 'in the upper part of the room').toBeLessThan(800 * 0.45);
+    expect(r.width, 'big enough to read').toBeGreaterThan(220);
+  });
+
+  test('on a phone the logo sits at the top of the wall above Dave', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await expect.poll(() => framesFetched(page, 'p'), { timeout: 20_000 }).toBeGreaterThanOrEqual(7);
+    await heroScrollTo(page, 1);
+    await expect(page.locator('.hero.dave')).toHaveAttribute('data-scrub', 'calm', { timeout: 10_000 });
+    const r = await page.locator('.dave-logo').evaluate((e) => e.getBoundingClientRect().toJSON());
+    expect(r.top).toBeGreaterThanOrEqual(0);
+    expect(r.bottom, 'in the top band of the wall').toBeLessThan(844 * 0.3);
+    expect(r.left).toBeGreaterThanOrEqual(0);
+    expect(r.right).toBeLessThanOrEqual(390);
+  });
+
   // Review Focus 1
   test('a viewport that turns portrait swaps to the portrait set', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
@@ -286,24 +306,28 @@ test.describe('scrub, motion on', () => {
     expect(img.src).toMatch(/\/hero\/dave\/l\//);
   });
 
-  // Final review, finding 6: in the calm frames the room is lime, and the
-  // sub-copy's left edge sat where the scrim was still thin (~3:1). Measured
-  // on real pixels just left of the copy column, which is lighter than
-  // anything under the text, so passing here means passing under it.
-  for (const width of [1280, 1440, 1920]) {
-    test(`the copy keeps AA contrast over the calm room at ${width}px`, async ({ page }) => {
-      await page.setViewportSize({ width, height: 900 });
+  // Final review, finding 6, and again for the tagline-only hero: the white
+  // first line of the tagline ("Less chaos.") sits over the bottom fade, and
+  // in the calm frames the room behind it is lime. Large text needs 3:1. The
+  // text is hidden and every pixel under that line is measured, so the
+  // brightest background it can land on is what is judged.
+  for (const width of [1280, 1440, 1920, 390]) {
+    test(`the tagline keeps large-text contrast over the calm room at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: width < 600 ? 844 : 900 });
       await page.goto('/');
-      await expect.poll(() => framesFetched(page, 'l'), { timeout: 20_000 }).toBe(48);
+      const set = width < 600 ? 'p' : 'l';
+      const n = Number(await page.locator('.hero.dave').getAttribute('data-frames'));
+      await expect.poll(() => framesFetched(page, set), { timeout: 20_000 }).toBe(n);
       await heroScrollTo(page, 1);
-      await expect.poll(() => imgSrc(page), { timeout: 5_000 }).toMatch(/\/047\.webp$/);
+      await expect.poll(() => imgSrc(page), { timeout: 8_000 }).toMatch(new RegExp(`/${String(n - 1).padStart(3, '0')}\\.webp$`));
+      await page.addStyleTag({ content: '.hero.dave h1, .hero.dave h1 *{color:transparent!important;background:transparent!important}' });
       await page.waitForTimeout(400);
       const r = await page.evaluate(() => {
-        const copy = document.querySelector('.dave-copy')!.getBoundingClientRect();
-        const sub = document.querySelector('.dave-foot .sub')!.getBoundingClientRect();
-        return { x: Math.round(copy.left) - 14, y: Math.round(sub.top), h: Math.round(sub.height) };
+        const h1 = document.querySelector('.hero.dave h1')!.getBoundingClientRect();
+        const hl = document.querySelector('.hero.dave h1 .hl')!.getBoundingClientRect();
+        return { x: Math.round(h1.left), y: Math.round(h1.top), w: Math.round(hl.width), h: Math.round(hl.top - h1.top) };
       });
-      const png = await page.screenshot({ clip: { x: r.x, y: r.y, width: 12, height: r.h } });
+      const png = await page.screenshot({ clip: { x: r.x, y: r.y, width: r.w, height: r.h } });
       const { default: sharp } = await import('sharp');
       const { data, info } = await sharp(png).removeAlpha().raw().toBuffer({ resolveWithObject: true });
       const lin = (c: number) => { const s = c / 255; return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4; };
@@ -311,7 +335,7 @@ test.describe('scrub, motion on', () => {
       for (let i = 0; i < info.width * info.height * 3; i += 3) {
         worst = Math.max(worst, 0.2126 * lin(data[i]) + 0.7152 * lin(data[i + 1]) + 0.0722 * lin(data[i + 2]));
       }
-      expect(1.05 / (worst + 0.05), 'white copy against the brightest scrim pixel beside it').toBeGreaterThanOrEqual(4.5);
+      expect(1.05 / (worst + 0.05), 'white tagline against the brightest pixel under it').toBeGreaterThanOrEqual(3);
     });
   }
 
@@ -369,12 +393,12 @@ test.describe('reduced motion', () => {
 test.describe('no JavaScript', () => {
   test.use({ javaScriptEnabled: false });
 
-  test('frame 0, the headline and both CTAs still render', async ({ page }) => {
+  test('frame 0, the tagline and both CTAs (in the band below) still render', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
     await expect(page.locator('.dave-scene img')).toBeVisible();
     await expect(page.locator('.hero.dave h1')).toHaveText('Less chaos. More making.');
-    await expect(page.locator('.dave-foot .pill')).toHaveCount(2);
+    await expect(page.locator('.hero-intro .pill')).toHaveCount(2);
     await expect(page.locator('.dave-hint')).toBeHidden();
   });
 });

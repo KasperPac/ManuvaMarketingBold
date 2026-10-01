@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import Video from '../components/site/Video.astro';
+import Logo from '../components/ds/Logo.astro';
 import { APP_URL, DOMAINS } from '../site';
 // Frame count and the frame where the room turns calm, from the manifest the
 // frame script reads, so the page and the frames cannot disagree.
@@ -166,38 +167,50 @@ const pad = (n: number) => String(n).padStart(2, '0');
   {/* Dave's office (MVBOLD-29). Frame 0 of the chaos-to-calm sequence is plain
       markup: it is the LCP image and the whole hero for reduced-motion and
       no-JS visitors. Motion.astro pins .dave-pin and steps the <img> through
-      the rest as the page scrolls. The explainer that used to sit here moved
-      to the stage lead-in below. */}
+      the rest as the page scrolls. The hero carries only the tagline and the
+      Manuva logo, which is painted onto the lime wall when the room turns calm
+      — .dave-scene is a box with the frame's own aspect, so the logo sits in
+      the room's coordinates rather than the viewport's. The eyebrow, sub-copy
+      and buttons are the band directly below; the explainer is in the stage
+      lead-in. */}
   <section class="hero dave mv-field-cobalt" data-frames={heroFrames.count} data-calm={heroFrames.calm}>
     <div class="dave-pin">
-      <picture class="dave-scene">
-        <source media="(max-aspect-ratio: 4/5)" srcset="/hero/dave/p/000.webp" width="500" height="1080" />
-        <img
-          src="/hero/dave/l/000.webp"
-          width="1280"
-          height="720"
-          fetchpriority="high"
-          alt="Claymation: Dave at his desk in a grey office full of spreadsheets and sticky notes. Scrolling tidies it into a calm, lime-green room with his feet up."
-        />
-      </picture>
-      <div class="dave-scrim" aria-hidden="true"></div>
+      <div class="dave-scene">
+        <picture>
+          <source media="(max-aspect-ratio: 4/5)" srcset="/hero/dave/p/000.webp" width="500" height="1080" />
+          <img
+            src="/hero/dave/l/000.webp"
+            width="1280"
+            height="720"
+            fetchpriority="high"
+            alt="Claymation: Dave at his desk in a grey office full of spreadsheets and sticky notes. Scrolling tidies it into a calm, lime-green room with his feet up."
+          />
+        </picture>
+        <div class="dave-logo"><Logo variant="lockup" fill decorative /></div>
+      </div>
       <div class="dave-copy">
-        <div class="dave-head">
-          <span class="eyebrow" style="opacity:.75">MRP for Shopify manufacturers</span>
-          <h1 class="disp">Less chaos. <span class="hl keep">More making.</span></h1>
-        </div>
-        <div class="dave-foot">
-          <p class="sub" style="opacity:.88;max-width:40ch">
-            Manuva replaces the spreadsheets and legacy MRP your team is fighting with. Inventory, BOMs, work
-            orders, and stock control — connected, live, and built for the floor.
-          </p>
-          <div class="row">
-            <a class="pill" href={APP_URL}>Start free</a>
-            <a class="pill ghost" href="/about#contact" style="box-shadow:inset 0 0 0 2px rgb(255 255 255/.42)">Book a demo</a>
-          </div>
-        </div>
+        <h1 class="disp">Less chaos. <span class="hl keep">More making.</span></h1>
       </div>
       <span class="dave-hint" aria-hidden="true"></span>
+    </div>
+  </section>
+
+  {/* The hero's own copy, moved out of the scene so the scene can be seen
+      (preview feedback). Word for word what the hero carried; the buttons are
+      the first thing after the scrub. */}
+  <section class="sec hero-intro">
+    <div class="split">
+      <div style="display:grid;gap:16px;align-content:start">
+        <span class="eyebrow" style="opacity:.6">MRP for Shopify manufacturers</span>
+        <p class="sub" style="color:var(--ink-muted);max-width:52ch">
+          Manuva replaces the spreadsheets and legacy MRP your team is fighting with. Inventory, BOMs, work
+          orders, and stock control — connected, live, and built for the floor.
+        </p>
+      </div>
+      <div class="row hero-intro-ctas">
+        <a class="pill" href={APP_URL}>Start free</a>
+        <a class="pill ghost" href="/about#contact">Book a demo</a>
+      </div>
     </div>
   </section>
 
