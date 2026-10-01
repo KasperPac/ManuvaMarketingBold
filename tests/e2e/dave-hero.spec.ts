@@ -171,7 +171,9 @@ test.describe('scrub, motion on', () => {
     const travel = seen[seen.length - 1] - seen[0];
     const steps = seen.slice(1).map((x, i) => x - seen[i]);
     expect(travel, label).toBeGreaterThan(0.5);
-    expect(steps.every((s) => s > 0), `it only moves forwards; ${label}`).toBe(true);
+    // Never backwards. Two seeks can land on the same time, which is not a
+    // step back (it failed 1 run in 4 on exactly that).
+    expect(steps.every((s) => s >= 0), `it only moves forwards; ${label}`).toBe(true);
     expect(seen.length, label).toBeGreaterThanOrEqual(6);
     expect(Math.max(...steps) / travel, `the biggest single step, as a share of the move; ${label}`).toBeLessThan(0.4);
   });
