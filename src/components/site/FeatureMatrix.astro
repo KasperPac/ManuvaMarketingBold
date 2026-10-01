@@ -224,7 +224,7 @@ const ROW_COUNT = CATEGORIES.reduce((n, c) => n + c.rows.length, 0);
           left phones with 5 rows of 43 under copy that promises all of them
           (MVBOLD-31). A disclosure keeps the card short and the rows reachable. */}
       <details class="site-matrix-all">
-        <summary>All {ROW_COUNT} features in {d.plan}</summary>
+        <summary>Compare all {ROW_COUNT} features for {d.plan}</summary>
         {CATEGORIES.map((cat) => (
           <div class="site-matrix-all-group">
             <p class="site-matrix-all-head">{cat.label}</p>

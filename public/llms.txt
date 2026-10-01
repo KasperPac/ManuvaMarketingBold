@@ -19,7 +19,7 @@ Manuva connects every part of a physical manufacturing operation:
 - **Capacity & team (Pro)** — department modelling, staffing levels, capacity planning, actual-vs-planned time, staff costing
 - **Costing & profitability** — automatic BOM cost rollup, margin per product, inventory valuation, COGS tracking, financial profitability dashboard (Pro)
 - **Reports** — real-time dashboard, dead stock, PO variance, lead-time accuracy, inventory integrity audit, PDF/CSV export (Pro)
-- **Shopify integration** — webhook-driven real-time sync, multi-store support (Pro), order-to-production cascade
+- **Shopify integration** — webhook-driven real-time sync, order-to-production cascade
 
 ## Differentiators vs named competitors
 
@@ -34,7 +34,7 @@ Manuva connects every part of a physical manufacturing operation:
 |---|---|---|---|
 | Starter | $99/mo ($1,188/yr) | 1 location, up to 3 users | Inventory, single-level BOM, production orders, POs, stocktake |
 | Growth | $249/mo ($2,988/yr) | Up to 5 locations, unlimited users | Multi-level BOMs, versioning, costing, reports, Shopify sync |
-| Pro | $499/mo ($5,988/yr) | Unlimited locations & users | Capacity planning, profitability dashboard, API, priority support |
+| Pro | $499/mo ($5,988/yr) | Unlimited locations & users | Capacity planning, profitability dashboard, priority support |
 | Enterprise | Custom | Unlimited | Multi-site, SSO/SAML, dedicated CSM, custom SLAs |
 
 Monthly pricing: Starter $119, Growth $299, Pro $599. Annual billing saves around 17% (paying monthly costs about 20% more). Prices are in Australian Dollars; GST is included for Australian customers.

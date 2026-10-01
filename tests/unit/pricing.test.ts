@@ -122,3 +122,17 @@ test('the server renders the annual figures, not the monthly ones', () => {
   const shown = [...h.matchAll(/<span class="num(?: word)?" data-annual="[^"]*" data-monthly="[^"]*">([^<]+)</g)].map((m) => m[1]);
   expect(shown).toEqual(['$99', '$249', '$499', 'Custom']);
 });
+
+// The matrix intro said "forty-three rows" over a table of 41: API access
+// and Multiple Shopify stores came out on 2026-09-22 because neither is
+// built, and the copy above the table was not updated (MVBOLD-31, the
+// critique's UX-17).
+test('the matrix intro states the row count the table has', () => {
+  const html = readFileSync('dist/pricing.html', 'utf8');
+  const table = html.slice(html.indexOf('<table class="mv-matrix'), html.indexOf('</table>', html.indexOf('<table class="mv-matrix')));
+  const rows = [...table.matchAll(/<th scope="row">([^<]+)<\/th>/g)].length;
+  const words: Record<number, string> = { 41: 'forty-one', 43: 'forty-three' };
+  expect(html).toContain(`Nine categories, ${words[rows]} rows.`);
+  expect(html).not.toContain('Multiple Shopify stores');
+  expect(html).not.toContain('API access');
+});

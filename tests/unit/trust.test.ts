@@ -37,6 +37,10 @@ describe('llms.txt says what the site says', () => {
     expect(llms).not.toMatch(/5 office seats/);
     expect(llms).toMatch(/around 17%/);
   });
+  test('no claim for the two features taken out of the matrix as unbuilt', () => {
+    expect(llms).not.toMatch(/multi-store support/i);
+    expect(llms).not.toMatch(/dashboard, API,/);
+  });
   test('the trial link is the sign-up', () => {
     expect(llms).toContain('https://app.manuva.app/signup');
   });
