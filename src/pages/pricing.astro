@@ -48,7 +48,9 @@ const FAQS = [
 
 const COMPARE: readonly (readonly [string, string, string])[] = [
   ['Pricing model', 'Flat per account', 'Per user, per month'],
-  ['A 10-person team', '$249/mo', '$490/mo'],
+  // AUD against a USD list price: say so on the row, not in fine print
+  // three screens away (MVBOLD-31).
+  ['A 10-person team', '$249/mo AUD', '$490/mo USD list'],
   ['Yield % per BOM line', 'Included', 'Not offered'],
   ['BOM versioning & compare', 'Included', 'Not offered'],
   ['Capacity planning', 'Included on Pro', 'Not offered'],
@@ -124,7 +126,7 @@ const schema = [
                 data-annual={p.annual}
                 data-monthly={p.monthly}
               >{p.annual}</span>
-              {p.annual !== 'Custom' && <span class="per">/mo</span>}
+              {p.annual !== 'Custom' && <span class="per">AUD/mo</span>}
             </div>
             <p class="note" data-annual={p.note} data-monthly={p.monthlyNote}>{p.note}</p>
             {p.monthlyLine && <p class="note monthly">{p.monthlyLine}</p>}
