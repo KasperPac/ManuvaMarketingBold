@@ -80,7 +80,7 @@ const daveHero = () => {
 test('the hero opens on frame 0 as a plain, high-priority picture', () => {
   const hero = daveHero();
   expect(hero, 'hero not found').not.toBe('');
-  expect(hero).toMatch(/data-frames="48"/);
+  expect(hero).toMatch(/data-frames="24"/);
   expect(hero).toMatch(/data-calm="\d+"/);
   expect(hero).toContain('<div class="dave-scene"><picture>');
   expect(hero).toContain('srcset="/hero/dave/p/000.webp"');

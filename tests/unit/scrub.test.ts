@@ -48,13 +48,14 @@ describe('frameAt', () => {
 });
 
 describe('canSwap', () => {
-  test('allows at most twenty-four swaps a second', () => {
-    // Was twelve, jumping straight to the target frame: a scroll flick then
-    // skipped several poses in one swap and read as rigid. Now the scrub plays
-    // through the in-between frames (nextFrame), so it can swap at film rate.
-    expect(MIN_SWAP_MS).toBeCloseTo(41.67, 1);
-    expect(canSwap(50, 0)).toBe(true);
-    expect(canSwap(40, 0)).toBe(false);
+  test('allows at most twelve swaps a second, the stop-motion rate', () => {
+    // History: 12 a second jumping straight to the target read as rigid (it
+    // skipped poses in clumps); 24 a second playing through every frame read
+    // as hectic (Dave's mouth flickered on a fast scroll). Now 12 a second,
+    // playing through 24 poses: no clumps, and no flicker.
+    expect(MIN_SWAP_MS).toBeCloseTo(83.33, 1);
+    expect(canSwap(90, 0)).toBe(true);
+    expect(canSwap(80, 0)).toBe(false);
     expect(canSwap(0, 0)).toBe(false);
   });
 

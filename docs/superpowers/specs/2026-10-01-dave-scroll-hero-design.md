@@ -114,12 +114,12 @@ single-camera transformation possible.
   existing `TAU = 90 ms` follower in `Motion.astro`.
 - Target frame = `round(p_damped / 0.9 × (N − 1))` (the last 10% holds the final
   frame).
-- The scrub **plays through the in-between frames** to reach it: each swap steps
-  a sixth of the remaining gap (at least one frame), at **at most 24 swaps a
-  second**. A small scroll plays frame by frame; a flick runs fast and eases out
-  (0 → 47 in about 16 swaps). Revised after the first preview: jumping straight
-  to the target at 12 swaps a second skipped up to seven poses at once and read
-  as rigid.
+- The scrub **plays through the in-between poses** to reach it: each swap steps
+  a sixth of the remaining gap (at least one pose), at **at most 12 swaps a
+  second**, the stop-motion rate, over **24 poses**. Tuned on the preview from
+  both sides: jumping straight to the target at 12 a second skipped up to seven
+  poses at once and read as rigid; playing 48 poses at 24 a second let Dave's
+  mouth flicker on a fast scroll and read as hectic.
 - No blending between frames. Each step is a hard swap.
 - K, the frame where the room first reads as calm (walls lime), is picked by eye
   from the clip and recorded in the manifest (§4.1). It drives the highlight only.
@@ -165,10 +165,10 @@ output is committed. Vercel never sees the clip.
 
 ### 4.2 Sets and budget
 
-| Set | Size | Per frame (measured on T1, WebP q60) | Budget at 48 frames |
+| Set | Size | Per frame (measured on T1, WebP q60) | Budget |
 |---|---|---|---|
-| Landscape | 1280×720 | 43 KB | ≤ 2.1 MB |
-| Portrait | crop of the 1080p download, 500×1080 | 25 KB | ≤ 1.3 MB |
+| Landscape | 1280×720 | 43 KB | ≤ 2.1 MB (1,036 KB at 24 poses) |
+| Portrait | crop of the 1080p download, 500×1080 | 25 KB | ≤ 1.3 MB (588 KB at 24 poses) |
 
 The landscape budget was 1.6 MB, estimated from the ad's A1 clip. T1 carries more
 clay grain and came in at 2.07 MB. Lower quality barely moves it, and a denoise
@@ -186,7 +186,7 @@ it loads after `load`, so it does not touch LCP.
 
 - Frame 0 of each set is the `<picture>` in the markup with `fetchpriority="high"`.
   It is the LCP element and the only hero bytes before `load`.
-- After `load`, frames fetch coarse to fine: every 8th first (6 frames, ~0.2 MB),
+- After `load`, frames fetch coarse to fine: every 8th and the last first (4 frames),
   then the gaps. The scrub works off the coarse set immediately.
 - `navigator.connection.saveData` or an effective type of `2g`/`3g` stops after the
   coarse pass.

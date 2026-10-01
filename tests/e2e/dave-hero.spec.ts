@@ -96,6 +96,8 @@ const heroScrollTo = (page: Page, fraction: number) =>
 const imgSrc = (page: Page) =>
   page.locator('.dave-scene img').evaluate((i: HTMLImageElement) => i.currentSrc || i.src);
 
+const frameCount = async (page: Page) => Number(await page.locator('.hero.dave').getAttribute('data-frames'));
+
 const framesFetched = (page: Page, set: 'l' | 'p') =>
   page.evaluate(
     (s) => performance.getEntriesByType('resource').filter((r) => r.name.includes(`/hero/dave/${s}/`)).length,
@@ -126,7 +128,8 @@ test.describe('scrub, motion on', () => {
   test('a scroll jump plays through the in-between frames instead of skipping them', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
-    await expect.poll(() => framesFetched(page, 'l'), { timeout: 20_000 }).toBe(48);
+    const n = await frameCount(page);
+    await expect.poll(() => framesFetched(page, 'l'), { timeout: 20_000 }).toBe(n);
     const seen = await page.evaluate(async () => {
       const img = document.querySelector('.dave-scene img') as HTMLImageElement;
       const el = document.querySelector('.hero.dave') as HTMLElement;
@@ -136,7 +139,7 @@ test.describe('scrub, motion on', () => {
         if (m) frames.push(Number(m[1]));
       });
       obs.observe(img, { attributes: true, attributeFilter: ['src'] });
-      scrollTo(0, (el.offsetHeight - innerHeight) * 0.25); // about frame 13
+      scrollTo(0, (el.offsetHeight - innerHeight) * 0.25); // about a quarter of the way
       await new Promise((r) => setTimeout(r, 1500));
       obs.disconnect();
       return frames;
@@ -145,6 +148,31 @@ test.describe('scrub, motion on', () => {
     for (let i = 1; i < seen.length; i++) {
       expect(seen[i] - seen[i - 1], `frames shown: ${seen.join(',')}`).toBeLessThanOrEqual(3);
     }
+  });
+
+  // "Too hectic when scrolling quickly" (second preview): a fast flick must
+  // still read as stop-motion — no more than 12 new poses in any second.
+  test('a fast flick through the whole hero never swaps more than 12 poses a second', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/');
+    const n = await frameCount(page);
+    await expect.poll(() => framesFetched(page, 'l'), { timeout: 20_000 }).toBe(n);
+    const times = await page.evaluate(async () => {
+      const img = document.querySelector('.dave-scene img') as HTMLImageElement;
+      const el = document.querySelector('.hero.dave') as HTMLElement;
+      const t: number[] = [];
+      const obs = new MutationObserver(() => t.push(performance.now()));
+      obs.observe(img, { attributes: true, attributeFilter: ['src'] });
+      const track = el.offsetHeight - innerHeight;
+      for (let i = 1; i <= 10; i++) { scrollTo(0, (track * i) / 10); await new Promise((r) => setTimeout(r, 30)); }
+      await new Promise((r) => setTimeout(r, 3000));
+      obs.disconnect();
+      return t;
+    });
+    expect(times.length, 'it played through the poses').toBeGreaterThan(5);
+    let worst = 0;
+    for (let i = 0; i < times.length; i++) worst = Math.max(worst, times.filter((x) => x >= times[i] && x < times[i] + 1000).length);
+    expect(worst, `${worst} swaps in one second`).toBeLessThanOrEqual(13);
   });
 
   test('the highlight lands with the calm room and leaves when scrolled back', async ({ page }) => {
@@ -278,7 +306,8 @@ test.describe('scrub, motion on', () => {
     await page.route(/\/hero\/dave\/l\/(?!000)\d{3}\.webp$/, (route) => { aborted++; return route.abort(); });
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
-    await expect.poll(() => aborted, { timeout: 15_000 }).toBeGreaterThan(40);
+    const n = await frameCount(page);
+    await expect.poll(() => aborted, { timeout: 15_000 }).toBeGreaterThanOrEqual(n - 1);
     await page.evaluate(() => scrollTo(0, document.body.scrollHeight));
     await page.waitForTimeout(1500);
     const a = await page.evaluate(() => (window as unknown as { __raf: number }).__raf);
@@ -346,9 +375,12 @@ test.describe('scrub, motion on', () => {
     });
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
-    await expect.poll(() => framesFetched(page, 'l'), { timeout: 15_000 }).toBe(7);
+    // Every eighth frame plus the last: 0, 8, 16, 23 for 24 frames.
+    const n = await frameCount(page);
+    const coarse = Math.ceil(n / 8) + ((n - 1) % 8 === 0 ? 0 : 1);
+    await expect.poll(() => framesFetched(page, 'l'), { timeout: 15_000 }).toBe(coarse);
     await page.waitForTimeout(1500);
-    expect(await framesFetched(page, 'l')).toBe(7);
+    expect(await framesFetched(page, 'l')).toBe(coarse);
   });
 
   // Review Focus 5

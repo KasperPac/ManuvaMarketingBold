@@ -4,11 +4,12 @@
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 
-/** At most 24 swaps a second, film rate. It was 12 with the scrub jumping
- * straight to the target frame, which made a scroll flick skip several poses
- * at once and read as rigid; nextFrame now plays through the in-between
- * frames, so each swap is a small step and can come faster. */
-export const MIN_SWAP_MS = 1000 / 24;
+/** At most 12 swaps a second, the stop-motion rate. Both neighbours were tried
+ * on the preview: 12 a second jumping straight to the target skipped poses in
+ * clumps and read as rigid; 24 a second through every frame let Dave's mouth
+ * flicker on a fast scroll and read as hectic. nextFrame plays through the
+ * in-between poses, and there are 24 of them, so 12 a second is both. */
+export const MIN_SWAP_MS = 1000 / 12;
 
 /** A jump of any size settles within roughly this many swaps at its start:
  * each step covers 1/CATCH_UP of the remaining gap, so a big jump runs fast

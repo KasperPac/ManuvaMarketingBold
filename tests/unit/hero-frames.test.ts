@@ -34,7 +34,9 @@ describe('portraitLeft', () => {
 
 describe('the committed frames', () => {
   test('the manifest is the shape the hero relies on', () => {
-    expect(M.count).toBe(48);
+    // 24 poses: 48 sampled the clip finely enough that Dave's mouth flickered on
+    // a fast scroll. Half the poses, half the weight.
+    expect(M.count).toBe(24);
     expect(Number.isInteger(M.calm)).toBe(true);
     expect(M.calm).toBeGreaterThan(0);
     expect(M.calm).toBeLessThan(M.count);
