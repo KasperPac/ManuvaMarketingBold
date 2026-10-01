@@ -977,5 +977,29 @@ main [id]{scroll-margin-top:80px}
 .head-cta:hover{opacity:1;background:var(--on-lime);color:var(--field-lime)}
 #drawer a.dcta{font:700 18px/1 var(--font-body);letter-spacing:0;justify-self:start;
   margin-top:10px;min-height:54px}
+/* The pill is taller than the links: centre the row so they stay on the
+   logo's line rather than riding to the top of it. */
+@media(min-width:721px){.links{align-items:center}}
 .ctrack a.go{background:var(--field-lime);color:var(--on-lime);margin-left:4px}
 .ctrack a.go:hover{background:#fff;color:var(--field-ink)}
+
+/* ===== The home hero's first frame (MVBOLD-31) =====
+   The critique's first UX finding: the first screen showed the tagline and
+   nothing else, so a cold visitor could not tell this was MRP for Shopify
+   makers, and the first Start free was two screens down. The descriptor sits
+   above the tagline and Start free below it. Each is in a .dave-fold, a
+   one-row grid that animates 1fr -> 0fr when the scrub starts
+   (data-lead="gone", from Motion.astro), so the tagline settles to the
+   bottom and the calm frame is still only the tagline and the logo. Spacing
+   is padding inside the folds rather than a gap, so a shut fold leaves none.
+   Not opacity: the cobalt field pins every descendant at full strength. */
+.dave-fold{display:grid;grid-template-rows:1fr;
+  transition:grid-template-rows 450ms var(--ease-out),visibility 0s}
+.dave-fold>*{min-height:0;overflow:hidden}
+/* Padding on the content, never on the grid item: an item cannot shrink
+   below its own padding, so a shut fold would keep it. */
+.dave-fold .eyebrow{display:block;padding-bottom:16px}
+.dave-go{display:flex;padding:22px 6px 6px;margin-inline:-6px}
+.hero.dave[data-lead="gone"] .dave-fold{grid-template-rows:0fr;visibility:hidden;
+  transition:grid-template-rows 450ms var(--ease-out),visibility 0s 450ms}
+@media(prefers-reduced-motion:reduce){.dave-fold{transition:none}}

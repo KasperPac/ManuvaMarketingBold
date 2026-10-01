@@ -259,6 +259,7 @@
     o.h.style.height = '';
     delete o.h.dataset.scrub;
     delete o.h.dataset.video;
+    delete o.h.dataset.lead;
     wake();
   }
 
@@ -329,6 +330,9 @@
       if (v.seeking) busy = true;
 
       o.h.dataset.scrub = o.ready && v.currentTime >= o.calm ? 'calm' : 'pre';
+      // The descriptor and Start free fold away as soon as the room starts
+      // to change, and come back at the top.
+      o.h.dataset.lead = o.p > 0.03 ? 'gone' : '';
       if (o.hint) o.hint.style.opacity = String(1 - cl(o.p / 0.05));
     });
     return busy;

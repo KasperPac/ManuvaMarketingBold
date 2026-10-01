@@ -187,8 +187,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
         </picture>
         <div class="dave-logo"><Logo variant="lockup" fill decorative /></div>
       </div>
+      {/* The descriptor and Start free make the first screen say what Manuva is
+          and offer the trial (MVBOLD-31). Each sits in a .dave-fold, which
+          Motion.astro folds shut once the scrub starts, so the scene and the
+          calm frame stay the tagline and the logo. */}
       <div class="dave-copy">
+        <div class="dave-fold"><div><span class="eyebrow">MRP for Shopify manufacturers</span></div></div>
         <h1 class="disp">Less chaos. <span class="hl keep">More making.</span></h1>
+        <div class="dave-fold"><div><div class="dave-go"><a class="pill" href={SIGNUP_URL}>Start free</a></div></div></div>
       </div>
       <span class="dave-hint" aria-hidden="true"></span>
     </div>

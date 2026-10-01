@@ -8,17 +8,28 @@ import { test, expect, type Page } from '@playwright/test';
 // stop-motion itself.
 
 for (const [w, h] of [[1280, 800], [1440, 900], [390, 844], [844, 390]] as const) {
-  test(`the hero shows only the tagline, at the bottom, at ${w}x${h}`, async ({ page }) => {
+  // The first frame says what Manuva is and offers Start free (MVBOLD-31,
+  // MANUVA-49: a cold visitor could not tell from the first screen). The
+  // sub-copy stays in the band below; nothing else joins the scene.
+  test(`the first frame carries the descriptor, the tagline and Start free, at the bottom, at ${w}x${h}`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
     await page.goto('/');
     const m = await page.evaluate(() => {
       const hero = document.querySelector('.hero.dave')!;
       const h1 = hero.querySelector('h1')!.getBoundingClientRect();
-      return { top: h1.top, bottom: h1.bottom, vh: innerHeight, extra: hero.querySelectorAll('.eyebrow, .sub, .pill').length };
+      const pill = hero.querySelector('.pill') as HTMLElement | null;
+      return {
+        top: h1.top, vh: innerHeight, sub: hero.querySelectorAll('.sub').length,
+        eyebrow: hero.querySelector('.eyebrow')?.textContent?.trim(),
+        pill: pill ? { text: pill.textContent?.trim(), href: pill.getAttribute('href'), bottom: pill.getBoundingClientRect().bottom } : null,
+      };
     });
-    expect(m.extra, 'eyebrow, sub-copy or buttons still in the hero').toBe(0);
-    expect(m.top, 'the tagline sits in the lower half of the scene').toBeGreaterThan(m.vh * 0.5);
-    expect(m.bottom).toBeLessThanOrEqual(m.vh);
+    expect(m.sub, 'sub-copy belongs in the band below').toBe(0);
+    expect(m.eyebrow).toBe('MRP for Shopify manufacturers');
+    expect(m.pill?.text).toBe('Start free');
+    expect(m.pill?.href).toBe('https://app.manuva.app/signup');
+    expect(m.pill!.bottom, 'Start free is on the first screen').toBeLessThanOrEqual(m.vh);
+    expect(m.top, 'the tagline sits in the lower half of the scene').toBeGreaterThan(m.vh * 0.4);
   });
 }
 
@@ -204,6 +215,32 @@ test.describe('scrub, motion on', () => {
     expect(bar.bg).not.toBe('rgb(58, 94, 255)');
     expect(bar.bg).toBe('rgb(20, 20, 19)');
     expect(bar.ink).toBe('rgb(255, 255, 255)');
+  });
+
+  test('the descriptor and Start free fold away once the scrub starts, and return at the top', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/');
+    const folds = () => page.locator('.dave-fold').evaluateAll((els) => els.map((e) => ({ h: e.getBoundingClientRect().height, vis: getComputedStyle(e).visibility })));
+    expect((await folds()).every((f) => f.h > 0 && f.vis === 'visible')).toBe(true);
+    await heroScrollTo(page, 0.3);
+    await expect.poll(async () => (await folds()).every((f) => f.h < 1 && f.vis === 'hidden'), { timeout: 3_000 }).toBe(true);
+    await heroScrollTo(page, 0);
+    await expect.poll(async () => (await folds()).every((f) => f.h > 0 && f.vis === 'visible'), { timeout: 3_000 }).toBe(true);
+  });
+
+  test('the descriptor keeps 4.5:1 over the chaos frame', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/');
+    await page.evaluate(() => document.fonts.ready);
+    await page.addStyleTag({ content: '.hero.dave .eyebrow{color:transparent!important}' });
+    const r = await page.locator('.hero.dave .eyebrow').evaluate((e) => e.getBoundingClientRect().toJSON());
+    const png = await page.screenshot({ clip: { x: r.x, y: r.y, width: r.width, height: r.height } });
+    const { default: sharp } = await import('sharp');
+    const { data, info } = await sharp(png).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+    const lin = (c: number) => { const s = c / 255; return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4; };
+    let worst = 0;
+    for (let i = 0; i < info.width * info.height * 3; i += 3) worst = Math.max(worst, 0.2126 * lin(data[i]) + 0.7152 * lin(data[i + 1]) + 0.0722 * lin(data[i + 2]));
+    expect(1.05 / (worst + 0.05), 'white descriptor against the brightest pixel under it').toBeGreaterThanOrEqual(4.5);
   });
 
   test('the scroll hint shows at the top and fades once the scrub starts', async ({ page }) => {
@@ -415,6 +452,8 @@ test.describe('reduced motion', () => {
     const bg = await page.locator('.hero.dave .hl').evaluate((e) => getComputedStyle(e).backgroundColor);
     expect(bg).toBe('rgb(200, 255, 46)');
     await expect(page.locator('.dave-hint')).toBeHidden();
+    await expect(page.locator('.hero.dave .pill')).toBeVisible();
+    await expect(page.locator('.hero.dave .eyebrow')).toBeVisible();
   });
 });
 

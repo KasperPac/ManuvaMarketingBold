@@ -46,7 +46,7 @@ async function heroMetrics(page: Page) {
     // eyebrow sits in .dave-head inside that stage. Still one eyebrow, still a
     // block sibling of the h1 with the grid gap doing the spacing.
     const eyebrow = hero?.querySelector(
-      ':scope > .eyebrow, :scope > .mv-eyebrow, :scope .dave-head > .eyebrow',
+      ':scope > .eyebrow, :scope > .mv-eyebrow, :scope .dave-copy .eyebrow',
     ) as HTMLElement | null;
     return {
       heroClass: hero ? (hero as HTMLElement).className : null,
@@ -98,7 +98,8 @@ test.describe('the shared page-hero contract', () => {
     const m = await heroMetrics(page);
     expect(m.heroClass!.split(' '), 'the home page opens on the shared .hero').toContain('hero');
     expect(m.heroClass, 'the hero carries a field').toContain('mv-field-');
-    expect(m.eyebrowDisplay, 'the home hero carries no eyebrow; it is in the band below').toBeNull();
+    // Since MVBOLD-31 it carries the descriptor again, inside the scene's copy.
+    expect(m.eyebrowDisplay, 'the home hero says what Manuva is').toBe('block');
     expect(m.h1Align, 'headings are left-aligned').toBe('start');
 
     // Same exclusion as the heading-scale test below: a heading inside a

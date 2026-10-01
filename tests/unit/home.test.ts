@@ -92,12 +92,15 @@ test('the hero opens on the first frame as a plain, high-priority picture', () =
   expect(hero).not.toContain('<video');
 });
 
-test('the hero carries only the tagline and the logo', () => {
-  // Preview feedback: the copy and its scrim hid the scene. The hero keeps the
-  // tagline and the Manuva logo (revealed on the lime wall at the calm frame);
-  // everything else moved to the band directly under it.
+test('the hero carries the descriptor, the tagline, Start free and the logo', () => {
+  // Preview feedback: the copy and its scrim hid the scene, so the sub-copy
+  // and Book a demo live in the band below. The critique (MANUVA-49) then
+  // found the first screen never said what Manuva is: the descriptor and
+  // Start free are back on the first frame, and fold away as the scrub starts.
   const hero = daveHero();
-  for (const gone of ['MRP for Shopify manufacturers', 'Manuva replaces the spreadsheets', 'Start free', 'Book a demo']) {
+  expect(hero).toContain('MRP for Shopify manufacturers');
+  expect(hero).toMatch(/href="https:\/\/app\.manuva\.app\/signup"[^>]*>Start free</);
+  for (const gone of ['Manuva replaces the spreadsheets', 'Book a demo']) {
     expect(hero, `"${gone}" is still in the hero`).not.toContain(gone);
   }
   expect(hero).toMatch(/<div class="dave-logo"><span aria-hidden="true"[^>]*><\/span><\/div>/);
