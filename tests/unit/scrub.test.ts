@@ -1,7 +1,9 @@
 import { describe, expect, test } from 'vitest';
 import {
-  END_HOLD, MIN_SWAP_MS, canSwap, coarseCount, frameAt, loadOrder, nearestLoaded,
+  END_HOLD, MIN_SWAP_MS, canSwap, coarseCount, frameAt, loadOrder, nearestLoaded, nextFrame,
 } from '../../src/lib/scrub';
+
+const ALL = new Set(Array.from({ length: 48 }, (_, i) => i));
 
 describe('frameAt', () => {
   test('starts on the first frame and ends on the last', () => {
@@ -46,10 +48,13 @@ describe('frameAt', () => {
 });
 
 describe('canSwap', () => {
-  test('allows at most twelve swaps a second', () => {
-    expect(MIN_SWAP_MS).toBeCloseTo(83.33, 1);
-    expect(canSwap(100, 0)).toBe(true);
-    expect(canSwap(80, 0)).toBe(false);
+  test('allows at most twenty-four swaps a second', () => {
+    // Was twelve, jumping straight to the target frame: a scroll flick then
+    // skipped several poses in one swap and read as rigid. Now the scrub plays
+    // through the in-between frames (nextFrame), so it can swap at film rate.
+    expect(MIN_SWAP_MS).toBeCloseTo(41.67, 1);
+    expect(canSwap(50, 0)).toBe(true);
+    expect(canSwap(40, 0)).toBe(false);
     expect(canSwap(0, 0)).toBe(false);
   });
 
@@ -80,6 +85,41 @@ describe('loadOrder', () => {
     expect(loadOrder(1)).toEqual([0]);
     expect(loadOrder(0)).toEqual([]);
     expect(coarseCount(0)).toBe(0);
+  });
+});
+
+describe('nextFrame', () => {
+  test('a small move plays every in-between frame, one swap each', () => {
+    expect(nextFrame(10, 14, ALL, 48)).toBe(11);
+    expect(nextFrame(14, 10, ALL, 48)).toBe(13);
+  });
+
+  test('stays put at the target', () => {
+    expect(nextFrame(20, 20, ALL, 48)).toBe(20);
+  });
+
+  test('a big jump catches up quickly, easing out, and never overshoots', () => {
+    const path = [0];
+    while (path[path.length - 1] !== 47 && path.length < 100) path.push(nextFrame(path[path.length - 1], 47, ALL, 48));
+    expect(path[path.length - 1]).toBe(47);
+    expect(path.length - 1, `took ${path.length - 1} swaps: ${path.join(',')}`).toBeLessThanOrEqual(20);
+    const steps = path.slice(1).map((f, i) => f - path[i]);
+    expect(steps.every((s) => s >= 1), 'never stands still or goes backwards on the way').toBe(true);
+    for (let i = 1; i < steps.length; i++) expect(steps[i]).toBeLessThanOrEqual(steps[i - 1]);
+  });
+
+  test('steps over frames that have not loaded yet', () => {
+    expect(nextFrame(0, 16, new Set([0, 8, 16]), 48)).toBe(8);
+    expect(nextFrame(16, 0, new Set([0, 8, 16]), 48)).toBe(8);
+  });
+
+  test('holds the frame it has when nothing toward the target is loaded', () => {
+    expect(nextFrame(0, 10, new Set([0]), 48)).toBe(0);
+  });
+
+  test('after a set change, takes the nearest loaded frame to the target', () => {
+    expect(nextFrame(-1, 10, new Set([8, 16]), 48)).toBe(8);
+    expect(nextFrame(-1, 10, new Set(), 48)).toBe(-1);
   });
 });
 

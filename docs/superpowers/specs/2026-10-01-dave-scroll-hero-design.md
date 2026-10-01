@@ -104,8 +104,14 @@ single-camera transformation possible.
 - The hero is `100svh` plus a scrub length of `150svh`; the inner stage is sticky.
 - Progress `p` is the hero's scroll offset over its scroll length, damped by the
   existing `TAU = 90 ms` follower in `Motion.astro`.
-- Frame index = `round(p_damped / 0.9 × (N − 1))` (the last 10% holds the final frame), held to **at most 12 changes per
-  second** so it reads as stop-motion, never as smeared video.
+- Target frame = `round(p_damped / 0.9 × (N − 1))` (the last 10% holds the final
+  frame).
+- The scrub **plays through the in-between frames** to reach it: each swap steps
+  a sixth of the remaining gap (at least one frame), at **at most 24 swaps a
+  second**. A small scroll plays frame by frame; a flick runs fast and eases out
+  (0 → 47 in about 16 swaps). Revised after the first preview: jumping straight
+  to the target at 12 swaps a second skipped up to seven poses at once and read
+  as rigid.
 - No blending between frames. Each step is a hard swap.
 - K, the frame where the room first reads as calm (walls lime), is picked by eye
   from the clip and recorded in the manifest (§4.1). It drives the highlight only.

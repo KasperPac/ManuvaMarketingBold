@@ -129,6 +129,33 @@ test.describe('scrub, motion on', () => {
     expect(Math.abs(pinTop), 'the stage is pinned mid-scrub').toBeLessThan(2);
   });
 
+  // "It jumps in clumps" (feedback on the first preview). A scroll jump used to
+  // land on the target frame in a few big skips; it now plays through the
+  // in-between poses, easing out as it arrives.
+  test('a scroll jump plays through the in-between frames instead of skipping them', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/');
+    await expect.poll(() => framesFetched(page, 'l'), { timeout: 20_000 }).toBe(48);
+    const seen = await page.evaluate(async () => {
+      const img = document.querySelector('.dave-scene img') as HTMLImageElement;
+      const el = document.querySelector('.hero.dave') as HTMLElement;
+      const frames: number[] = [];
+      const obs = new MutationObserver(() => {
+        const m = (img.getAttribute('src') || '').match(/(\d{3})\.webp$/);
+        if (m) frames.push(Number(m[1]));
+      });
+      obs.observe(img, { attributes: true, attributeFilter: ['src'] });
+      scrollTo(0, (el.offsetHeight - innerHeight) * 0.25); // about frame 13
+      await new Promise((r) => setTimeout(r, 1500));
+      obs.disconnect();
+      return frames;
+    });
+    expect(seen.length, `frames shown: ${seen.join(',')}`).toBeGreaterThanOrEqual(5);
+    for (let i = 1; i < seen.length; i++) {
+      expect(seen[i] - seen[i - 1], `frames shown: ${seen.join(',')}`).toBeLessThanOrEqual(3);
+    }
+  });
+
   test('the highlight lands with the calm room and leaves when scrolled back', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');

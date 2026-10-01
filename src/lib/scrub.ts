@@ -4,9 +4,16 @@
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 
-/** Claymation runs at 12 frames a second. The scrub never swaps faster, so a
- * fast scroll reads as stop-motion rather than as a smeared video. */
-export const MIN_SWAP_MS = 1000 / 12;
+/** At most 24 swaps a second, film rate. It was 12 with the scrub jumping
+ * straight to the target frame, which made a scroll flick skip several poses
+ * at once and read as rigid; nextFrame now plays through the in-between
+ * frames, so each swap is a small step and can come faster. */
+export const MIN_SWAP_MS = 1000 / 24;
+
+/** A jump of any size settles within roughly this many swaps at its start:
+ * each step covers 1/CATCH_UP of the remaining gap, so a big jump runs fast
+ * and eases out, and a small one plays frame by frame. */
+const CATCH_UP = 6;
 
 /** The share of the scroll, at the end, that holds the last frame before the
  * pin releases. Without it the calm room arrives on the very last pixel and
@@ -42,6 +49,24 @@ export function coarseCount(n: number, stride = 8): number {
   if (n <= 0) return 0;
   const onStride = Math.ceil(n / stride);
   return (n - 1) % stride === 0 ? onStride : onStride + 1;
+}
+
+/** The next frame to show on the way from `shown` to `target`: one step that
+ * covers a sixth of the gap (at least one frame), landing on the furthest
+ * loaded frame within that step, or on the first loaded frame beyond it if the
+ * step falls in a gap that has not loaded. Holds `shown` if nothing between it
+ * and the target is loaded, so a missing frame never keeps the scrub busy.
+ * shown < 0 means nothing of this set is on screen yet (after a set change):
+ * take the loaded frame nearest the target. */
+export function nextFrame(shown: number, target: number, loaded: ReadonlySet<number>, n: number): number {
+  if (shown < 0) return nearestLoaded(target, loaded, n);
+  if (target === shown) return shown;
+  const dir = Math.sign(target - shown);
+  const step = Math.max(1, Math.ceil(Math.abs(target - shown) / CATCH_UP));
+  const goal = shown + dir * step;
+  for (let i = goal; i !== shown; i -= dir) if (loaded.has(i)) return i;
+  for (let i = goal + dir; dir > 0 ? i <= target : i >= target; i += dir) if (loaded.has(i)) return i;
+  return shown;
 }
 
 /** The loaded frame closest to target, the earlier one on a tie. -1 if none. */

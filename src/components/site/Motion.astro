@@ -21,7 +21,7 @@
 // scroll cannot strand a transition, and clip-path/transform only.
 ---
 <script>
-  import { canSwap, coarseCount, frameAt, loadOrder, nearestLoaded } from '../../lib/scrub';
+  import { canSwap, coarseCount, frameAt, loadOrder, nextFrame } from '../../lib/scrub';
 
   // Base.astro decided this before first paint and wrote it to
   // <html data-motion>, seeded from prefers-reduced-motion unless the visitor
@@ -283,14 +283,19 @@
       o.p = o.p === null ? target : damp(o.p, target, dt);
       if (Math.abs(target - o.p) > SETTLED) busy = true;
 
+      // Play through the in-between frames rather than jumping to `want`:
+      // nextFrame takes one step toward it, so a flick reads as a quick run of
+      // poses. Busy while a step is owed; nextFrame holds still when nothing
+      // toward the target has loaded, so a missing frame cannot keep it busy.
       const want = frameAt(o.p, o.n);
-      const show = nearestLoaded(want, o.loaded, o.n);
+      const show = nextFrame(o.shown, want, o.loaded, o.n);
       if (show >= 0 && show !== o.shown) {
+        busy = true;
         if (canSwap(now, o.lastSwap)) {
           o.img.src = frameUrl(o.set, show);
           o.shown = show;
           o.lastSwap = now;
-        } else busy = true; // a swap is owed; keep the loop alive to pay it
+        }
       }
       // No "waiting on a frame" busy here: loadFrames wakes the loop after
       // every decode, and a frame that never arrives must not hold it awake.
