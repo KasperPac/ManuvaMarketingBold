@@ -49,8 +49,8 @@ const slug = (h: string) => `foot-${h.toLowerCase().replace(/[^a-z0-9]+/g, '-')}
   // reloads rather than trying to tear down and rebuild six pinned panels,
   // the marquee loop and the chip bar in place. A preference toggle is a
   // reasonable place to spend a reload; a half-reinitialised stage is not.
-  const btn = document.querySelector<HTMLButtonElement>('.motion-toggle');
-  if (btn) {
+  // Every copy: the footer, the header and the drawer (MVBOLD-31).
+  document.querySelectorAll<HTMLButtonElement>('.motion-toggle').forEach((btn) => {
     const label = btn.querySelector('.motion-label')!;
     const sync = () => {
       const on = document.documentElement.dataset.motion === 'on';
@@ -68,5 +68,5 @@ const slug = (h: string) => `foot-${h.toLowerCase().replace(/[^a-z0-9]+/g, '-')}
       sync();
       location.reload();
     });
-  }
+  });
 </script>

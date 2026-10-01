@@ -138,9 +138,9 @@ const gaps = COMPARE_ROWS.filter((r) => r[4] === 'no').length;
           — Manuva's yes and a competitor's no were indistinguishable and the
           table read as though nobody had anything. The verdict is a word now,
           so it carries itself and needs no icon label at all. */}
-      <div class="ctable wide" role="table" aria-label="Feature comparison: Manuva vs competitors">
+      <div class="ctable wide" tabindex="0" role="table" aria-label="Feature comparison: Manuva vs competitors">
         <div class="r h" role="row">
-          <span role="columnheader"></span>
+          <span role="columnheader"><span class="vh">Feature</span></span>
           {COLUMNS.map((c, i) => (
             i === 0
               ? <span class="eyebrow limechip" role="columnheader">{c}</span>

@@ -62,9 +62,13 @@
   const head = document.querySelector<HTMLElement>('.site-head');
   function headColor() {
     if (!head) return;
-    head.style.visibility = 'hidden';
-    const el = document.elementFromPoint(innerWidth / 2, 32);
-    head.style.visibility = '';
+    // The first thing under the point that is not the header itself. This
+    // used to hide the header and hit-test, which under reduced motion hit
+    // the header's own nav: the reduced-motion reset gives every element a
+    // near-zero transition on `all`, so the inherited visibility had not
+    // changed when the hit-test ran, and the header copied its own ink
+    // (MANUVA-37). Skipping the header's own elements needs no hiding.
+    const el = document.elementsFromPoint(innerWidth / 2, 32).find((e) => !head.contains(e)) ?? null;
     let n: Element | null = el;
     while (n && n !== document.body) {
       const bgc = getComputedStyle(n).backgroundColor;
@@ -131,6 +135,18 @@
     t.setAttribute('aria-hidden', 'true');
     t.innerHTML = panels.map(() => '<i></i>').join('');
     s.querySelector('.pin')?.appendChild(t);
+    // Tabbing onto a panel's link scrolls to where that panel is fully shown,
+    // so a keyboard can reach all six rather than the one on screen
+    // (MVBOLD-31). With motion off the panels are in normal flow and the
+    // browser's own focus scrolling does this.
+    if (!reduce) {
+      s.addEventListener('focusin', (e) => {
+        const i = panels.findIndex((p) => p.contains(e.target as Node));
+        if (i < 0) return;
+        const top = s.getBoundingClientRect().top + scrollY;
+        scrollTo({ top: top + (s.offsetHeight - innerHeight) * (i / Math.max(1, panels.length - 1)), behavior: 'auto' });
+      });
+    }
     return { s, panels, ticks: [...t.children] as HTMLElement[], x: null as number | null };
   });
 
@@ -369,7 +385,10 @@
       if (Math.abs(target - o.u) > SETTLED) busy = true;
       const u = o.u;
       c.style.clipPath = SHAPES[(Number(o.n.dataset.shape) || 0) % SHAPES.length](u);
-      c.style.visibility = u <= 0 ? 'hidden' : 'visible';
+      // Clipped, never visibility:hidden: hidden took the domain headings out
+      // of the accessibility tree until each was scrolled to (MVBOLD-31). A
+      // fully clipped cut only stops taking clicks.
+      c.style.pointerEvents = u <= 0 ? 'none' : '';
       drift(c, 1 - u);
     });
 
@@ -389,9 +408,10 @@
         if (i > 0 && !reduce) {
           const u = ease(cl(x - (i - 1)));
           el.style.clipPath = SHAPES[(Number(el.dataset.shape) || i - 1) % SHAPES.length](u);
-          el.style.visibility = u <= 0 ? 'hidden' : 'visible';
+          // Clipped, not hidden, so a keyboard can reach every panel's link;
+          // the focus handler below scrolls each into view (MVBOLD-31).
+          el.style.pointerEvents = u <= 0 ? 'none' : '';
         }
-        if (reduce && i > 0) el.style.visibility = Math.round(targetX) >= i ? 'visible' : 'hidden';
         if (!reduce) drift(el, (x - i) * -1.2);
       });
       // Rounded off the target, not the damped value: the tick bar is a

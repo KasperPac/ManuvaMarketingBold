@@ -1003,3 +1003,42 @@ main [id]{scroll-margin-top:80px}
 .hero.dave[data-lead="gone"] .dave-fold{grid-template-rows:0fr;visibility:hidden;
   transition:grid-template-rows 450ms var(--ease-out),visibility 0s 450ms}
 @media(prefers-reduced-motion:reduce){.dave-fold{transition:none}}
+
+/* ===== Brand rules and access (MVBOLD-31) =====
+   Lime is backgrounds and accents, never text (loud-layer rules). Four rules
+   in the design's own sheet broke that, and the note above left them to the
+   design system; they are overridden here instead, so the site follows its
+   own rule. The current drawer item keeps lime as an underline, the toggle's
+   saving as a lime chip with its paired ink. */
+.site-foot .cols .eyebrow{color:inherit;opacity:.72}
+#drawer a[aria-current]{color:inherit;text-decoration:underline;text-decoration-color:var(--field-lime);
+  text-decoration-thickness:6px;text-underline-offset:10px}
+.toggle small,.toggle button[aria-pressed="true"] small{color:var(--on-lime);background:var(--field-lime);
+  padding:2px 7px;border-radius:999px}
+
+/* Focus rings take the ink of the surface they sit on, not the button's own
+   text colour: a white-text pill on a paper card drew a white ring on paper,
+   invisible on all four pricing cards. */
+:root{--ring:var(--ink-strong)}
+.mv-field-paper,.mv-field-lime,.mv-field-amber,.mv-field-mint,.mv-field-aqua,.mv-field-flare{--ring:var(--ink-strong)}
+.mv-field-cobalt,.mv-field-violet,.mv-field-ink,.site-foot,#drawer{--ring:#fff}
+.pill:focus-visible{outline-color:var(--ring)}
+.site-head .pill:focus-visible{outline-color:var(--field-lime)}
+[tabindex="0"]:focus-visible{outline:3px solid var(--ring);outline-offset:3px;border-radius:4px}
+
+/* Text for screen readers only: the comparison tables' empty corner cell
+   was an empty column header to axe on six pages. */
+.vh{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* The motion switch in the header (from 721) and the drawer. */
+.head-motion{margin-left:auto;display:flex}
+.head-motion .motion-toggle{font-size:13px;font-weight:600;min-height:40px}
+.drawer-motion .motion-toggle{font:600 16px/1 var(--font-body);color:#fff;margin-top:8px}
+/* At tablet widths the switch shows only its track (its label stays for
+   screen readers), and nothing in the bar wraps: at 768 "Sign in" and
+   "Start free" broke onto two lines. */
+.links a,.head-cta,.head-motion .motion-toggle{white-space:nowrap}
+@media(min-width:721px) and (max-width:1099px){
+  .links{gap:18px}
+  .head-motion .motion-label{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0)}
+}

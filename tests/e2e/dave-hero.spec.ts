@@ -419,14 +419,14 @@ test.describe('scrub, motion on', () => {
   test('the motion toggle flattens and restores the hero', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
-    await page.locator('.motion-toggle').click();
+    await page.locator('.site-foot .motion-toggle').click();
     await page.waitForLoadState('load');
     await expect(page.locator('html')).toHaveAttribute('data-motion', 'off');
     const flat = await page.locator('.hero.dave').evaluate((el) => el.getBoundingClientRect().height);
     expect(flat).toBeLessThanOrEqual(800 + 1);
     await expect(page.locator('.hero.dave')).not.toHaveAttribute('data-scrub', /.*/);
 
-    await page.locator('.motion-toggle').click();
+    await page.locator('.site-foot .motion-toggle').click();
     await page.waitForLoadState('load');
     await expect(page.locator('html')).toHaveAttribute('data-motion', 'on');
     await expect(page.locator('.hero.dave')).toHaveAttribute('data-scrub', 'pre');
