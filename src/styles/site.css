@@ -386,10 +386,12 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid cur
    — the design's stylesheet, its inline styles, and its page references — and
    chasing them individually is how one gets missed. The decorative numerals
    and the tick bar keep their opacity: they carry no text and are
-   aria-hidden. */
-.mv-field-cobalt *:not(.ghostnum):not(.pnum):not(.ticks):not(.ticks i),
-.mv-field-violet *:not(.ghostnum):not(.pnum):not(.ticks):not(.ticks i),
-.mv-field-flare  *:not(.ghostnum):not(.pnum):not(.ticks):not(.ticks i){opacity:1!important}
+   aria-hidden. So does the Dave hero's "Scroll" hint (MVBOLD-29): it is
+   aria-hidden, sits on the dark scrim rather than the field, and its opacity
+   is how it fades out once the scrub starts. */
+.mv-field-cobalt *:not(.ghostnum):not(.pnum):not(.ticks):not(.ticks i):not(.dave-hint),
+.mv-field-violet *:not(.ghostnum):not(.pnum):not(.ticks):not(.ticks i):not(.dave-hint),
+.mv-field-flare  *:not(.ghostnum):not(.pnum):not(.ticks):not(.ticks i):not(.dave-hint){opacity:1!important}
 
 /* The billing toggle's track lightened cobalt with a white tint, so the
    unpressed button was white text on a lighter blue. Darkening instead keeps
@@ -681,8 +683,18 @@ main [id]{scroll-margin-top:80px}
 
    The scrim is --ink-strong, never navy: a navy hero is the "third blue"
    field-separation.test.ts exists to stop. */
-.hero.dave{display:block;padding:0;gap:0;min-height:100svh}
-.hero.dave>.dave-pin{position:sticky;top:0;height:100svh;overflow:hidden;display:grid}
+/* Two .hero defaults are wrong for a pinned track and are reset here.
+   align-content:end — browsers now apply align-content to block containers
+   too, and it would sit the 100svh pin at the bottom of the 250svh track.
+   overflow:hidden — it makes the section a scroll container, and a sticky
+   child sticks to its nearest scroll container, so the pin would never stick
+   to the page. clip still clips and is not a scroll container. */
+.hero.dave{display:block;align-content:start;overflow:clip;padding:0;gap:0;min-height:100svh}
+/* The pin paints --ink-strong behind the frame: it is the placeholder while
+   frame 0 loads, and it is what the docked header picks up from under itself
+   (Motion.astro's headColor), so the bar over the scene is the scrim's ink
+   rather than the cobalt field hidden behind the frames. */
+.hero.dave>.dave-pin{position:sticky;top:0;height:100svh;overflow:hidden;display:grid;background-color:var(--ink-strong)}
 .dave-scene{position:absolute;inset:0;margin:0}
 .dave-scene img{display:block;width:100%;height:100%;object-fit:cover;object-position:31% 50%}
 .dave-scrim{position:absolute;inset:0;pointer-events:none;background:
@@ -707,6 +719,12 @@ main [id]{scroll-margin-top:80px}
   .dave-copy{align-content:center;justify-self:end;width:54vw;height:auto;gap:28px;padding:120px max(48px,calc((100vw - 1680px) / 2)) 80px 0}
   .hero.dave h1{font-size:min(clamp(76px,6.6vw,128px),calc((54vw - max(48px,(100vw - 1680px) / 2)) / 7.9))}
 }
+/* The chip on "More making." lands as the walls turn lime (data-scrub,
+   written by Motion.astro). With motion off or no JS the attribute is never
+   set and the chip simply shows: the markup is the finished state. */
+.hero.dave .hl{transition:background-color 220ms var(--ease-out),color 220ms var(--ease-out)}
+.hero.dave[data-scrub="pre"] .hl{background-color:transparent;color:inherit}
+:root[data-motion="on"] .hero.dave[data-scrub] .dave-hint{display:block}
 /* end Dave hero */
 
 /* The explainer, in the stage lead-in since MVBOLD-29. */

@@ -21,6 +21,8 @@
 // scroll cannot strand a transition, and clip-path/transform only.
 ---
 <script>
+  import { canSwap, coarseCount, frameAt, loadOrder, nearestLoaded } from '../../lib/scrub';
+
   // Base.astro decided this before first paint and wrote it to
   // <html data-motion>, seeded from prefers-reduced-motion unless the visitor
   // overrode it. Reading the attribute rather than the media query keeps the
@@ -177,6 +179,118 @@
     history.replaceState(null, '', '#' + s.id);
   });
 
+  // 5 · scrub — the Dave hero (MVBOLD-29). One <img> stepping through the
+  // chaos-to-calm frames as the hero's scroll progresses. Frame 0 is already
+  // in the markup; the rest load after `load`, coarse pass first, so the LCP
+  // is one image and the scrub works within a few hundred KB. Swaps are hard
+  // cuts at no more than 12 a second: it is stop-motion, and a faster swap
+  // would read as a smeared video rather than as claymation.
+  const PORTRAIT = matchMedia('(max-aspect-ratio: 4/5)');
+  const frameUrl = (set: string, i: number) => `/hero/dave/${set}/${String(i).padStart(3, '0')}.webp`;
+  const conn = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
+  const lean = !!conn && (conn.saveData === true || /(^|-)2g$|^3g$/.test(conn.effectiveType ?? ''));
+
+  const scrubs = [...document.querySelectorAll<HTMLElement>('.hero.dave')].map((h) => {
+    const img = h.querySelector<HTMLImageElement>('.dave-scene img')!;
+    const o = {
+      h, img,
+      hint: h.querySelector<HTMLElement>('.dave-hint'),
+      n: Number(h.dataset.frames) || 1,
+      calm: Number(h.dataset.calm) || 0,
+      set: PORTRAIT.matches ? 'p' : 'l',
+      loaded: new Set<number>([0]),
+      shown: 0,
+      lastSwap: -Infinity,
+      p: null as number | null,
+      gen: 0,
+    };
+    if (!reduce) {
+      h.style.height = '250svh';
+      h.dataset.scrub = 'pre';
+      h.dataset.set = o.set;
+      // The <source> picked frame 0's crop for first paint. From here the
+      // script owns the choice, so it goes, and the <img> takes the set's URL
+      // directly; the browser already has that file.
+      h.querySelector('.dave-scene source')?.remove();
+      img.src = frameUrl(o.set, 0);
+    }
+    return o;
+  });
+
+  type Scrub = (typeof scrubs)[number];
+
+  // Fetch and decode the set off-screen, four at a time. `gen` lets a set
+  // change abandon a load already in flight.
+  async function loadFrames(o: Scrub) {
+    const gen = ++o.gen;
+    const order = loadOrder(o.n).filter((i) => i !== 0);
+    const limit = lean ? coarseCount(o.n) - 1 : order.length;
+    const queue = order.slice(0, limit);
+    const worker = async () => {
+      while (queue.length && gen === o.gen) {
+        const i = queue.shift()!;
+        const im = new Image();
+        im.src = frameUrl(o.set, i);
+        try {
+          await im.decode();
+          if (gen === o.gen) o.loaded.add(i);
+        } catch {
+          // A frame that fails stays out of `loaded`; nearestLoaded never picks it.
+        }
+        wake();
+      }
+    };
+    await Promise.all([worker(), worker(), worker(), worker()]);
+  }
+
+  function startScrubLoads() {
+    if (reduce) return;
+    scrubs.forEach((o) => { void loadFrames(o); });
+  }
+  // After `load`, and a turn later, so not one byte of it competes with the page.
+  if (document.readyState === 'complete') setTimeout(startScrubLoads, 0);
+  else addEventListener('load', () => setTimeout(startScrubLoads, 0), { once: true });
+
+  PORTRAIT.addEventListener('change', () => {
+    if (reduce) return;
+    scrubs.forEach((o) => {
+      o.set = PORTRAIT.matches ? 'p' : 'l';
+      o.h.dataset.set = o.set;
+      o.loaded = new Set([0]);
+      o.shown = 0;
+      o.lastSwap = -Infinity;
+      o.img.src = frameUrl(o.set, 0);
+      void loadFrames(o);
+    });
+    wake();
+  });
+
+  function stepScrubs(now: number, dt: number, H: number) {
+    let busy = false;
+    scrubs.forEach((o) => {
+      if (reduce) return;
+      const r = o.h.getBoundingClientRect();
+      const target = cl(-r.top / Math.max(1, o.h.offsetHeight - H));
+      o.p = o.p === null ? target : damp(o.p, target, dt);
+      if (Math.abs(target - o.p) > SETTLED) busy = true;
+
+      const want = frameAt(o.p, o.n);
+      const show = nearestLoaded(want, o.loaded, o.n);
+      if (show >= 0 && show !== o.shown) {
+        if (canSwap(now, o.lastSwap)) {
+          o.img.src = frameUrl(o.set, show);
+          o.shown = show;
+          o.lastSwap = now;
+        } else busy = true; // a swap is owed; keep the loop alive to pay it
+      }
+      if (show >= 0 && show !== want) busy = true; // waiting on a frame still loading
+
+      o.h.dataset.scrub = o.shown >= o.calm ? 'calm' : 'pre';
+      if (o.hint) o.hint.style.opacity = String(1 - cl(o.p / 0.05));
+    });
+    return busy;
+  }
+
   const ghosts = [...document.querySelectorAll<HTMLElement>('.ghostnum')];
   let ghostY: number | null = null;
   let raf = 0, running = false, lastT = performance.now(), headAt = -1, headDue = 0;
@@ -240,6 +354,8 @@
       ticks.forEach((t, j) => (t.dataset.on = j === a ? '1' : ''));
     });
 
+    if (stepScrubs(now, dt, H)) busy = true;
+
     if (!reduce && ghosts.length) {
       const gTarget = Math.min(scrollY, H) * 0.3;
       ghostY = ghostY === null ? gTarget : damp(ghostY, gTarget, dt);
@@ -279,7 +395,7 @@
       const r = el.getBoundingClientRect();
       return r.bottom > -H && r.top < H * 2;
     };
-    if (!busy && !stages.some((o) => near(o.s)) && !intros.some((o) => near(o.n))) {
+    if (!busy && !stages.some((o) => near(o.s)) && !intros.some((o) => near(o.n)) && !scrubs.some((o) => near(o.h))) {
       running = false;
       raf = 0;
       return;
