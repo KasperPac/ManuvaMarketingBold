@@ -1,21 +1,36 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 // Re-score round (MVBOLD-31): what the critics' second pass still found.
 
-test('mid-transition, the outgoing home panel\'s copy is wiped away under the incoming one', async ({ page }) => {
-  // "Production" text showed under "Sales" while the shape cut was half in.
+// "Production" text showed under "Sales" while the shape cut was half in.
+// The first fix clipped the outgoing copy from the start of the cut, which
+// sliced it on a plain field before the incoming shape was even on screen
+// (the UI critic's N-5). The outgoing copy now stays whole until the
+// incoming shape is covering, then fades through its colour.
+const stageTo = (page: Page, x: number) => page.evaluate((x) => {
+  const s = document.querySelector('.stage') as HTMLElement;
+  const top = s.getBoundingClientRect().top + scrollY;
+  scrollTo(0, top + (s.offsetHeight - innerHeight) * (x / 5));
+}, x);
+const h2 = (page: Page, i: number) => page.locator('.stage .panel').nth(i).locator('h2')
+  .evaluate((h) => ({ color: getComputedStyle(h).color, clip: getComputedStyle(h).clipPath }));
+
+test("early in a cut, the outgoing panel's copy is whole and drawn", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
-  await page.evaluate(() => {
-    const s = document.querySelector('.stage') as HTMLElement;
-    const top = s.getBoundingClientRect().top + scrollY;
-    // Halfway from panel 2 to panel 3.
-    scrollTo(0, top + (s.offsetHeight - innerHeight) * (2.5 / 5));
-  });
+  await stageTo(page, 2.06);
   await page.waitForTimeout(1200);
-  const clip = await page.locator('.stage .panel').nth(2).locator('h2').evaluate((h) => getComputedStyle(h).clipPath);
-  const pct = Number((clip.match(/inset\(0px 0px ([\d.]+)%/) || [])[1] ?? 0);
-  expect(pct, `outgoing heading clip: ${clip}`).toBeGreaterThan(90);
+  const m = await h2(page, 2);
+  expect(m.clip).toBe('none');
+  expect(m.color).not.toBe('rgba(0, 0, 0, 0)');
+});
+
+test("mid-cut, the outgoing panel's copy has faded under the incoming one", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  await stageTo(page, 2.5);
+  await page.waitForTimeout(1200);
+  expect((await h2(page, 2)).color).toBe('rgba(0, 0, 0, 0)');
 });
 
 test('a focused home panel shows its focus ring inside the screen', async ({ page }) => {

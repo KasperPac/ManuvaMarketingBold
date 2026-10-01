@@ -126,11 +126,6 @@
   // 2 · stage — many panels, one pin.
   const stages = [...document.querySelectorAll<HTMLElement>('.stage')].map((s) => {
     const panels = [...s.querySelectorAll<HTMLElement>('.panel')];
-    // Each panel's own copy, which is wiped away while the next panel cuts
-    // in: the outgoing heading showed through wherever the new shape had not
-    // reached yet ("Production" under "Sales"). clip-path, because the
-    // field's full-strength override pins opacity (MVBOLD-31).
-    const copy = panels.map((p) => [...p.querySelectorAll<HTMLElement>('.eyebrow, h2, .pline, .more')]);
     // Not under reduced motion: the pin is released there, so giving the
     // stage six screens of height would leave six screens of nothing to
     // scroll past. The design says "pins released"; its own CSS only released
@@ -156,7 +151,7 @@
         scrollTo({ top: top + (s.offsetHeight - innerHeight) * (i / Math.max(1, panels.length - 1)), behavior: 'auto' });
       });
     }
-    return { s, panels, copy, ticks: [...t.children] as HTMLElement[], x: null as number | null };
+    return { s, panels, ticks: [...t.children] as HTMLElement[], x: null as number | null };
   });
 
   // 3 · marquee — base drift, boosted by scroll velocity, decaying per frame.
@@ -402,7 +397,7 @@
     });
 
     stages.forEach((st) => {
-      const { s, panels, copy, ticks } = st;
+      const { s, panels, ticks } = st;
       const r = s.getBoundingClientRect();
       const h = s.offsetHeight - H;
       const p = cl(-r.top / h);
@@ -420,10 +415,11 @@
           // Clipped, not hidden, so a keyboard can reach every panel's link;
           // the focus handler below scrolls each into view (MVBOLD-31).
           el.style.pointerEvents = u <= 0 ? 'none' : '';
-          // The panel this one is covering loses its copy over the first
-          // third of the cut, wiped upward.
-          const w = cl(u / 0.35);
-          copy[i - 1].forEach((c) => (c.style.clipPath = w > 0 ? `inset(0 0 ${(w * 100).toFixed(1)}% 0)` : ''));
+          // The panel this one is covering fades its copy out once this
+          // shape is well in (CSS, through colour). Clipping it from the
+          // start of the cut sliced the copy on a plain field before the
+          // new shape was even on screen.
+          panels[i - 1].dataset.leaving = u >= 0.3 ? '1' : '';
         }
         if (!reduce) drift(el, (x - i) * -1.2);
       });

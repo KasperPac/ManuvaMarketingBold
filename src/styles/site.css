@@ -1161,3 +1161,9 @@ main [id]{scroll-margin-top:80px}
 .head-cta:hover{background:var(--ink-strong);color:#fff}
 .motion-toggle:hover i{background:color-mix(in srgb,currentColor 22%,transparent)}
 @media(min-width:721px){.hero.long{padding-top:108px;gap:24px}}
+/* The home stage: the panel being covered fades its copy out through its
+   colour once the incoming shape is well in (data-leaving, Motion.astro),
+   rather than having it clipped. Colour, not opacity, which the field's
+   full-strength override pins. */
+.stage .panel :is(.eyebrow,h2,.pline,.more){transition:color 240ms var(--ease-out)}
+.stage .panel[data-leaving="1"] :is(.eyebrow,h2,.pline,.more){color:transparent}
