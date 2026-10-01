@@ -1,6 +1,6 @@
 ---
 import Logo from '../ds/Logo.astro';
-import { NAV_LINKS, APP_URL } from '../../site';
+import { NAV_LINKS, APP_URL, SIGNUP_URL } from '../../site';
 
 export interface Props {
   current?: string;
@@ -22,7 +22,7 @@ const { current } = Astro.props;
     <a href={l.href} aria-current={current === l.href ? 'page' : undefined}>{l.label}</a>
   ))}
   <a class="small" href={APP_URL}>Sign in</a>
-  <a class="small" href={APP_URL} style="margin-top:0">Start free &rarr;</a>
+  <a class="pill dcta" href={SIGNUP_URL}>Start free</a>
 </div>
 
 <script>

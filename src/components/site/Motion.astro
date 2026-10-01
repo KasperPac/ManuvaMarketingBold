@@ -163,10 +163,13 @@
   let chipLinks: HTMLElement[] = [];
   if (chipsEl && chipSecs.length) {
     chipsEl.dataset.hide = '1';
+    // data-cta adds Start free at the end of the bar: on /features the bar is
+    // the one thing on screen for twenty screens of feature cards (MVBOLD-31).
+    const cta = chipsEl.dataset.cta ? `<a class="go" href="${chipsEl.dataset.cta}">Start free</a>` : '';
     chipsEl.innerHTML = `<div class="ctrack">${chipSecs
       .map((s, i) => `<a href="#${s.id}" data-jump="${i}">${s.dataset.chip}</a>`)
-      .join('')}</div>`;
-    chipLinks = [...chipsEl.querySelectorAll<HTMLElement>('a')];
+      .join('')}${cta}</div>`;
+    chipLinks = [...chipsEl.querySelectorAll<HTMLElement>('a[data-jump]')];
   }
   document.addEventListener('click', (e) => {
     const a = (e.target as Element).closest<HTMLElement>('[data-jump]');

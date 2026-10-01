@@ -1,6 +1,9 @@
 ---
 import Base from '../layouts/Base.astro';
-import { APP_URL, CONTACT_EMAIL } from '../site';
+import { APP_URL, SIGNUP_URL, CONTACT_EMAIL } from '../site';
+
+// The old site's own demo request, verbatim (index.html DEMO_MESSAGE).
+const DEMO_MAILTO = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Book a demo of Manuva')}&body=${encodeURIComponent("Hi, I'd like to book a demo of Manuva.")}`;
 
 // Rebuilt on the new design (MVBOLD-24). The last page on the pre-rebuild
 // components; nothing on the site runs on the old design after this.
@@ -192,7 +195,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
         field follows directly and two fields may not touch. The old page
         carried this as a panel for the same reason. */}
     <article class="pcard mv-field-violet contact-card">
-      <span class="eyebrow" style="opacity:.8">Get in touch</span>
+      <span class="eyebrow" style="opacity:.8">Contact</span>
       <h2 class="disp" style="font-size:clamp(32px,5.4vw,52px);margin:0">Get in touch</h2>
       <p class="sub" style="opacity:.9;max-width:54ch">
         Whether you're ready to start a trial or just want to see how Manuva fits your shop, we'd love to talk.
@@ -201,7 +204,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
         <div class="prow"><span>Email</span><span><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></span></div>
         <div class="prow"><span>Response</span><span>We reply within one business day</span></div>
       </div>
-      <a class="pill white" href={`mailto:${CONTACT_EMAIL}`} style="justify-self:start">Email us</a>
+      {/* Six Book a demo CTAs land here. The old site's opened its contact form
+          with this request already written; the same request, ready to send,
+          keeps the label honest without a scheduler (MVBOLD-31). */}
+      <div class="row">
+        <a class="pill white" href={DEMO_MAILTO}>Book a demo</a>
+        <a class="pill ghost" href={`mailto:${CONTACT_EMAIL}`}>Email us</a>
+      </div>
     </article>
   </section>
 
@@ -213,7 +222,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     <p class="disp">See Manuva in action.</p>
     <p class="sub">30-day free trial, full Pro access. No credit card required. Set up in a day.</p>
     <div class="row">
-      <a class="pill white" href={APP_URL}>Start free trial &rarr;</a>
+      <a class="pill white" href={SIGNUP_URL}>Start free trial &rarr;</a>
       <a class="pill ghost" href="/about#contact">Book a demo</a>
     </div>
   </section>

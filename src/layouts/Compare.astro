@@ -1,6 +1,6 @@
 ---
 import Base from './Base.astro';
-import { APP_URL, type FieldName } from '../site';
+import { APP_URL, SIGNUP_URL, type FieldName } from '../site';
 
 export interface Props {
   title: string;
@@ -123,7 +123,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     <h1 class="disp" style="max-width:16ch">{h1Lead} <span class="hl">{h1Highlight}</span></h1>
     <p class="sub" style="opacity:.9;max-width:52ch">{heroLede}</p>
     <div class="row">
-      <a class="pill" href={APP_URL}>Start free</a>
+      <a class="pill" href={SIGNUP_URL}>Start free</a>
       <a class="pill ghost" href="/pricing">See pricing</a>
     </div>
     <span style="font-size:14px;opacity:.8">30 days free, full Pro access. No credit card.</span>
@@ -285,7 +285,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     <p class="disp">{ctaHeading}</p>
     <p class="sub">{ctaBody}</p>
     <div class="row">
-      <a class="pill ink" href={APP_URL}>Start free</a>
+      <a class="pill ink" href={SIGNUP_URL}>Start free</a>
       <a class="pill ghost" href="/about#contact">Book a demo</a>
     </div>
   </section>

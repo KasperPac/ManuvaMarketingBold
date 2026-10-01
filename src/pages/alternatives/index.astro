@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { APP_URL } from '../../site';
+import { APP_URL, SIGNUP_URL } from '../../site';
 
 // Rebuilt on the new design (MVBOLD-23). It was the last page besides /about
 // still on the pre-rebuild components, which is also why its header looked
@@ -92,7 +92,7 @@ const gaps = COMPARE_ROWS.filter((r) => r[4] === 'no').length;
       Honest, dated comparisons against the tools Shopify manufacturers actually evaluate.
     </p>
     <div class="row">
-      <a class="pill ink" href={APP_URL}>Start free</a>
+      <a class="pill ink" href={SIGNUP_URL}>Start free</a>
       <a class="pill ghost" href="/pricing">See pricing</a>
     </div>
   </section>
@@ -181,7 +181,7 @@ const gaps = COMPARE_ROWS.filter((r) => r[4] === 'no').length;
     <p class="disp">See Manuva in action.</p>
     <p class="sub">30-day free trial, full Pro access. No credit card required. Set up in a day.</p>
     <div class="row">
-      <a class="pill ink" href={APP_URL}>Start free</a>
+      <a class="pill ink" href={SIGNUP_URL}>Start free</a>
       <a class="pill ghost" href="/about#contact">Book a demo</a>
     </div>
   </section>

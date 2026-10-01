@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import FeatureMatrix from '../components/site/FeatureMatrix.astro';
-import { APP_URL } from '../site';
+import { APP_URL, SIGNUP_URL } from '../site';
 
 // Rebuilt on the new design (MVBOLD-17). Motion: none — the handoff is
 // explicit that nothing pins on pricing. What carries is the full-field hero,
@@ -130,7 +130,7 @@ const schema = [
             {p.monthlyLine && <p class="note monthly">{p.monthlyLine}</p>}
           </div>
           <span class="limit">{p.limit}</span>
-          <a class={p.badge ? 'pill' : 'pill ink'} href={p.name === 'Enterprise' ? '/about#contact' : APP_URL}>
+          <a class={p.badge ? 'pill' : 'pill ink'} href={p.name === 'Enterprise' ? '/about#contact' : SIGNUP_URL}>
             {p.name === 'Enterprise' ? 'Contact sales' : 'Start free'}
           </a>
           <ul>{p.feats.map((f) => <li>{f}</li>)}</ul>
@@ -190,7 +190,7 @@ const schema = [
     <p class="sub" style="color:var(--ink-muted);max-width:52ch">
       Shape the roadmap with us. Tell us what features your team needs and we'll build them with you.
     </p>
-    <a class="pill ink" href={APP_URL} style="justify-self:start">Start free trial &rarr;</a>
+    <a class="pill ink" href={SIGNUP_URL} style="justify-self:start">Start free trial &rarr;</a>
   </section>
 
   <section class="sec">
@@ -213,7 +213,7 @@ const schema = [
     <p class="disp">Start free. Decide later.</p>
     <p class="sub">30 days of full Pro access. No credit card required.</p>
     <div class="row">
-      <a class="pill ink" href={APP_URL}>Start free</a>
+      <a class="pill ink" href={SIGNUP_URL}>Start free</a>
       <a class="pill ghost" href="/features">See every feature</a>
     </div>
   </section>

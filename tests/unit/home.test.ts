@@ -117,7 +117,7 @@ test('the band straight after the hero carries its copy and the video', () => {
   const body = h.slice(band, bandEnd);
   expect(body).toContain('MRP for Shopify manufacturers');
   expect(body).toContain('Manuva replaces the spreadsheets and legacy MRP your team is fighting with.');
-  expect(body).toMatch(/href="https:\/\/app\.manuva\.app"[^>]*>Start free</);
+  expect(body).toMatch(/href="https:\/\/app\.manuva\.app\/signup"[^>]*>Start free</);
   expect(body).toMatch(/href="\/about#contact"[^>]*>Book a demo</);
   expect(body).toContain('data-youtube-id="JXB4FgHRm_Y"');
   expect(body).toContain('See it in 60 seconds');

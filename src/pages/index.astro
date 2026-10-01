@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Video from '../components/site/Video.astro';
 import Logo from '../components/ds/Logo.astro';
-import { APP_URL, DOMAINS } from '../site';
+import { APP_URL, SIGNUP_URL, DOMAINS } from '../site';
 // Frame count and the frame where the room turns calm, from the manifest the
 // frame script reads, so the page and the frames cannot disagree.
 import heroFrames from '../../scripts/hero-frames.json';
@@ -207,7 +207,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
           orders, and stock control — connected, live, and built for the floor.
         </p>
         <div class="row hero-intro-ctas">
-          <a class="pill" href={APP_URL}>Start free</a>
+          <a class="pill" href={SIGNUP_URL}>Start free</a>
           <a class="pill ghost" href="/about#contact">Book a demo</a>
         </div>
       </div>
@@ -346,7 +346,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     <p class="disp">Run your first job today.</p>
     <p class="sub">30 days free with full Pro access. No credit card required.</p>
     <div class="row">
-      <a class="pill white" href={APP_URL}>Start free</a>
+      <a class="pill white" href={SIGNUP_URL}>Start free</a>
       <a class="pill ghost" href="/pricing">See pricing</a>
     </div>
   </section>
