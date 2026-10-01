@@ -30,9 +30,10 @@ without moving a single CTA out of reach.
 | Footage | **One transformation clip, T1**: `before.png` → `after.png` (`frames/keys/v3/`), Veo 3.1 Fast frames-to-video in Google Flow, 8 s. The ad's story shots (A1–E1) are not used by the hero. |
 | Hero copy | **Only the tagline**, bottom-left over a fade along the bottom edge, at every size. Revised after the first preview: copy and scrim over the scene hid it. (Was layout A on desktop and a poster layout on phones.) |
 | Logo | The exact Manuva logo is **wiped onto the lime wall as the room turns calm**: right of the corner on landscape, across the top of the wall on phones. A clay picture frame for it was tried and rejected (the clean logo in a clay frame looked off). |
-| Eyebrow, sub-copy, buttons | Word for word, in a band directly under the hero, before the marquee. |
+| Eyebrow, sub-copy, buttons | Word for word, in a band directly under the hero, beside the video. |
+| Marquee | **Removed** from the home page (preview feedback: its drift under the scrubbing hero was too distracting). Every fact it carried is still stated on /features or /pricing; the parity report is unchanged by its removal. |
 | Headline | **Less chaos. More making.** (the ad's own end line). Was "Make it. Track it. Ship it." |
-| Explainer video | Moves to the stage lead-in now; swapped for the Dave cut later (MANUVA-36). |
+| Video | **The Dave ad** (YouTube `JXB4FgHRm_Y`, 60 s, "Manuva - Less Chaos, More Making"), in the band straight under the hero with the caption "See it in 60 seconds". Poster: the ad's end card, self-hosted. Replaces the old explainer (MANUVA-36). |
 
 `before.png` and `after.png` are the same 2752×1536 set from the same camera;
 their edge maps align at zero offset (checked 2026-10-01), which is what makes a
@@ -126,14 +127,16 @@ single-camera transformation possible.
 - The last frame holds for the final ~10% of the scroll, then the pin releases
   into the marquee.
 
-### 3.4 Moves
+### 3.4 Under the hero
 
-- **Explainer video** leaves the hero for `.stage-lead`, which becomes a two-column
-  `.split`: heading/sub/CTA left, the video with its "See it in 32 seconds" caption
-  right. Stacked below 1100px. `Video.astro` is unchanged, so MANUVA-36 is a
-  two-prop change (`youtubeId`, `poster`).
-- **Marquee** is unchanged. Both hero layouts put the scrim or the desk on the
-  hero's bottom edge, so the lime room never touches the lime marquee.
+- **The band** (`.sec.hero-intro`, paper) comes straight after the hero: the
+  eyebrow, sub-copy and both buttons on the left, the video on the right
+  (stacked on phones). The buttons are the first thing after the scrub.
+- **The video** is the Dave ad, a facade as before: nothing reaches
+  youtube-nocookie.com until someone clicks. Its caption keeps "What Manuva
+  actually does", old-site copy the parity gate tracks.
+- **The stage lead-in** is back to a single column, and with the marquee gone it
+  takes the site's hairline so the two paper sections stay distinguishable.
 
 ### 3.5 Fallbacks
 

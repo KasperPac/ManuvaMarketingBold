@@ -27,7 +27,7 @@ test('the eyebrow, sub-copy and both buttons are the first thing after the hero'
   await page.goto('/');
   const band = page.locator('.hero.dave + .hero-intro');
   await expect(band).toHaveCount(1);
-  await expect(band.locator('.eyebrow')).toHaveText('MRP for Shopify manufacturers');
+  await expect(band.locator('.eyebrow').first()).toHaveText('MRP for Shopify manufacturers');
   await expect(band.locator('.sub')).toContainText('Manuva replaces the spreadsheets');
   await band.scrollIntoViewIfNeeded();
   await expect(band.locator('.pill')).toHaveText(['Start free', 'Book a demo']);
@@ -77,10 +77,10 @@ test('a portrait viewport loads the portrait frame', async ({ page }) => {
   expect(src).toMatch(/\/hero\/dave\/p\/000\.webp$/);
 });
 
-test('the explainer facade renders in the stage lead-in', async ({ page }) => {
+test('the video facade renders in the band straight under the hero', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto('/');
-  await expect(page.locator('.stage-lead .site-video')).toBeVisible();
+  await expect(page.locator('.hero-intro .site-video')).toBeVisible();
   await expect(page.locator('.hero .site-video')).toHaveCount(0);
 });
 

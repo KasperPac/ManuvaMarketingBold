@@ -138,7 +138,7 @@ test('the explainer reaches YouTube only after a click', async ({ page }) => {
   await expect.poll(() => yt.length, { timeout: 10_000 }).toBeGreaterThan(0);
   await expect(page.locator('iframe')).toHaveAttribute(
     'src',
-    /youtube-nocookie\.com\/embed\/Vr4rkatHggA/,
+    /youtube-nocookie\.com\/embed\/JXB4FgHRm_Y/,
   );
 
   // The player has to fill the frame it replaced. Checking the src alone said

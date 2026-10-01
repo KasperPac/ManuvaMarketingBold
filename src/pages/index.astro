@@ -9,7 +9,8 @@ import heroFrames from '../../scripts/hero-frames.json';
 
 // Rebuilt on the new design (MVBOLD-17): full-field hero with a ghost
 // numeral, the live marquee, the pinned stage of six shape-cut domain
-// panels, and the closing field, with full motion.
+// panels, and the closing field, with full motion. MVBOLD-29 replaced the
+// hero with Dave's office and took the marquee off (below).
 //
 // The first pass of that rebuild kept only those blocks and dropped 46 of
 // the page's 53 sentences with them — the explainer, the platform grid, the
@@ -29,23 +30,21 @@ import heroFrames from '../../scripts/hero-frames.json';
 //
 // Field rhythm, per the loud-layer rules — one full-bleed field per fold and
 // never two touching:
-//   cobalt hero → lime marquee → paper → STAGE → paper → amber → paper →
-//   ink → paper → flare outro
+//   Dave hero (cobalt field, never seen) → paper → paper → STAGE → paper →
+//   amber → paper → ink → paper → flare outro
 //
 // The aqua beta band and the sectors row came off this page: both were
 // full sections earning very little, and the tail was the part that read as
 // crowded. Neither was deleted — the beta offer is on /pricing, where an
 // offer belongs, and the sectors row joined /about's own "Who runs Manuva."
 // section, which is the heading this row already borrowed its eyebrow from.
-// The hero/marquee pairing is the design's own and is kept as it ships.
-
-const MARQUEE = [
-  'Yield % on every BOM line',
-  'BOM versioning with rollback',
-  'Unlimited users on Growth',
-  'Real-time Shopify webhooks',
-  '30-day free trial',
-];
+//
+// The marquee came off in MVBOLD-29 (preview feedback): its constant drift
+// right under the scrubbing hero was too distracting, so the page goes
+// straight from the hero to the video. Every fact it carried is still stated
+// on /features (yield %, BOM versioning and "roll back", unlimited users on
+// Growth, real-time webhook sync) and the 30-day trial on /features and
+// /pricing (checked 2026-10-01).
 
 const HIGHLIGHT = {
   section: 'Reports & analytics',
@@ -195,28 +194,40 @@ const pad = (n: number) => String(n).padStart(2, '0');
     </div>
   </section>
 
-  {/* The hero's own copy, moved out of the scene so the scene can be seen
-      (preview feedback). Word for word what the hero carried; the buttons are
-      the first thing after the scrub. */}
+  {/* The hero's own copy, moved out of the scene so the scene can be seen,
+      and the video beside it: the page goes straight from the hero to the
+      video (preview feedback). Word for word what the hero carried; the
+      buttons are the first thing after the scrub. */}
   <section class="sec hero-intro">
     <div class="split">
-      <div style="display:grid;gap:16px;align-content:start">
+      <div style="display:grid;gap:18px;align-content:start;justify-items:start">
         <span class="eyebrow" style="opacity:.6">MRP for Shopify manufacturers</span>
         <p class="sub" style="color:var(--ink-muted);max-width:52ch">
           Manuva replaces the spreadsheets and legacy MRP your team is fighting with. Inventory, BOMs, work
           orders, and stock control — connected, live, and built for the floor.
         </p>
+        <div class="row hero-intro-ctas">
+          <a class="pill" href={APP_URL}>Start free</a>
+          <a class="pill ghost" href="/about#contact">Book a demo</a>
+        </div>
       </div>
-      <div class="row hero-intro-ctas">
-        <a class="pill" href={APP_URL}>Start free</a>
-        <a class="pill ghost" href="/about#contact">Book a demo</a>
+      <div class="lead-media">
+        <span class="eyebrow" style="opacity:.6">See it in 60 seconds</span>
+        {/* The Dave ad (MANUVA-36). A facade, not an embed: the poster and
+            button are static markup and nothing reaches youtube-nocookie.com
+            until someone clicks. The poster is the ad's own end card, self-
+            hosted. The caption carries "What Manuva actually does", the h2 of
+            the section the explainer once replaced — the sentence stays on the
+            page. */}
+        <Video
+          youtubeId="JXB4FgHRm_Y"
+          poster="/video/dave-ad-poster.jpg"
+          alt="Claymation: Dave relaxing with a mug of tea and his feet on his desk, beside the Manuva logo and the line Less chaos. More making."
+          title="What Manuva actually does"
+        />
       </div>
     </div>
   </section>
-
-  <div class="marquee" aria-label="Highlights">
-    <div class="track">{MARQUEE.map((w) => <span>{w}</span>)}</div>
-  </div>
 
   {/* The stage's lead-in. This heading and sub used to head an eight-item
       platform grid below the stage — which restated the same six domains
@@ -228,31 +239,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
       cold, and its four sentences that were not already on /features moved
       there. */}
   <section class="sec stage-lead">
-    <div class="split">
-      <div style="display:grid;gap:18px;align-content:start">
-        <span class="eyebrow" style="opacity:.6">The platform</span>
-        <h2 class="disp">Everything your shop needs. Nothing it doesn't.</h2>
-        <p class="sub" style="color:var(--ink-muted);max-width:58ch">
-          One system covering the whole shop floor — from raw materials in to finished goods out. No modules to
-          bolt on, no consultants to hire.
-        </p>
-        <a class="pill ink" href="/features" style="justify-self:start">Explore the full feature set &rarr;</a>
-      </div>
-      <div class="lead-media">
-        <span class="eyebrow" style="opacity:.6">See it in 32 seconds</span>
-        {/* The explainer. A facade, not an embed: the poster and button are
-            static markup and nothing reaches youtube-nocookie.com until someone
-            clicks. The caption carries "What Manuva actually does", which was
-            the h2 of the section this once replaced — the sentence stays on the
-            page. MANUVA-36 swaps the YouTube id and poster for the Dave cut. */}
-        <Video
-          youtubeId="Vr4rkatHggA"
-          poster="/video/explainer-poster.jpg"
-          alt="Manuva title card reading Manufacturing operations software — What is Manuva?"
-          title="What Manuva actually does"
-        />
-      </div>
-    </div>
+    <span class="eyebrow" style="opacity:.6">The platform</span>
+    <h2 class="disp">Everything your shop needs. Nothing it doesn't.</h2>
+    <p class="sub" style="color:var(--ink-muted);max-width:58ch">
+      One system covering the whole shop floor — from raw materials in to finished goods out. No modules to
+      bolt on, no consultants to hire.
+    </p>
+    <a class="pill ink" href="/features" style="justify-self:start">Explore the full feature set &rarr;</a>
   </section>
 
   {/* The pinned stage. Six panels, one pin, each clipping in over the last on

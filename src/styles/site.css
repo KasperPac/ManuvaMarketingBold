@@ -744,12 +744,15 @@ main [id]{scroll-margin-top:80px}
 /* end Dave hero */
 
 /* The hero's own copy, in the band directly under it (MVBOLD-29). */
-.hero-intro .split{align-items:center}
+.hero-intro .split{align-items:center;row-gap:40px}
 .hero-intro-ctas{flex-wrap:wrap}
 
-/* The explainer, in the stage lead-in since MVBOLD-29. */
+/* The video, beside the hero's own copy in the band straight under the hero
+   (MVBOLD-29). With the marquee gone, that band and the stage lead-in are two
+   paper sections in a row, so the lead-in takes the site's hairline. */
 .lead-media{display:grid;gap:12px;min-width:0;align-content:start}
-.stage-lead .site-video{margin:0;width:100%;max-width:none}
+.hero-intro .site-video{margin:0;width:100%;max-width:none}
+.hero-intro + .stage-lead{border-top:2px solid color-mix(in srgb,currentColor 12%,transparent)}
 
 /* The header, docked. Transparent over the hero, an opaque bar once it is
    over anything else — Motion.astro fills in the background and ink of the
