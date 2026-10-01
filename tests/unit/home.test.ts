@@ -239,7 +239,9 @@ test('the explainer is a click-to-load facade, not an embedded player', () => {
   expect(h).toContain('data-youtube-id="JXB4FgHRm_Y"');
   expect(h, 'an iframe in the static markup would load YouTube on page load').not.toContain('<iframe');
   expect(h, 'the self-hosted asset is gone').not.toContain('/video/explainer.mp4');
-  expect(h, 'the poster still has to render before any click').toContain('/video/dave-ad-poster.jpg');
+  // A scene from the ad (D2), not its end card: the end card is the hero's
+  // own calm frame, shown again straight after the scrub (MVBOLD-31).
+  expect(h, 'the poster still has to render before any click').toContain('/video/dave-ad-scene.jpg');
 });
 
 test('the dashboard screenshot has left the home page for /product', () => {
