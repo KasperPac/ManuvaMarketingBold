@@ -88,6 +88,16 @@ test('the hero opens on frame 0 as a plain, high-priority picture', () => {
   expect(hero, 'the LCP image must not be lazy').not.toContain('loading="lazy"');
 });
 
+test('the scroll hint is decoration in CSS, not a text node', () => {
+  // It is exempt from the full-strength opacity override because its opacity
+  // is its fade. feat-contrast-cascade.test.ts allows that only for elements
+  // that carry no text, so the word comes from CSS, as the ghost numerals do.
+  const hero = daveHero();
+  expect(hero).toContain('<span class="dave-hint" aria-hidden="true"></span>');
+  const css = readFileSync('src/styles/site.css', 'utf8');
+  expect(css).toMatch(/\.dave-hint::before\s*\{\s*content:\s*"Scroll"\s*\}/);
+});
+
 test('the hero carries no navy', () => {
   // field-separation.test.ts: ink is structure, never a hero. The scrim is
   // --ink-strong, not --field-ink.

@@ -387,8 +387,9 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid cur
    chasing them individually is how one gets missed. The decorative numerals
    and the tick bar keep their opacity: they carry no text and are
    aria-hidden. So does the Dave hero's "Scroll" hint (MVBOLD-29): it is
-   aria-hidden, sits on the dark scrim rather than the field, and its opacity
-   is how it fades out once the scrub starts. */
+   aria-hidden, its word comes from CSS rather than a text node, it sits on
+   the dark scrim rather than the field, and its opacity is how it fades out
+   once the scrub starts. */
 .mv-field-cobalt *:not(.ghostnum):not(.pnum):not(.ticks):not(.ticks i):not(.dave-hint),
 .mv-field-violet *:not(.ghostnum):not(.pnum):not(.ticks):not(.ticks i):not(.dave-hint),
 .mv-field-flare  *:not(.ghostnum):not(.pnum):not(.ticks):not(.ticks i):not(.dave-hint){opacity:1!important}
@@ -704,6 +705,9 @@ main [id]{scroll-margin-top:80px}
 .dave-head,.dave-foot{display:grid;gap:18px;justify-items:start;min-width:0}
 .hero.dave h1{font-size:min(15.5vw,calc((100vw - 40px) / 7.9));max-width:none}
 .dave-hint{display:none;position:absolute;left:50%;bottom:12px;transform:translateX(-50%);font:600 11px/1 var(--font-body);letter-spacing:.14em;text-transform:uppercase;opacity:.8;pointer-events:none}
+/* The word is decoration, so it lives in CSS like the ghost numerals: no text
+   node to select, copy or read out (feat-contrast-cascade.test.ts). */
+.dave-hint::before{content:"Scroll"}
 @media(min-width:721px){.dave-copy{padding:112px 32px 48px}.hero.dave h1{font-size:min(11vw,112px,calc((100vw - 64px) / 7.9))}}
 @media(max-aspect-ratio:4/5){.dave-scene img{object-position:50% 50%}}
 /* A landscape phone is ~390px tall: the poster's padding and a width-sized
