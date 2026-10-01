@@ -33,6 +33,15 @@ behind and does not contain `about.html`, `alternatives/`, `llms.txt`,
 `robots.txt`, `sitemap.xml` or `_redirects`. Read copy with `git show
 origin/master:<path>`, and treat that repo as read-only.
 
+That repo is not always on disk. The parity gate takes `PARITY_OLD_REPO` to
+point at a clone elsewhere (`git clone https://github.com/KasperPac/ManuvaMarketing.git`).
+
+The home hero's frames (`public/hero/dave/`) are cut from `T1.mp4` in
+`C:\dev\MarketingAndPromotion\video\manuva-stopmotion\flow-kit\downloads` by
+`npm run hero:frames` (needs ffmpeg). The clip is not in this repo and Vercel
+never sees it, so rerun the script by hand and commit the frames whenever the
+clip or `scripts/hero-frames.json` changes.
+
 ## Deployment
 
 Vercel, from `master`. `astro.config.mjs` sets `build.format: 'file'`, so every
