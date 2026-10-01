@@ -77,15 +77,19 @@ const daveHero = () => {
   return start < 0 ? '' : h.slice(start, h.indexOf('</section>', start));
 };
 
-test('the hero opens on frame 0 as a plain, high-priority picture', () => {
+test('the hero opens on the first frame as a plain, high-priority picture', () => {
   const hero = daveHero();
   expect(hero, 'hero not found').not.toBe('');
-  expect(hero).toMatch(/data-frames="24"/);
-  expect(hero).toMatch(/data-calm="\d+"/);
+  // The calm moment, in seconds of the clip: the highlight and the logo land there.
+  expect(hero).toMatch(/data-calm="5\.5"/);
+  expect(hero).not.toContain('data-frames');
   expect(hero).toContain('<div class="dave-scene"><picture>');
-  expect(hero).toContain('srcset="/hero/dave/p/000.webp"');
-  expect(hero).toMatch(/<img[^>]+src="\/hero\/dave\/l\/000\.webp"[^>]+fetchpriority="high"/);
+  expect(hero).toContain('srcset="/hero/dave/p.webp"');
+  expect(hero).toMatch(/<img[^>]+src="\/hero\/dave\/l\.webp"[^>]+fetchpriority="high"/);
   expect(hero, 'the LCP image must not be lazy').not.toContain('loading="lazy"');
+  // The scrub clip is the script's to add, after `load`: the markup is the
+  // still that reduced-motion and no-JS visitors keep.
+  expect(hero).not.toContain('<video');
 });
 
 test('the hero carries only the tagline and the logo', () => {

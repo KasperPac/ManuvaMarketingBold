@@ -163,22 +163,22 @@ const pad = (n: number) => String(n).padStart(2, '0');
   headInk="light"
   {schema}
 >
-  {/* Dave's office (MVBOLD-29). Frame 0 of the chaos-to-calm sequence is plain
-      markup: it is the LCP image and the whole hero for reduced-motion and
-      no-JS visitors. Motion.astro pins .dave-pin and steps the <img> through
-      the rest as the page scrolls. The hero carries only the tagline and the
-      Manuva logo, which is painted onto the lime wall when the room turns calm
-      — .dave-scene is a box with the frame's own aspect, so the logo sits in
-      the room's coordinates rather than the viewport's. The eyebrow, sub-copy
-      and buttons are the band directly below; the explainer is in the stage
-      lead-in. */}
-  <section class="hero dave mv-field-cobalt" data-frames={heroFrames.count} data-calm={heroFrames.calm}>
+  {/* Dave's office (MVBOLD-29). The first frame of the chaos-to-calm clip is
+      plain markup: it is the LCP image and the whole hero for reduced-motion,
+      Save-Data and no-JS visitors. Motion.astro pins .dave-pin and, after
+      load, lays the clip itself over the still and scrubs it with the scroll.
+      The hero carries only the tagline and the Manuva logo, which is painted
+      onto the lime wall when the room turns calm (data-calm, in seconds of
+      the clip) — .dave-scene is a box with the frame's own aspect, so the logo
+      sits in the room's coordinates rather than the viewport's. The eyebrow,
+      sub-copy and buttons are the band directly below, beside the video. */}
+  <section class="hero dave mv-field-cobalt" data-calm={heroFrames.calm}>
     <div class="dave-pin">
       <div class="dave-scene">
         <picture>
-          <source media="(max-aspect-ratio: 4/5)" srcset="/hero/dave/p/000.webp" width="500" height="1080" />
+          <source media="(max-aspect-ratio: 4/5)" srcset="/hero/dave/p.webp" width="500" height="1080" />
           <img
-            src="/hero/dave/l/000.webp"
+            src="/hero/dave/l.webp"
             width="1280"
             height="720"
             fetchpriority="high"

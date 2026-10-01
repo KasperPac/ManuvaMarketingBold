@@ -6,7 +6,8 @@
   dependency of this work.
 - **Status:** design approved in chat 2026-10-01. Revised the same day: the hero
   is one before→after transformation clip, not the ad's story shots (§2), and the
-  scrim is neutral ink, not navy (§3.2).
+  scrim is neutral ink, not navy (§3.2). Revised again after an A/B the same
+  day: the scrub plays the clip itself, not a set of stills (§3.3, §4).
 
 ## 1. What and why
 
@@ -33,6 +34,7 @@ without moving a single CTA out of reach.
 | Eyebrow, sub-copy, buttons | Word for word, in a band directly under the hero, beside the video. |
 | Marquee | **Removed** from the home page (preview feedback: its drift under the scrubbing hero was too distracting). Every fact it carried is still stated on /features or /pricing; the parity report is unchanged by its removal. |
 | Headline | **Less chaos. More making.** (the ad's own end line). Was "Make it. Track it. Ship it." |
+| Scrub | **The clip itself, seeked by scroll**: all 192 frames, eased. Picked in an A/B against 24 stills, 96 stills and a cross-fade of the 24 (§3.3). |
 | Video | **The Dave ad** (YouTube `JXB4FgHRm_Y`, 60 s, "Manuva - Less Chaos, More Making"), in the band straight under the hero with the caption "See it in 60 seconds". Poster: the ad's end card, self-hosted. Replaces the old explainer (MANUVA-36). |
 
 `before.png` and `after.png` are the same 2752×1536 set from the same camera;
@@ -44,10 +46,11 @@ single-camera transformation possible.
 ### 3.1 Hero
 
 ```
-<section class="hero dave mv-field-cobalt" data-frames="N" data-calm="K">
+<section class="hero dave mv-field-cobalt" data-calm="T">
   <div class="dave-pin">                      ← sticky, 100dvh, paints --ink-strong
     <div class="dave-scene">                  ← the frame's own aspect, sized to cover
-      <picture>…frame 0…</picture>            ← the LCP image
+      <picture>…first frame…</picture>        ← the LCP image, and the still
+      <video>                                 ← added after load; the scrub (§4.3)
       <div class="dave-logo"><Logo/></div>    ← placed in the room's coordinates
     </div>
     <div class="dave-copy"><h1>…</h1></div>   ← the tagline; its ::before is the fade
@@ -61,19 +64,19 @@ single-camera transformation possible.
   hero contract (`tests/e2e/hero-contract.spec.ts`: the home hero carries a field
   that paints) and the header's light ink with no special case (`headInk="light"`
   stays). The cobalt is never seen: the pin paints `--ink-strong` behind the
-  frame, which is the placeholder while frame 0 loads and what the docked header
+  frame, which is the placeholder while the first frame loads and what the docked header
   takes as its bar colour over the scene. The pin is `100dvh` (falling back to
   `100svh`), so no band of the field shows beneath it when a phone's URL bar
   collapses.
 - The ghost numeral "06" comes off the hero, and so does the eyebrow: the home
   hero is the hero contract's documented exception.
 - H1: `Less chaos. <span class="hl keep">More making.</span>`
-  - With JS and motion on, the hero carries `data-scrub="pre"` until frame K, and
+  - With JS and motion on, the hero carries `data-scrub="pre"` until the clip reaches T, and
     the `.hl` chip on "More making." is hidden until then. It lands as the walls
     turn lime, together with the logo.
   - With no JS or with reduced motion the chip is simply shown. Progressive
     enhancement: the markup is the finished state. The logo stays hidden there:
-    the static scene is the chaos frame, and the grey wall is not its moment.
+    the still scene is the chaos frame, and the grey wall is not its moment.
 - `.dave-scene` does `object-fit: cover` by hand (a box with the frame's aspect,
   `max(100%, 100dvh × aspect)` wide, its 31% point on the pin's 31% point), so
   the logo is positioned in the room's coordinates and stays on the same patch
@@ -102,8 +105,8 @@ single-camera transformation possible.
   cobalt field's full-strength override pins descendants at opacity 1.
   Landscape: 59% across, 21% down, 27% of the scene's width. Portrait: 12%
   across, 11% down, 76% wide, clear of the header bar.
-- **Frame set** follows the viewport's shape: the portrait set at
-  `(max-aspect-ratio: 4/5)`, the landscape set otherwise.
+- **Shape** follows the viewport's shape: the portrait clip and still at
+  `(max-aspect-ratio: 4/5)`, the landscape ones otherwise.
 - **Known gap:** on phones the h1 (about 42px at 375px wide) is smaller than the
   section h2s (12vw, 45px): the unbreakable highlight cannot be larger in that
   width. Logged as MANUVA-38 for a design decision.
@@ -111,21 +114,32 @@ single-camera transformation possible.
 ### 3.3 Scrub behaviour
 
 - The hero is `100svh` plus a scrub length of `150svh`; the inner stage is sticky.
-- Progress `p` is the hero's scroll offset over its scroll length, damped by the
-  existing `TAU = 90 ms` follower in `Motion.astro`.
-- Target frame = `round(p_damped / 0.9 × (N − 1))` (the last 10% holds the final
-  frame).
-- The scrub **plays through the in-between poses** to reach it: each swap steps
-  a sixth of the remaining gap (at least one pose), at **at most 12 swaps a
-  second**, the stop-motion rate, over **24 poses**. Tuned on the preview from
-  both sides: jumping straight to the target at 12 a second skipped up to seven
-  poses at once and read as rigid; playing 48 poses at 24 a second let Dave's
-  mouth flicker on a fast scroll and read as hectic.
-- No blending between frames. Each step is a hard swap.
-- K, the frame where the room first reads as calm (walls lime), is picked by eye
-  from the clip and recorded in the manifest (§4.1). It drives the highlight only.
+- **The scrub plays the clip itself**: all 192 frames of T1, positioned by
+  scroll, over the still. Progress `p` is the hero's scroll offset over its
+  scroll length, damped by `Motion.astro`'s follower with the scrub's own time
+  constant, **160 ms** (`SCRUB_TAU`; the rest of the page uses 90 ms).
+- Target time = `min(p_damped / 0.9, 1) × (duration − 0.02 s)` (the last 10%
+  holds the final frame; 0.02 s short of the end, which is past the last frame).
+- One seek at a time: a seek in flight finishes, and the next goes to wherever
+  the follow has reached. Times within 1/60 s of the target are left alone so
+  the loop can settle.
+- Why the clip, after three rounds on the preview:
+  - 24 poses jumping straight to the target at 12 a second skipped up to seven
+    poses at once and read as rigid.
+  - 48 poses played through at 24 a second let Dave's mouth flicker on a fast
+    scroll and read as hectic.
+  - 24 poses played through at 12 a second still moved two poses at once on a
+    single wheel notch, with no ease in or out.
+  - An A/B (2026-10-01) of 24 stills, 96 stills, a cross-fade of the 24 and
+    the clip picked the clip. One notch is now a short eased run of frames.
+    The cross-fade cost nothing extra, but anything moving fast showed twice
+    mid-fade.
+- The calm moment, `T = 5.5 s` (walls first fully lime, picked by eye on a
+  contact sheet), is recorded in the manifest (§4.1) and written as
+  `data-calm`. It drives the highlight and the logo, and is compared with the
+  time actually on screen, not the target.
 - The last frame holds for the final ~10% of the scroll, then the pin releases
-  into the marquee.
+  into the band.
 
 ### 3.4 Under the hero
 
@@ -140,74 +154,87 @@ single-camera transformation possible.
 
 ### 3.5 Fallbacks
 
-- **Reduced motion** (`:root[data-motion="off"]`): no pin, hero is `100svh`, static
-  frame 0, highlight chip shown. Same image as first paint, so nothing swaps.
+- **Reduced motion** (`:root[data-motion="off"]`): no pin, hero is `100svh`, the
+  still first frame, highlight chip shown. No clip is created or fetched.
+- **Save-Data, or an effective connection type of `2g`/`3g`:** the same still
+  hero. The clip is 2–3 MB, and a still costs nothing extra.
 - **No JS:** identical to reduced motion; the `<picture>` and copy are plain markup.
-- **Frames fail to load:** the scrub holds the last decoded frame; the copy and CTAs
-  never depend on frames.
+- **The clip fails to load or decode:** the hero flattens to the same still
+  state: pin released, clip removed, highlight shown. The copy and CTAs never
+  depend on the clip.
+- **A rotation whose new clip fails:** the clip already on screen stays, cropped
+  by `object-fit`, and keeps scrubbing.
 
-## 4. Frames
+## 4. Media
 
 ### 4.1 Pipeline
 
-`scripts/hero-frames.mjs`, in the style of `scripts/prep-photos.mjs`:
+`scripts/hero-frames.mjs` (`npm run hero:frames`):
 
 1. Reads T1 from a path given on the command line (default
    `../MarketingAndPromotion/video/manuva-stopmotion/flow-kit/downloads/T1.mp4`).
-2. Reads a committed manifest, `scripts/hero-frames.json`: `in`/`out` trim seconds,
-   frame count, portrait focal x, and `calm` (K).
-3. Extracts evenly spaced frames with ffmpeg, crops (landscape: full frame;
-   portrait: 390:844 window centred on the focal x), resizes and encodes WebP q65
-   with sharp.
-4. Writes `public/hero/dave/l/NNN.webp` and `public/hero/dave/p/NNN.webp`.
-5. Fails if the clip is missing, if total weight exceeds the budget, or if a
-   frame is not the expected size.
+2. Reads a committed manifest, `scripts/hero-frames.json`: `calm` (T, in
+   seconds), portrait focal x, still quality, video CRF and keyframe spacing,
+   and the budgets.
+3. Writes, per shape (landscape: the full frame; portrait: a 500×1080 window
+   centred on the focal x):
+   - `public/hero/dave/<set>.webp`, the first frame, WebP q60 (sharp);
+   - `public/hero/dave/<set>.mp4`, every frame, H.264 CRF 25, a keyframe at
+     least every 4 frames, yuv420p, no audio, `+faststart` (ffmpeg).
+4. Reads each MP4 back (`mp4Info` in `scripts/hero-frames-lib.mjs`) and fails if
+   it is not the expected size or exceeds its budget.
 
 The clip lives untracked in another repo, so the script runs by hand and its
 output is committed. Vercel never sees the clip.
 
-### 4.2 Sets and budget
+### 4.2 Shapes and budget
 
-| Set | Size | Per frame (measured on T1, WebP q60) | Budget |
-|---|---|---|---|
-| Landscape | 1280×720 | 43 KB | ≤ 2.1 MB (1,036 KB at 24 poses) |
-| Portrait | crop of the 1080p download, 500×1080 | 25 KB | ≤ 1.3 MB (588 KB at 24 poses) |
+| Shape | Size | Still | Clip (measured on T1) | Budget |
+|---|---|---|---|---|
+| Landscape | 1280×720 | 48 KB | 3,317 KB | ≤ 3,500 KB |
+| Portrait | crop of the 1080p download, 500×1080 | 28 KB | 1,917 KB | ≤ 2,100 KB |
 
-The landscape budget was 1.6 MB, estimated from the ad's A1 clip. T1 carries more
-clay grain and came in at 2.07 MB. Lower quality barely moves it, and a denoise
-that does (a 3px median) strips the fingerprint texture the hero is for. All of
-it loads after `load`, so it does not touch LCP.
-
-- 1280×720 because that is the clip's native generation size; the 1080p download
-  is an upscale. Phone sharpness depends on the 1080p download.
-- WebP, not AVIF: AVIF was 13% smaller on these frames and decodes slower, which
-  costs frames mid-scroll.
-- Astro reads the frame count at build time and writes `data-frames` / `data-calm`
-  into the markup. No manifest fetch at runtime.
+- 1280×720 because that is the clip's native generation size; the 1080p
+  download is an upscale. Phone sharpness depends on the 1080p download.
+- The keyframe spacing is what makes scrubbing backwards as smooth as forwards:
+  a seek decodes from the keyframe before it, so no seek decodes more than
+  four frames.
+- H.264, the one codec every browser decodes. The clip loads after `load`, so
+  its weight does not touch LCP. It does cost about 2.2 MB more on desktop
+  (1.3 MB more on phones) than the 24 stills did; that was the trade accepted
+  in the A/B.
 
 ### 4.3 Loading
 
-- Frame 0 of each set is the `<picture>` in the markup with `fetchpriority="high"`.
-  It is the LCP element and the only hero bytes before `load`.
-- After `load`, frames fetch coarse to fine: every 8th and the last first (4 frames),
-  then the gaps. The scrub works off the coarse set immediately.
-- `navigator.connection.saveData` or an effective type of `2g`/`3g` stops after the
-  coarse pass.
-- Rendering swaps the one `<img>`'s `src`. The next frame is decoded off-screen
-  with `img.decode()` before the swap. No canvas and no bitmap cache, so memory
-  stays flat on phones.
+- The first frame of each shape is the `<picture>` in the markup with
+  `fetchpriority="high"`. It is the LCP element and the only hero bytes before
+  `load`.
+- After `load`, `Motion.astro` adds a muted, inline, `aria-hidden` `<video>` over
+  the still and fetches the shape's clip **whole**, then plays it from a blob
+  URL. Every seek is a local decode: no range requests mid-scroll, and no
+  dependence on a browser's preload policy.
+- The video stays hidden (`visibility`, which the cobalt field's full-strength
+  opacity override does not touch) until its first seek lands
+  (`data-video="ready"`). Until then the still is the picture.
+- iOS Safari paints nothing for a video that has never played, so the clip is
+  played and paused once when its metadata arrives. Muted inline playback is
+  always allowed.
+- A rotation across `(max-aspect-ratio: 4/5)` fetches the other shape's clip.
+  The current one stays up until the new one is ready, and turning back before
+  it arrives keeps the current one.
 
 ## 5. Code touch-points
 
 | File | Change |
 |---|---|
-| `src/pages/index.astro` | Hero markup, H1, stage-lead split with the video |
-| `src/components/site/Motion.astro` | New step `5 · scrub` in the existing loop; frame loader |
-| `src/lib/scrub.ts` (new) | Pure maths: progress → frame index, rate cap, coarse-to-fine order |
-| `src/styles/site.css` | `.hero.dave` layouts, scrims, hint, reduced-motion rules |
-| `scripts/hero-frames.mjs` (new) | Frame pipeline |
-| `scripts/hero-frames.json` (new) | Trim, count, focal x, calm frame |
-| `public/hero/dave/{l,p}/` (new) | Committed frames |
+| `src/pages/index.astro` | Hero markup, H1, the band under the hero with the video |
+| `src/components/site/Motion.astro` | Step `5 · scrub` in the existing loop; clip loader |
+| `src/lib/scrub.ts` (new) | Pure maths: progress → clip time, seek tolerance, the scrub's follow |
+| `src/styles/site.css` | `.hero.dave` layouts, scrims, hint, clip visibility, reduced-motion rules |
+| `scripts/hero-frames.mjs` (new) | Media pipeline |
+| `scripts/hero-frames-lib.mjs` (new) | Portrait window, MP4 box reader |
+| `scripts/hero-frames.json` (new) | Calm time, focal x, encoding settings, budgets |
+| `public/hero/dave/` (new) | Committed stills and clips |
 | `tests/unit/home.test.ts` | H1 and explainer-position assertions move with the design |
 
 No token is redeclared. The scrim uses `--ink-strong`; the highlight uses the
@@ -215,26 +242,39 @@ existing `.hl` (lime field, `--on-lime` ink).
 
 ## 6. Testing
 
-- **Unit (vitest)** on `src/lib/scrub.ts`: frame index at 0, 1 and mid-progress;
-  the 12 fps cap; coarse-to-fine order covers every frame exactly once.
+- **Unit (vitest)** on `src/lib/scrub.ts`: clip time at 0, 1 and mid-progress,
+  the end hold and end pad, the seek tolerance, the 160 ms follow.
+- **Unit (vitest)** on the committed media: each still is its shape's size, as
+  WebP; each clip is H.264 at its shape's size, 192 frames, no audio, keyframes
+  at most 4 apart, `moov` before `mdat`, within budget.
 - **Unit (vitest)** on the built `dist/index.html`: H1 reads "Less chaos. More
-  making." with the `.hl` on "More making."; the explainer facade sits in the
-  stage lead-in, not the hero; frame 0 is a `<picture>` with
-  `fetchpriority="high"`; no navy anywhere in the hero.
-- **E2E (Playwright)**, home page:
-  - Both CTAs visible on load at 1280×900 and 390×844.
-  - Scrolling 50% through the hero changes the frame `src`.
-  - Reduced motion: the hero is not pinned, `src` does not change on scroll,
-    highlight visible.
-  - JS disabled: image and copy visible.
+  making." with the `.hl` on "More making."; `data-calm="5.5"`; the first frame
+  is a `<picture>` with `fetchpriority="high"`; no `<video>` in the markup; the
+  video facade sits in the band, not the hero; no navy anywhere in the hero.
+- **E2E (Playwright)**, home page (`tests/e2e/dave-hero.spec.ts`):
+  - Scrolling 50% through the hero seeks the clip to 0.5 / 0.9 of its length,
+    with the stage pinned.
+  - One 100px wheel notch lands as at least six seeks, none more than 40% of the
+    move. This was checked to fail with the follow set to 1 ms, where it lands
+    in one step.
+  - Highlight and logo land at calm and leave on the way back. The tagline
+    keeps 3:1 over the calm room, measured on pixels.
+  - Only the first frame is fetched before `load`.
+  - Portrait gets the portrait clip; rotation swaps it; a failed portrait clip
+    keeps the landscape one.
+  - A reload mid-scrub seeks to that position.
+  - A failed clip flattens the hero, and the loop goes idle past the hero.
+  - Save-Data and reduced motion fetch no clip and show the highlight. With no
+    JS, the still and copy render.
   - The existing hero-contract, heading-scale, motion-toggle and axe suites pass.
 - **Parity gate** (`npm run parity`). The old H1 came from the design handoff, not
   the old site, so the swap is not expected to trip it. If it does, the entry goes
   into `scripts/parity/ignore.json` with its reason.
 - **Performance:** Lighthouse on the Vercel preview before and after. LCP and CLS
   must not regress against the current home page.
-- **Manual:** scrub feel at 1440, 1024 and 390; header ink over the hero; the
-  highlight lands as the walls turn lime.
+- **Manual:** scrub feel at 1440, 1024 and 390, and on a real iPhone (the
+  play-then-pause priming is the part no headless browser exercises); header
+  ink over the hero; the highlight lands as the walls turn lime.
 
 ## 7. Out of scope
 

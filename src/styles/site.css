@@ -688,7 +688,7 @@ main [id]{scroll-margin-top:80px}
    to the page. clip still clips and is not a scroll container. */
 .hero.dave{display:block;align-content:start;overflow:clip;padding:0;gap:0;min-height:100svh}
 /* The pin paints --ink-strong behind the frame: it is the placeholder while
-   frame 0 loads, and it is what the docked header picks up from under itself
+   the first frame loads, and it is what the docked header picks up from under itself
    (Motion.astro's headColor), so the bar over the scene is the scene's ink
    rather than the cobalt field hidden behind the frames. Its height is the
    dynamic viewport (svh first, as the fallback): at 100svh, once a phone's
@@ -701,6 +701,12 @@ main [id]{scroll-margin-top:80px}
    as the sides crop. The portrait set is already cropped on Dave. */
 .dave-scene{position:absolute;left:31%;top:50%;transform:translate(-31%,-50%);aspect-ratio:16/9;width:max(100%,calc(100svh * 16 / 9));width:max(100%,calc(100dvh * 16 / 9))}
 .dave-scene picture,.dave-scene img{display:block;width:100%;height:100%}
+/* The scrub clip (Motion.astro adds it after load) lies over the still, in the
+   same box, and shows only once its first seek has landed: until then, and
+   while its source is changing, the still underneath is the picture.
+   visibility, not opacity, which the field's full-strength override pins. */
+.dave-scene video{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;visibility:hidden}
+.hero.dave[data-video="ready"] .dave-scene video{visibility:visible}
 @media(max-aspect-ratio:4/5){
   .dave-scene{left:50%;transform:translate(-50%,-50%);aspect-ratio:500/1080;width:max(100%,calc(100svh * 500 / 1080));width:max(100%,calc(100dvh * 500 / 1080))}
 }

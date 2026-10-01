@@ -1,4 +1,4 @@
-// Cut the Dave hero's frames from the transformation clip (MVBOLD-29).
+// Cut the Dave hero's media from the transformation clip (MVBOLD-29).
 //
 // Usage:  npm run hero:frames [-- path/to/T1.mp4]
 //
@@ -6,17 +6,20 @@
 // MarketingAndPromotion repo, so Vercel never sees it. Run this by hand and
 // commit public/hero/dave/. Needs ffmpeg on PATH.
 //
-// Two sets, because one crop cannot serve both shapes of screen:
-//   l/  the full 16:9 frame at 1280x720, the clip's native generation size
-//       (the 1080p download is an upscale, so going bigger adds bytes only)
-//   p/  a 500x1080 window from the full-height 1080p frame, centred on Dave,
-//       for portrait phones
+// Two shapes, because one crop cannot serve both shapes of screen:
+//   l  the full 16:9 frame at 1280x720, the clip's native generation size
+//      (the 1080p download is an upscale, so going bigger adds bytes only)
+//   p  a 500x1080 window from the full-height 1080p frame, centred on Dave,
+//      for portrait phones
+// and two files per shape:
+//   <set>.webp  the first frame, the LCP image and the reduced-motion still
+//   <set>.mp4   every frame, which the scroll scrubs
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import sharp from 'sharp';
-import { frameTimes, portraitLeft } from './hero-frames-lib.mjs';
+import { mp4Info, portraitLeft } from './hero-frames-lib.mjs';
 
 const M = JSON.parse(readFileSync('scripts/hero-frames.json', 'utf8'));
 const clip = process.argv[2] ?? M.clip;
@@ -26,43 +29,53 @@ if (!existsSync(clip)) {
 }
 
 const OUT = 'public/hero/dave';
-const pad = (i) => String(i).padStart(3, '0');
+rmSync(OUT, { recursive: true, force: true });
+mkdirSync(OUT, { recursive: true });
+
 const tmp = mkdtempSync(join(tmpdir(), 'hero-frames-'));
+const first = join(tmp, 'first.png');
+execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', clip, '-frames:v', '1', first]);
+const { width, height } = await sharp(first).metadata();
+
+const winW = Math.round((height * M.portrait.width) / M.portrait.height);
+const left = portraitLeft(width, winW, Math.round((M.portrait.focalX * width) / 1920));
+const crop = {
+  l: { still: (s) => s, vf: `scale=${M.landscape.width}:${M.landscape.height}` },
+  p: {
+    still: (s) => s.extract({ left, top: 0, width: winW, height }),
+    vf: `crop=${winW}:${height}:${left}:0,scale=${M.portrait.width}:${M.portrait.height}`,
+  },
+};
+
+let bad = false;
 for (const set of ['l', 'p']) {
-  rmSync(join(OUT, set), { recursive: true, force: true });
-  mkdirSync(join(OUT, set), { recursive: true });
-}
+  const want = set === 'l' ? M.landscape : M.portrait;
+  await crop[set].still(sharp(first))
+    .resize(want.width, want.height)
+    .webp({ quality: M.poster.quality })
+    .toFile(join(OUT, `${set}.webp`));
 
-for (const [i, t] of frameTimes(M.in, M.out, M.count).entries()) {
-  const png = join(tmp, `${pad(i)}.png`);
-  // -ss before -i is fast, and frame-accurate since ffmpeg 2.1 because it
-  // decodes from the previous keyframe rather than snapping to it.
-  execFileSync('ffmpeg', ['-v', 'error', '-y', '-ss', String(t), '-i', clip, '-frames:v', '1', png]);
-  const { width, height } = await sharp(png).metadata();
+  // -g sets the keyframe spacing: a seek decodes from the keyframe before it,
+  // so a short gap is what keeps a backwards scrub as smooth as a forwards one.
+  // yuv420p and no audio: the profile every browser decodes, and nothing to mute.
+  const mp4 = join(OUT, `${set}.mp4`);
+  execFileSync('ffmpeg', [
+    '-v', 'error', '-y', '-i', clip, '-vf', crop[set].vf, '-an',
+    '-c:v', 'libx264', '-preset', 'slow', '-crf', String(M.video.crf), '-g', String(M.video.gop),
+    '-pix_fmt', 'yuv420p', '-movflags', '+faststart', mp4,
+  ]);
 
-  await sharp(png)
-    .resize(M.landscape.width, M.landscape.height)
-    .webp({ quality: M.quality })
-    .toFile(join(OUT, 'l', `${pad(i)}.webp`));
-
-  const winW = Math.round((height * M.portrait.width) / M.portrait.height);
-  const left = portraitLeft(width, winW, Math.round((M.portrait.focalX * width) / 1920));
-  await sharp(png)
-    .extract({ left, top: 0, width: winW, height })
-    .resize(M.portrait.width, M.portrait.height)
-    .webp({ quality: M.quality })
-    .toFile(join(OUT, 'p', `${pad(i)}.webp`));
-}
-rmSync(tmp, { recursive: true, force: true });
-
-let over = false;
-for (const set of ['l', 'p']) {
-  const files = readdirSync(join(OUT, set));
-  const kb = files.reduce((s, f) => s + statSync(join(OUT, set, f)).size, 0) / 1024;
-  console.log(`${set}: ${files.length} frames, ${kb.toFixed(0)} KB (budget ${M.budgetKB[set]} KB)`);
+  const v = mp4Info(readFileSync(mp4));
+  const kb = statSync(mp4).size / 1024;
+  console.log(`${set}: ${v.width}x${v.height}, ${v.samples} frames, ${kb.toFixed(0)} KB (budget ${M.budgetKB[set]} KB)`);
+  if (v.width !== want.width || v.height !== want.height) {
+    console.error(`${set}.mp4 is ${v.width}x${v.height}, expected ${want.width}x${want.height}`);
+    bad = true;
+  }
   if (kb > M.budgetKB[set]) {
-    console.error(`${set} is over budget: lower "quality" in scripts/hero-frames.json and rerun`);
-    over = true;
+    console.error(`${set}.mp4 is over budget: raise "video.crf" in scripts/hero-frames.json and rerun`);
+    bad = true;
   }
 }
-process.exit(over ? 1 : 0);
+rmSync(tmp, { recursive: true, force: true });
+process.exit(bad ? 1 : 0);

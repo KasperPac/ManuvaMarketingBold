@@ -21,7 +21,7 @@
 // scroll cannot strand a transition, and clip-path/transform only.
 ---
 <script>
-  import { canSwap, coarseCount, frameAt, loadOrder, nextFrame } from '../../lib/scrub';
+  import { SCRUB_TAU, needsSeek, timeAt } from '../../lib/scrub';
 
   // Base.astro decided this before first paint and wrote it to
   // <html data-motion>, seeded from prefers-reduced-motion unless the visitor
@@ -37,8 +37,8 @@
   // short enough that the shape still reads as scroll-driven rather than
   // lagging behind the page.
   const TAU = 90;
-  const damp = (cur: number, target: number, dt: number) =>
-    cur + (target - cur) * (1 - Math.exp(-dt / TAU));
+  const damp = (cur: number, target: number, dt: number, tau = TAU) =>
+    cur + (target - cur) * (1 - Math.exp(-dt / tau));
   // Below this the follow has visually arrived; holding the loop open for
   // another 0.05% of travel only costs frames.
   const SETTLED = 0.0005;
@@ -179,128 +179,153 @@
     history.replaceState(null, '', '#' + s.id);
   });
 
-  // 5 · scrub — the Dave hero (MVBOLD-29). One <img> stepping through the
-  // chaos-to-calm frames as the hero's scroll progresses. Frame 0 is already
-  // in the markup; the rest load after `load`, coarse pass first, so the LCP
-  // is one image and the scrub works within a few hundred KB. Swaps are hard
-  // cuts at no more than 12 a second: it is stop-motion, and a faster swap
-  // would read as a smeared video rather than as claymation.
+  // 5 · scrub — the Dave hero (MVBOLD-29). The chaos-to-calm clip itself, all
+  // 192 frames, positioned by scroll. The first frame is the <picture> in the
+  // markup and the LCP; the clip is fetched whole after `load` and played from
+  // a blob, so every seek is a local decode: no range requests mid-scroll and
+  // nothing that depends on a browser's preload policy. Stepping stills was
+  // tried at three rates and an A/B picked the clip: one wheel notch now eases
+  // through a run of frames instead of cutting two poses at once.
   const PORTRAIT = matchMedia('(max-aspect-ratio: 4/5)');
-  const frameUrl = (set: string, i: number) => `/hero/dave/${set}/${String(i).padStart(3, '0')}.webp`;
+  const clipUrl = (set: string) => `/hero/dave/${set}.mp4`;
   const conn = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
   const lean = !!conn && (conn.saveData === true || /(^|-)2g$|^3g$/.test(conn.effectiveType ?? ''));
 
-  const scrubs = [...document.querySelectorAll<HTMLElement>('.hero.dave')].map((h) => {
-    const img = h.querySelector<HTMLImageElement>('.dave-scene img')!;
+  // Reduced motion, Save-Data and slow connections keep the still hero, which
+  // is the markup as it stands: no pin, the first frame, the highlight shown.
+  const scrubs = (reduce || lean ? [] : [...document.querySelectorAll<HTMLElement>('.hero.dave')]).map((h) => {
+    const video = document.createElement('video');
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = 'auto';
+    video.disablePictureInPicture = true;
+    video.tabIndex = -1;
+    // The <img> under it carries the description; this is the same scene.
+    video.setAttribute('aria-hidden', 'true');
+    h.querySelector('.dave-scene picture')!.after(video);
     const o = {
-      h, img,
+      h, video,
       hint: h.querySelector<HTMLElement>('.dave-hint'),
-      n: Number(h.dataset.frames) || 1,
       calm: Number(h.dataset.calm) || 0,
+      // The shape of the clip on screen, or on its way.
       set: PORTRAIT.matches ? 'p' : 'l',
-      loaded: new Set<number>([0]),
-      shown: 0,
-      lastSwap: -Infinity,
+      url: '',
+      // Ready from the first completed seek of a clip until its src changes.
+      ready: false,
+      seeked: false,
+      started: false,
+      dead: false,
       p: null as number | null,
       gen: 0,
     };
-    if (!reduce) {
-      h.style.height = '250svh';
-      h.dataset.scrub = 'pre';
-      h.dataset.set = o.set;
-      // The <source> picked frame 0's crop for first paint. From here the
-      // script owns the choice, so it goes, and the <img> takes the set's URL
-      // directly; the browser already has that file.
-      h.querySelector('.dave-scene source')?.remove();
-      // Only when it differs (the portrait set): re-assigning the URL the
-      // markup is still loading can log a second request for it.
-      if (img.getAttribute('src') !== frameUrl(o.set, 0)) img.src = frameUrl(o.set, 0);
-    }
+    h.style.height = '250svh';
+    h.dataset.scrub = 'pre';
+    h.dataset.set = o.set;
+
+    video.addEventListener('loadedmetadata', () => {
+      // iOS Safari paints nothing for a video that has never played. Muted
+      // inline playback is always allowed; the next seek overrides wherever
+      // it gets to.
+      video.play().then(() => video.pause(), () => {});
+      wake();
+    });
+    video.addEventListener('seeked', () => {
+      if (!o.ready && !o.dead) {
+        o.ready = true;
+        h.dataset.video = 'ready';
+        h.dataset.set = o.set;
+      }
+      wake();
+    });
+    // A clip that cannot be decoded leaves nothing to show.
+    video.addEventListener('error', () => flatten(o));
     return o;
   });
 
   type Scrub = (typeof scrubs)[number];
 
-  // Fetch and decode the set off-screen, four at a time. `gen` lets a set
-  // change abandon a load already in flight. Frame 0 is fetched too unless it
-  // is already loaded (it is, from the markup, for the set the page opened
-  // on; after a rotation it is not, and must pass the same decode guard as
-  // every other frame rather than be written straight into the <img>).
-  async function loadFrames(o: Scrub) {
+  // Back to the still hero for good: no pin, no clip, highlight shown. The
+  // markup underneath is already that state, so this only takes away.
+  function flatten(o: Scrub) {
+    if (o.dead) return;
+    o.dead = true;
+    o.gen++;
+    o.video.removeAttribute('src');
+    o.video.remove();
+    if (o.url) URL.revokeObjectURL(o.url);
+    o.h.style.height = '';
+    delete o.h.dataset.scrub;
+    delete o.h.dataset.video;
+    wake();
+  }
+
+  // `gen` lets a later call (a rotation, or a rotation back) abandon a fetch
+  // still in flight. A failed fetch flattens the hero only if nothing is on
+  // screen yet; after a rotation the clip already showing stays, cropped.
+  async function loadClip(o: Scrub, set: string) {
     const gen = ++o.gen;
-    const order = loadOrder(o.n).filter((i) => !o.loaded.has(i));
-    // On Save-Data or a slow connection, the coarse pass only.
-    const coarse = new Set(loadOrder(o.n).slice(0, coarseCount(o.n)));
-    const queue = lean ? order.filter((i) => coarse.has(i)) : order;
-    const worker = async () => {
-      while (queue.length && gen === o.gen) {
-        const i = queue.shift()!;
-        const im = new Image();
-        im.src = frameUrl(o.set, i);
-        try {
-          await im.decode();
-          if (gen === o.gen) o.loaded.add(i);
-        } catch {
-          // A frame that fails stays out of `loaded`; nearestLoaded never picks it.
-        }
-        wake();
-      }
-    };
-    await Promise.all([worker(), worker(), worker(), worker()]);
+    try {
+      const r = await fetch(clipUrl(set));
+      if (!r.ok) throw new Error(`${r.status}`);
+      const blob = await r.blob();
+      if (gen !== o.gen || o.dead) return;
+      const old = o.url;
+      o.url = URL.createObjectURL(blob.type === 'video/mp4' ? blob : new Blob([blob], { type: 'video/mp4' }));
+      o.set = set;
+      o.ready = false;
+      o.seeked = false;
+      delete o.h.dataset.video;
+      o.video.src = o.url;
+      if (old) URL.revokeObjectURL(old);
+    } catch {
+      if (gen === o.gen && !o.ready) flatten(o);
+    }
   }
 
   function startScrubLoads() {
-    if (reduce) return;
-    scrubs.forEach((o) => { void loadFrames(o); });
+    scrubs.forEach((o) => {
+      o.started = true;
+      void loadClip(o, PORTRAIT.matches ? 'p' : 'l');
+    });
   }
   // After `load`, and a turn later, so not one byte of it competes with the page.
   if (document.readyState === 'complete') setTimeout(startScrubLoads, 0);
   else addEventListener('load', () => setTimeout(startScrubLoads, 0), { once: true });
 
   PORTRAIT.addEventListener('change', () => {
-    if (reduce) return;
     scrubs.forEach((o) => {
-      o.set = PORTRAIT.matches ? 'p' : 'l';
-      o.h.dataset.set = o.set;
-      // Nothing of the new set is loaded yet. The old frame stays up
-      // (object-fit keeps it cropped, not stretched) until the new set's
-      // first decoded frame replaces it through the normal swap path; -1
-      // forces that swap even if the index happens to match.
-      o.loaded = new Set();
-      o.shown = -1;
-      o.lastSwap = -Infinity;
-      void loadFrames(o);
+      if (o.dead || !o.started) return;
+      const set = PORTRAIT.matches ? 'p' : 'l';
+      // Turned back before the other clip arrived: keep this one and drop the fetch.
+      if (set === o.set && o.url) { o.gen++; return; }
+      void loadClip(o, set);
     });
-    wake();
   });
 
-  function stepScrubs(now: number, dt: number, H: number) {
+  function stepScrubs(dt: number, H: number) {
     let busy = false;
     scrubs.forEach((o) => {
-      if (reduce) return;
+      if (o.dead) return;
       const r = o.h.getBoundingClientRect();
       const target = cl(-r.top / Math.max(1, o.h.offsetHeight - H));
-      o.p = o.p === null ? target : damp(o.p, target, dt);
+      o.p = o.p === null ? target : damp(o.p, target, dt, SCRUB_TAU);
       if (Math.abs(target - o.p) > SETTLED) busy = true;
 
-      // Play through the in-between frames rather than jumping to `want`:
-      // nextFrame takes one step toward it, so a flick reads as a quick run of
-      // poses. Busy while a step is owed; nextFrame holds still when nothing
-      // toward the target has loaded, so a missing frame cannot keep it busy.
-      const want = frameAt(o.p, o.n);
-      const show = nextFrame(o.shown, want, o.loaded, o.n);
-      if (show >= 0 && show !== o.shown) {
-        busy = true;
-        if (canSwap(now, o.lastSwap)) {
-          o.img.src = frameUrl(o.set, show);
-          o.shown = show;
-          o.lastSwap = now;
+      // One seek at a time: a seek still in flight finishes, fires `seeked`
+      // (which wakes the loop) and the next one goes to wherever the follow
+      // has got to by then. The first seek of each clip always goes, even to
+      // where it already is, because its `seeked` is what marks it ready.
+      const v = o.video;
+      if (v.readyState >= 1 && !v.seeking) {
+        const t = timeAt(o.p, v.duration);
+        if (!o.seeked || needsSeek(v.currentTime, t)) {
+          o.seeked = true;
+          v.currentTime = t;
         }
       }
-      // No "waiting on a frame" busy here: loadFrames wakes the loop after
-      // every decode, and a frame that never arrives must not hold it awake.
+      if (v.seeking) busy = true;
 
-      o.h.dataset.scrub = o.shown >= o.calm ? 'calm' : 'pre';
+      o.h.dataset.scrub = o.ready && v.currentTime >= o.calm ? 'calm' : 'pre';
       if (o.hint) o.hint.style.opacity = String(1 - cl(o.p / 0.05));
     });
     return busy;
@@ -369,7 +394,7 @@
       ticks.forEach((t, j) => (t.dataset.on = j === a ? '1' : ''));
     });
 
-    if (stepScrubs(now, dt, H)) busy = true;
+    if (stepScrubs(dt, H)) busy = true;
 
     if (!reduce && ghosts.length) {
       const gTarget = Math.min(scrollY, H) * 0.3;
@@ -410,7 +435,7 @@
       const r = el.getBoundingClientRect();
       return r.bottom > -H && r.top < H * 2;
     };
-    if (!busy && !stages.some((o) => near(o.s)) && !intros.some((o) => near(o.n)) && !scrubs.some((o) => near(o.h))) {
+    if (!busy && !stages.some((o) => near(o.s)) && !intros.some((o) => near(o.n)) && !scrubs.some((o) => !o.dead && near(o.h))) {
       running = false;
       raf = 0;
       return;

@@ -102,8 +102,11 @@ test.describe('no third-party contact before interaction', () => {
     test(`${route} makes no cross-origin request on load`, async ({ page }) => {
       const external: string[] = [];
       page.on('request', (r) => {
-        const url = new URL(r.url());
-        if (!['localhost', '127.0.0.1'].includes(url.hostname)) external.push(r.url());
+        // By origin, not hostname: a blob: URL (the home hero's clip plays
+        // from one) has no hostname of its own, and its origin is the page's.
+        const { origin } = new URL(r.url());
+        const host = origin === 'null' ? '' : new URL(origin).hostname;
+        if (!['localhost', '127.0.0.1'].includes(host)) external.push(r.url());
       });
       await page.goto(route, { waitUntil: 'networkidle' });
       // fonts.googleapis.com is the known, accepted gap until fonts-selfhost.css

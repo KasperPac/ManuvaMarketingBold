@@ -74,7 +74,7 @@ test('a portrait viewport loads the portrait frame', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   const src = await page.locator('.dave-scene img').evaluate((i: HTMLImageElement) => i.currentSrc);
-  expect(src).toMatch(/\/hero\/dave\/p\/000\.webp$/);
+  expect(src).toMatch(/\/hero\/dave\/p\.webp$/);
 });
 
 test('the video facade renders in the band straight under the hero', async ({ page }) => {
@@ -85,6 +85,11 @@ test('the video facade renders in the band straight under the hero', async ({ pa
 });
 
 // --- the scrub ---------------------------------------------------------------
+//
+// The scrub seeks the clip itself (all 192 frames), fetched whole after `load`
+// and played from a blob, rather than stepping a set of stills: it was picked
+// in an A/B against 24 stills, 96 stills and a cross-fade, because a single
+// wheel notch eases in and out instead of cutting two poses at once.
 
 const heroScrollTo = (page: Page, fraction: number) =>
   page.evaluate((f) => {
@@ -96,18 +101,20 @@ const heroScrollTo = (page: Page, fraction: number) =>
 const imgSrc = (page: Page) =>
   page.locator('.dave-scene img').evaluate((i: HTMLImageElement) => i.currentSrc || i.src);
 
-const frameCount = async (page: Page) => Number(await page.locator('.hero.dave').getAttribute('data-frames'));
+const clipReady = (page: Page, timeout = 20_000) =>
+  expect(page.locator('.hero.dave')).toHaveAttribute('data-video', 'ready', { timeout });
 
-const framesFetched = (page: Page, set: 'l' | 'p') =>
-  page.evaluate(
-    (s) => performance.getEntriesByType('resource').filter((r) => r.name.includes(`/hero/dave/${s}/`)).length,
-    set,
-  );
+// The time on screen, or -1 while a seek is still in flight.
+const shownAt = (page: Page) =>
+  page.locator('.dave-scene video').evaluate((v: HTMLVideoElement) => (v.seeking ? -1 : v.currentTime));
+
+const fetched = (page: Page, file: string) =>
+  page.evaluate((f) => performance.getEntriesByType('resource').filter((r) => r.name.endsWith(`/hero/dave/${f}`)).length, file);
 
 test.describe('scrub, motion on', () => {
   test.use({ reducedMotion: 'no-preference' });
 
-  test('the hero pins and scrolling steps the frame', async ({ page }) => {
+  test('the hero pins and scrolling scrubs the clip', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
     const hero = page.locator('.hero.dave');
@@ -115,70 +122,53 @@ test.describe('scrub, motion on', () => {
     await expect(hero).toHaveAttribute('data-set', 'l');
     expect(await hero.evaluate((el) => el.getBoundingClientRect().height)).toBeGreaterThan(800 * 2);
 
-    await expect.poll(() => framesFetched(page, 'l'), { timeout: 15_000 }).toBeGreaterThanOrEqual(7);
+    await clipReady(page);
+    expect(await fetched(page, 'l.mp4')).toBe(1);
+    await expect(page.locator('.dave-scene video')).toBeVisible();
     await heroScrollTo(page, 0.5);
-    await expect.poll(() => imgSrc(page), { timeout: 5_000 }).not.toMatch(/\/000\.webp$/);
+    // Half the travel, with the last 10% held: 0.5 / 0.9 of the clip.
+    await expect.poll(() => shownAt(page), { timeout: 5_000 }).toBeCloseTo((0.5 / 0.9) * 7.98, 1);
     const pinTop = await page.locator('.dave-pin').evaluate((el) => el.getBoundingClientRect().top);
     expect(Math.abs(pinTop), 'the stage is pinned mid-scrub').toBeLessThan(2);
   });
 
-  // "It jumps in clumps" (feedback on the first preview). A scroll jump used to
-  // land on the target frame in a few big skips; it now plays through the
-  // in-between poses, easing out as it arrives.
-  test('a scroll jump plays through the in-between frames instead of skipping them', async ({ page }) => {
+  // "1 scroll of the mouse moves 2 frames instantly. There's no ramp up or
+  // ramp down" (third preview). One notch is an instant 100px jump of the
+  // page; the clip has to cover it as a run of frames, not in one step.
+  test('one wheel notch eases through the frames instead of jumping', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
-    const n = await frameCount(page);
-    await expect.poll(() => framesFetched(page, 'l'), { timeout: 20_000 }).toBe(n);
+    await clipReady(page);
+    await heroScrollTo(page, 0.3);
+    await expect.poll(async () => {
+      const a = await shownAt(page);
+      await page.waitForTimeout(250);
+      return a >= 0 && a === (await shownAt(page));
+    }, { timeout: 5_000 }).toBe(true);
+    // Every seek that lands is a frame on screen; `seeked` is where each lands.
     const seen = await page.evaluate(async () => {
-      const img = document.querySelector('.dave-scene img') as HTMLImageElement;
-      const el = document.querySelector('.hero.dave') as HTMLElement;
-      const frames: number[] = [];
-      const obs = new MutationObserver(() => {
-        const m = (img.getAttribute('src') || '').match(/(\d{3})\.webp$/);
-        if (m) frames.push(Number(m[1]));
-      });
-      obs.observe(img, { attributes: true, attributeFilter: ['src'] });
-      scrollTo(0, (el.offsetHeight - innerHeight) * 0.25); // about a quarter of the way
-      await new Promise((r) => setTimeout(r, 1500));
-      obs.disconnect();
-      return frames;
-    });
-    expect(seen.length, `frames shown: ${seen.join(',')}`).toBeGreaterThanOrEqual(5);
-    for (let i = 1; i < seen.length; i++) {
-      expect(seen[i] - seen[i - 1], `frames shown: ${seen.join(',')}`).toBeLessThanOrEqual(3);
-    }
-  });
-
-  // "Too hectic when scrolling quickly" (second preview): a fast flick must
-  // still read as stop-motion — no more than 12 new poses in any second.
-  test('a fast flick through the whole hero never swaps more than 12 poses a second', async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto('/');
-    const n = await frameCount(page);
-    await expect.poll(() => framesFetched(page, 'l'), { timeout: 20_000 }).toBe(n);
-    const times = await page.evaluate(async () => {
-      const img = document.querySelector('.dave-scene img') as HTMLImageElement;
-      const el = document.querySelector('.hero.dave') as HTMLElement;
-      const t: number[] = [];
-      const obs = new MutationObserver(() => t.push(performance.now()));
-      obs.observe(img, { attributes: true, attributeFilter: ['src'] });
-      const track = el.offsetHeight - innerHeight;
-      for (let i = 1; i <= 10; i++) { scrollTo(0, (track * i) / 10); await new Promise((r) => setTimeout(r, 30)); }
-      await new Promise((r) => setTimeout(r, 3000));
-      obs.disconnect();
+      const v = document.querySelector('.dave-scene video') as HTMLVideoElement;
+      const t: number[] = [v.currentTime];
+      const on = () => t.push(v.currentTime);
+      v.addEventListener('seeked', on);
+      scrollBy(0, 100);
+      await new Promise((r) => setTimeout(r, 900));
+      v.removeEventListener('seeked', on);
       return t;
     });
-    expect(times.length, 'it played through the poses').toBeGreaterThan(5);
-    let worst = 0;
-    for (let i = 0; i < times.length; i++) worst = Math.max(worst, times.filter((x) => x >= times[i] && x < times[i] + 1000).length);
-    expect(worst, `${worst} swaps in one second`).toBeLessThanOrEqual(13);
+    const label = `times shown: ${seen.map((x) => x.toFixed(3)).join(',')}`;
+    const travel = seen[seen.length - 1] - seen[0];
+    const steps = seen.slice(1).map((x, i) => x - seen[i]);
+    expect(travel, label).toBeGreaterThan(0.5);
+    expect(steps.every((s) => s > 0), `it only moves forwards; ${label}`).toBe(true);
+    expect(seen.length, label).toBeGreaterThanOrEqual(6);
+    expect(Math.max(...steps) / travel, `the biggest single step, as a share of the move; ${label}`).toBeLessThan(0.4);
   });
 
   test('the highlight lands with the calm room and leaves when scrolled back', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
-    await expect.poll(() => framesFetched(page, 'l'), { timeout: 15_000 }).toBeGreaterThanOrEqual(7);
+    await clipReady(page);
     await heroScrollTo(page, 1);
     await expect(page.locator('.hero.dave')).toHaveAttribute('data-scrub', 'calm', { timeout: 5_000 });
     await expect
@@ -188,7 +178,7 @@ test.describe('scrub, motion on', () => {
     await expect(page.locator('.hero.dave')).toHaveAttribute('data-scrub', 'pre', { timeout: 5_000 });
   });
 
-  test('only frame 0 is fetched before the page has loaded', async ({ page }) => {
+  test('only the first frame is fetched before the page has loaded', async ({ page }) => {
     const before: string[] = [];
     let loaded = false;
     page.on('load', () => { loaded = true; });
@@ -196,7 +186,7 @@ test.describe('scrub, motion on', () => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
     expect(before).toHaveLength(1);
-    expect(before[0]).toMatch(/\/hero\/dave\/l\/000\.webp$/);
+    expect(before[0]).toMatch(/\/hero\/dave\/l\.webp$/);
   });
 
   test('the docked header over the hero is dark ink, not a cobalt bar over the scene', async ({ page }) => {
@@ -231,7 +221,7 @@ test.describe('scrub, motion on', () => {
     const logo = page.locator('.dave-logo');
     const clip = () => logo.evaluate((e) => getComputedStyle(e).clipPath);
     expect(await clip(), 'hidden on the chaos frames').toMatch(/^inset\(0px 100%/);
-    await expect.poll(() => framesFetched(page, 'l'), { timeout: 20_000 }).toBeGreaterThanOrEqual(7);
+    await clipReady(page);
     await heroScrollTo(page, 1);
     await expect(page.locator('.hero.dave')).toHaveAttribute('data-scrub', 'calm', { timeout: 10_000 });
     await expect.poll(clip, { timeout: 3_000 }).toMatch(/^(none|inset\(0px\))$/);
@@ -244,7 +234,8 @@ test.describe('scrub, motion on', () => {
   test('on a phone the logo sits at the top of the wall above Dave', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
-    await expect.poll(() => framesFetched(page, 'p'), { timeout: 20_000 }).toBeGreaterThanOrEqual(7);
+    await clipReady(page);
+    expect(await fetched(page, 'p.mp4')).toBe(1);
     await heroScrollTo(page, 1);
     await expect(page.locator('.hero.dave')).toHaveAttribute('data-scrub', 'calm', { timeout: 10_000 });
     const r = await page.locator('.dave-logo').evaluate((e) => e.getBoundingClientRect().toJSON());
@@ -255,13 +246,16 @@ test.describe('scrub, motion on', () => {
   });
 
   // Review Focus 1
-  test('a viewport that turns portrait swaps to the portrait set', async ({ page }) => {
+  test('a viewport that turns portrait swaps to the portrait clip', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
+    await clipReady(page);
     await expect(page.locator('.hero.dave')).toHaveAttribute('data-set', 'l');
     await page.setViewportSize({ width: 390, height: 844 });
-    await expect(page.locator('.hero.dave')).toHaveAttribute('data-set', 'p', { timeout: 5_000 });
-    await expect.poll(() => imgSrc(page)).toMatch(/\/hero\/dave\/p\//);
+    await expect(page.locator('.hero.dave')).toHaveAttribute('data-set', 'p', { timeout: 20_000 });
+    await clipReady(page);
+    expect(await fetched(page, 'p.mp4')).toBe(1);
+    await expect.poll(() => imgSrc(page)).toMatch(/\/hero\/dave\/p\.webp$/);
   });
 
   // Review Focus 2
@@ -271,29 +265,34 @@ test.describe('scrub, motion on', () => {
     await heroScrollTo(page, 0.6);
     await page.reload();
     await expect.poll(() => page.evaluate(() => scrollY), { timeout: 5_000 }).toBeGreaterThan(400);
-    await expect.poll(() => imgSrc(page), { timeout: 15_000 }).not.toMatch(/\/000\.webp$/);
+    await clipReady(page);
+    await expect.poll(() => shownAt(page), { timeout: 5_000 }).toBeGreaterThan(3);
   });
 
   // Review Focus 3
-  test('a frame that fails to load never leaves a broken image', async ({ page }) => {
-    await page.route(/\/hero\/dave\/l\/(?!000)\d{3}\.webp$/, (route) => route.abort());
+  test('a clip that fails to load leaves the still hero, highlight showing', async ({ page }) => {
+    await page.route(/\/hero\/dave\/l\.mp4$/, (route) => route.abort());
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
-    await page.waitForTimeout(1500);
-    await heroScrollTo(page, 0.7);
-    await page.waitForTimeout(800);
+    const hero = page.locator('.hero.dave');
+    await expect(hero).not.toHaveAttribute('data-scrub', /.*/, { timeout: 10_000 });
+    expect(await hero.evaluate((el) => el.getBoundingClientRect().height)).toBeLessThanOrEqual(801);
+    await expect(page.locator('.dave-scene video')).toHaveCount(0);
     const img = await page.locator('.dave-scene img').evaluate((i: HTMLImageElement) => ({
       src: i.currentSrc || i.src, complete: i.complete, w: i.naturalWidth,
     }));
-    expect(img.src).toMatch(/\/000\.webp$/);
+    expect(img.src).toMatch(/\/l\.webp$/);
     expect(img.complete && img.w > 0, JSON.stringify(img)).toBe(true);
+    // Polled: the chip fades in over 220ms from the moment the hero flattens.
+    await expect
+      .poll(() => page.locator('.hero.dave .hl').evaluate((e) => getComputedStyle(e).backgroundColor))
+      .toBe('rgb(200, 255, 46)');
+    await expect(page.locator('.dave-hint')).toBeHidden();
   });
 
-  // Final review, finding 1: a frame that never arrives must not keep the
-  // shared animation loop awake. Past the hero the scrub wants frame 47
-  // forever; if 47 failed, "waiting for it" pinned the loop at 60Hz for the
-  // rest of the visit.
-  test('the loop goes idle past the hero even when the last frame never loads', async ({ page }) => {
+  // Final review, finding 1: something that never arrives must not keep the
+  // shared animation loop awake for the rest of the visit.
+  test('the loop goes idle past the hero even when the clip never loads', async ({ page }) => {
     await page.addInitScript(() => {
       const raf = window.requestAnimationFrame.bind(window);
       (window as unknown as { __raf: number }).__raf = 0;
@@ -303,11 +302,10 @@ test.describe('scrub, motion on', () => {
       };
     });
     let aborted = 0;
-    await page.route(/\/hero\/dave\/l\/(?!000)\d{3}\.webp$/, (route) => { aborted++; return route.abort(); });
+    await page.route(/\/hero\/dave\/l\.mp4$/, (route) => { aborted++; return route.abort(); });
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
-    const n = await frameCount(page);
-    await expect.poll(() => aborted, { timeout: 15_000 }).toBeGreaterThanOrEqual(n - 1);
+    await expect.poll(() => aborted, { timeout: 15_000 }).toBe(1);
     await page.evaluate(() => scrollTo(0, document.body.scrollHeight));
     await page.waitForTimeout(1500);
     const a = await page.evaluate(() => (window as unknown as { __raf: number }).__raf);
@@ -316,23 +314,20 @@ test.describe('scrub, motion on', () => {
     expect(b - a, 'animation frames requested in one idle second at the foot of the page').toBeLessThan(5);
   });
 
-  // Final review, finding 2: the new set's first frame goes through the same
-  // decode guard as every other frame, so a failed fetch after a rotation
-  // leaves the last good frame up (cropped by object-fit) instead of a
-  // broken-image icon.
-  test('a rotation whose portrait frames all fail keeps the last good frame up', async ({ page }) => {
-    await page.route(/\/hero\/dave\/p\/\d{3}\.webp$/, (route) => route.abort());
+  // Final review, finding 2, for the clip: a rotation whose new clip fails
+  // keeps the clip that works (cropped by object-fit) rather than dropping it.
+  test('a rotation whose portrait clip fails keeps the landscape clip scrubbing', async ({ page }) => {
+    await page.route(/\/hero\/dave\/p\.mp4$/, (route) => route.abort());
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
-    await expect(page.locator('.hero.dave')).toHaveAttribute('data-set', 'l');
+    await clipReady(page);
     await page.setViewportSize({ width: 390, height: 844 });
-    await expect(page.locator('.hero.dave')).toHaveAttribute('data-set', 'p', { timeout: 5_000 });
     await page.waitForTimeout(1500);
-    const img = await page.locator('.dave-scene img').evaluate((i: HTMLImageElement) => ({
-      src: i.currentSrc || i.src, complete: i.complete, w: i.naturalWidth,
-    }));
-    expect(img.complete && img.w > 0, JSON.stringify(img)).toBe(true);
-    expect(img.src).toMatch(/\/hero\/dave\/l\//);
+    const hero = page.locator('.hero.dave');
+    await expect(hero).toHaveAttribute('data-video', 'ready');
+    await expect(hero).toHaveAttribute('data-set', 'l');
+    await heroScrollTo(page, 0.5);
+    await expect.poll(() => shownAt(page), { timeout: 5_000 }).toBeGreaterThan(3);
   });
 
   // Final review, finding 6, and again for the tagline-only hero: the white
@@ -344,11 +339,9 @@ test.describe('scrub, motion on', () => {
     test(`the tagline keeps large-text contrast over the calm room at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: width < 600 ? 844 : 900 });
       await page.goto('/');
-      const set = width < 600 ? 'p' : 'l';
-      const n = Number(await page.locator('.hero.dave').getAttribute('data-frames'));
-      await expect.poll(() => framesFetched(page, set), { timeout: 20_000 }).toBe(n);
+      await clipReady(page);
       await heroScrollTo(page, 1);
-      await expect.poll(() => imgSrc(page), { timeout: 8_000 }).toMatch(new RegExp(`/${String(n - 1).padStart(3, '0')}\\.webp$`));
+      await expect.poll(() => shownAt(page), { timeout: 8_000 }).toBeGreaterThan(7.9);
       await page.addStyleTag({ content: '.hero.dave h1, .hero.dave h1 *{color:transparent!important;background:transparent!important}' });
       await page.waitForTimeout(400);
       const r = await page.evaluate(() => {
@@ -369,18 +362,20 @@ test.describe('scrub, motion on', () => {
   }
 
   // Review Focus 4
-  test('Save-Data stops after the coarse pass', async ({ page }) => {
+  test('Save-Data keeps the still hero and fetches no clip', async ({ page }) => {
     await page.addInitScript(() => {
       Object.defineProperty(navigator, 'connection', { value: { saveData: true, effectiveType: '4g' } });
     });
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
-    // Every eighth frame plus the last: 0, 8, 16, 23 for 24 frames.
-    const n = await frameCount(page);
-    const coarse = Math.ceil(n / 8) + ((n - 1) % 8 === 0 ? 0 : 1);
-    await expect.poll(() => framesFetched(page, 'l'), { timeout: 15_000 }).toBe(coarse);
+    await page.waitForLoadState('load');
     await page.waitForTimeout(1500);
-    expect(await framesFetched(page, 'l')).toBe(coarse);
+    expect(await fetched(page, 'l.mp4')).toBe(0);
+    const hero = page.locator('.hero.dave');
+    await expect(hero).not.toHaveAttribute('data-scrub', /.*/);
+    expect(await hero.evaluate((el) => el.getBoundingClientRect().height)).toBeLessThanOrEqual(801);
+    const bg = await page.locator('.hero.dave .hl').evaluate((e) => getComputedStyle(e).backgroundColor);
+    expect(bg).toBe('rgb(200, 255, 46)');
   });
 
   // Review Focus 5
@@ -413,9 +408,10 @@ test.describe('reduced motion', () => {
     expect(await hero.evaluate((el) => el.getBoundingClientRect().height)).toBeLessThanOrEqual(801);
     await expect(hero).not.toHaveAttribute('data-scrub', /.*/);
     await page.evaluate(() => scrollTo(0, 300));
-    await page.waitForTimeout(500);
-    expect(await imgSrc(page)).toMatch(/\/hero\/dave\/l\/000\.webp$/);
-    expect(await framesFetched(page, 'l')).toBe(1);
+    await page.waitForTimeout(1000);
+    expect(await imgSrc(page)).toMatch(/\/hero\/dave\/l\.webp$/);
+    await expect(page.locator('.dave-scene video')).toHaveCount(0);
+    expect(await fetched(page, 'l.mp4')).toBe(0);
     const bg = await page.locator('.hero.dave .hl').evaluate((e) => getComputedStyle(e).backgroundColor);
     expect(bg).toBe('rgb(200, 255, 46)');
     await expect(page.locator('.dave-hint')).toBeHidden();
@@ -425,10 +421,11 @@ test.describe('reduced motion', () => {
 test.describe('no JavaScript', () => {
   test.use({ javaScriptEnabled: false });
 
-  test('frame 0, the tagline and both CTAs (in the band below) still render', async ({ page }) => {
+  test('the first frame, the tagline and both CTAs (in the band below) still render', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
     await expect(page.locator('.dave-scene img')).toBeVisible();
+    await expect(page.locator('.dave-scene video')).toHaveCount(0);
     await expect(page.locator('.hero.dave h1')).toHaveText('Less chaos. More making.');
     await expect(page.locator('.hero-intro .pill')).toHaveCount(2);
     await expect(page.locator('.dave-hint')).toBeHidden();
