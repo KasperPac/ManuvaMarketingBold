@@ -25,10 +25,12 @@ test("early in a cut, the outgoing panel's copy is whole and drawn", async ({ pa
   expect(m.color).not.toBe('rgba(0, 0, 0, 0)');
 });
 
-test("mid-cut, the outgoing panel's copy has faded under the incoming one", async ({ page }) => {
+test("a quarter into a cut, the outgoing panel's copy has already faded", async ({ page }) => {
+  // Fading at 42% let the incoming shape cross the still-solid heading first
+  // (the UX critic's fourth pass); the fade now comes at 20%.
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
-  await stageTo(page, 2.5);
+  await stageTo(page, 2.25);
   await page.waitForTimeout(1200);
   expect((await h2(page, 2)).color).toBe('rgba(0, 0, 0, 0)');
 });

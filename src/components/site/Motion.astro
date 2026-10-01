@@ -415,11 +415,14 @@
           // Clipped, not hidden, so a keyboard can reach every panel's link;
           // the focus handler below scrolls each into view (MVBOLD-31).
           el.style.pointerEvents = u <= 0 ? 'none' : '';
-          // The panel this one is covering fades its copy out once this
-          // shape is well in (CSS, through colour). Clipping it from the
+          // The panel this one is covering fades its copy out (CSS, through
+          // colour) a fifth of the way into the cut. Clipping it from the
           // start of the cut sliced the copy on a plain field before the
           // new shape was even on screen.
-          panels[i - 1].dataset.leaving = u >= 0.3 ? '1' : '';
+          // Keyed to the raw progress through this cut, not the eased u:
+          // at u >= 0.3 the fade came 42% of the way through, after the new
+          // shape had already crossed the heading.
+          panels[i - 1].dataset.leaving = x - (i - 1) >= 0.2 ? '1' : '';
         }
         if (!reduce) drift(el, (x - i) * -1.2);
       });
