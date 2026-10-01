@@ -1042,3 +1042,20 @@ main [id]{scroll-margin-top:80px}
   .links{gap:18px}
   .head-motion .motion-label{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0)}
 }
+
+/* ===== /features: less dead colour, tidy badges (MVBOLD-31) =====
+   Each domain's pinned cut ran 170svh with the cut starting late, so the
+   page opened every domain on most of a screen of flat colour and ran
+   19,180px at 1440. 140svh, with the cut starting sooner (Motion.astro). */
+.intro{height:140svh}
+.fcards{padding-bottom:72px}
+@media(min-width:721px){.fcards{padding-bottom:88px}}
+/* The plan badge was an inline-block that took the card heading's line
+   box: on phones (with Chrome's text autosizing) a 44px oval with its
+   label jammed at the top. A fixed-height inline-flex pill centres it. */
+.tier{display:inline-flex;align-items:center;height:20px;line-height:1;padding:0 8px;vertical-align:.18em}
+/* The design system gives every link a 44px minimum on touch screens, which
+   is what turned the 20px badge into a 44px oval. The badge stays 20px and
+   keeps a 44px tap target as an invisible hit area around it. */
+.tier{min-height:0;position:relative}
+.tier::after{content:"";position:absolute;inset:-12px -4px}

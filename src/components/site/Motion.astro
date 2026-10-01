@@ -113,8 +113,12 @@
   const introU = (n: HTMLElement) => {
     const H = innerHeight;
     const top = n.getBoundingClientRect().top;
-    const span = n.offsetHeight - H + H * 0.35;
-    return ease(cl((H * 0.35 - top) / Math.max(1, span * 0.8)));
+    // The cut starts once the section's top is 80% of the way up the screen.
+    // It waited for 35%, so each domain opened on most of a screen of flat
+    // colour before anything moved (MVBOLD-31).
+    const START = 0.8;
+    const span = n.offsetHeight - H + H * START;
+    return ease(cl((H * START - top) / Math.max(1, span * 0.8)));
   };
   const introEnd = (n: HTMLElement) =>
     n.getBoundingClientRect().top + scrollY + (n.offsetHeight - innerHeight) * 0.85;
@@ -434,7 +438,9 @@
       let a = -1;
       chipSecs.forEach((s, i) => { if (s.getBoundingClientRect().top <= H * 0.5) a = i; });
       const endEl = document.querySelector('[data-chips-end]');
-      const end = !!endEl && endEl.getBoundingClientRect().top < H * 0.6;
+      // Gone as the closing band comes up, not once it is half on screen:
+      // the bar sat over its headline (MVBOLD-31).
+      const end = !!endEl && endEl.getBoundingClientRect().top < H * 0.92;
       chipsEl.dataset.hide = a < 0 || end ? '1' : '';
       if (a !== chipAct) {
         chipAct = a;
