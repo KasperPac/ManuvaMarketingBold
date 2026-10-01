@@ -271,7 +271,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     <div class="split">
       <div class="stick" style="display:grid;gap:18px">
         <span class="eyebrow" style="opacity:.7">Getting started</span>
-        <h2 class="disp" style="font-size:clamp(40px,9vw,72px)">Four steps and your floor is live.</h2>
+        <h2 class="disp" style="font-size:min(clamp(40px,9vw,72px),calc(100cqi / var(--fit)))">Four steps and your floor is live.</h2>
         <p class="sub" style="opacity:.82">
           Nothing to install and nobody to book. Connect Shopify, bring in your BOMs, count once, then run a
           job. Most manufacturers finish in an afternoon.
@@ -293,7 +293,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     <div class="split">
       <div class="stick" style="display:grid;gap:18px">
         <span class="eyebrow" style="opacity:.6">{HIGHLIGHT.section}</span>
-        <h2 class="disp" style="font-size:clamp(40px,9vw,72px)">{HIGHLIGHT.heading}</h2>
+        <h2 class="disp" style="font-size:min(clamp(40px,9vw,72px),calc(100cqi / var(--fit)))">{HIGHLIGHT.heading}</h2>
         <p class="sub" style="color:var(--ink-muted)">{HIGHLIGHT.body}</p>
         <a class="pill ink" href={HIGHLIGHT.href} style="justify-self:start">See every report &rarr;</a>
       </div>

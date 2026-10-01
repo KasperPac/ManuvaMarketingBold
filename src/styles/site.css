@@ -908,3 +908,61 @@ main [id]{scroll-margin-top:80px}
 .site-doc-table thead th{font-size:12px;font-weight:700;letter-spacing:.14em;
   text-transform:uppercase;white-space:nowrap;
   border-bottom:2px solid color-mix(in srgb,var(--ink-strong) 22%,transparent)}
+
+/* ===== Display type that fits (MVBOLD-31) =====
+   From the MANUVA-49 critique. Three defects, one cause each.
+
+   1. Clipped heroes. .hero is a grid with no column template, so its one
+      track took the min-content of the h1, the longest word. On a 390px phone
+      that made the column 403-535px wide, and the hero's overflow:hidden cut
+      the headline, the sub-copy and the buttons off at the right edge. The
+      page never scrolled sideways, which is why the responsive suite passed.
+      minmax(0,1fr) holds the column to the screen.
+
+   2. Words breaking or running off. A display size in vw knows nothing about
+      the words it sets: "manufacturers:" is 8.5em wide in Archivo at this
+      width axis, "Purchasing" 6.2em. So every display size here is also capped
+      at its own column divided by --fit, the em width of the longest word it
+      has to hold (measured, plus room for the highlight's padding). cqi is the
+      column: the nearest container, which is the section, panel or split
+      column the heading sits in. A heading with a longer word than its class
+      sets its own --fit inline. display-type.spec.ts checks every word of
+      every display heading, on every page, from 320 to 1920.
+
+   3. Collisions. At .88 leading, descenders sat on the next line's ascenders,
+      and the lime highlight, whose box is taller than .88, painted over the
+      line above it: "why teams" read "whv teams". .92 for display text, and
+      1.08 for a highlighted line, which is the room its box needs. */
+.hero:not(.dave),.cut,.stage .panel,.sec,.split>*{container-type:inline-size}
+.hero:not(.dave){grid-template-columns:minmax(0,1fr)}
+.disp{line-height:.92}
+.disp .hl{line-height:1.08}
+.hero h1{--fit:8.8}
+.cut h2,.stage .panel h2{--fit:6.4}
+.sec h2.disp{--fit:7.8}
+.hero:not(.dave) h1{font-size:min(15.5vw,calc(100cqi / var(--fit)));max-width:max(9ch,calc(var(--fit) * 1em))}
+.cut h2,.stage .panel h2{font-size:min(15.5vw,calc(100cqi / var(--fit)))}
+.sec h2.disp{font-size:min(12vw,calc(100cqi / var(--fit)))}
+@media(min-width:721px){
+  .hero:not(.dave) h1{font-size:min(11vw,calc(100cqi / var(--fit)));max-width:max(11ch,calc(var(--fit) * 1em))}
+  .cut h2,.stage .panel h2{font-size:min(11vw,calc(100cqi / var(--fit)))}
+  .sec h2.disp{font-size:min(8vw,calc(100cqi / var(--fit)))}
+}
+@media(min-width:1100px){
+  .hero:not(.dave) h1{font-size:min(clamp(96px,9vw,156px),calc(100cqi / var(--fit)))}
+  .cut h2,.stage .panel h2{font-size:min(clamp(96px,10vw,180px),calc(100cqi / var(--fit)))}
+  .sec h2.disp{font-size:min(clamp(64px,6vw,104px),calc(100cqi / var(--fit)))}
+}
+/* Restated after the .sec rule above, which would otherwise win. */
+.stage-lead h2.disp{font-size:min(clamp(32px,4.6vw,58px),calc(100cqi / var(--fit)))}
+
+/* The legal documents at 1920. max-width:78ch is border-box, and from 1100
+   the page gutter was its padding: 340px a side at 1920, which left the text
+   a 303px column right of centre. The max-width already centres it; the
+   padding only has to be a gutter. */
+@media(min-width:1100px){.doc,.site-doc{padding-inline:48px}}
+
+/* Motion off, the stage panels flow as normal sections, and their ghost
+   numerals ran 30px past a 390px screen, which scrolled the page sideways
+   and pushed the burger half off it. */
+:root[data-motion="off"] .stage .panel{overflow:hidden}

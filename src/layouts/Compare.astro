@@ -134,7 +134,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     <div class="split">
       <div class="stick" style="display:grid;gap:18px">
         <span class="eyebrow" style="opacity:.6">{gapsEyebrow}</span>
-        <h2 class="disp" style="font-size:clamp(40px,9vw,72px)">{gapTitle}</h2>
+        <h2 class="disp" style="--fit:8.4;font-size:min(clamp(40px,9vw,72px),calc(100cqi / var(--fit)))">{gapTitle}</h2>
         <p class="sub" style="color:var(--ink-muted)">{gapBody}</p>
       </div>
       {gaps && (
@@ -247,7 +247,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   <section class="sec" style="padding-top:8px">
     <div style="display:grid;gap:12px">
       <span class="eyebrow" style="opacity:.6">{addsEyebrow}</span>
-      <h2 class="disp" style="font-size:clamp(36px,8vw,64px)">{addsTitle}</h2>
+      <h2 class="disp" style="font-size:min(clamp(36px,8vw,64px),calc(100cqi / var(--fit)))">{addsTitle}</h2>
       <p class="sub" style="color:var(--ink-muted);max-width:56ch">{addsBody}</p>
     </div>
     <ul class="nlist two three">
