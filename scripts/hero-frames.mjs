@@ -11,9 +11,10 @@
 //      (the 1080p download is an upscale, so going bigger adds bytes only)
 //   p  a 500x1080 window from the full-height 1080p frame, centred on Dave,
 //      for portrait phones
-// and two files per shape:
-//   <set>.webp  the first frame, the LCP image and the reduced-motion still
-//   <set>.mp4   the first M.frames frames, which the scroll scrubs
+// and three files per shape:
+//   <set>.webp      the first frame, the LCP image and the reduced-motion still
+//   <set>-end.webp  the last kept frame, for a visitor who has seen the scrub
+//   <set>.mp4       the first M.frames frames, which the scroll scrubs
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -35,6 +36,10 @@ mkdirSync(OUT, { recursive: true });
 const tmp = mkdtempSync(join(tmpdir(), 'hero-frames-'));
 const first = join(tmp, 'first.png');
 execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', clip, '-frames:v', '1', first]);
+// The last kept frame, the finished room: the still a visitor who has
+// already seen the scrub opens on (MVBOLD-37).
+const last = join(tmp, 'last.png');
+execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', clip, '-vf', `select=eq(n\\,${M.frames - 1})`, '-frames:v', '1', last]);
 const { width, height } = await sharp(first).metadata();
 
 // The clips' first frames (T1 and T2 alike) carry a few rows of black along
@@ -60,10 +65,12 @@ const crop = {
 let bad = false;
 for (const set of ['l', 'p']) {
   const want = set === 'l' ? M.landscape : M.portrait;
-  await crop[set].still(sharp(first))
-    .resize(want.width, want.height)
-    .webp({ quality: M.poster.quality })
-    .toFile(join(OUT, `${set}.webp`));
+  for (const [src, name] of [[first, set], [last, `${set}-end`]]) {
+    await crop[set].still(sharp(src))
+      .resize(want.width, want.height)
+      .webp({ quality: M.poster.quality })
+      .toFile(join(OUT, `${name}.webp`));
+  }
 
   // -g sets the keyframe spacing: a seek decodes from the keyframe before it,
   // so a short gap is what keeps a backwards scrub as smooth as a forwards one.

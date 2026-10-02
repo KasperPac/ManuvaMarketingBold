@@ -36,7 +36,8 @@ origin/master:<path>`, and treat that repo as read-only.
 That repo is not always on disk. The parity gate takes `PARITY_OLD_REPO` to
 point at a clone elsewhere (`git clone https://github.com/KasperPac/ManuvaMarketing.git`).
 
-The home hero's stills and scrub clips (`public/hero/dave/{l,p}.{webp,mp4}`)
+The home hero's stills and scrub clips (`public/hero/dave/{l,p}.{webp,mp4}`,
+and `{l,p}-end.webp`, the finished room a returning visitor opens on)
 are cut from `T2.mp4` (natural walls; it replaced the lime-repaint `T1.mp4`
 in MVBOLD-33) in
 `C:\dev\MarketingAndPromotion\video\manuva-stopmotion\flow-kit\downloads` by

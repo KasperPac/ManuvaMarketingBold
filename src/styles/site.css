@@ -712,6 +712,9 @@ main [id]{scroll-margin-top:80px}
 .dave-logo{position:absolute;left:59%;top:21%;width:27%;aspect-ratio:2189.357/482.347;color:var(--on-lime);clip-path:inset(0 100% 0 0);transition:clip-path 700ms var(--ease-out)}
 @media(max-aspect-ratio:4/5){.dave-logo{left:12%;top:11%;width:76%}}
 .hero.dave[data-scrub="calm"] .dave-logo{clip-path:inset(0)}
+/* Seen this visit (MVBOLD-37): the hero is the finished room as a still, so
+   the logo is already on the wall, with no wipe. */
+:root[data-hero="done"] .hero.dave .dave-logo{clip-path:inset(0);transition:none}
 .dave-copy{position:relative;isolation:isolate;align-self:end;box-sizing:border-box;width:100%;padding:0 20px 36px}
 /* The fade belongs to the copy, not the viewport: it starts 60% of the copy's
    own height above it and is still two-thirds ink at the headline's first

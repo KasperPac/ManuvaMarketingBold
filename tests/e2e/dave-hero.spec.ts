@@ -213,7 +213,10 @@ test.describe('scrub, motion on', () => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
     await clipReady(page);
-    await heroScrollTo(page, 1);
+    // Three-quarters through: past the calm moment (5.5s) but short of the
+    // last frame. Played through to the end, the room no longer rewinds
+    // (MVBOLD-37, hero-once.spec.ts).
+    await heroScrollTo(page, 0.75);
     await expect(page.locator('.hero.dave')).toHaveAttribute('data-scrub', 'calm', { timeout: 5_000 });
     await expect
       .poll(() => page.locator('.hero.dave .hl').evaluate((e) => getComputedStyle(e).backgroundColor))

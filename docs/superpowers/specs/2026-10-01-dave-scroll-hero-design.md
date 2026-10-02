@@ -124,6 +124,17 @@ single-camera transformation possible.
   creating." (8.19em chip, 15.04em line): the divisors are 8.45 where they read
   7.9 and 15.5 where they read 15. That is about 7% smaller on phones and 3%
   from 1100px.
+- **Plays once per visit** (2026-10-02, MANUVA-57, `MVBOLD-37`): the first
+  time the clip shows its last frame, it holds it; scrolling back up no longer
+  rewinds the room, and at the top the descriptor and Start free return over the
+  finished room. The pinned stretch goes at that moment too (preview feedback:
+  "it doesn't run straight past"): the hero becomes one screen and the page
+  scrolls by the height it lost, so nothing on screen moves. The flag lives in sessionStorage, so it lasts until the tab
+  closes. Back on the home page in the same visit, the hero opens as a
+  one-screen still of the finished room (`{l,p}-end.webp`, written by the
+  pipeline), with no pin and no clip fetched. Because that hero is 1.5 screens
+  shorter, the browser's scroll restoration is off there and the engine restores
+  the position against the content below the hero. Motion off is unchanged.
 - **Logo:** the lockup, `--on-lime` ink, revealed by a 700ms left-to-right
   `clip-path` wipe when `data-scrub` becomes `calm`. Clip-path, not opacity: the
   cobalt field's full-strength override pins descendants at opacity 1.
