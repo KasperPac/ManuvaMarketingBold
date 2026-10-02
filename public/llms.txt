@@ -5,7 +5,8 @@
 Operated by: Pac Technologies Pty Ltd (Australia)
 Contact: hello@manuva.app
 App: https://app.manuva.app
-Trial: 14-day free trial, full Pro access, no credit card required
+Start a trial: https://app.manuva.app/signup
+Trial: 30-day free trial, full Pro access, no credit card required
 
 ## What Manuva does
 
@@ -18,27 +19,27 @@ Manuva connects every part of a physical manufacturing operation:
 - **Capacity & team (Pro)** — department modelling, staffing levels, capacity planning, actual-vs-planned time, staff costing
 - **Costing & profitability** — automatic BOM cost rollup, margin per product, inventory valuation, COGS tracking, financial profitability dashboard (Pro)
 - **Reports** — real-time dashboard, dead stock, PO variance, lead-time accuracy, inventory integrity audit, PDF/CSV export (Pro)
-- **Shopify integration** — webhook-driven real-time sync, multi-store support (Pro), order-to-production cascade
+- **Shopify integration** — webhook-driven real-time sync, order-to-production cascade
 
 ## Differentiators vs named competitors
 
 - **vs Katana** — Manuva adds yield % per BOM line, BOM versioning with side-by-side comparison, BOM templates, PO variance reporting, lead-time accuracy reports, and a financial profitability dashboard — none of which Katana offers at any price tier.
-- **vs MRPeasy** — Manuva's Pro plan ($499/mo flat, unlimited users) includes capacity planning with staff costing. MRPeasy charges per user — a 10-person team reaches $490/mo before advanced features.
+- **vs MRPeasy** — Manuva's Pro plan ($499/mo AUD flat, unlimited users) includes capacity planning with staff costing. MRPeasy charges per user — a 10-person team reaches $490/mo (USD list price) before advanced features.
 - **vs Qoblex, Craftybase, Cin7** — Manuva offers PO variance, lead-time accuracy, and inventory integrity reports that these tools do not surface.
 - **vs Spreadsheets** — Manuva provides real-time inventory, automated BOM cost rollup, production-order tracking, and Shopify sync — none of which spreadsheets support natively.
 
-## Pricing (USD, annual billing)
+## Pricing (AUD, annual billing)
 
 | Plan | Price | Key limits | Highlights |
 |---|---|---|---|
-| Starter | $99/mo ($1,188/yr) | 1 location, up to 5 office seats | Inventory, single-level BOM, production orders, POs, stocktake |
-| Growth | $249/mo ($2,988/yr) | Multi-location, unlimited users | Multi-level BOMs, versioning, costing, reports, Shopify sync |
-| Pro | $499/mo ($5,988/yr) | Unlimited locations & users | Capacity planning, profitability dashboard, API, priority support |
+| Starter | $99/mo ($1,188/yr) | 1 location, up to 3 users | Inventory, single-level BOM, production orders, POs, stocktake |
+| Growth | $249/mo ($2,988/yr) | Up to 5 locations, unlimited users | Multi-level BOMs, versioning, costing, reports, Shopify sync |
+| Pro | $499/mo ($5,988/yr) | Unlimited locations & users | Capacity planning, profitability dashboard, priority support |
 | Enterprise | Custom | Unlimited | Multi-site, SSO/SAML, dedicated CSM, custom SLAs |
 
-Monthly pricing: Starter $119, Growth $299, Pro $599. Annual saves approximately 20%.
+Monthly pricing: Starter $119, Growth $299, Pro $599. Annual billing saves around 17% (paying monthly costs about 20% more). Prices are in Australian Dollars; GST is included for Australian customers.
 
-All plans include a 14-day free trial with full Pro access. No credit card required.
+All plans include a 30-day free trial with full Pro access. No credit card required.
 
 ## Key pages
 
@@ -50,7 +51,8 @@ All plans include a 14-day free trial with full Pro access. No credit card requi
 - Manuva vs MRPeasy (alternative): https://manuva.app/alternatives/mrpeasy
 - Privacy policy: https://manuva.app/privacy
 - Terms of service: https://manuva.app/terms
-- Sign in / start trial: https://app.manuva.app
+- Start a trial: https://app.manuva.app/signup
+- Sign in: https://app.manuva.app
 
 ## Integrations
 
@@ -65,7 +67,7 @@ A location is any physical place you store components or finished goods — a wa
 No. Manuva uses flat per-account pricing. Growth and above include unlimited team members.
 
 **What do I get during the free trial?**
-Full Pro-level access for 14 days. No credit card required. At the end of the trial, the account downgrades to the tier selected at sign-up.
+Full Pro-level access for 30 days. No credit card required. At the end of the trial, the account downgrades to the tier selected at sign-up.
 
 **What is BOM versioning?**
 BOM versioning in Manuva means every change to a bill of materials is saved as a numbered version with a timestamp. Users can draft changes, publish when ready, compare any two versions side-by-side to see added, removed, and modified components with cost and margin impact, and roll back to any previous version. No other tool in the Shopify-first MRP segment offers this feature.

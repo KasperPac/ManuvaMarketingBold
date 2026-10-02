@@ -59,3 +59,14 @@ describe('the committed hero media', () => {
     });
   }
 });
+
+// T1's first frames carry black rows along the top, which read as a dark
+// line across the hero (MVBOLD-31); the pipeline trims them.
+test('the first frame has no black band along its top edge', async () => {
+  for (const set of ['l', 'p']) {
+    const { data, info } = await sharp(`${DIR}/${set}.webp`).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+    let sum = 0;
+    for (let x = 0; x < info.width; x++) sum += data[x * 3] + data[x * 3 + 1] + data[x * 3 + 2];
+    expect(sum / info.width / 3, `${set}.webp top row`).toBeGreaterThan(40);
+  }
+});

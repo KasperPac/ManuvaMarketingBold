@@ -92,12 +92,15 @@ test('the hero opens on the first frame as a plain, high-priority picture', () =
   expect(hero).not.toContain('<video');
 });
 
-test('the hero carries only the tagline and the logo', () => {
-  // Preview feedback: the copy and its scrim hid the scene. The hero keeps the
-  // tagline and the Manuva logo (revealed on the lime wall at the calm frame);
-  // everything else moved to the band directly under it.
+test('the hero carries the descriptor, the tagline, Start free and the logo', () => {
+  // Preview feedback: the copy and its scrim hid the scene, so the sub-copy
+  // and Book a demo live in the band below. The critique (MANUVA-49) then
+  // found the first screen never said what Manuva is: the descriptor and
+  // Start free are back on the first frame, and fold away as the scrub starts.
   const hero = daveHero();
-  for (const gone of ['MRP for Shopify manufacturers', 'Manuva replaces the spreadsheets', 'Start free', 'Book a demo']) {
+  expect(hero).toContain('MRP for Shopify manufacturers');
+  expect(hero).toMatch(/href="https:\/\/app\.manuva\.app\/signup"[^>]*>Start free</);
+  for (const gone of ['Manuva replaces the spreadsheets', 'Book a demo']) {
     expect(hero, `"${gone}" is still in the hero`).not.toContain(gone);
   }
   expect(hero).toMatch(/<div class="dave-logo"><span aria-hidden="true"[^>]*><\/span><\/div>/);
@@ -115,9 +118,10 @@ test('the band straight after the hero carries its copy and the video', () => {
   expect(h.slice(heroEnd, band).replace(/<!--[\s\S]*?-->/g, '').trim(), 'something sits between the hero and the band')
     .toBe('</section>');
   const body = h.slice(band, bandEnd);
-  expect(body).toContain('MRP for Shopify manufacturers');
+  // The descriptor moved up into the hero's first frame (MVBOLD-31).
+  expect(body).toContain('What it does');
   expect(body).toContain('Manuva replaces the spreadsheets and legacy MRP your team is fighting with.');
-  expect(body).toMatch(/href="https:\/\/app\.manuva\.app"[^>]*>Start free</);
+  expect(body).toMatch(/href="https:\/\/app\.manuva\.app\/signup"[^>]*>Start free</);
   expect(body).toMatch(/href="\/about#contact"[^>]*>Book a demo</);
   expect(body).toContain('data-youtube-id="JXB4FgHRm_Y"');
   expect(body).toContain('See it in 60 seconds');
@@ -236,7 +240,9 @@ test('the explainer is a click-to-load facade, not an embedded player', () => {
   expect(h).toContain('data-youtube-id="JXB4FgHRm_Y"');
   expect(h, 'an iframe in the static markup would load YouTube on page load').not.toContain('<iframe');
   expect(h, 'the self-hosted asset is gone').not.toContain('/video/explainer.mp4');
-  expect(h, 'the poster still has to render before any click').toContain('/video/dave-ad-poster.jpg');
+  // A scene from the ad (D2), not its end card: the end card is the hero's
+  // own calm frame, shown again straight after the scrub (MVBOLD-31).
+  expect(h, 'the poster still has to render before any click').toContain('/video/dave-ad-scene.jpg');
 });
 
 test('the dashboard screenshot has left the home page for /product', () => {

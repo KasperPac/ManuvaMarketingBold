@@ -1,6 +1,6 @@
 ---
 import Base from './Base.astro';
-import { APP_URL, type FieldName } from '../site';
+import { APP_URL, SIGNUP_URL, type FieldName } from '../site';
 
 export interface Props {
   title: string;
@@ -110,7 +110,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
   headInk="light"
   {schema}
 >
-  <section class={`hero mv-field-${heroField}`}>
+  {/* .long: a sentence-length headline steps down one size, so its
+      sub-copy and Start free land in the first screen (MVBOLD-31). */}
+  <section class={`hero long mv-field-${heroField}`}>
     <span class="ghostnum num" aria-hidden="true" data-n="vs"></span>
     <span class="eyebrow" style="opacity:.8">Manuva vs {them}</span>
     {/* No inline font-size. The reference hard-codes 11vw here, which beats
@@ -121,9 +123,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
         The breakpoint system is the responsive contract per the README, so
         it gets to size this. Only the measure is set here. */}
     <h1 class="disp" style="max-width:16ch">{h1Lead} <span class="hl">{h1Highlight}</span></h1>
-    <p class="sub" style="opacity:.9;max-width:52ch">{heroLede}</p>
+    <p class="sub" style="opacity:.9;max-width:62ch">{heroLede}</p>
     <div class="row">
-      <a class="pill" href={APP_URL}>Start free</a>
+      <a class="pill" href={SIGNUP_URL}>Start free</a>
       <a class="pill ghost" href="/pricing">See pricing</a>
     </div>
     <span style="font-size:14px;opacity:.8">30 days free, full Pro access. No credit card.</span>
@@ -134,7 +136,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     <div class="split">
       <div class="stick" style="display:grid;gap:18px">
         <span class="eyebrow" style="opacity:.6">{gapsEyebrow}</span>
-        <h2 class="disp" style="font-size:clamp(40px,9vw,72px)">{gapTitle}</h2>
+        <h2 class="disp" style="--fit:8.4;font-size:min(clamp(40px,9vw,72px),calc(100cqi / var(--fit)))">{gapTitle}</h2>
         <p class="sub" style="color:var(--ink-muted)">{gapBody}</p>
       </div>
       {gaps && (
@@ -150,7 +152,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       )}
       {seatRows && seatHead && (
         <div style="display:grid;gap:14px">
-          <div class="stable" role="table" aria-label={`${them} per-user cost against Manuva’s flat tiers by team size`}>
+          <div class="stable" tabindex="0" role="table" aria-label={`${them} per-user cost against Manuva’s flat tiers by team size`}>
             <div class="r h" role="row">
               {seatHead.map((h, i) => (
                 <span class="eyebrow" role="columnheader" style={i ? 'opacity:.6' : undefined}>{h}</span>
@@ -193,7 +195,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       </div>
       <div class="ctable" role="table" aria-label={`Manuva compared with ${them}`}>
         <div class="r h" role="row">
-          <span role="columnheader"></span>
+          <span role="columnheader"><span class="vh">Feature</span></span>
           <span class="eyebrow limechip" role="columnheader">Manuva</span>
           <span class="eyebrow" role="columnheader" style="opacity:.5">{them}</span>
         </div>
@@ -244,10 +246,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
     </section>
   )}
 
-  <section class="sec" style="padding-top:8px">
+  <section class="sec">
     <div style="display:grid;gap:12px">
       <span class="eyebrow" style="opacity:.6">{addsEyebrow}</span>
-      <h2 class="disp" style="font-size:clamp(36px,8vw,64px)">{addsTitle}</h2>
+      <h2 class="disp" style="font-size:min(clamp(36px,8vw,64px),calc(100cqi / var(--fit)))">{addsTitle}</h2>
       <p class="sub" style="color:var(--ink-muted);max-width:56ch">{addsBody}</p>
     </div>
     <ul class="nlist two three">
@@ -261,7 +263,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     </ul>
   </section>
 
-  <section class="sec" style="padding-top:24px">
+  <section class="sec">
     <div class="split">
       <h2 class="disp stick" style="font-size:clamp(40px,9vw,72px)">Switching from {them} — common questions</h2>
       <div class="faq">
@@ -285,7 +287,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     <p class="disp">{ctaHeading}</p>
     <p class="sub">{ctaBody}</p>
     <div class="row">
-      <a class="pill ink" href={APP_URL}>Start free</a>
+      <a class="pill ink" href={SIGNUP_URL}>Start free</a>
       <a class="pill ghost" href="/about#contact">Book a demo</a>
     </div>
   </section>

@@ -37,13 +37,23 @@ const first = join(tmp, 'first.png');
 execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', clip, '-frames:v', '1', first]);
 const { width, height } = await sharp(first).metadata();
 
-const winW = Math.round((height * M.portrait.width) / M.portrait.height);
+// T1's first frames carry a few rows of black along the top, which read as
+// a dark line across the hero (MVBOLD-31). M.trim rows come off the top and
+// bottom of both shapes, and the width follows to keep each aspect.
+const T = M.trim ?? 0;
+const h = height - 2 * T;
+const lw = Math.round((h * M.landscape.width) / M.landscape.height);
+const lx = Math.round((width - lw) / 2);
+const winW = Math.round((h * M.portrait.width) / M.portrait.height);
 const left = portraitLeft(width, winW, Math.round((M.portrait.focalX * width) / 1920));
 const crop = {
-  l: { still: (s) => s, vf: `scale=${M.landscape.width}:${M.landscape.height}` },
+  l: {
+    still: (s) => s.extract({ left: lx, top: T, width: lw, height: h }),
+    vf: `crop=${lw}:${h}:${lx}:${T},scale=${M.landscape.width}:${M.landscape.height}`,
+  },
   p: {
-    still: (s) => s.extract({ left, top: 0, width: winW, height }),
-    vf: `crop=${winW}:${height}:${left}:0,scale=${M.portrait.width}:${M.portrait.height}`,
+    still: (s) => s.extract({ left, top: T, width: winW, height: h }),
+    vf: `crop=${winW}:${h}:${left}:${T},scale=${M.portrait.width}:${M.portrait.height}`,
   },
 };
 

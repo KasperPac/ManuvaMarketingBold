@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Video from '../components/site/Video.astro';
 import Logo from '../components/ds/Logo.astro';
-import { APP_URL, DOMAINS } from '../site';
+import { APP_URL, SIGNUP_URL, DOMAINS } from '../site';
 // Frame count and the frame where the room turns calm, from the manifest the
 // frame script reads, so the page and the frames cannot disagree.
 import heroFrames from '../../scripts/hero-frames.json';
@@ -72,7 +72,8 @@ const INTEGRATIONS = ['Shopify', 'WooCommerce', 'Amazon', 'Etsy', 'Xero', 'Quick
 // back on the home page as an ink .ctable, so they come home.
 const COMPARE = [
   ['Pricing model', 'Flat per account', 'Per user, per month'],
-  ['A 10-person team', '$249/mo', '$490/mo'],
+  // AUD against a USD list price: say so on the row (MVBOLD-31).
+  ['A 10-person team', '$249/mo AUD', '$490/mo USD list'],
   ['Yield % per BOM line', 'Included', 'Not offered'],
   ['BOM versioning & compare', 'Included', 'Not offered'],
   ['PO variance reporting', 'Included', 'Not offered'],
@@ -187,8 +188,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
         </picture>
         <div class="dave-logo"><Logo variant="lockup" fill decorative /></div>
       </div>
+      {/* The descriptor and Start free make the first screen say what Manuva is
+          and offer the trial (MVBOLD-31). Each sits in a .dave-fold, which
+          Motion.astro folds shut once the scrub starts, so the scene and the
+          calm frame stay the tagline and the logo. */}
       <div class="dave-copy">
-        <h1 class="disp">Less chaos. <span class="hl keep">More making.</span></h1>
+        <div class="dave-fold"><div><span class="eyebrow">MRP for Shopify manufacturers</span></div></div>
+        <h1 class="disp"><span class="line">Less chaos.</span> <span class="hl keep">More making.</span></h1>
+        <div class="dave-fold"><div><div class="dave-go"><a class="pill" href={SIGNUP_URL}>Start free</a></div></div></div>
       </div>
       <span class="dave-hint" aria-hidden="true"></span>
     </div>
@@ -201,13 +208,15 @@ const pad = (n: number) => String(n).padStart(2, '0');
   <section class="sec hero-intro">
     <div class="split">
       <div style="display:grid;gap:18px;align-content:start;justify-items:start">
-        <span class="eyebrow" style="opacity:.6">MRP for Shopify manufacturers</span>
+        {/* The hero's first frame now carries "MRP for Shopify manufacturers";
+            repeating it one scroll later read as a stutter (MVBOLD-31). */}
+        <span class="eyebrow" style="opacity:.6">What it does</span>
         <p class="sub" style="color:var(--ink-muted);max-width:52ch">
           Manuva replaces the spreadsheets and legacy MRP your team is fighting with. Inventory, BOMs, work
           orders, and stock control — connected, live, and built for the floor.
         </p>
         <div class="row hero-intro-ctas">
-          <a class="pill" href={APP_URL}>Start free</a>
+          <a class="pill" href={SIGNUP_URL}>Start free</a>
           <a class="pill ghost" href="/about#contact">Book a demo</a>
         </div>
       </div>
@@ -221,8 +230,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
             page. */}
         <Video
           youtubeId="JXB4FgHRm_Y"
-          poster="/video/dave-ad-poster.jpg"
-          alt="Claymation: Dave relaxing with a mug of tea and his feet on his desk, beside the Manuva logo and the line Less chaos. More making."
+          poster="/video/dave-ad-scene.jpg"
+          alt="Claymation: Dave giving a thumbs-up beside a row of parts bins, each with a stock gauge."
           title="What Manuva actually does"
         />
       </div>
@@ -267,11 +276,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
     </div>
   </section>
 
-  <section class="sec mv-field-amber">
+  {/* Paper, not amber: amber sat directly on the stage's last panel, aqua,
+      and two fields may not touch (MVBOLD-31). */}
+  <section class="sec">
     <div class="split">
       <div class="stick" style="display:grid;gap:18px">
         <span class="eyebrow" style="opacity:.7">Getting started</span>
-        <h2 class="disp" style="font-size:clamp(40px,9vw,72px)">Four steps and your floor is live.</h2>
+        <h2 class="disp" style="font-size:min(clamp(40px,9vw,72px),calc(100cqi / var(--fit)))">Four steps and your floor is live.</h2>
         <p class="sub" style="opacity:.82">
           Nothing to install and nobody to book. Connect Shopify, bring in your BOMs, count once, then run a
           job. Most manufacturers finish in an afternoon.
@@ -293,7 +304,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     <div class="split">
       <div class="stick" style="display:grid;gap:18px">
         <span class="eyebrow" style="opacity:.6">{HIGHLIGHT.section}</span>
-        <h2 class="disp" style="font-size:clamp(40px,9vw,72px)">{HIGHLIGHT.heading}</h2>
+        <h2 class="disp" style="font-size:min(clamp(40px,9vw,72px),calc(100cqi / var(--fit)))">{HIGHLIGHT.heading}</h2>
         <p class="sub" style="color:var(--ink-muted)">{HIGHLIGHT.body}</p>
         <a class="pill ink" href={HIGHLIGHT.href} style="justify-self:start">See every report &rarr;</a>
       </div>
@@ -317,10 +328,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
         <p class="sub" style="opacity:.75">
           Flat pricing, unlimited users from Growth up. Connect Shopify, import your BOMs, run your first job today.
         </p>
+        {/* The section argued price with nowhere to go next (MVBOLD-31). */}
+        <a class="pill ghost" href="/pricing" style="justify-self:start">See pricing</a>
       </div>
       <div class="ctable" role="table" aria-label="Manuva compared with per-seat MRP">
         <div class="r h" role="row">
-          <span role="columnheader"></span>
+          <span role="columnheader"><span class="vh">Plan</span></span>
           <span class="eyebrow limechip" role="columnheader">Manuva</span>
           <span class="eyebrow" role="columnheader" style="opacity:.5">Per-seat MRP</span>
         </div>
@@ -346,7 +359,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     <p class="disp">Run your first job today.</p>
     <p class="sub">30 days free with full Pro access. No credit card required.</p>
     <div class="row">
-      <a class="pill white" href={APP_URL}>Start free</a>
+      <a class="pill white" href={SIGNUP_URL}>Start free</a>
       <a class="pill ghost" href="/pricing">See pricing</a>
     </div>
   </section>

@@ -1,4 +1,7 @@
 export const APP_URL = 'https://app.manuva.app';
+/** The trial sign-up. APP_URL itself redirects a stranger to /login, so every
+ * Start free goes here and only Sign in goes to APP_URL (MVBOLD-31). */
+export const SIGNUP_URL = `${APP_URL}/signup`;
 export const CONTACT_EMAIL = 'hello@manuva.app';
 
 export const FIELDS = [

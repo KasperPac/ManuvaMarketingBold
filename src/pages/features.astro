@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { APP_URL, DOMAINS } from '../site';
+import { APP_URL, SIGNUP_URL, DOMAINS } from '../site';
 
 // Rebuilt on the new design (MVBOLD-17). Full motion: every domain enters on
 // its own shape cut, the chip bar tracks which one you are in, and the page
@@ -214,6 +214,11 @@ const schema = [
       for product brands that make what they sell.
     </p>
     <span style="font-size:14px;opacity:.8">30-day free trial. No credit card. Unlimited users from Growth.</span>
+    {/* The page's first CTA was twenty screens down (MVBOLD-31). */}
+    <div class="row">
+      <a class="pill" href={SIGNUP_URL}>Start free</a>
+      <a class="pill ghost" href="/pricing">See pricing</a>
+    </div>
     <ul class="index">
       {DOMAINS.map((d, i) => (
         <li>
@@ -304,11 +309,11 @@ const schema = [
     <p class="disp">Ready to see it in action?</p>
     <p class="sub">Full Pro access for 30 days. No credit card required. Set up in a day, not a quarter.</p>
     <div class="row">
-      <a class="pill ink" href="/pricing">See pricing</a>
-      <a class="pill ghost" href={APP_URL}>Start free</a>
+      <a class="pill ink" href={SIGNUP_URL}>Start free</a>
+      <a class="pill ghost" href="/pricing">See pricing</a>
     </div>
   </section>
 
 
-  <nav id="chips" aria-label="Jump to domain"></nav>
+  <nav id="chips" aria-label="Jump to domain" data-cta={SIGNUP_URL}></nav>
 </Base>

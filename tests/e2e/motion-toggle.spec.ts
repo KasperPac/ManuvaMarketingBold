@@ -27,8 +27,8 @@ test('with reduced motion preferred, the page opens flat and says so', async ({ 
   expect(flat.panels.every((p) => p === 'relative'), 'panels are back in flow').toBe(true);
   expect(flat.clips.every((c) => c === 'none'), 'nothing is clipped').toBe(true);
   expect(flat.visible, 'all six read as ordinary sections').toBe(6);
-  await expect(page.locator('.motion-toggle')).toHaveAttribute('aria-pressed', 'false');
-  await expect(page.locator('.motion-label')).toHaveText('Motion off');
+  await expect(page.locator('.site-foot .motion-toggle')).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('.site-foot .motion-label')).toHaveText('Motion off');
 });
 
 test('with motion allowed, the stage pins and the panels clip', async ({ page }) => {
@@ -56,7 +56,7 @@ test('with motion allowed, the stage pins and the panels clip', async ({ page })
   });
   expect(clip).toMatch(/circle\(/);
   expect(clip).not.toBe('none');
-  await expect(page.locator('.motion-toggle')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('.site-foot .motion-toggle')).toHaveAttribute('aria-pressed', 'true');
 });
 
 test('the toggle overrides the system preference and survives a reload', async ({ page }) => {
@@ -67,10 +67,10 @@ test('the toggle overrides the system preference and survives a reload', async (
   await page.goto('/');
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'off');
 
-  await page.locator('.motion-toggle').click();
+  await page.locator('.site-foot .motion-toggle').click();
   await page.waitForLoadState('load');
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'on');
-  await expect(page.locator('.motion-label')).toHaveText('Motion on');
+  await expect(page.locator('.site-foot .motion-label')).toHaveText('Motion on');
 
   const pin = await page.locator('.stage .pin').evaluate((p) => getComputedStyle(p).position);
   expect(pin, 'the stage pins once motion is forced on').toBe('sticky');
@@ -80,7 +80,7 @@ test('the toggle overrides the system preference and survives a reload', async (
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'on');
 
   // Back off again, and it stays off.
-  await page.locator('.motion-toggle').click();
+  await page.locator('.site-foot .motion-toggle').click();
   await page.waitForLoadState('load');
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'off');
   await page.reload();
@@ -89,7 +89,7 @@ test('the toggle overrides the system preference and survives a reload', async (
 
 test('the control is a real button with an accessible name in both states', async ({ page }) => {
   await page.goto('/');
-  const btn = page.locator('.motion-toggle');
+  const btn = page.locator('.site-foot .motion-toggle');
   await expect(btn).toHaveRole('button');
   await expect(btn).toHaveAttribute('title', /Turn (on|off) the scroll animations/);
   const box = await btn.boundingBox();

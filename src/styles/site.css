@@ -908,3 +908,276 @@ main [id]{scroll-margin-top:80px}
 .site-doc-table thead th{font-size:12px;font-weight:700;letter-spacing:.14em;
   text-transform:uppercase;white-space:nowrap;
   border-bottom:2px solid color-mix(in srgb,var(--ink-strong) 22%,transparent)}
+
+/* ===== Display type that fits (MVBOLD-31) =====
+   From the MANUVA-49 critique. Three defects, one cause each.
+
+   1. Clipped heroes. .hero is a grid with no column template, so its one
+      track took the min-content of the h1, the longest word. On a 390px phone
+      that made the column 403-535px wide, and the hero's overflow:hidden cut
+      the headline, the sub-copy and the buttons off at the right edge. The
+      page never scrolled sideways, which is why the responsive suite passed.
+      minmax(0,1fr) holds the column to the screen.
+
+   2. Words breaking or running off. A display size in vw knows nothing about
+      the words it sets: "manufacturers:" is 8.5em wide in Archivo at this
+      width axis, "Purchasing" 6.2em. So every display size here is also capped
+      at its own column divided by --fit, the em width of the longest word it
+      has to hold (measured, plus room for the highlight's padding). cqi is the
+      column: the nearest container, which is the section, panel or split
+      column the heading sits in. A heading with a longer word than its class
+      sets its own --fit inline. display-type.spec.ts checks every word of
+      every display heading, on every page, from 320 to 1920.
+
+   3. Collisions. At .88 leading, descenders sat on the next line's ascenders,
+      and the lime highlight, whose box is taller than .88, painted over the
+      line above it: "why teams" read "whv teams". .92 for display text, and
+      1.08 for a highlighted line, which is the room its box needs. */
+.hero:not(.dave),.cut,.stage .panel,.sec,.split>*{container-type:inline-size}
+.hero:not(.dave){grid-template-columns:minmax(0,1fr)}
+.disp{line-height:.92}
+.disp .hl{line-height:1.08}
+.hero h1{--fit:8.8}
+.cut h2,.stage .panel h2{--fit:6.4}
+.sec h2.disp{--fit:7.8}
+.hero:not(.dave) h1{font-size:min(15.5vw,calc(100cqi / var(--fit)));max-width:max(9ch,calc(var(--fit) * 1em))}
+.cut h2,.stage .panel h2{font-size:min(15.5vw,calc(100cqi / var(--fit)))}
+.sec h2.disp{font-size:min(12vw,calc(100cqi / var(--fit)))}
+@media(min-width:721px){
+  .hero:not(.dave) h1{font-size:min(11vw,calc(100cqi / var(--fit)));max-width:max(11ch,calc(var(--fit) * 1em))}
+  .cut h2,.stage .panel h2{font-size:min(11vw,calc(100cqi / var(--fit)))}
+  .sec h2.disp{font-size:min(8vw,calc(100cqi / var(--fit)))}
+}
+@media(min-width:1100px){
+  .hero:not(.dave) h1{font-size:min(clamp(96px,9vw,156px),calc(100cqi / var(--fit)))}
+  .cut h2,.stage .panel h2{font-size:min(clamp(96px,10vw,180px),calc(100cqi / var(--fit)))}
+  .sec h2.disp{font-size:min(clamp(64px,6vw,104px),calc(100cqi / var(--fit)))}
+}
+/* Restated after the .sec rule above, which would otherwise win. */
+.stage-lead h2.disp{font-size:min(clamp(32px,4.6vw,58px),calc(100cqi / var(--fit)))}
+
+/* The legal documents at 1920. max-width:78ch is border-box, and from 1100
+   the page gutter was its padding: 340px a side at 1920, which left the text
+   a 303px column right of centre. The max-width already centres it; the
+   padding only has to be a gutter. */
+@media(min-width:1100px){.doc,.site-doc{padding-inline:48px}}
+
+/* Motion off, the stage panels flow as normal sections, and their ghost
+   numerals ran 30px past a 390px screen, which scrolled the page sideways
+   and pushed the burger half off it. */
+:root[data-motion="off"] .stage .panel{overflow:hidden}
+
+/* ===== The sign-up path (MVBOLD-31) =====
+   Start free in the header from 721 up, where the drawer is not, and as a
+   real button in the drawer below that: it was a muted text link the same
+   as Sign in. The header pill is lime with an ink ring, so it still reads on
+   the lime closing bands the header passes over. */
+.head-cta{min-height:40px;padding:0 18px;font-size:15px;margin-left:4px;
+  box-shadow:inset 0 0 0 2px var(--on-lime)}
+.head-cta:hover{opacity:1;background:var(--on-lime);color:var(--field-lime)}
+#drawer a.dcta{font:700 18px/1 var(--font-body);letter-spacing:0;justify-self:start;
+  margin-top:10px;min-height:54px}
+/* The pill is taller than the links: centre the row so they stay on the
+   logo's line rather than riding to the top of it. */
+@media(min-width:721px){.links{align-items:center}}
+.ctrack a.go{background:var(--field-lime);color:var(--on-lime);margin-left:4px}
+.ctrack a.go:hover{background:#fff;color:var(--field-ink)}
+
+/* ===== The home hero's first frame (MVBOLD-31) =====
+   The critique's first UX finding: the first screen showed the tagline and
+   nothing else, so a cold visitor could not tell this was MRP for Shopify
+   makers, and the first Start free was two screens down. The descriptor sits
+   above the tagline and Start free below it. Each is in a .dave-fold, a
+   one-row grid that animates 1fr -> 0fr when the scrub starts
+   (data-lead="gone", from Motion.astro), so the tagline settles to the
+   bottom and the calm frame is still only the tagline and the logo. Spacing
+   is padding inside the folds rather than a gap, so a shut fold leaves none.
+   Not opacity: the cobalt field pins every descendant at full strength. */
+.dave-fold{display:grid;grid-template-rows:1fr;
+  transition:grid-template-rows 450ms var(--ease-out),visibility 0s}
+.dave-fold>*{min-height:0;overflow:hidden}
+/* Padding on the content, never on the grid item: an item cannot shrink
+   below its own padding, so a shut fold would keep it. */
+.dave-fold .eyebrow{display:block;padding-bottom:16px}
+.dave-go{display:flex;padding:22px 6px 6px;margin-inline:-6px}
+.hero.dave[data-lead="gone"] .dave-fold{grid-template-rows:0fr;visibility:hidden;
+  transition:grid-template-rows 450ms var(--ease-out),visibility 0s 450ms}
+@media(prefers-reduced-motion:reduce){.dave-fold{transition:none}}
+
+/* ===== Brand rules and access (MVBOLD-31) =====
+   Lime is backgrounds and accents, never text (loud-layer rules). Four rules
+   in the design's own sheet broke that, and the note above left them to the
+   design system; they are overridden here instead, so the site follows its
+   own rule. The current drawer item keeps lime as an underline, the toggle's
+   saving as a lime chip with its paired ink. */
+.site-foot .cols .eyebrow{color:inherit;opacity:.72}
+#drawer a[aria-current]{color:inherit;text-decoration:underline;text-decoration-color:var(--field-lime);
+  text-decoration-thickness:6px;text-underline-offset:10px}
+.toggle small,.toggle button[aria-pressed="true"] small{color:var(--on-lime);background:var(--field-lime);
+  padding:2px 7px;border-radius:999px}
+
+/* Focus rings take the ink of the surface they sit on, not the button's own
+   text colour: a white-text pill on a paper card drew a white ring on paper,
+   invisible on all four pricing cards. */
+:root{--ring:var(--ink-strong)}
+.mv-field-paper,.mv-field-lime,.mv-field-amber,.mv-field-mint,.mv-field-aqua,.mv-field-flare{--ring:var(--ink-strong)}
+.mv-field-cobalt,.mv-field-violet,.mv-field-ink,.site-foot,#drawer{--ring:#fff}
+.pill:focus-visible{outline-color:var(--ring)}
+.site-head .pill:focus-visible{outline-color:var(--field-lime)}
+[tabindex="0"]:focus-visible{outline:3px solid var(--ring);outline-offset:3px;border-radius:4px}
+
+/* Text for screen readers only: the comparison tables' empty corner cell
+   was an empty column header to axe on six pages. */
+.vh{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* The motion switch in the header (from 721) and the drawer. */
+.head-motion{margin-left:auto;display:flex}
+.head-motion .motion-toggle{font-size:13px;font-weight:600;min-height:40px}
+.drawer-motion .motion-toggle{font:600 16px/1 var(--font-body);color:#fff;margin-top:8px}
+/* At tablet widths the switch shows only its track (its label stays for
+   screen readers), and nothing in the bar wraps: at 768 "Sign in" and
+   "Start free" broke onto two lines. */
+.links a,.head-cta,.head-motion .motion-toggle{white-space:nowrap}
+@media(min-width:721px) and (max-width:1099px){
+  .links{gap:18px}
+  .head-motion .motion-label{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0)}
+}
+
+/* ===== /features: less dead colour, tidy badges (MVBOLD-31) =====
+   Each domain's pinned cut ran 170svh with the cut starting late, so the
+   page opened every domain on most of a screen of flat colour and ran
+   19,180px at 1440. 140svh, with the cut starting sooner (Motion.astro). */
+.intro{height:140svh}
+.fcards{padding-bottom:72px}
+@media(min-width:721px){.fcards{padding-bottom:88px}}
+/* The plan badge was an inline-block that took the card heading's line
+   box: on phones (with Chrome's text autosizing) a 44px oval with its
+   label jammed at the top. A fixed-height inline-flex pill centres it. */
+.tier{display:inline-flex;align-items:center;height:20px;line-height:1;padding:0 8px;vertical-align:.18em}
+/* The design system gives every link a 44px minimum on touch screens, which
+   is what turned the 20px badge into a 44px oval. The badge stays 20px and
+   keeps a 44px tap target as an invisible hit area around it. */
+.tier{min-height:0;position:relative}
+.tier::after{content:"";position:absolute;inset:-12px -4px}
+
+/* ===== Polish (MVBOLD-31) ===== */
+/* Hover. The design system's a:hover repaints every link's text in
+   --brand-dark: buttons only changed text colour, and header links on a dark
+   hero turned dark cobalt and nearly vanished. Buttons keep their ink and
+   lift; an outline button fills with a tint of its own ink; header links
+   keep the header's ink and take an underline. */
+.pill{transition:transform 160ms var(--ease-out),background-color 160ms,box-shadow 160ms}
+.pill:hover{opacity:1;transform:translateY(-2px);color:var(--on-lime)}
+.pill.ink:hover{color:#fff}
+.pill.white:hover{color:var(--field-ink)}
+.pill.ghost:hover{color:inherit;background:color-mix(in srgb,currentColor 14%,transparent)}
+.head-cta:hover{color:var(--field-lime)}
+.site-head a:not(.pill):hover{color:inherit;opacity:1;text-decoration:underline;
+  text-decoration-thickness:2px;text-underline-offset:7px}
+@media(prefers-reduced-motion:reduce){.pill:hover{transform:none}}
+:root[data-motion="off"] .pill:hover{transform:none}
+
+/* The band under the home hero. Top-aligned, so the two eyebrows share a
+   line; a real gap when the columns stack; an ink play button, because the
+   lime one disappeared into the lime end card and covered its tagline. */
+.hero-intro .split{align-items:start;display:grid;gap:40px}
+.hero-intro .site-video-play{background:var(--field-ink);color:var(--field-lime);
+  inset:auto auto 16px 16px;margin:0}
+
+/* The contact card: labels in one column and values in another, at a
+   measure the values fit; it read as a placeholder with the values pushed
+   right and squeezed to 300px. */
+.contact-card .ptable{max-width:56ch}
+.contact-card .prow{display:grid;grid-template-columns:12ch minmax(0,1fr);gap:16px;justify-content:start}
+.contact-card .prow span:last-child{text-align:left}
+
+/* /mrpeasy's seat table on a phone: four uppercase headers in narrow
+   columns, wide tracking and no wrapping ran them into each other. */
+@media(max-width:720px){
+  .stable .r.h .eyebrow{white-space:normal;overflow-wrap:anywhere;letter-spacing:.06em;line-height:1.3}
+}
+
+/* Short panel lines left one word alone on the last line. */
+.cut .pline,.stage .panel .pline{text-wrap:pretty}
+
+/* ===== Re-score round (MVBOLD-31) ===== */
+/* A home panel fills the pinned viewport, so an outset ring is drawn off
+   screen: inset it. */
+.stage .panel:focus-visible{outline-offset:-12px;border-radius:16px}
+/* Integration names at .55 measured 4.05:1 on paper; .72, as the sector row. */
+.logorow li{opacity:.72}
+/* "Less chaos." always owns the first line. With the narrower fallback face
+   the whole tagline fitted on one line at 1440, and the swap to Archivo
+   broke it onto two and moved the copy and its scrim 136px. */
+.hero.dave h1 .line{display:block}
+/* The header switch keeps a visible word at tablet widths; the full
+   "Motion on/off" label stays for screen readers. */
+.motion-word{display:none}
+@media(min-width:721px) and (max-width:1099px){.head-motion .motion-word{display:inline;font-size:13px}}
+/* Every matrix row for a plan, behind a disclosure on the phone cards. */
+.site-matrix-all{border-top:1.5px solid color-mix(in srgb,var(--ink-strong) 12%,transparent);padding-top:12px}
+.site-matrix-all summary{cursor:pointer;font-weight:700;font-size:15px;min-height:44px;display:flex;align-items:center;
+  list-style:none;text-decoration:underline;text-underline-offset:5px}
+.site-matrix-all summary::-webkit-details-marker{display:none}
+.site-matrix-all-group{display:grid;gap:6px;margin-top:14px}
+.site-matrix-all-head{margin:0;font-family:var(--font-display);font-variation-settings:"wdth" 108,"wght" 800;font-size:15px}
+.site-matrix-all ul{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14px}
+.site-matrix-all li{display:flex;justify-content:space-between;gap:12px;padding-bottom:6px;
+  border-bottom:1px solid color-mix(in srgb,var(--ink-strong) 10%,transparent)}
+
+/* ===== Re-score round, UI (MVBOLD-31) ===== */
+/* The logo is the scrub's payoff. The scene is anchored at 31% across so
+   Dave stays in view as the sides crop, which on 4:3 and 5:4 screens cut the
+   logo on the right-hand wall ("Manuv"). From 16:10 down it anchors at 60%:
+   Dave and the logo both fit. Portrait tablets are wider than the portrait
+   crop, so the scene overflows top and bottom and the wall above the window
+   (where the logo sits on a phone) is above the screen. There the logo goes
+   smaller onto the open wall right of the window, with the scene still
+   centred so Dave stays clear of the tagline. Phones are unchanged. */
+@media(max-aspect-ratio:16/10) and (min-aspect-ratio:4/5){.dave-scene{left:60%;transform:translate(-60%,-50%)}}
+@media(max-aspect-ratio:4/5) and (min-aspect-ratio:3/5){.dave-logo{left:57%;top:24%;width:39%}}
+
+/* Section headings wrap to three or four lines at their size, and at .92
+   descenders met the next line ("system" on "covering"). And below 1100 a
+   .split is a plain block, so a heading sat directly on the body beneath it. */
+.sec h2.disp{line-height:.98}
+@media(max-width:1099px){.split{display:grid;gap:28px}}
+
+/* A sentence-length hero headline steps down one size, so the sub-copy and
+   Start free land in the first screen (the comparison pages and /about). */
+@media(min-width:721px){.hero.long:not(.dave) h1{font-size:min(8vw,calc(100cqi / var(--fit)))}}
+@media(min-width:1100px){.hero.long:not(.dave) h1{font-size:min(clamp(72px,6.4vw,112px),calc(100cqi / var(--fit)))}}
+
+/* /mrpeasy seat table on phones: whole words, small enough to fit. */
+@media(max-width:720px){
+  .stable .r.h .eyebrow{overflow-wrap:normal;font-size:10px;letter-spacing:.03em}
+}
+
+/* Panel lines: balanced, so none ends on one word. */
+.cut .pline,.stage .panel .pline{text-wrap:balance;max-width:34ch}
+
+/* Hover: the header Start free inverts to ink with paper text (lime text
+   breaks the loud-layer rule even on hover); the motion switch tints. */
+.head-cta:hover{background:var(--ink-strong);color:#fff}
+.motion-toggle:hover i{background:color-mix(in srgb,currentColor 22%,transparent)}
+@media(min-width:721px){.hero.long{padding-top:108px;gap:24px}}
+/* The home stage: the panel being covered fades its copy out through its
+   colour once the incoming shape is well in (data-leaving, Motion.astro),
+   rather than having it clipped. Colour, not opacity, which the field's
+   full-strength override pins. */
+.stage .panel :is(.eyebrow,h2,.pline,.more){transition:color 240ms var(--ease-out)}
+.stage .panel[data-leaving="1"] :is(.eyebrow,h2,.pline,.more){color:transparent}
+/* A link that is itself a field (each home stage panel, the /alternatives
+   cards) keeps its field's ink on hover. The design system's a:hover
+   repainted the whole panel in --brand-dark: 2.4:1 on violet, about 2.2:1 on
+   cobalt (the critic's N-8). The hover shows as a heavier "See ..." line. */
+a.mv-field-cobalt:hover{color:var(--on-cobalt)}
+a.mv-field-violet:hover{color:var(--on-violet)}
+a.mv-field-flare:hover{color:var(--on-flare)}
+a.mv-field-amber:hover{color:var(--on-amber)}
+a.mv-field-mint:hover{color:var(--on-mint)}
+a.mv-field-aqua:hover{color:var(--on-aqua)}
+a.mv-field-lime:hover{color:var(--on-lime)}
+a.mv-field-ink:hover{color:var(--on-ink)}
+a.mv-field-paper:hover{color:var(--on-paper)}
+.stage .panel:hover .more,.altcard:hover .more{text-decoration-thickness:3px}
