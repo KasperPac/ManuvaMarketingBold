@@ -8,6 +8,9 @@
   is one before→after transformation clip, not the ad's story shots (§2), and the
   scrim is neutral ink, not navy (§3.2). Revised again after an A/B the same
   day: the scrub plays the clip itself, not a set of stills (§3.3, §4).
+  Revised 2026-10-02 (MANUVA-52, `MVBOLD-33`): the room no longer turns lime.
+  An A/B of the calm frame picked natural walls; T1 was regenerated as T2, in
+  which the room only tidies and the light comes up (§2, §3.3).
 
 ## 1. What and why
 
@@ -15,9 +18,9 @@ The home page hero becomes Dave's office. Dave is the claymation character from
 the Manuva stop-motion ad (`C:\dev\MarketingAndPromotion\video\manuva-stopmotion`).
 As the visitor scrolls, the same room, from the same locked-off camera, tidies
 itself from chaos to calm: the pinned spreadsheets and sticky notes go, the
-printer and beige monitor give way to a laptop, the grey walls turn lime, and
-Dave ends with his feet up and a mug of tea. Scroll position reads directly as
-"how calm is the office". The headline says the same thing the room does.
+printer and beige monitor give way to a laptop, the light comes up on walls that
+keep their own colour, and Dave ends with his feet up and a mug of tea. Scroll
+position reads directly as "how calm is the office". The headline says the same thing the room does.
 
 The goal is a memorable first screen that tells the before/after in one gesture,
 without moving a single CTA out of reach.
@@ -28,9 +31,9 @@ without moving a single CTA out of reach.
 |---|---|
 | Placement | Full-bleed hero backdrop over the cobalt field. |
 | Interaction | Scroll-scrubbed stop-motion, pinned. |
-| Footage | **One transformation clip, T1**: `before.png` → `after.png` (`frames/keys/v3/`), Veo 3.1 Fast frames-to-video in Google Flow, 8 s. The ad's story shots (A1–E1) are not used by the hero. |
+| Footage | **One transformation clip, T2**: `before.png` → a natural-walls end frame, Veo 3.1 Fast frames-to-video in Google Flow, 8 s. The end frame is `after.png` (`frames/keys/v3/`) with its lime walls recoloured to a warm neutral (212, 203, 188), the clay's shading kept. T1 (`before.png` → `after.png`) repainted the walls lime in sweeping strokes; feedback was that it was too much going on ("we're not really painting the office"), and an A/B of the calm frame (lime, natural, a lime feature wall, a lime sign) picked natural. The ad's story shots (A1–E1) are not used by the hero. |
 | Hero copy | **Only the tagline**, bottom-left over a fade along the bottom edge, at every size. Revised after the first preview: copy and scrim over the scene hid it. (Was layout A on desktop and a poster layout on phones.) |
-| Logo | The exact Manuva logo is **wiped onto the lime wall as the room turns calm**: right of the corner on landscape, across the top of the wall on phones. A clay picture frame for it was tried and rejected (the clean logo in a clay frame looked off). |
+| Logo | The exact Manuva logo is **wiped onto the back wall as the room turns calm**: right of the corner on landscape, across the top of the wall on phones. A clay picture frame for it was tried and rejected (the clean logo in a clay frame looked off). |
 | Eyebrow, sub-copy, buttons | Word for word, in a band directly under the hero, beside the video. |
 | Marquee | **Removed** from the home page (preview feedback: its drift under the scrubbing hero was too distracting). Every fact it carried is still stated on /features or /pricing; the parity report is unchanged by its removal. |
 | Headline | **Less chaos. More making.** (the ad's own end line). Was "Make it. Track it. Ship it." |
@@ -72,8 +75,9 @@ single-camera transformation possible.
   hero is the hero contract's documented exception.
 - H1: `Less chaos. <span class="hl keep">More making.</span>`
   - With JS and motion on, the hero carries `data-scrub="pre"` until the clip reaches T, and
-    the `.hl` chip on "More making." is hidden until then. It lands as the walls
-    turn lime, together with the logo.
+    the `.hl` chip on "More making." is hidden until then. It lands as the room
+    is complete, together with the logo. With the walls natural, the chip is
+    the only lime in the calm frame.
   - With no JS or with reduced motion the chip is simply shown. Progressive
     enhancement: the markup is the finished state. The logo stays hidden there:
     the still scene is the chaos frame, and the grey wall is not its moment.
@@ -91,7 +95,7 @@ single-camera transformation possible.
 - **The fade belongs to the copy**, not the viewport: it starts 60% of the copy
   box's height above it and is still two-thirds ink at the headline's first
   line, so it is only as tall as the tagline needs and the white first line keeps
-  3:1 (large text) over the lime room at any headline size (measured on pixels in
+  3:1 (large text) over the calm room at any headline size (measured on pixels in
   `dave-hero.spec.ts`).
 - **Headline size:** `min(15.5vw, (100vw − 40px) / 7.9)` on phones,
   `min(11vw, 112px, (100vw − 64px) / 7.9)` from 721px, and
@@ -114,7 +118,7 @@ single-camera transformation possible.
 ### 3.3 Scrub behaviour
 
 - The hero is `100svh` plus a scrub length of `150svh`; the inner stage is sticky.
-- **The scrub plays the clip itself**: all 192 frames of T1, positioned by
+- **The scrub plays the clip itself**: all 192 frames of T2, positioned by
   scroll, over the still. Progress `p` is the hero's scroll offset over its
   scroll length, damped by `Motion.astro`'s follower with the scrub's own time
   constant, **160 ms** (`SCRUB_TAU`; the rest of the page uses 90 ms).
@@ -134,8 +138,9 @@ single-camera transformation possible.
     the clip picked the clip. One notch is now a short eased run of frames.
     The cross-fade cost nothing extra, but anything moving fast showed twice
     mid-fade.
-- The calm moment, `T = 5.5 s` (walls first fully lime, picked by eye on a
-  contact sheet), is recorded in the manifest (§4.1) and written as
+- The calm moment, `T = 5.5 s` (the room first complete: clutter gone, bins
+  stacked, Dave's feet up; picked by eye on a contact sheet of T2. In T1 it was
+  the walls first fully lime, at the same time), is recorded in the manifest (§4.1) and written as
   `data-calm`. It drives the highlight and the logo, and is compared with the
   time actually on screen, not the target.
 - The last frame holds for the final ~10% of the scroll, then the pin releases
@@ -171,8 +176,8 @@ single-camera transformation possible.
 
 `scripts/hero-frames.mjs` (`npm run hero:frames`):
 
-1. Reads T1 from a path given on the command line (default
-   `../MarketingAndPromotion/video/manuva-stopmotion/flow-kit/downloads/T1.mp4`).
+1. Reads the clip from a path given on the command line (default: `clip` in
+   the manifest, `../MarketingAndPromotion/video/manuva-stopmotion/flow-kit/downloads/T2.mp4`).
 2. Reads a committed manifest, `scripts/hero-frames.json`: `calm` (T, in
    seconds), portrait focal x, still quality, video CRF and keyframe spacing,
    and the budgets.
@@ -189,10 +194,10 @@ output is committed. Vercel never sees the clip.
 
 ### 4.2 Shapes and budget
 
-| Shape | Size | Still | Clip (measured on T1) | Budget |
+| Shape | Size | Still | Clip (T1 → T2) | Budget |
 |---|---|---|---|---|
-| Landscape | 1280×720 | 48 KB | 3,317 KB | ≤ 3,500 KB |
-| Portrait | crop of the 1080p download, 500×1080 | 28 KB | 1,917 KB | ≤ 2,100 KB |
+| Landscape | 1280×720 | 48 KB | 3,317 → 2,516 KB | ≤ 3,500 KB |
+| Portrait | crop of the 1080p download, 500×1080 | 28 KB | 1,917 → 1,807 KB | ≤ 2,100 KB |
 
 - 1280×720 because that is the clip's native generation size; the 1080p
   download is an upscale. Phone sharpness depends on the 1080p download.
@@ -274,7 +279,7 @@ existing `.hl` (lime field, `--on-lime` ink).
   must not regress against the current home page.
 - **Manual:** scrub feel at 1440, 1024 and 390, and on a real iPhone (the
   play-then-pause priming is the part no headless browser exercises); header
-  ink over the hero; the highlight lands as the walls turn lime.
+  ink over the hero; the highlight lands as the room is complete.
 
 ## 7. Out of scope
 

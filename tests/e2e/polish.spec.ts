@@ -102,8 +102,17 @@ test('the share image is the current brand, 1200x630', async ({ request }) => {
   const buf = await res.body();
   const meta = await sharp(buf).metadata();
   expect([meta.width, meta.height]).toEqual([1200, 630]);
-  // The old card was a grey dotted panel; the new one is the lime calm room.
+  // The old card was a grey dotted panel; the new one is the calm hero. Its
+  // walls were lime until the room stopped being painted (MVBOLD-33): now
+  // they are a light warm neutral, and the lime is the tagline's highlight.
   const { dominant } = await sharp(buf).stats();
-  expect(dominant.g, 'dominant colour is the lime room').toBeGreaterThan(200);
-  expect(dominant.b, 'dominant colour is the lime room, not grey').toBeLessThan(120);
+  expect(dominant.r, 'dominant colour is the light wall').toBeGreaterThan(170);
+  expect(dominant.r - dominant.b, 'a warm neutral, not the old grey card').toBeGreaterThan(12);
+  expect(dominant.b, 'the walls are no longer lime (the lime room measured 200,216,56)').toBeGreaterThan(140);
+  const { data, info } = await sharp(buf).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+  let lime = 0;
+  for (let i = 0; i < info.width * info.height * 3; i += 3) {
+    if (data[i + 1] > 230 && data[i] > 170 && data[i] < 230 && data[i + 2] < 90) lime++;
+  }
+  expect(lime, 'the tagline highlight is on it').toBeGreaterThan(2000);
 });

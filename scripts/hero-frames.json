@@ -1,6 +1,6 @@
 {
-  "_about": "Inputs for scripts/hero-frames.mjs (MVBOLD-29). focalX is in the clip's 1920px-wide pixel space. calm is the time, in seconds, at which the back walls are first fully lime; it drives the headline highlight and the logo. video.gop is the keyframe spacing: a seek decodes from the keyframe before it. trim is rows taken off the top and bottom of the clip: its first frames carry black rows along the top.",
-  "clip": "../MarketingAndPromotion/video/manuva-stopmotion/flow-kit/downloads/T1.mp4",
+  "_about": "Inputs for scripts/hero-frames.mjs (MVBOLD-29). focalX is in the clip's 1920px-wide pixel space. calm is the time, in seconds, at which the room is first complete (clutter gone, bins stacked, Dave's feet up); it drives the headline highlight and the logo. T2 (MVBOLD-33) replaced T1: the walls keep their own colour and only the light comes up. video.gop is the keyframe spacing: a seek decodes from the keyframe before it. trim is rows taken off the top and bottom of the clip: its first frames carry black rows along the top.",
+  "clip": "../MarketingAndPromotion/video/manuva-stopmotion/flow-kit/downloads/T2.mp4",
   "trim": 6,
   "calm": 5.5,
   "poster": {

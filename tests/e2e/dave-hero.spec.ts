@@ -254,7 +254,31 @@ test.describe('scrub, motion on', () => {
     await expect.poll(() => hint.evaluate((e) => Number(getComputedStyle(e).opacity))).toBeLessThan(0.05);
   });
 
-  test('the logo is painted onto the lime wall as the room turns calm', async ({ page }) => {
+  // MVBOLD-33: the room only tidies. It used to be repainted lime as it
+  // calmed, which was too much going on for an office tidying up. The upper
+  // half of the calm scene is wall; with the logo hidden, almost none of it
+  // may be lime (the yellow parts bins and Dave's pencil are a sliver).
+  test('the calm room keeps its natural walls', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/');
+    await clipReady(page);
+    await heroScrollTo(page, 1);
+    await expect.poll(() => shownAt(page), { timeout: 8_000 }).toBeGreaterThan(7.9);
+    await page.addStyleTag({ content: '.dave-logo{visibility:hidden!important}' });
+    await page.waitForTimeout(400);
+    const png = await page.screenshot({ clip: { x: 0, y: 0, width: 1280, height: 360 } });
+    const { default: sharp } = await import('sharp');
+    const { data, info } = await sharp(png).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+    let lime = 0;
+    for (let i = 0; i < info.width * info.height * 3; i += 3) {
+      const [r, g, b] = [data[i], data[i + 1], data[i + 2]];
+      const mx = Math.max(r, g, b), c = mx - Math.min(r, g, b);
+      if (mx === g && c / mx > 0.45 && mx > 90 && r > b) lime++;
+    }
+    expect(lime / (info.width * info.height), 'share of lime pixels in the upper half').toBeLessThan(0.02);
+  });
+
+  test('the logo is wiped onto the back wall as the room turns calm', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
     const logo = page.locator('.dave-logo');

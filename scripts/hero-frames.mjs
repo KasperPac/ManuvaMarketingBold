@@ -1,6 +1,6 @@
 // Cut the Dave hero's media from the transformation clip (MVBOLD-29).
 //
-// Usage:  npm run hero:frames [-- path/to/T1.mp4]
+// Usage:  npm run hero:frames [-- path/to/clip.mp4]
 //
 // The clip is generated in Google Flow and lives untracked in the sibling
 // MarketingAndPromotion repo, so Vercel never sees it. Run this by hand and
@@ -37,8 +37,8 @@ const first = join(tmp, 'first.png');
 execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', clip, '-frames:v', '1', first]);
 const { width, height } = await sharp(first).metadata();
 
-// T1's first frames carry a few rows of black along the top, which read as
-// a dark line across the hero (MVBOLD-31). M.trim rows come off the top and
+// The clips' first frames (T1 and T2 alike) carry a few rows of black along
+// the top, which read as a dark line across the hero (MVBOLD-31). M.trim rows come off the top and
 // bottom of both shapes, and the width follows to keep each aspect.
 const T = M.trim ?? 0;
 const h = height - 2 * T;

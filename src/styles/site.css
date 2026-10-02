@@ -669,7 +669,7 @@ main [id]{scroll-margin-top:80px}
    section is one screen and the sticky pin has nothing to do.
 
    The scene carries only the tagline, bottom-left over a fade along the
-   bottom edge, and the Manuva logo, painted onto the lime wall when the room
+   bottom edge, and the Manuva logo, wiped onto the back wall when the room
    turns calm. The top of the scene stays clear: preview feedback was that copy
    and scrim over it made it hard to see what was going on.
 
@@ -710,11 +710,12 @@ main [id]{scroll-margin-top:80px}
 @media(max-aspect-ratio:4/5){
   .dave-scene{left:50%;transform:translate(-50%,-50%);aspect-ratio:500/1080;width:max(100%,calc(100svh * 500 / 1080));width:max(100%,calc(100dvh * 500 / 1080))}
 }
-/* The logo, on the empty lime wall right of the corner (landscape) or across
+/* The logo, on the empty wall right of the corner (landscape) or across
    the top of the wall above the window (portrait). It wipes on left to right
    like fresh paint when the room turns calm; clip-path rather than opacity,
-   which the field's full-strength override would pin at 1. Ink on lime:
-   --on-lime. Hidden whenever data-scrub is not "calm", which includes reduced
+   which the field's full-strength override would pin at 1. The walls keep
+   their own warm neutral (MVBOLD-33); the ink stays --on-lime, which is
+   near-black and reads on it. Hidden whenever data-scrub is not "calm", which includes reduced
    motion and no JS, where the scene is the chaos frame. */
 .dave-logo{position:absolute;left:59%;top:21%;width:27%;aspect-ratio:2189.357/482.347;color:var(--on-lime);clip-path:inset(0 100% 0 0);transition:clip-path 700ms var(--ease-out)}
 @media(max-aspect-ratio:4/5){.dave-logo{left:12%;top:11%;width:76%}}
@@ -724,7 +725,7 @@ main [id]{scroll-margin-top:80px}
    own height above it and is still two-thirds ink at the headline's first
    line, so the line is covered however large the headline grows, and the
    fade is only as tall as the copy needs. The white first line is large text
-   and must hold 3:1 over the lime room (measured in dave-hero.spec.ts). */
+   and must hold 3:1 over the calm room (measured in dave-hero.spec.ts). */
 .dave-copy::before{content:"";position:absolute;inset:-60% 0 0 0;z-index:-1;pointer-events:none;background:linear-gradient(0deg,color-mix(in srgb,var(--ink-strong) 88%,transparent) 0%,color-mix(in srgb,var(--ink-strong) 66%,transparent) 62.5%,transparent 100%)}
 .hero.dave h1{font-size:min(15.5vw,calc((100vw - 40px) / 7.9));max-width:none}
 .dave-hint{display:none;position:absolute;left:50%;bottom:12px;transform:translateX(-50%);font:600 11px/1 var(--font-body);letter-spacing:.14em;text-transform:uppercase;opacity:.8;pointer-events:none}
