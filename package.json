@@ -21,7 +21,8 @@
     "hero:frames": "node scripts/hero-frames.mjs"
   },
   "dependencies": {
-    "astro": "^7.2.0"
+    "astro": "^7.2.0",
+    "lenis": "1.3.26"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",

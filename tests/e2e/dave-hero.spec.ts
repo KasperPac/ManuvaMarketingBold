@@ -431,7 +431,12 @@ test.describe('scrub, motion on', () => {
     await page.locator('.site-foot .motion-toggle').click();
     await page.waitForLoadState('load');
     await expect(page.locator('html')).toHaveAttribute('data-motion', 'on');
-    await expect(page.locator('.hero.dave')).toHaveAttribute('data-scrub', 'pre');
+    // The scrub is back. Which frame it shows depends on where the reload
+    // restored the scroll (the footer, where the switch is), so this checks
+    // the scrub runs and the pin is back, not that it reads "pre": asserting
+    // "pre" raced the scroll restore and failed about one run in three.
+    await expect(page.locator('.hero.dave')).toHaveAttribute('data-scrub', /^(pre|calm)$/);
+    expect(await page.locator('.hero.dave').evaluate((el) => el.getBoundingClientRect().height)).toBeGreaterThan(800 * 2);
   });
 });
 
