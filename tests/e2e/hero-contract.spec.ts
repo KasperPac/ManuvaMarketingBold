@@ -107,11 +107,11 @@ test.describe('the shared page-hero contract', () => {
     expect(m.h1Align, 'headings are left-aligned').toBe('start');
 
     // Same exclusion as the heading-scale test below: a heading inside a
-    // shape cut or a pinned stage panel owns the whole viewport and is
-    // deliberately the biggest type on the page.
+    // shape cut owns the whole viewport and is deliberately the biggest type
+    // on the page.
     const biggest = await page.evaluate(() =>
       Math.max(...[...document.querySelectorAll('main h2, main h3')]
-        .filter((h) => !h.closest('.cut, .stage .panel'))
+        .filter((h) => !h.closest('.cut'))
         .map((h) => Number.parseFloat(getComputedStyle(h).fontSize))));
     expect(m.h1Size!, `h1 is ${m.h1Size}px against a largest h2/h3 of ${biggest}px`)
       .toBeGreaterThan(biggest);
@@ -133,8 +133,9 @@ test.describe('the shared page-hero contract', () => {
 // on six of seven pages — the call to action outranking the page title.
 //
 // One class of h2 is allowed above the h1 and it is stated here rather than
-// left to be rediscovered: the headings inside a shape cut (.cut) or a pinned
-// stage panel. Those are full-screen moments that own the whole viewport, and
+// left to be rediscovered: the headings inside a shape cut (.cut). Those are
+// full-screen moments that own the whole viewport (the home stage's panels were
+// too, until they became tiles in MVBOLD-34), and
 // the design sizes them at clamp(96px, 10vw, 180px) deliberately, above the
 // hero's own 9vw. Nothing else gets to.
 test.describe('heading scale', () => {
@@ -147,7 +148,7 @@ test.describe('heading scale', () => {
         if (!h1) return ['no h1 on the page'];
         const h1Size = Number.parseFloat(getComputedStyle(h1).fontSize);
         return [...document.querySelectorAll('main h2')]
-          .filter((h) => !h.closest('.cut, .stage .panel'))
+          .filter((h) => !h.closest('.cut'))
           .map((h) => ({
             text: (h.textContent || '').trim().slice(0, 40),
             size: Number.parseFloat(getComputedStyle(h).fontSize),

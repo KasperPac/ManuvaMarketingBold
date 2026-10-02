@@ -13,7 +13,10 @@
   which the room only tidies and the light comes up (§2, §3.3). The same day,
   from preview feedback: the tagline is one line from 1100px, so it no longer
   covers most of the desk (§3.2), and the clip is cut at its last settled pose
-  instead of ending mid-blink (§3.3, §4.1).
+  instead of ending mid-blink (§3.3, §4.1). Also 2026-10-02 (MANUVA-53,
+  `MVBOLD-34`): the six-domain stage below the hero was a second pinned
+  sequence, five screens long, a short band after this one. It is now a static
+  grid of field tiles, so this hero is the home page's only pinned motion.
 
 ## 1. What and why
 

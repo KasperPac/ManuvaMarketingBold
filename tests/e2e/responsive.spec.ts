@@ -244,12 +244,11 @@ for (const route of MARKETING_ROUTES) {
       els.map((e) => {
         const cs = getComputedStyle(e);
         // A section can be transparent and still paint a full-bleed field,
-        // because the field is on its first child — which is how the pinned
-        // stage works, and how the shape-cut domain sections arrive. Read
+        // because the field is on a child — which is how the shape-cut domain
+        // sections arrive (and how the home stage did, until MVBOLD-34). Read
         // that child's background as the section's own for this purpose.
         const opaque = (c: string) => c !== 'rgba(0, 0, 0, 0)' && c !== 'transparent';
-        // Walk down the leading edge: the stage paints its field on
-        // .stage > .pin > .panel, two levels below the section.
+        // Walk down the leading edge, up to three levels below the section.
         let childBg = 'rgba(0, 0, 0, 0)';
         let node: Element | null = e.firstElementChild;
         for (let d = 0; node && d < 3; d++) {

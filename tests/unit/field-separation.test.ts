@@ -30,17 +30,17 @@ const file = (route: string) => (route === '/' ? 'dist/index.html' : `dist${rout
 // gate pass vacuously on every rebuilt page — it found no folds at all, so it
 // found no adjacent ones. It reads both now.
 //
-// .marquee and .stage are the two deliberate exemptions and the only ones.
-// The marquee is a lime rule the design itself places directly under the
-// cobalt hero, and the stage is a single pinned fold whose six panels overlay
-// each other in one viewport rather than stacking down the page.
+// .marquee is the one deliberate exemption: a lime rule the design itself
+// places directly under the cobalt hero. The home stage, a pinned fold whose
+// six panels overlaid each other in one viewport, was the other until it
+// became a grid of tiles inside a paper section (MVBOLD-34).
 function topLevelFolds(html: string): (string | null)[] {
   const $ = load(html);
   return $('main > section, main > div')
     .toArray()
     .map((el) => {
       const $el = $(el);
-      if ($el.hasClass('marquee') || $el.hasClass('stage')) return null;
+      if ($el.hasClass('marquee')) return null;
       const fold = $el.attr('data-fold');
       const cls = ($el.attr('class') ?? '').split(/\s+/).find((c) => c.startsWith('mv-field-'));
       const name = fold ?? (cls ? cls.replace('mv-field-', '') : null);

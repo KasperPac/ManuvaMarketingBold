@@ -23,8 +23,9 @@ export type FieldName = (typeof FIELDS)[number];
 //   Reporting   <- costing & profitability + reports & analytics
 //
 // `line` is the panel's one-line promise, verbatim from the reference. `field`
-// is fixed per domain here, not rotated, because the stage clips each panel in
-// over the last and the sequence has to be stable for the shapes to read.
+// is fixed per domain here, not rotated: each /features section's shape cut
+// arrives from the previous domain's field, and a domain is the same colour
+// on its home tile (MVBOLD-34; it was a pinned stage panel) and on /features.
 export const DOMAINS = [
   { id: 'inventory',  name: 'Inventory',  field: 'cobalt', line: 'Counted once. True everywhere.' },
   { id: 'purchasing', name: 'Purchasing', field: 'amber',  line: 'Lead times that mean something.' },

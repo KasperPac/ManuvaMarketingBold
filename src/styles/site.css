@@ -10,7 +10,8 @@
  * long-form legal documents, and /about.
  *
  * Motion is rationed by page and that rationing is part of the design:
- *   /            full   — pinned stage of six shape-cut panels, live marquee
+ *   /            one moment — the Dave hero's scroll-scrubbed clip. The design's
+ *                pinned stage and live marquee came off (MVBOLD-34, MVBOLD-29).
  *   /features    full   — every domain enters on its own shape cut, plus chips
  *   /alternatives/*  one moment — a single cut into the feature table
  *   /pricing, /about, /privacy, /terms   none — nothing pins
@@ -73,17 +74,6 @@ img{max-width:100%;display:block}
 .cut [data-rate]{will-change:transform}
 .tag{display:inline-flex;align-self:start;justify-self:start;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;background:var(--field-ink);color:#fff;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
 /* pinned stack — several panels in one pin (home) */
-.stage{position:relative}
-.stage .pin{position:sticky;top:0;height:100svh;overflow:hidden}
-.stage .panel{position:absolute;inset:0;display:grid;align-content:center;gap:14px;padding:96px 20px 84px;will-change:clip-path;text-decoration:none}
-.stage .panel:hover{opacity:1}
-.stage .panel .pnum{position:absolute;right:-.09em;bottom:-.2em;font-size:82vw;opacity:.15;pointer-events:none}
-.stage .panel h2{font-size:15.5vw}
-.stage .panel .pline{font-size:18px;line-height:1.35;margin:0;max-width:22ch;opacity:.92}
-.stage .panel .more{font-weight:700;font-size:16px;text-decoration:underline;text-underline-offset:5px}
-.ticks{position:absolute;left:20px;right:20px;bottom:26px;display:flex;gap:6px;z-index:20;color:inherit;pointer-events:none}
-.ticks i{flex:1;height:3px;border-radius:2px;background:currentColor;opacity:.32;transition:opacity 240ms}
-.ticks i[data-on="1"]{opacity:1}
 /* marquee */
 .marquee{overflow:hidden;background:var(--field-lime);color:var(--on-lime);padding:18px 0;white-space:nowrap}
 .marquee .track{display:inline-flex;gap:40px;padding-left:40px;will-change:transform}
@@ -139,8 +129,6 @@ img{max-width:100%;display:block}
  .nlist.two li:nth-last-child(2):nth-child(odd){border-bottom:2px solid color-mix(in srgb,currentColor 22%,transparent)}
  .nlist h3{font-size:30px}
  .cut{padding:120px 32px 130px;gap:20px}.cut h2{font-size:11vw}.cut .pline{font-size:24px}.cut .pnum{font-size:64vw}
- .stage .panel{padding:120px 32px 96px;gap:20px}.stage .panel h2{font-size:11vw}.stage .panel .pline{font-size:24px;max-width:26ch}.stage .panel .pnum{font-size:64vw}
- .ticks{left:32px;right:32px;bottom:34px}
  .marquee span{font-size:32px}
  .ctable .k{font-size:16px}.ctable .us{font-size:17px}.ctable .them{font-size:16px}
  .faq summary{font-size:24px}
@@ -148,11 +136,10 @@ img{max-width:100%;display:block}
  .site-foot{padding:80px 32px 32px}.site-foot .cols{grid-template-columns:repeat(5,minmax(0,1fr))}
 }
 @media(min-width:1100px){
- .wrap,.bar,.hero,.sec,.cut,.stage .panel,.outro,.site-foot{padding-inline:max(48px,calc((100% - var(--page-max,1240px))/2))}
- .ticks{left:max(48px,calc((100% - var(--page-max,1240px))/2));right:max(48px,calc((100% - var(--page-max,1240px))/2))}
+ .wrap,.bar,.hero,.sec,.cut,.outro,.site-foot{padding-inline:max(48px,calc((100% - var(--page-max,1240px))/2))}
  .hero h1{font-size:clamp(96px,9vw,156px)}.hero .ghostnum{font-size:48vw}
  .sec h2.disp{font-size:clamp(64px,6vw,104px)}
- .cut h2,.stage .panel h2{font-size:clamp(96px,10vw,180px)}.cut .pnum,.stage .panel .pnum{font-size:50vw}
+ .cut h2{font-size:clamp(96px,10vw,180px)}.cut .pnum{font-size:50vw}
  .nlist.three{grid-template-columns:repeat(3,minmax(0,1fr));column-gap:40px}
  .nlist.three li:nth-last-child(2):nth-child(odd){border-bottom:0}
  .nlist.three li:nth-child(3n+1):nth-last-child(-n+3),.nlist.three li:nth-child(3n+1):nth-last-child(-n+3)~li{border-bottom:2px solid color-mix(in srgb,currentColor 22%,transparent)}
@@ -301,27 +288,12 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid cur
    rediscover it. */
 .mv-field-paper{background:var(--field-paper);color:var(--on-paper)}
 
-/* Reduced motion: release the STAGE pin too.
-   The design's own spec is "no clip-paths or drift, pins released, intros
-   become normal 100svh sections" — but the media query it ships only releases
-   .intro / .ipin / .cut. .stage kept its 600svh pin and its absolutely
-   positioned panels, so with reduced motion on, the home page was six screens
-   of scrolling that swapped panels abruptly with nothing to look at. That is
-   not a degraded animation, it is a broken page, and it is the state anyone
-   with Windows animation effects off actually gets.
-   Released here the same way the intro is: normal flow, one full-height panel
-   after another, no pin, no clip, no ticks. */
-/* Keyed off the attribute for the same reason as the block above. The
-   !important declarations are load-bearing: they beat the inline styles the
-   motion engine writes, which is how the flat mode stays flat even if a
-   stale draw lands. It also means nothing can force the motion back on from
-   script alone — the attribute is the only switch. */
-:root[data-motion="off"] .stage{height:auto!important}
-:root[data-motion="off"] .stage .pin{position:relative;height:auto;overflow:visible}
-:root[data-motion="off"] .stage .panel{position:relative;inset:auto;min-height:100svh;visibility:visible!important;clip-path:none!important;transform:none!important}
-:root[data-motion="off"] .ticks{display:none}
-:root[data-motion="off"] .cut [data-rate],
-:root[data-motion="off"] .stage .panel [data-rate]{transform:none!important}
+/* Reduced motion: no drift on the shape cuts' copy. Keyed off the attribute
+   for the same reason as the block above. The !important beats the inline
+   transform the motion engine writes, so the flat mode stays flat even if a
+   stale draw lands. (The home stage was released here too until it became
+   a static grid, MVBOLD-34.) */
+:root[data-motion="off"] .cut [data-rate]{transform:none!important}
 
 /* Compare pages — the price cards, from the reference page's own inline
    <style> block. */
@@ -390,9 +362,9 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid cur
    aria-hidden, its word comes from CSS rather than a text node, it sits on
    the dark scrim rather than the field, and its opacity is how it fades out
    once the scrub starts. */
-.mv-field-cobalt *:not(.ghostnum):not(.pnum):not(.ticks):not(.ticks i):not(.dave-hint),
-.mv-field-violet *:not(.ghostnum):not(.pnum):not(.ticks):not(.ticks i):not(.dave-hint),
-.mv-field-flare  *:not(.ghostnum):not(.pnum):not(.ticks):not(.ticks i):not(.dave-hint){opacity:1!important}
+.mv-field-cobalt *:not(.ghostnum):not(.pnum):not(.dave-hint),
+.mv-field-violet *:not(.ghostnum):not(.pnum):not(.dave-hint),
+.mv-field-flare  *:not(.ghostnum):not(.pnum):not(.dave-hint){opacity:1!important}
 
 /* The billing toggle's track lightened cobalt with a white tint, so the
    unpressed button was white text on a lighter blue. Darkening instead keeps
@@ -658,10 +630,32 @@ main [id]{scroll-margin-top:80px}
 .nlist.nonum li{grid-template-columns:minmax(0,1fr)}
 .nlist.plain h3{font-size:19px;line-height:1.3;max-width:46ch}
 
-/* The stage's lead-in sits directly on top of the first panel, so it closes
-   up rather than carrying a full section's bottom padding. */
-.stage-lead{padding-bottom:28px}
-@media(min-width:721px){.stage-lead{padding-bottom:36px}}
+/* The platform's six domains (MVBOLD-34), a static grid of field tiles in
+   the paper platform section. They were a pinned stage of six full-screen
+   panels a short band after the scrubbing hero, and two pinned sequences on
+   one page was too much. Each tile is a field with its own ink; paper runs
+   between them, so no two fields touch. Three across from 1100px, two from
+   721px, stacked on a phone. The ring is inset, on the field it was chosen
+   for: outside the tile it would be drawn on paper, white on cobalt and
+   violet tiles. The hover is a heavier "See ..." line (below, with the
+   other field links). */
+.domains{list-style:none;margin:12px 0 8px;padding:0;display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+.domains li{display:grid}
+.domains .tile{position:relative;overflow:hidden;isolation:isolate;display:grid;grid-template-rows:auto auto auto 1fr;gap:10px;min-height:200px;padding:24px 22px 22px;border-radius:var(--radius-tile);text-decoration:none}
+.domains .tile:hover{opacity:1}
+.domains .tile:focus-visible{outline:3px solid var(--ring);outline-offset:-9px;border-radius:var(--radius-tile)}
+.domains .pnum{position:absolute;right:-.05em;bottom:-.26em;z-index:-1;font-size:150px;line-height:1;opacity:.15;pointer-events:none}
+.domains .eyebrow{opacity:.75}
+.domains h3{margin:0;font-size:clamp(34px,3vw,44px)}
+.domains .pline{margin:0;font-size:18px;line-height:1.35;max-width:22ch;text-wrap:balance}
+/* "See ..." sits on the tile's bottom edge, so a row of tiles lines it up
+   whether a tile's line runs to one line or two. */
+.domains .more{align-self:end;justify-self:start;margin-top:6px;font-weight:700;font-size:16px;text-decoration:underline;text-underline-offset:5px}
+@media(min-width:721px){
+  .domains{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+  .domains .tile{min-height:230px;padding:30px 28px 26px}
+}
+@media(min-width:1100px){.domains{grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}}
 
 /* The Dave hero (MVBOLD-29). A full-bleed claymation frame over the cobalt
    field, which never shows (see .dave-pin). Motion.astro gives the section its
@@ -759,11 +753,12 @@ main [id]{scroll-margin-top:80px}
 .hero-intro-ctas{flex-wrap:wrap}
 
 /* The video, beside the hero's own copy in the band straight under the hero
-   (MVBOLD-29). With the marquee gone, that band and the stage lead-in are two
-   paper sections in a row, so the lead-in takes the site's hairline. */
+   (MVBOLD-29). With the marquee gone, that band and the platform section are
+   two paper sections in a row, so the platform takes the site's hairline; and
+   with the stage gone (MVBOLD-34) so does the section after it. */
 .lead-media{display:grid;gap:12px;min-width:0;align-content:start}
 .hero-intro .site-video{margin:0;width:100%;max-width:none}
-.hero-intro + .stage-lead{border-top:2px solid color-mix(in srgb,currentColor 12%,transparent)}
+.hero-intro + .platform,.platform + .sec{border-top:2px solid color-mix(in srgb,currentColor 12%,transparent)}
 
 /* The header, docked. Transparent over the hero, an opaque bar once it is
    over anything else — Motion.astro fills in the background and ink of the
@@ -776,10 +771,10 @@ main [id]{scroll-margin-top:80px}
 .site-head[data-hide="1"]:has(.burger[aria-expanded="true"]){transform:none}
 @media(prefers-reduced-motion:reduce){.site-head{transition:color 200ms,background-color 200ms}}
 
-/* The stage lead-in is an introduction, not the page's biggest statement. At
-   the section default it rendered 76.8px against a 71.7px h1 — louder than
+/* The platform heading is an introduction, not the page's biggest statement.
+   At the section default it rendered 76.8px against a 71.7px h1 — louder than
    the headline it follows. */
-.stage-lead h2.disp{font-size:clamp(32px,4.6vw,58px);max-width:20ch}
+.platform h2.disp{font-size:clamp(32px,4.6vw,58px);max-width:20ch}
 
 /* A word price ("Custom") is not a figure and is not set like one. At the
    numeral size it filled 81% of its card against $499's 51%, which made the
@@ -938,39 +933,34 @@ main [id]{scroll-margin-top:80px}
       and the lime highlight, whose box is taller than .88, painted over the
       line above it: "why teams" read "whv teams". .92 for display text, and
       1.08 for a highlighted line, which is the room its box needs. */
-.hero:not(.dave),.cut,.stage .panel,.sec,.split>*{container-type:inline-size}
+.hero:not(.dave),.cut,.sec,.split>*{container-type:inline-size}
 .hero:not(.dave){grid-template-columns:minmax(0,1fr)}
 .disp{line-height:.92}
 .disp .hl{line-height:1.08}
 .hero h1{--fit:8.8}
-.cut h2,.stage .panel h2{--fit:6.4}
+.cut h2{--fit:6.4}
 .sec h2.disp{--fit:7.8}
 .hero:not(.dave) h1{font-size:min(15.5vw,calc(100cqi / var(--fit)));max-width:max(9ch,calc(var(--fit) * 1em))}
-.cut h2,.stage .panel h2{font-size:min(15.5vw,calc(100cqi / var(--fit)))}
+.cut h2{font-size:min(15.5vw,calc(100cqi / var(--fit)))}
 .sec h2.disp{font-size:min(12vw,calc(100cqi / var(--fit)))}
 @media(min-width:721px){
   .hero:not(.dave) h1{font-size:min(11vw,calc(100cqi / var(--fit)));max-width:max(11ch,calc(var(--fit) * 1em))}
-  .cut h2,.stage .panel h2{font-size:min(11vw,calc(100cqi / var(--fit)))}
+  .cut h2{font-size:min(11vw,calc(100cqi / var(--fit)))}
   .sec h2.disp{font-size:min(8vw,calc(100cqi / var(--fit)))}
 }
 @media(min-width:1100px){
   .hero:not(.dave) h1{font-size:min(clamp(96px,9vw,156px),calc(100cqi / var(--fit)))}
-  .cut h2,.stage .panel h2{font-size:min(clamp(96px,10vw,180px),calc(100cqi / var(--fit)))}
+  .cut h2{font-size:min(clamp(96px,10vw,180px),calc(100cqi / var(--fit)))}
   .sec h2.disp{font-size:min(clamp(64px,6vw,104px),calc(100cqi / var(--fit)))}
 }
 /* Restated after the .sec rule above, which would otherwise win. */
-.stage-lead h2.disp{font-size:min(clamp(32px,4.6vw,58px),calc(100cqi / var(--fit)))}
+.platform h2.disp{font-size:min(clamp(32px,4.6vw,58px),calc(100cqi / var(--fit)))}
 
 /* The legal documents at 1920. max-width:78ch is border-box, and from 1100
    the page gutter was its padding: 340px a side at 1920, which left the text
    a 303px column right of centre. The max-width already centres it; the
    padding only has to be a gutter. */
 @media(min-width:1100px){.doc,.site-doc{padding-inline:48px}}
-
-/* Motion off, the stage panels flow as normal sections, and their ghost
-   numerals ran 30px past a 390px screen, which scrolled the page sideways
-   and pushed the burger half off it. */
-:root[data-motion="off"] .stage .panel{overflow:hidden}
 
 /* ===== The sign-up path (MVBOLD-31) =====
    Start free in the header from 721 up, where the drawer is not, and as a
@@ -1103,12 +1093,9 @@ main [id]{scroll-margin-top:80px}
 }
 
 /* Short panel lines left one word alone on the last line. */
-.cut .pline,.stage .panel .pline{text-wrap:pretty}
+.cut .pline{text-wrap:pretty}
 
 /* ===== Re-score round (MVBOLD-31) ===== */
-/* A home panel fills the pinned viewport, so an outset ring is drawn off
-   screen: inset it. */
-.stage .panel:focus-visible{outline-offset:-12px;border-radius:16px}
 /* Integration names at .55 measured 4.05:1 on paper; .72, as the sector row. */
 .logorow li{opacity:.72}
 /* The break is never left to the font. With the narrower fallback face the
@@ -1167,20 +1154,14 @@ main [id]{scroll-margin-top:80px}
 }
 
 /* Panel lines: balanced, so none ends on one word. */
-.cut .pline,.stage .panel .pline{text-wrap:balance;max-width:34ch}
+.cut .pline{text-wrap:balance;max-width:34ch}
 
 /* Hover: the header Start free inverts to ink with paper text (lime text
    breaks the loud-layer rule even on hover); the motion switch tints. */
 .head-cta:hover{background:var(--ink-strong);color:#fff}
 .motion-toggle:hover i{background:color-mix(in srgb,currentColor 22%,transparent)}
 @media(min-width:721px){.hero.long{padding-top:108px;gap:24px}}
-/* The home stage: the panel being covered fades its copy out through its
-   colour once the incoming shape is well in (data-leaving, Motion.astro),
-   rather than having it clipped. Colour, not opacity, which the field's
-   full-strength override pins. */
-.stage .panel :is(.eyebrow,h2,.pline,.more){transition:color 240ms var(--ease-out)}
-.stage .panel[data-leaving="1"] :is(.eyebrow,h2,.pline,.more){color:transparent}
-/* A link that is itself a field (each home stage panel, the /alternatives
+/* A link that is itself a field (each home domain tile, the /alternatives
    cards) keeps its field's ink on hover. The design system's a:hover
    repainted the whole panel in --brand-dark: 2.4:1 on violet, about 2.2:1 on
    cobalt (the critic's N-8). The hover shows as a heavier "See ..." line. */
@@ -1193,4 +1174,4 @@ a.mv-field-aqua:hover{color:var(--on-aqua)}
 a.mv-field-lime:hover{color:var(--on-lime)}
 a.mv-field-ink:hover{color:var(--on-ink)}
 a.mv-field-paper:hover{color:var(--on-paper)}
-.stage .panel:hover .more,.altcard:hover .more{text-decoration-thickness:3px}
+.domains .tile:hover .more,.altcard:hover .more{text-decoration-thickness:3px}

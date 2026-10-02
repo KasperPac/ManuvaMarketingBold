@@ -26,12 +26,16 @@ import heroFrames from '../../scripts/hero-frames.json';
 //
 // The hero's ghost numeral ("06", the six domains) came off in MVBOLD-29: the
 // hero is now a claymation frame, and a giant numeral over it was noise. The
-// stage panels keep their own numerals.
+// domain tiles keep their own numerals.
 //
 // Field rhythm, per the loud-layer rules — one full-bleed field per fold and
 // never two touching:
-//   Dave hero (cobalt field, never seen) → paper → paper → STAGE → paper →
-//   amber → paper → ink → paper → flare outro
+//   Dave hero (cobalt field, never seen) → paper → paper (the six domain
+//   tiles, each a field on paper) → paper → amber → paper → ink → paper →
+//   flare outro
+//
+// The pinned stage of six full-screen domain panels came off in MVBOLD-34: a
+// second pinned sequence a short band after the scrubbing hero was too much.
 //
 // The aqua beta band and the sectors row came off this page: both were
 // full sections earning very little, and the tail was the part that read as
@@ -238,46 +242,44 @@ const pad = (n: number) => String(n).padStart(2, '0');
     </div>
   </section>
 
-  {/* The stage's lead-in. This heading and sub used to head an eight-item
-      platform grid below the stage — which restated the same six domains
-      under the nine older area names, two of them pointing at anchors the
-      panels already link to. You read the product's shape twice, the second
-      time in a longer and less confident form, and it was the first of three
-      numbered lists in a row. The grid is gone; its heading does the more
-      useful job of introducing the stage instead of leaving it to arrive
-      cold, and its four sentences that were not already on /features moved
+  {/* The platform: the six domains as a grid of field tiles (MVBOLD-34).
+      They were a pinned stage, six full-screen panels each clipping in over
+      the last for five screens of scroll, a short band after the scrubbing
+      hero. Two pinned sequences on one page was too much, so the hero keeps
+      the motion and this is still. Each tile is the panel it replaces, word
+      for word, with its name an h3 under the section's own h2.
+
+      This heading and sub once headed an eight-item platform grid that
+      restated the same six domains under the nine older area names; that
+      grid is gone, and its four sentences not already on /features moved
       there. */}
-  <section class="sec stage-lead">
+  <section class="sec platform">
     <span class="eyebrow" style="opacity:.6">The platform</span>
     <h2 class="disp">Everything your shop needs. Nothing it doesn't.</h2>
     <p class="sub" style="color:var(--ink-muted);max-width:58ch">
       One system covering the whole shop floor — from raw materials in to finished goods out. No modules to
       bolt on, no consultants to hire.
     </p>
+    <ul class="domains" role="list">
+      {DOMAINS.map((d, i) => (
+        <li>
+          <a class={`tile mv-field-${d.field}`} href={`/features#${d.id}`}>
+            <span class="pnum num" aria-hidden="true" data-n={pad(i + 1)}></span>
+            <span class="eyebrow">{pad(i + 1)} / {pad(DOMAINS.length)}</span>
+            <h3 class="disp">{d.name}</h3>
+            <p class="pline">{d.line}</p>
+            <span class="more">See {d.name.toLowerCase()}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
     <a class="pill ink" href="/features" style="justify-self:start">Explore the full feature set &rarr;</a>
   </section>
 
-  {/* The pinned stage. Six panels, one pin, each clipping in over the last on
-      its own shape. Panel 0 carries no data-shape — it is the backdrop the
-      other five land on. */}
-  <section class="stage" aria-label="What Manuva does">
-    <div class="pin">
-      {DOMAINS.map((d, i) => (
-        <a class={`panel mv-field-${d.field}`} href={`/features#${d.id}`} data-shape={i ? String(i - 1) : undefined}>
-          <span class="pnum num" data-rate="26" aria-hidden="true" data-n={pad(i + 1)}></span>
-          <span class="eyebrow" data-rate="88" style="opacity:.75">
-            {pad(i + 1)} / {pad(DOMAINS.length)}
-          </span>
-          <h2 class="disp" data-rate="52">{d.name}</h2>
-          <p class="pline" data-rate="70">{d.line}</p>
-          <span class="more" data-rate="80">See {d.name.toLowerCase()}</span>
-        </a>
-      ))}
-    </div>
-  </section>
-
   {/* Paper, not amber: amber sat directly on the stage's last panel, aqua,
-      and two fields may not touch (MVBOLD-31). */}
+      and two fields may not touch (MVBOLD-31). The stage is tiles inside the
+      paper section above now (MVBOLD-34), so this is paper after paper and
+      takes the hairline. */}
   <section class="sec">
     <div class="split">
       <div class="stick" style="display:grid;gap:18px">
