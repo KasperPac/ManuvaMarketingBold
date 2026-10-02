@@ -50,6 +50,35 @@ export const LEGACY_FEATURE_ANCHORS: Record<string, DomainId> = {
   reports: 'reporting',
 };
 
+// Rotating words (MVBOLD-36, author's call 2026-10-02): manufacturing is one
+// of the trades Manuva serves, not the only one — "Anything really that
+// requires a BOM and a storefront". The first entry of each list is the word
+// the page is written with: it is what search engines, screen readers, no-JS
+// and motion-off visitors get, and where every rotation starts.
+//
+// The verbs follow "Less chaos. More …" in the home tagline's highlight.
+// "developing" was offered and left out: the longest of them, it cost the
+// headline 12% of its size everywhere.
+export const MORE_VERBS = ['making', 'selling', 'creating', 'crafting'] as const;
+// The trades, as an adjective ("Salon operations") and a plural noun ("MRP
+// for Shopify salons"). Pharma was named and left out: it can read as a
+// regulatory claim (GMP, batch records); "product" is the catch-all instead.
+export const TRADES = [
+  { adj: 'manufacturing', noun: 'manufacturers' },
+  { adj: 'dropshipping', noun: 'dropshippers' },
+  { adj: 'salon', noun: 'salons' },
+  { adj: 'product', noun: 'product brands' },
+] as const;
+// The lists as data-rotate values (Motion.astro splits them on "|"). Trade
+// is the adjective at the start of a sentence.
+const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
+export const ROTATE = {
+  verbs: MORE_VERBS.join('|'),
+  trade: TRADES.map((t) => t.adj).join('|'),
+  Trade: TRADES.map((t) => cap(t.adj)).join('|'),
+  trades: TRADES.map((t) => t.noun).join('|'),
+} as const;
+
 export const FEATURE_LINKS = DOMAINS.map((d) => ({
   href: `/features#${d.id}`,
   label: d.name,

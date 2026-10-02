@@ -68,7 +68,8 @@ test('the hero says what the room does', () => {
   // own end line (MVBOLD-29).
   const h1 = (html().match(/<h1[^>]*>([\s\S]*?)<\/h1>/) || [])[1] || '';
   expect(h1).toContain('Less chaos.');
-  expect(h1).toMatch(/<span class="hl keep">More making\.<\/span>/);
+  // The verb rotates (MVBOLD-36, rotate.test.ts); the markup carries "making".
+  expect(h1).toMatch(/<span class="hl keep">More <span[^>]*data-rotate="[^"]*"[^>]*>making<\/span>\.<\/span>/);
   expect(h1).not.toContain('Make it.');
 });
 
@@ -99,7 +100,8 @@ test('the hero carries the descriptor, the tagline, Start free and the logo', ()
   // found the first screen never said what Manuva is: the descriptor and
   // Start free are back on the first frame, and fold away as the scrub starts.
   const hero = daveHero();
-  expect(hero).toContain('MRP for Shopify manufacturers');
+  // The trade rotates (MVBOLD-36, rotate.test.ts); the markup carries it as written.
+  expect(hero.replace(/<[^>]+>/g, '')).toContain('MRP for Shopify manufacturers');
   expect(hero).toMatch(/href="https:\/\/app\.manuva\.app\/signup"[^>]*>Start free</);
   for (const gone of ['Manuva replaces the spreadsheets', 'Book a demo']) {
     expect(hero, `"${gone}" is still in the hero`).not.toContain(gone);

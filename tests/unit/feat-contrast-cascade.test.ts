@@ -29,8 +29,11 @@ const css = readFileSync('src/styles/site.css', 'utf8');
 const TIGHT = ['cobalt', 'violet', 'flare'] as const;
 // .dave-hint (MVBOLD-29) qualifies the same way the numerals do: aria-hidden,
 // its word from CSS content rather than a text node (asserted in
-// home.test.ts), and its opacity is its fade-out.
-const DECORATIVE = ['.ghostnum', '.pnum', '.ticks', '.dave-hint'] as const;
+// home.test.ts), and its opacity is its fade-out. So does .rot-face
+// (MVBOLD-36): aria-hidden, its word drawn from data-w with empty alt, the
+// word as written read from a .vh span instead; its opacity is the cross-fade
+// of a word swap and rests at 1.
+const DECORATIVE = ['.ghostnum', '.pnum', '.ticks', '.dave-hint', '.rot-face'] as const;
 
 test('the three tight fields release their opacity mutes at full strength', () => {
   // cobalt 4.97 -> 3.50 at .75 and violet 4.60 -> 3.14; there is no headroom
