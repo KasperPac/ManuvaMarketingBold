@@ -38,8 +38,18 @@
   // with ?smooth=0 so the two can be compared on the same page. It runs inside
   // this engine's one loop (frame() calls lenis.raf) rather than a loop of its
   // own, so the page still goes idle when nothing moves.
-  const smoothOff = new URLSearchParams(location.search).get('smooth') === '0';
-  const lenis = reduce || smoothOff ? null : new Lenis({ autoRaf: false, smoothWheel: true, syncTouch: false, lerp: 0.12 });
+  const smoothParam = new URLSearchParams(location.search).get('smooth');
+  const smoothOff = smoothParam === '0';
+  // Presets to compare on the preview. Chrome on Windows already eases a
+  // notch over ~150ms, so the light default can read as no change at all.
+  // strong: a heavier follow. silk: a fixed 1.2s exponential ease-out per
+  // notch (lerp 0 switches Lenis from following to timed).
+  const SMOOTH: Record<string, ConstructorParameters<typeof Lenis>[0]> = {
+    strong: { lerp: 0.06 },
+    silk: { lerp: 0, duration: 1.2, easing: (t: number) => 1 - Math.pow(2, -10 * t) },
+  };
+  const tune = (smoothParam && SMOOTH[smoothParam]) || { lerp: 0.12 };
+  const lenis = reduce || smoothOff ? null : new Lenis({ autoRaf: false, smoothWheel: true, syncTouch: false, ...tune });
   if (lenis) {
     addEventListener('wheel', () => wake(), { passive: true });
     // The page behind the phone drawer must not scroll under the wheel.
