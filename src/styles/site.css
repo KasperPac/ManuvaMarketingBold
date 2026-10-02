@@ -362,9 +362,9 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid cur
    aria-hidden, its word comes from CSS rather than a text node, it sits on
    the dark scrim rather than the field, and its opacity is how it fades out
    once the scrub starts. */
-.mv-field-cobalt *:not(.ghostnum):not(.pnum):not(.dave-hint),
-.mv-field-violet *:not(.ghostnum):not(.pnum):not(.dave-hint),
-.mv-field-flare  *:not(.ghostnum):not(.pnum):not(.dave-hint){opacity:1!important}
+.mv-field-cobalt *:not(.ghostnum):not(.pnum):not(.dave-hint):not(.rot-face),
+.mv-field-violet *:not(.ghostnum):not(.pnum):not(.dave-hint):not(.rot-face),
+.mv-field-flare  *:not(.ghostnum):not(.pnum):not(.dave-hint):not(.rot-face){opacity:1!important}
 
 /* The billing toggle's track lightened cobalt with a white tint, so the
    unpressed button was white text on a lighter blue. Darkening instead keeps
@@ -664,10 +664,11 @@ main [id]{scroll-margin-top:80px}
 
    The h1 still has to lead the page: larger than the section h2s, which run
    at clamp(64px,6vw,104px) from 1100. "More making." is one unbreakable
-   highlight, 7.68em wide in .disp (measured); 7.9 is that plus a margin, and
-   the headline-fits test in dave-hero.spec.ts holds it true. Where the
-   tagline is one line (from 1100px, and on a landscape phone) the whole of
-   it is 14.54em; 15 is that plus a margin.
+   highlight, and its verb rotates (MVBOLD-36), so the size is set by the
+   widest verb, "More creating.": 8.19em in .disp (measured; "making" is
+   7.68em); 8.45 is that plus a margin. Where the tagline is one line (from
+   1100px, and on a landscape phone) the whole of it is 15.04em with
+   "creating"; 15.5 is that plus a margin. rotate.spec.ts fits every verb.
 
    The fade (on .dave-copy) is --ink-strong, never navy: a navy hero is the "third blue"
    field-separation.test.ts exists to stop. */
@@ -718,22 +719,22 @@ main [id]{scroll-margin-top:80px}
    fade is only as tall as the copy needs. The white first line is large text
    and must hold 3:1 over the calm room (measured in dave-hero.spec.ts). */
 .dave-copy::before{content:"";position:absolute;inset:-60% 0 0 0;z-index:-1;pointer-events:none;background:linear-gradient(0deg,color-mix(in srgb,var(--ink-strong) 88%,transparent) 0%,color-mix(in srgb,var(--ink-strong) 66%,transparent) 62.5%,transparent 100%)}
-.hero.dave h1{font-size:min(15.5vw,calc((100vw - 40px) / 7.9));max-width:none}
+.hero.dave h1{font-size:min(15.5vw,calc((100vw - 40px) / 8.45));max-width:none}
 .dave-hint{display:none;position:absolute;left:50%;bottom:12px;transform:translateX(-50%);font:600 11px/1 var(--font-body);letter-spacing:.14em;text-transform:uppercase;opacity:.8;pointer-events:none}
 /* The word is decoration, so it lives in CSS like the ghost numerals: no text
    node to select, copy or read out (feat-contrast-cascade.test.ts). */
 .dave-hint::before{content:"Scroll"}
-@media(min-width:721px){.dave-copy{padding:0 32px 48px}.hero.dave h1{font-size:min(11vw,112px,calc((100vw - 64px) / 7.9))}}
+@media(min-width:721px){.dave-copy{padding:0 32px 48px}.hero.dave h1{font-size:min(11vw,112px,calc((100vw - 64px) / 8.45))}}
 @media(min-width:1100px){
   .dave-copy{padding:0 max(48px,calc((100vw - var(--page-max,1240px)) / 2)) 56px}
   /* One line, inside the copy's column: the padding above leaves
      min(100vw - 96px, --page-max) of it. */
-  .hero.dave h1{font-size:min(clamp(76px,6.4vw,112px),calc(min(100vw - 96px,var(--page-max,1240px)) / 15))}
+  .hero.dave h1{font-size:min(clamp(76px,6.4vw,112px),calc(min(100vw - 96px,var(--page-max,1240px)) / 15.5))}
 }
 /* A landscape phone is ~390px tall: a width-sized headline would fill it. */
 @media(max-height:500px) and (min-aspect-ratio:1/1){
   .dave-copy{padding:0 24px 20px}
-  .hero.dave h1{font-size:min(11svh,calc((100vw - 48px) / 15))}
+  .hero.dave h1{font-size:min(11svh,calc((100vw - 48px) / 15.5))}
 }
 /* The chip on "More making." lands as the walls turn lime (data-scrub,
    written by Motion.astro). With motion off or no JS the attribute is never
@@ -1023,6 +1024,28 @@ main [id]{scroll-margin-top:80px}
 /* Text for screen readers only: the comparison tables' empty corner cell
    was an empty column header to axe on six pages. */
 .vh{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Rotating words (MVBOLD-36): the tagline's verb and the trade a page names.
+   Motion.astro turns each [data-rotate] into a .rot: the word as written in
+   a .vh span, the element's only text, and an empty .rot-face that draws its
+   data-w as generated content. The "/ ''" gives that content empty alt
+   text, so screen readers skip it (the first declaration is the fallback
+   for a browser without the syntax), and a rotated word is never page text
+   to copy or index. A face rises and fades out while the next rises and
+   fades in, a fifth of an em each, so neither leaves the highlight; a slide
+   clipped to the box overshot it, since the box is the line and the lime is
+   only the font's height. The face is exempt from the full-strength opacity
+   override (it is aria-hidden and rests at 1). The box eases to the
+   incoming word's width, so a highlight grows and shrinks with it. A trade that starts a
+   heading (.rot-line, /about) has the line to itself: a shorter trade there
+   pulled the next words up a line. */
+.rot{display:inline-block;position:relative;white-space:nowrap;transition:width 320ms var(--ease-out)}
+.rot-face{display:inline-block;transition:transform 320ms var(--ease-out),opacity 320ms var(--ease-out)}
+.rot-face::before{content:attr(data-w);content:attr(data-w) / ""}
+.rot-face.rot-in{position:absolute;left:0;top:0;opacity:0;transform:translateY(.2em)}
+.rot-face.rot-in.rot-go{opacity:1;transform:none}
+.rot-face.rot-out{opacity:0;transform:translateY(-.2em)}
+.rot-line,.rot.rot-line{display:block}
 
 /* The motion switch in the header (from 721) and the drawer. */
 .head-motion{margin-left:auto;display:flex}

@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Video from '../components/site/Video.astro';
 import Logo from '../components/ds/Logo.astro';
-import { APP_URL, SIGNUP_URL, DOMAINS } from '../site';
+import { APP_URL, SIGNUP_URL, DOMAINS, ROTATE } from '../site';
 // Frame count and the frame where the room turns calm, from the manifest the
 // frame script reads, so the page and the frames cannot disagree.
 import heroFrames from '../../scripts/hero-frames.json';
@@ -182,8 +182,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
           Motion.astro folds shut once the scrub starts, so the scene and the
           calm frame stay the tagline and the logo. */}
       <div class="dave-copy">
-        <div class="dave-fold"><div><span class="eyebrow">MRP for Shopify manufacturers</span></div></div>
-        <h1 class="disp"><span class="line">Less chaos.</span> <span class="hl keep">More making.</span></h1>
+        <div class="dave-fold"><div><span class="eyebrow">MRP for Shopify <span data-rotate={ROTATE.trades} data-rotate-box=".eyebrow">manufacturers</span></span></div></div>
+        <h1 class="disp"><span class="line">Less chaos.</span> <span class="hl keep">More <span data-rotate={ROTATE.verbs} data-rotate-when="calm">making</span>.</span></h1>
         <div class="dave-fold"><div><div class="dave-go"><a class="pill" href={SIGNUP_URL}>Start free</a></div></div></div>
       </div>
       <span class="dave-hint" aria-hidden="true"></span>

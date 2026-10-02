@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { APP_URL, SIGNUP_URL, CONTACT_EMAIL } from '../site';
+import { APP_URL, SIGNUP_URL, CONTACT_EMAIL, ROTATE } from '../site';
 
 // The old site's own demo request, verbatim (index.html DEMO_MESSAGE).
 const DEMO_MAILTO = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Book a demo of Manuva')}&body=${encodeURIComponent("Hi, I'd like to book a demo of Manuva.")}`;
@@ -104,7 +104,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     <span class="ghostnum num" aria-hidden="true" data-n="06"></span>
     <span class="eyebrow" style="opacity:.75">About Manuva</span>
     <h1 class="disp" style="max-width:15ch">
-      Manufacturing operations software, built for <span class="hl">product brands that ship.</span>
+      <span class="rot-line" data-rotate={ROTATE.Trade}>Manufacturing</span> operations software, built for <span class="hl">product brands that ship.</span>
     </h1>
     <p class="sub" style="opacity:.9;max-width:52ch">
       Manuva is a connected platform for inventory, bills of materials, production, purchasing, capacity,

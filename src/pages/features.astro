@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { APP_URL, SIGNUP_URL, DOMAINS } from '../site';
+import { APP_URL, SIGNUP_URL, DOMAINS, ROTATE } from '../site';
 
 // Rebuilt on the new design (MVBOLD-17). Full motion: every domain enters on
 // its own shape cut, the chip bar tracks which one you are in, and the page
@@ -208,7 +208,7 @@ const schema = [
   <section class="hero tall mv-field-ink">
     <span class="ghostnum num" aria-hidden="true" data-n={pad(DOMAINS.length)}></span>
     <span class="eyebrow" style="opacity:.75">{pad(DOMAINS.length)} domains &middot; {total} features</span>
-    <h1 class="disp">Everything you need to run <span class="hl">manufacturing operations</span></h1>
+    <h1 class="disp">Everything you need to run <span class="hl"><span data-rotate={ROTATE.trade}>manufacturing</span> operations</span></h1>
     <p class="sub" style="opacity:.88;max-width:50ch">
       Connected inventory, BOMs, production, purchasing, capacity, costing, and reporting — built specifically
       for product brands that make what they sell.

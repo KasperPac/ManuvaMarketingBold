@@ -1,6 +1,6 @@
 ---
 import Logo from '../ds/Logo.astro';
-import { FOOTER_GROUPS, CONTACT_EMAIL } from '../../site';
+import { FOOTER_GROUPS, CONTACT_EMAIL, ROTATE } from '../../site';
 const year = new Date().getFullYear();
 
 // A heading of more than one word produced id="foot-feature overview". An id
@@ -40,7 +40,7 @@ const slug = (h: string) => `foot-${h.toLowerCase().replace(/[^a-z0-9]+/g, '-')}
   </button>
   <div class="legal">
     <span>&copy; {year} Pac Technologies Pty Ltd</span>
-    <span>Manufacturing operations, finally simple.</span>
+    <span><span data-rotate={ROTATE.Trade}>Manufacturing</span> operations, finally simple.</span>
   </div>
 </footer>
 

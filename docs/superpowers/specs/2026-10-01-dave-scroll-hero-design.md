@@ -116,6 +116,14 @@ single-camera transformation possible.
   `min(clamp(76px, 6.4vw, 112px), min(100vw − 96px, --page-max) / 15)`, the copy
   column over 14.54em plus a margin, with `white-space: nowrap`. Below 1100px one
   line would sink under the section h2s, so "Less chaos." keeps its own line.
+- **The verb rotates** (2026-10-02, MANUVA-56, `MVBOLD-36`): manufacturing is
+  one of the trades Manuva serves, so once the room is calm "More making."
+  cycles through selling, creating and crafting every 2.6 s and resets to making
+  when the room turns back. The markup, accessible name and motion-off view keep
+  "making". The sizes above are therefore set by the widest verb, "More
+  creating." (8.19em chip, 15.04em line): the divisors are 8.45 where they read
+  7.9 and 15.5 where they read 15. That is about 7% smaller on phones and 3%
+  from 1100px.
 - **Logo:** the lockup, `--on-lime` ink, revealed by a 700ms left-to-right
   `clip-path` wipe when `data-scrub` becomes `calm`. Clip-path, not opacity: the
   cobalt field's full-strength override pins descendants at opacity 1.

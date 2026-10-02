@@ -336,6 +336,122 @@
     return busy;
   }
 
+  // 6 · words — rotating words (MVBOLD-36). Manufacturing is one of the trades
+  // Manuva serves, so the tagline's verb and the trade a page names rotate.
+  // Each [data-rotate] lists its words; the markup carries the first, which
+  // is what search engines, no-JS and motion-off visitors get. Only the screen
+  // rotates. The word as written stays the element's only text, moved into a
+  // .vh span: that is what a screen reader reads, what a copy takes, and what
+  // a search engine that runs scripts indexes. The faces that turn are empty
+  // spans drawing data-w as generated content with empty alt text (site.css),
+  // so a rotated word is never page text. A face holding the word as text
+  // made the rendered h1 read "manufacturingdropshipping operations".
+  // Nothing rotates with motion off or on Save-Data, and the site's Motion
+  // switch is the pause control WCAG 2.2.2 asks of text that changes by itself.
+  //
+  // A word holds for HOLD, but only while it is on screen and its gate is
+  // open: off screen, or in a hidden tab, the clock restarts, so a word that
+  // comes into view is read before it turns. data-rotate-when="calm" opens
+  // only on the Dave hero's calm room (or a still hero, where the highlight
+  // always shows); closing resets to the first word, so "More making." is
+  // what lands each time the room turns calm.
+  const HOLD = 2600, SWAP = 340, TICK = 400;
+  const rotors = (reduce || lean ? [] : [...document.querySelectorAll<HTMLElement>('[data-rotate]')]).map((el) => {
+    const words = el.dataset.rotate!.split('|');
+    const sr = document.createElement('span');
+    sr.className = 'vh';
+    sr.textContent = words[0];
+    const face = document.createElement('span');
+    face.className = 'rot-face';
+    face.setAttribute('aria-hidden', 'true');
+    face.dataset.w = words[0];
+    el.replaceChildren(sr, face);
+    el.classList.add('rot');
+    el.dataset.word = words[0];
+    return {
+      el, words, face, i: 0, at: performance.now(),
+      gate: el.dataset.rotateWhen === 'calm' ? el.closest<HTMLElement>('.hero.dave') : null,
+      // A box whose height a longer word would change is held at its tallest
+      // (the home eyebrow wraps "product brands" at 320px).
+      box: el.dataset.rotateBox ? el.closest<HTMLElement>(el.dataset.rotateBox) : null,
+    };
+  });
+  type Rotor = (typeof rotors)[number];
+
+  function holdBoxes() {
+    rotors.forEach((r) => {
+      if (!r.box) return;
+      r.box.style.minHeight = '';
+      const shown = r.face.dataset.w!;
+      let tallest = 0;
+      for (const w of r.words) {
+        r.face.dataset.w = w;
+        tallest = Math.max(tallest, r.box.offsetHeight);
+      }
+      r.face.dataset.w = shown;
+      r.box.style.minHeight = tallest + 'px';
+    });
+  }
+
+  function turn(r: Rotor, j: number, animate: boolean) {
+    r.i = j;
+    r.el.dataset.word = r.words[j];
+    if (!animate) {
+      r.face.dataset.w = r.words[j];
+      return;
+    }
+    const out = r.face;
+    const inc = document.createElement('span');
+    inc.className = 'rot-face rot-in';
+    inc.setAttribute('aria-hidden', 'true');
+    inc.dataset.w = r.words[j];
+    r.el.append(inc);
+    r.face = inc;
+    // A block (.rot-line) has its line to itself; only an inline box eases
+    // its width, which is what carries a highlight with it.
+    const inline = getComputedStyle(r.el).display !== 'block';
+    if (inline) r.el.style.width = out.getBoundingClientRect().width + 'px';
+    requestAnimationFrame(() => {
+      if (inline) r.el.style.width = inc.getBoundingClientRect().width + 'px';
+      out.classList.add('rot-out');
+      inc.classList.add('rot-go');
+    });
+    setTimeout(() => {
+      out.remove();
+      inc.classList.remove('rot-in', 'rot-go');
+      if (inline) r.el.style.width = '';
+    }, SWAP);
+  }
+
+  if (rotors.length) {
+    void document.fonts.ready.then(holdBoxes);
+    let resizeDue = 0;
+    addEventListener('resize', () => {
+      clearTimeout(resizeDue);
+      resizeDue = window.setTimeout(holdBoxes, 150);
+    });
+    setInterval(() => {
+      const now = performance.now();
+      rotors.forEach((r) => {
+        const scrub = r.gate?.dataset.scrub;
+        if (r.gate && scrub !== undefined && scrub !== 'calm') {
+          if (r.i) turn(r, 0, false);
+          r.at = now;
+          return;
+        }
+        const b = r.el.getBoundingClientRect();
+        if (document.hidden || b.bottom <= 0 || b.top >= innerHeight || b.width === 0) {
+          r.at = now;
+          return;
+        }
+        if (now - r.at >= HOLD) {
+          turn(r, (r.i + 1) % r.words.length, true);
+          r.at = now;
+        }
+      });
+    }, TICK);
+  }
+
   const ghosts = [...document.querySelectorAll<HTMLElement>('.ghostnum')];
   let ghostY: number | null = null;
   let raf = 0, running = false, lastT = performance.now(), headAt = -1, headDue = 0;
