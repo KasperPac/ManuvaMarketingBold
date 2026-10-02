@@ -32,8 +32,22 @@ async function playThrough(page: Page) {
   await expect.poll(async () => (await shownAt(page)) > (await clipEnd(page)) - 0.1, { timeout: 8_000 }).toBe(true);
 }
 
-test('once played through, scrolling back to the top keeps the finished room', async ({ page }) => {
+// "it still needs a bit of scrolling down after scrolling back to the top. The
+// animation doesn't re-run, but it doesn't run straight past" (preview
+// feedback). Played through, the pinned stretch goes at once: the hero is one
+// screen, as on a return visit, and the page scrolls by what it lost, so the
+// finished room still fills the screen and nothing on it moves.
+test('once played through, the stretch goes: the finished room is one screen, in place', async ({ page }) => {
   await playThrough(page);
+  await expect(page.locator('html')).toHaveAttribute('data-hero', 'done');
+  expect(await hero(page).evaluate((e) => e.getBoundingClientRect().height), 'one screen').toBeLessThanOrEqual(801);
+  expect(Math.abs(await hero(page).evaluate((e) => e.getBoundingClientRect().top)), 'the room still fills the screen').toBeLessThanOrEqual(2);
+});
+
+test('once played through, scrolling back to the top keeps the finished room and runs straight past it', async ({ page }) => {
+  await playThrough(page);
+  await page.evaluate(() => scrollTo(0, innerHeight));
+  await page.waitForTimeout(300);
   await page.evaluate(() => scrollTo(0, 0));
   await page.waitForTimeout(1500);
   expect(await shownAt(page), 'the clip stays on its last frame').toBeGreaterThan((await clipEnd(page)) - 0.1);
@@ -43,6 +57,27 @@ test('once played through, scrolling back to the top keeps the finished room', a
   // and the "Scroll" hint stays away: there is nothing left to scroll for.
   await expect(hero(page)).not.toHaveAttribute('data-lead', 'gone');
   expect(await page.locator('.dave-hint').evaluate((e) => Number(getComputedStyle(e).opacity))).toBeLessThan(0.05);
+  // One screen of scrolling and the hero is gone: no stretch of the room
+  // standing still.
+  await page.evaluate(() => scrollTo(0, innerHeight));
+  await page.waitForTimeout(300);
+  expect(await hero(page).evaluate((e) => Math.round(e.getBoundingClientRect().bottom))).toBeLessThanOrEqual(1);
+});
+
+test('played through from below the hero, nothing on screen moves as the stretch goes', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/');
+  await expect(hero(page)).toHaveAttribute('data-video', 'ready', { timeout: 20_000 });
+  // A fast scroll lands past the hero before the clip has caught up.
+  await page.evaluate(() => {
+    const el = document.querySelector('.hero.dave') as HTMLElement;
+    scrollTo(0, el.offsetHeight - innerHeight + 400);
+  });
+  const below = page.locator('section.platform');
+  const before = await below.evaluate((s) => Math.round(s.getBoundingClientRect().top));
+  await expect(page.locator('html')).toHaveAttribute('data-hero', 'done', { timeout: 8_000 });
+  await page.waitForTimeout(200);
+  expect(Math.abs((await below.evaluate((s) => Math.round(s.getBoundingClientRect().top))) - before)).toBeLessThanOrEqual(2);
 });
 
 test('halfway is not played through: scrolling back still rewinds', async ({ page }) => {

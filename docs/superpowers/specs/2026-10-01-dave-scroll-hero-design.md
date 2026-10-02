@@ -127,7 +127,9 @@ single-camera transformation possible.
 - **Plays once per visit** (2026-10-02, MANUVA-57, `MVBOLD-37`): the first
   time the clip shows its last frame, it holds it; scrolling back up no longer
   rewinds the room, and at the top the descriptor and Start free return over the
-  finished room. The flag lives in sessionStorage, so it lasts until the tab
+  finished room. The pinned stretch goes at that moment too (preview feedback:
+  "it doesn't run straight past"): the hero becomes one screen and the page
+  scrolls by the height it lost, so nothing on screen moves. The flag lives in sessionStorage, so it lasts until the tab
   closes. Back on the home page in the same visit, the hero opens as a
   one-screen still of the finished room (`{l,p}-end.webp`, written by the
   pipeline), with no pin and no clip fetched. Because that hero is 1.5 screens

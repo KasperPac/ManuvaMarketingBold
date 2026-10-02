@@ -222,6 +222,7 @@
       dead: false,
       // Played through: the clip has shown its last frame once, and holds it.
       done: false,
+      leadHeld: false,
       p: null as number | null,
       gen: 0,
     };
@@ -265,6 +266,25 @@
     delete o.h.dataset.video;
     delete o.h.dataset.lead;
     wake();
+  }
+
+  // Played through (MVBOLD-37): the clip holds its last frame, and the pinned
+  // stretch, with nothing left to play, goes at once ("it doesn't run
+  // straight past", preview feedback). The hero becomes one screen, as on a
+  // return visit, and the page scrolls by what it lost, so nothing on screen
+  // moves: inside the stretch that is the top of the hero, where the finished
+  // room fills the screen exactly as it did; below it, the same content.
+  function settle(o: Scrub) {
+    o.done = true;
+    try { sessionStorage.setItem('mv-hero-done', '1'); } catch {}
+    const top = o.h.getBoundingClientRect().top + scrollY;
+    const was = o.h.offsetHeight;
+    o.h.style.height = '';
+    scrollTo(0, Math.max(top, scrollY - (was - o.h.offsetHeight)));
+    // The descriptor and Start free return at the top, but not on the frame
+    // the stretch closes under a visitor who is still scrolling down.
+    o.leadHeld = true;
+    document.documentElement.dataset.hero = 'done';
   }
 
   // `gen` lets a later call (a rotation, or a rotation back) abandon a fetch
@@ -337,15 +357,19 @@
 
       // The last frame on screen once marks the hero played through, for the
       // rest of this page and, through Base.astro, the rest of the visit.
-      if (!o.done && o.ready && !v.seeking && v.currentTime >= timeAt(1, v.duration) - 0.05) {
-        o.done = true;
-        try { sessionStorage.setItem('mv-hero-done', '1'); } catch {}
-      }
+      if (!o.done && o.ready && !v.seeking && v.currentTime >= timeAt(1, v.duration) - 0.05) settle(o);
 
       o.h.dataset.scrub = o.ready && v.currentTime >= o.calm ? 'calm' : 'pre';
       // The descriptor and Start free fold away as soon as the room starts
       // to change, and come back at the top, over the finished room too.
-      o.h.dataset.lead = o.p > 0.03 ? 'gone' : '';
+      if (o.done) {
+        // Measured afresh: settle() may have just moved the page.
+        const atTop = o.h.getBoundingClientRect().top > -H * 0.03;
+        if (!atTop) o.leadHeld = false;
+        o.h.dataset.lead = atTop && !o.leadHeld ? '' : 'gone';
+      } else {
+        o.h.dataset.lead = o.p > 0.03 ? 'gone' : '';
+      }
       // Played through, there is nothing left to scroll for.
       if (o.hint) o.hint.style.opacity = o.done ? '0' : String(1 - cl(o.p / 0.05));
     });
