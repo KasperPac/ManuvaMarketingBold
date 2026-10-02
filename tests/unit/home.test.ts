@@ -262,15 +262,24 @@ test('no product screenshot remains on the home page', () => {
   }
 });
 
-// The highlight that replaced the split must actually be there, or the test
-// above is satisfied by simply having removed the section and put nothing back.
-test('the highlighted latest feature replaced the showcase split', () => {
+// MVBOLD-35 (author's call): the home page is the hero, the intro and video,
+// the platform, pricing and the closing band, and nothing else. Getting
+// started is not needed until onboarding; the reports highlight (which had
+// replaced the showcase split) is /features' to carry; the integrations strip
+// waits for an integrations page. Pricing sits on paper: on ink it would
+// touch the flare closing band now the strip that separated them is gone.
+test('the home page runs hero, intro, platform, pricing, closing band', () => {
+  const sections = [...html().matchAll(/<section class="([^"]*)"/g)].map((m) => m[1]);
+  expect(sections).toEqual(['hero dave mv-field-cobalt', 'sec hero-intro', 'sec platform', 'sec versus', 'outro mv-field-flare']);
+});
+
+test('getting started, the reports highlight and the integrations strip are off the home page', () => {
   const h = html();
-  // Was the lot-tracking panel until 2026-09-22; lot tracking is not built,
-  // so the highlight names the reports suite instead.
-  expect(h).toContain('Operational intelligence, not last week&#39;s spreadsheet.');
-  // #reports was one of the nine areas; reporting is the domain that
-  // absorbed it.
+  for (const gone of ['Four steps and your floor is live.', 'Operational intelligence', 'Integrates with the tools you already use', 'class="logorow"']) {
+    expect(h, gone).not.toContain(gone);
+  }
+  // #reports was one of the nine areas; the reporting tile still links to
+  // the domain that absorbed it.
   expect(h).toContain('/features#reporting');
 });
 

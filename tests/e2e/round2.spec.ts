@@ -6,9 +6,11 @@ import { test, expect, type Page } from '@playwright/test';
 // cut, faded a quarter in, and an inset focus ring) went with the stage
 // (MVBOLD-34). The tiles' ring is covered in access.spec.ts.
 
-test('the integration names on home read at 4.5:1', async ({ page }) => {
+// Was the home page's integration names; that strip came off (MVBOLD-35) to
+// wait for an integrations page. /about's sector row is the same .logorow.
+test('the logo-row names read at 4.5:1', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
+  await page.goto('/about');
   const o = await page.locator('.logorow li').first().evaluate((li) => Number(getComputedStyle(li).opacity));
   // #141413 at .55 on #fafaf9 measured 4.05:1; .72 is the sector rows' value.
   expect(o).toBeGreaterThanOrEqual(0.72);
