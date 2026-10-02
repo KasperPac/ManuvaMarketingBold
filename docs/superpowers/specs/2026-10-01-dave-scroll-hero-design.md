@@ -10,7 +10,10 @@
   day: the scrub plays the clip itself, not a set of stills (§3.3, §4).
   Revised 2026-10-02 (MANUVA-52, `MVBOLD-33`): the room no longer turns lime.
   An A/B of the calm frame picked natural walls; T1 was regenerated as T2, in
-  which the room only tidies and the light comes up (§2, §3.3).
+  which the room only tidies and the light comes up (§2, §3.3). The same day,
+  from preview feedback: the tagline is one line from 1100px, so it no longer
+  covers most of the desk (§3.2), and the clip is cut at its last settled pose
+  instead of ending mid-blink (§3.3, §4.1).
 
 ## 1. What and why
 
@@ -37,7 +40,7 @@ without moving a single CTA out of reach.
 | Eyebrow, sub-copy, buttons | Word for word, in a band directly under the hero, beside the video. |
 | Marquee | **Removed** from the home page (preview feedback: its drift under the scrubbing hero was too distracting). Every fact it carried is still stated on /features or /pricing; the parity report is unchanged by its removal. |
 | Headline | **Less chaos. More making.** (the ad's own end line). Was "Make it. Track it. Ship it." |
-| Scrub | **The clip itself, seeked by scroll**: all 192 frames, eased. Picked in an A/B against 24 stills, 96 stills and a cross-fade of the 24 (§3.3). |
+| Scrub | **The clip itself, seeked by scroll**: every frame up to its settled last pose (183), eased. Picked in an A/B against 24 stills, 96 stills and a cross-fade of the 24 (§3.3). |
 | Video | **The Dave ad** (YouTube `JXB4FgHRm_Y`, 60 s, "Manuva - Less Chaos, More Making"), in the band straight under the hero with the caption "See it in 60 seconds". Poster: the ad's end card, self-hosted. Replaces the old explainer (MANUVA-36). |
 
 `before.png` and `after.png` are the same 2752×1536 set from the same camera;
@@ -104,6 +107,12 @@ single-camera transformation possible.
   (measured; 7.9 adds a margin), and the h1 must stay larger than the section
   h2s, which run at `clamp(64px, 6vw, 104px)` from 1100px. Screens no taller than
   500px cap it at 11svh.
+- **One line from 1100px** (and on a landscape phone): on two lines the tagline
+  covered most of the desk, which is where the room shows its chaos and calm.
+  The whole tagline is 14.54em (measured), so the size there is
+  `min(clamp(76px, 6.4vw, 112px), min(100vw − 96px, --page-max) / 15)`, the copy
+  column over 14.54em plus a margin, with `white-space: nowrap`. Below 1100px one
+  line would sink under the section h2s, so "Less chaos." keeps its own line.
 - **Logo:** the lockup, `--on-lime` ink, revealed by a 700ms left-to-right
   `clip-path` wipe when `data-scrub` becomes `calm`. Clip-path, not opacity: the
   cobalt field's full-strength override pins descendants at opacity 1.
@@ -118,7 +127,7 @@ single-camera transformation possible.
 ### 3.3 Scrub behaviour
 
 - The hero is `100svh` plus a scrub length of `150svh`; the inner stage is sticky.
-- **The scrub plays the clip itself**: all 192 frames of T2, positioned by
+- **The scrub plays the clip itself**: the first 183 frames of T2, positioned by
   scroll, over the still. Progress `p` is the hero's scroll offset over its
   scroll length, damped by `Motion.astro`'s follower with the scrub's own time
   constant, **160 ms** (`SCRUB_TAU`; the rest of the page uses 90 ms).
@@ -184,7 +193,9 @@ single-camera transformation possible.
 3. Writes, per shape (landscape: the full frame; portrait: a 500×1080 window
    centred on the focal x):
    - `public/hero/dave/<set>.webp`, the first frame, WebP q60 (sharp);
-   - `public/hero/dave/<set>.mp4`, every frame, H.264 CRF 25, a keyframe at
+   - `public/hero/dave/<set>.mp4`, the first `frames` frames (183 of T2's 192: its
+     last eight blink into a half-closed, in-between pose, and the scrub holds the
+     last frame), H.264 CRF 25, a keyframe at
      least every 4 frames, yuv420p, no audio, `+faststart` (ffmpeg).
 4. Reads each MP4 back (`mp4Info` in `scripts/hero-frames-lib.mjs`) and fails if
    it is not the expected size or exceeds its budget.
@@ -196,8 +207,8 @@ output is committed. Vercel never sees the clip.
 
 | Shape | Size | Still | Clip (T1 → T2) | Budget |
 |---|---|---|---|---|
-| Landscape | 1280×720 | 48 KB | 3,317 → 2,516 KB | ≤ 3,500 KB |
-| Portrait | crop of the 1080p download, 500×1080 | 28 KB | 1,917 → 1,807 KB | ≤ 2,100 KB |
+| Landscape | 1280×720 | 48 KB | 3,317 → 2,414 KB | ≤ 3,500 KB |
+| Portrait | crop of the 1080p download, 500×1080 | 28 KB | 1,917 → 1,727 KB | ≤ 2,100 KB |
 
 - 1280×720 because that is the clip's native generation size; the 1080p
   download is an upscale. Phone sharpness depends on the 1080p download.
@@ -250,7 +261,7 @@ existing `.hl` (lime field, `--on-lime` ink).
 - **Unit (vitest)** on `src/lib/scrub.ts`: clip time at 0, 1 and mid-progress,
   the end hold and end pad, the seek tolerance, the 160 ms follow.
 - **Unit (vitest)** on the committed media: each still is its shape's size, as
-  WebP; each clip is H.264 at its shape's size, 192 frames, no audio, keyframes
+  WebP; each clip is H.264 at its shape's size, `frames` (183) frames, no audio, keyframes
   at most 4 apart, `moov` before `mdat`, within budget.
 - **Unit (vitest)** on the built `dist/index.html`: H1 reads "Less chaos. More
   making." with the `.hl` on "More making."; `data-calm="5.5"`; the first frame

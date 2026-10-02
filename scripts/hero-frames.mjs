@@ -13,7 +13,7 @@
 //      for portrait phones
 // and two files per shape:
 //   <set>.webp  the first frame, the LCP image and the reduced-motion still
-//   <set>.mp4   every frame, which the scroll scrubs
+//   <set>.mp4   the first M.frames frames, which the scroll scrubs
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -68,9 +68,10 @@ for (const set of ['l', 'p']) {
   // -g sets the keyframe spacing: a seek decodes from the keyframe before it,
   // so a short gap is what keeps a backwards scrub as smooth as a forwards one.
   // yuv420p and no audio: the profile every browser decodes, and nothing to mute.
+  // -frames:v cuts the clip at its settled last pose, which the scrub holds.
   const mp4 = join(OUT, `${set}.mp4`);
   execFileSync('ffmpeg', [
-    '-v', 'error', '-y', '-i', clip, '-vf', crop[set].vf, '-an',
+    '-v', 'error', '-y', '-i', clip, '-vf', crop[set].vf, '-an', '-frames:v', String(M.frames),
     '-c:v', 'libx264', '-preset', 'slow', '-crf', String(M.video.crf), '-g', String(M.video.gop),
     '-pix_fmt', 'yuv420p', '-movflags', '+faststart', mp4,
   ]);

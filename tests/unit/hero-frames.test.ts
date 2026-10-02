@@ -27,6 +27,11 @@ describe('the committed hero media', () => {
   test('the manifest is the shape the hero relies on', () => {
     expect(M.calm).toBeGreaterThan(0);
     expect(M.calm).toBeLessThan(8);
+    // The clip is cut after M.frames: T2's own last frames blink towards the
+    // end key frame, and the scrub holds whatever frame is last (MVBOLD-33).
+    expect(Number.isInteger(M.frames)).toBe(true);
+    expect(M.frames).toBeGreaterThan(M.calm * 24);
+    expect(M.frames).toBeLessThanOrEqual(192);
     expect(M.landscape).toEqual({ width: 1280, height: 720 });
     expect(M.portrait.width).toBe(500);
     expect(M.portrait.height).toBe(1080);
@@ -47,7 +52,7 @@ describe('the committed hero media', () => {
       const v = mp4Info(buf);
       expect(v.codec, 'H.264, the one codec every browser decodes').toBe('avc1');
       expect([v.width, v.height]).toEqual([want().width, want().height]);
-      expect(v.samples, 'all 192 frames of the 8s clip').toBe(192);
+      expect(v.samples, 'the clip up to its settled last pose').toBe(M.frames);
       expect(v.audio, 'no audio track').toBe(false);
       // A seek decodes from the keyframe before it. Short gaps keep that to a
       // few frames, which is what makes scrubbing backwards as smooth as forwards.

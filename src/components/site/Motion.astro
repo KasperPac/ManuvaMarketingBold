@@ -202,8 +202,8 @@
     history.replaceState(null, '', '#' + s.id);
   });
 
-  // 5 · scrub — the Dave hero (MVBOLD-29). The chaos-to-calm clip itself, all
-  // 192 frames, positioned by scroll. The first frame is the <picture> in the
+  // 5 · scrub — the Dave hero (MVBOLD-29). The chaos-to-calm clip itself, every
+  // frame, positioned by scroll. The first frame is the <picture> in the
   // markup and the LCP; the clip is fetched whole after `load` and played from
   // a blob, so every seek is a local decode: no range requests mid-scroll and
   // nothing that depends on a browser's preload policy. Stepping stills was
