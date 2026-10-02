@@ -47,6 +47,21 @@ describe('the committed hero media', () => {
       expect([meta.width, meta.height]).toEqual([want().width, want().height]);
     });
 
+    // MVBOLD-37: once a visitor has seen the scrub, the home page opens on the
+    // finished room as a still, without fetching the clip.
+    test(`the ${set} finished still is the clip's last kept frame, as WebP`, async () => {
+      const meta = await sharp(`${DIR}/${set}-end.webp`).metadata();
+      expect(meta.format).toBe('webp');
+      expect([meta.width, meta.height]).toEqual([want().width, want().height]);
+      // The room changes from grey clutter to a bright, tidy office: the two
+      // stills differ throughout, not by a few pixels.
+      const px = async (f: string) => (await sharp(f).resize(32, 18, { fit: 'fill' }).removeAlpha().raw().toBuffer());
+      const [a, b] = [await px(`${DIR}/${set}.webp`), await px(`${DIR}/${set}-end.webp`)];
+      let diff = 0;
+      for (let i = 0; i < a.length; i++) diff += Math.abs(a[i] - b[i]);
+      expect(diff / a.length, 'mean channel difference from the first frame').toBeGreaterThan(20);
+    });
+
     test(`the ${set} video is every frame of the clip, seekable, and within budget`, () => {
       const buf = readFileSync(`${DIR}/${set}.mp4`);
       const v = mp4Info(buf);

@@ -125,6 +125,18 @@ const ogImageUrl = Astro.site ? new URL(ogImage, Astro.site) : ogImage;
           m = matchMedia('(prefers-reduced-motion:reduce)').matches ? 'off' : 'on';
         }
         document.documentElement.dataset.motion = m;
+        // The home hero plays once per visit (MVBOLD-37). Once a visitor has
+        // scrolled it to its end this session, the page opens on the finished
+        // room as a one-screen still: decided here, before first paint, so the
+        // pinned layout never paints and collapses. That hero is shorter than
+        // the one a restored scroll position was measured on, so the browser
+        // does not restore it; Motion.astro does, against the content below.
+        let d = null;
+        try { d = sessionStorage.getItem('mv-hero-done'); } catch {}
+        if (m === 'on' && d === '1') {
+          document.documentElement.dataset.hero = 'done';
+          if (location.pathname === '/') history.scrollRestoration = 'manual';
+        }
       })();
     </script>
     {/* With JS off the attribute is never set, and the shape cuts would pin

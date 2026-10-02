@@ -85,9 +85,11 @@ test.describe('motion on', () => {
     await expect(hero).toHaveAttribute('data-video', 'ready', { timeout: 20_000 });
     await page.waitForTimeout(3500);
     expect(await word(page, r), 'no rotation over the chaos').toBe('making');
+    // Three-quarters through: calm, but short of the last frame. Played
+    // through to the end, the room no longer turns back (MVBOLD-37).
     await page.evaluate(() => {
       const el = document.querySelector('.hero.dave') as HTMLElement;
-      scrollTo(0, el.getBoundingClientRect().top + scrollY + el.offsetHeight - innerHeight);
+      scrollTo(0, el.getBoundingClientRect().top + scrollY + (el.offsetHeight - innerHeight) * 0.75);
     });
     await expect(hero).toHaveAttribute('data-scrub', 'calm', { timeout: 10_000 });
     await expect.poll(() => word(page, r), { timeout: 5_000 }).toBe('selling');

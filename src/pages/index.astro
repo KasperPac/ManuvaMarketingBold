@@ -175,6 +175,19 @@ const pad = (n: number) => String(n).padStart(2, '0');
             alt="Claymation: Dave at his desk in a grey office full of spreadsheets and sticky notes. Scrolling tidies it into a calm, bright office with his feet up."
           />
         </picture>
+        {/* A visitor who has seen the scrub this visit opens on the finished
+            room (MVBOLD-37; Base.astro sets data-hero before first paint).
+            Inline and synchronous, straight after the picture, so the still
+            is swapped before it can paint. */}
+        <script is:inline>
+          if (document.documentElement.dataset.hero === 'done') {
+            const pic = document.currentScript.previousElementSibling;
+            pic.querySelector('source').srcset = '/hero/dave/p-end.webp';
+            const img = pic.querySelector('img');
+            img.src = '/hero/dave/l-end.webp';
+            img.alt = 'Claymation: Dave at his desk in a calm, bright office, feet up with a mug of tea.';
+          }
+        </script>
         <div class="dave-logo"><Logo variant="lockup" fill decorative /></div>
       </div>
       {/* The descriptor and Start free make the first screen say what Manuva is

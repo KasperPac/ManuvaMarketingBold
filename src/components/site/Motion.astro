@@ -194,7 +194,11 @@
 
   // Reduced motion, Save-Data and slow connections keep the still hero, which
   // is the markup as it stands: no pin, the first frame, the highlight shown.
-  const scrubs = (reduce || lean ? [] : [...document.querySelectorAll<HTMLElement>('.hero.dave')]).map((h) => {
+  // So does a visitor who has scrolled it to its end this visit (MVBOLD-37;
+  // Base.astro decides it before first paint), but on the finished room: the
+  // markup's inline script swapped the still, and the clip is never fetched.
+  const seen = document.documentElement.dataset.hero === 'done';
+  const scrubs = (reduce || lean || seen ? [] : [...document.querySelectorAll<HTMLElement>('.hero.dave')]).map((h) => {
     const video = document.createElement('video');
     video.muted = true;
     video.playsInline = true;
@@ -216,6 +220,8 @@
       seeked: false,
       started: false,
       dead: false,
+      // Played through: the clip has shown its last frame once, and holds it.
+      done: false,
       p: null as number | null,
       gen: 0,
     };
@@ -319,7 +325,9 @@
       // where it already is, because its `seeked` is what marks it ready.
       const v = o.video;
       if (v.readyState >= 1 && !v.seeking) {
-        const t = timeAt(o.p, v.duration);
+        // Played through, the clip holds its last frame wherever the page is
+        // scrolled (MVBOLD-37): scrolling back up does not rewind the room.
+        const t = timeAt(o.done ? 1 : o.p, v.duration);
         if (!o.seeked || needsSeek(v.currentTime, t)) {
           o.seeked = true;
           v.currentTime = t;
@@ -327,13 +335,47 @@
       }
       if (v.seeking) busy = true;
 
+      // The last frame on screen once marks the hero played through, for the
+      // rest of this page and, through Base.astro, the rest of the visit.
+      if (!o.done && o.ready && !v.seeking && v.currentTime >= timeAt(1, v.duration) - 0.05) {
+        o.done = true;
+        try { sessionStorage.setItem('mv-hero-done', '1'); } catch {}
+      }
+
       o.h.dataset.scrub = o.ready && v.currentTime >= o.calm ? 'calm' : 'pre';
       // The descriptor and Start free fold away as soon as the room starts
-      // to change, and come back at the top.
+      // to change, and come back at the top, over the finished room too.
       o.h.dataset.lead = o.p > 0.03 ? 'gone' : '';
-      if (o.hint) o.hint.style.opacity = String(1 - cl(o.p / 0.05));
+      // Played through, there is nothing left to scroll for.
+      if (o.hint) o.hint.style.opacity = o.done ? '0' : String(1 - cl(o.p / 0.05));
     });
     return busy;
+  }
+
+  // Coming back to the home page (MVBOLD-37). Seen this visit, the hero is one
+  // screen, not the two and a half a remembered scroll position was measured
+  // on, so Base.astro turns the browser's own restoration off and this
+  // restores it against the content below the hero instead: the same distance
+  // past its bottom edge, or the top if the visitor was still inside it.
+  const home = document.querySelector<HTMLElement>('.hero.dave');
+  if (home) {
+    const heroEnd = () => home.getBoundingClientRect().bottom + scrollY;
+    addEventListener('pagehide', () => {
+      try { sessionStorage.setItem('mv-home-below', String(Math.round(scrollY - heroEnd()))); } catch {}
+    });
+    const nav = (performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined)?.type;
+    if (seen && (nav === 'back_forward' || nav === 'reload')) {
+      let below = NaN;
+      try { below = Number(sessionStorage.getItem('mv-home-below') ?? NaN); } catch {}
+      if (Number.isFinite(below)) {
+        const restore = () => scrollTo(0, below >= 0 ? heroEnd() + below : 0);
+        restore();
+        // Web fonts can still change the heights above the spot; follow them,
+        // unless the visitor has scrolled since.
+        const at = scrollY;
+        void document.fonts.ready.then(() => { if (Math.abs(scrollY - at) < 2) restore(); });
+      }
+    }
   }
 
   // 6 · words — rotating words (MVBOLD-36). Manufacturing is one of the trades
