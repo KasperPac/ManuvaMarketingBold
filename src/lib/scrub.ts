@@ -6,7 +6,7 @@
 // rates were tried on the preview: 48 poses at 24 a second let Dave's mouth
 // flicker and read as hectic; 24 poses at 12 a second still moved two poses at
 // once on a single wheel notch, with no ease in or out. An A/B of stills,
-// cross-fades and the clip itself chose the clip: all 192 frames, so a notch
+// cross-fades and the clip itself chose the clip: every frame, so a notch
 // is a short eased run rather than a cut.
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));

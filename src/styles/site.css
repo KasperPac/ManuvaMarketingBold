@@ -669,14 +669,16 @@ main [id]{scroll-margin-top:80px}
    section is one screen and the sticky pin has nothing to do.
 
    The scene carries only the tagline, bottom-left over a fade along the
-   bottom edge, and the Manuva logo, painted onto the lime wall when the room
+   bottom edge, and the Manuva logo, wiped onto the back wall when the room
    turns calm. The top of the scene stays clear: preview feedback was that copy
    and scrim over it made it hard to see what was going on.
 
    The h1 still has to lead the page: larger than the section h2s, which run
    at clamp(64px,6vw,104px) from 1100. "More making." is one unbreakable
    highlight, 7.68em wide in .disp (measured); 7.9 is that plus a margin, and
-   the headline-fits test in dave-hero.spec.ts holds it true.
+   the headline-fits test in dave-hero.spec.ts holds it true. Where the
+   tagline is one line (from 1100px, and on a landscape phone) the whole of
+   it is 14.54em; 15 is that plus a margin.
 
    The fade (on .dave-copy) is --ink-strong, never navy: a navy hero is the "third blue"
    field-separation.test.ts exists to stop. */
@@ -710,11 +712,12 @@ main [id]{scroll-margin-top:80px}
 @media(max-aspect-ratio:4/5){
   .dave-scene{left:50%;transform:translate(-50%,-50%);aspect-ratio:500/1080;width:max(100%,calc(100svh * 500 / 1080));width:max(100%,calc(100dvh * 500 / 1080))}
 }
-/* The logo, on the empty lime wall right of the corner (landscape) or across
+/* The logo, on the empty wall right of the corner (landscape) or across
    the top of the wall above the window (portrait). It wipes on left to right
    like fresh paint when the room turns calm; clip-path rather than opacity,
-   which the field's full-strength override would pin at 1. Ink on lime:
-   --on-lime. Hidden whenever data-scrub is not "calm", which includes reduced
+   which the field's full-strength override would pin at 1. The walls keep
+   their own warm neutral (MVBOLD-33); the ink stays --on-lime, which is
+   near-black and reads on it. Hidden whenever data-scrub is not "calm", which includes reduced
    motion and no JS, where the scene is the chaos frame. */
 .dave-logo{position:absolute;left:59%;top:21%;width:27%;aspect-ratio:2189.357/482.347;color:var(--on-lime);clip-path:inset(0 100% 0 0);transition:clip-path 700ms var(--ease-out)}
 @media(max-aspect-ratio:4/5){.dave-logo{left:12%;top:11%;width:76%}}
@@ -724,7 +727,7 @@ main [id]{scroll-margin-top:80px}
    own height above it and is still two-thirds ink at the headline's first
    line, so the line is covered however large the headline grows, and the
    fade is only as tall as the copy needs. The white first line is large text
-   and must hold 3:1 over the lime room (measured in dave-hero.spec.ts). */
+   and must hold 3:1 over the calm room (measured in dave-hero.spec.ts). */
 .dave-copy::before{content:"";position:absolute;inset:-60% 0 0 0;z-index:-1;pointer-events:none;background:linear-gradient(0deg,color-mix(in srgb,var(--ink-strong) 88%,transparent) 0%,color-mix(in srgb,var(--ink-strong) 66%,transparent) 62.5%,transparent 100%)}
 .hero.dave h1{font-size:min(15.5vw,calc((100vw - 40px) / 7.9));max-width:none}
 .dave-hint{display:none;position:absolute;left:50%;bottom:12px;transform:translateX(-50%);font:600 11px/1 var(--font-body);letter-spacing:.14em;text-transform:uppercase;opacity:.8;pointer-events:none}
@@ -734,12 +737,14 @@ main [id]{scroll-margin-top:80px}
 @media(min-width:721px){.dave-copy{padding:0 32px 48px}.hero.dave h1{font-size:min(11vw,112px,calc((100vw - 64px) / 7.9))}}
 @media(min-width:1100px){
   .dave-copy{padding:0 max(48px,calc((100vw - var(--page-max,1240px)) / 2)) 56px}
-  .hero.dave h1{font-size:min(clamp(76px,6.4vw,112px),calc((100vw - 96px) / 7.9))}
+  /* One line, inside the copy's column: the padding above leaves
+     min(100vw - 96px, --page-max) of it. */
+  .hero.dave h1{font-size:min(clamp(76px,6.4vw,112px),calc(min(100vw - 96px,var(--page-max,1240px)) / 15))}
 }
 /* A landscape phone is ~390px tall: a width-sized headline would fill it. */
 @media(max-height:500px) and (min-aspect-ratio:1/1){
   .dave-copy{padding:0 24px 20px}
-  .hero.dave h1{font-size:min(11svh,calc((100vw - 48px) / 7.9))}
+  .hero.dave h1{font-size:min(11svh,calc((100vw - 48px) / 15))}
 }
 /* The chip on "More making." lands as the walls turn lime (data-scrub,
    written by Motion.astro). With motion off or no JS the attribute is never
@@ -1106,10 +1111,18 @@ main [id]{scroll-margin-top:80px}
 .stage .panel:focus-visible{outline-offset:-12px;border-radius:16px}
 /* Integration names at .55 measured 4.05:1 on paper; .72, as the sector row. */
 .logorow li{opacity:.72}
-/* "Less chaos." always owns the first line. With the narrower fallback face
-   the whole tagline fitted on one line at 1440, and the swap to Archivo
-   broke it onto two and moved the copy and its scrim 136px. */
+/* The break is never left to the font. With the narrower fallback face the
+   whole tagline fitted on one line at 1440, and the swap to Archivo broke it
+   onto two and moved the copy and its scrim 136px. So "Less chaos." owns the
+   first line below 1100px, where one line would sink under the section
+   headings, and from 1100px (and on a landscape phone) the tagline is held to
+   one line (MVBOLD-33): on two it covered most of the desk, which is where
+   the room shows its chaos and its calm. */
 .hero.dave h1 .line{display:block}
+@media(min-width:1100px),(max-height:500px) and (min-aspect-ratio:1/1){
+  .hero.dave h1{white-space:nowrap}
+  .hero.dave h1 .line{display:inline}
+}
 /* The header switch keeps a visible word at tablet widths; the full
    "Motion on/off" label stays for screen readers. */
 .motion-word{display:none}

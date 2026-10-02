@@ -37,7 +37,8 @@ That repo is not always on disk. The parity gate takes `PARITY_OLD_REPO` to
 point at a clone elsewhere (`git clone https://github.com/KasperPac/ManuvaMarketing.git`).
 
 The home hero's stills and scrub clips (`public/hero/dave/{l,p}.{webp,mp4}`)
-are cut from `T1.mp4` in
+are cut from `T2.mp4` (natural walls; it replaced the lime-repaint `T1.mp4`
+in MVBOLD-33) in
 `C:\dev\MarketingAndPromotion\video\manuva-stopmotion\flow-kit\downloads` by
 `npm run hero:frames` (needs ffmpeg). The source clip is not in this repo and
 Vercel never sees it, so rerun the script by hand and commit its output

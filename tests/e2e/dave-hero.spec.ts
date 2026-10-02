@@ -2,7 +2,7 @@ import { test, expect, type Page } from '@playwright/test';
 
 // The Dave hero (MVBOLD-29): a full-bleed claymation frame over the cobalt
 // field, carrying only the tagline at the bottom and the Manuva logo, which is
-// revealed on the lime wall as the room turns calm. The eyebrow, sub-copy and
+// wiped onto the back wall as the room turns calm. The eyebrow, sub-copy and
 // buttons sit in a band directly under the hero. The layout half of this file
 // is what reduced-motion and no-JS visitors get; the scrub half covers the
 // stop-motion itself.
@@ -81,6 +81,33 @@ for (const width of [1280, 1366, 1440, 1920, 2560]) {
   });
 }
 
+// MVBOLD-33: on two lines the tagline covered most of the desk, where the
+// room's chaos and calm show most. Wherever one line still leads the section
+// headings (from 1100px, and on a landscape phone, whose headline is capped by
+// its height anyway) it is one line; narrower than that it keeps two.
+const oneLine = (page: Page) =>
+  page.evaluate(async () => {
+    await document.fonts.ready;
+    const h1 = document.querySelector('.hero.dave h1')!;
+    const a = h1.querySelector('.line')!.getBoundingClientRect();
+    const b = h1.querySelector('.hl')!.getBoundingClientRect();
+    return Math.abs((a.top + a.bottom) / 2 - (b.top + b.bottom) / 2) < a.height / 2;
+  });
+for (const [w, h] of [[1100, 800], [1280, 800], [1440, 900], [1920, 1080], [2560, 1440], [844, 390]] as const) {
+  test(`the tagline is one line at ${w}x${h}`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto('/');
+    expect(await oneLine(page)).toBe(true);
+  });
+}
+for (const [w, h] of [[390, 844], [768, 1024], [1024, 768]] as const) {
+  test(`the tagline keeps two lines at ${w}x${h}`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto('/');
+    expect(await oneLine(page)).toBe(false);
+  });
+}
+
 test('a portrait viewport loads the portrait frame', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
@@ -97,7 +124,7 @@ test('the video facade renders in the band straight under the hero', async ({ pa
 
 // --- the scrub ---------------------------------------------------------------
 //
-// The scrub seeks the clip itself (all 192 frames), fetched whole after `load`
+// The scrub seeks the clip itself (every frame), fetched whole after `load`
 // and played from a blob, rather than stepping a set of stills: it was picked
 // in an A/B against 24 stills, 96 stills and a cross-fade, because a single
 // wheel notch eases in and out instead of cutting two poses at once.
@@ -119,6 +146,10 @@ const clipReady = (page: Page, timeout = 20_000) =>
 const shownAt = (page: Page) =>
   page.locator('.dave-scene video').evaluate((v: HTMLVideoElement) => (v.seeking ? -1 : v.currentTime));
 
+// The last time the scrub shows: the clip's own end, less scrub.ts's END_PAD.
+const clipEnd = (page: Page) =>
+  page.locator('.dave-scene video').evaluate((v: HTMLVideoElement) => v.duration - 0.02);
+
 const fetched = (page: Page, file: string) =>
   page.evaluate((f) => performance.getEntriesByType('resource').filter((r) => r.name.endsWith(`/hero/dave/${f}`)).length, file);
 
@@ -138,7 +169,7 @@ test.describe('scrub, motion on', () => {
     await expect(page.locator('.dave-scene video')).toBeVisible();
     await heroScrollTo(page, 0.5);
     // Half the travel, with the last 10% held: 0.5 / 0.9 of the clip.
-    await expect.poll(() => shownAt(page), { timeout: 5_000 }).toBeCloseTo((0.5 / 0.9) * 7.98, 1);
+    await expect.poll(() => shownAt(page), { timeout: 5_000 }).toBeCloseTo((0.5 / 0.9) * (await clipEnd(page)), 1);
     const pinTop = await page.locator('.dave-pin').evaluate((el) => el.getBoundingClientRect().top);
     expect(Math.abs(pinTop), 'the stage is pinned mid-scrub').toBeLessThan(2);
   });
@@ -254,7 +285,31 @@ test.describe('scrub, motion on', () => {
     await expect.poll(() => hint.evaluate((e) => Number(getComputedStyle(e).opacity))).toBeLessThan(0.05);
   });
 
-  test('the logo is painted onto the lime wall as the room turns calm', async ({ page }) => {
+  // MVBOLD-33: the room only tidies. It used to be repainted lime as it
+  // calmed, which was too much going on for an office tidying up. The upper
+  // half of the calm scene is wall; with the logo hidden, almost none of it
+  // may be lime (the yellow parts bins and Dave's pencil are a sliver).
+  test('the calm room keeps its natural walls', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/');
+    await clipReady(page);
+    await heroScrollTo(page, 1);
+    await expect.poll(() => shownAt(page), { timeout: 8_000 }).toBeGreaterThan((await clipEnd(page)) - 0.1);
+    await page.addStyleTag({ content: '.dave-logo{visibility:hidden!important}' });
+    await page.waitForTimeout(400);
+    const png = await page.screenshot({ clip: { x: 0, y: 0, width: 1280, height: 360 } });
+    const { default: sharp } = await import('sharp');
+    const { data, info } = await sharp(png).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+    let lime = 0;
+    for (let i = 0; i < info.width * info.height * 3; i += 3) {
+      const [r, g, b] = [data[i], data[i + 1], data[i + 2]];
+      const mx = Math.max(r, g, b), c = mx - Math.min(r, g, b);
+      if (mx === g && c / mx > 0.45 && mx > 90 && r > b) lime++;
+    }
+    expect(lime / (info.width * info.height), 'share of lime pixels in the upper half').toBeLessThan(0.02);
+  });
+
+  test('the logo is wiped onto the back wall as the room turns calm', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
     const logo = page.locator('.dave-logo');
@@ -370,23 +425,25 @@ test.describe('scrub, motion on', () => {
   });
 
   // Final review, finding 6, and again for the tagline-only hero: the white
-  // first line of the tagline ("Less chaos.") sits over the bottom fade, and
-  // in the calm frames the room behind it is lime. Large text needs 3:1. The
-  // text is hidden and every pixel under that line is measured, so the
-  // brightest background it can land on is what is judged.
+  // words of the tagline ("Less chaos.") sit over the bottom fade, and in the
+  // calm frames the room behind them is light. Large text needs 3:1. The text
+  // is hidden and every pixel under those words is measured, so the brightest
+  // background they can land on is what is judged. The words' own box, so the
+  // measure holds whether the tagline is one line or two (MVBOLD-33).
   for (const width of [1280, 1440, 1920, 390]) {
     test(`the tagline keeps large-text contrast over the calm room at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: width < 600 ? 844 : 900 });
       await page.goto('/');
       await clipReady(page);
       await heroScrollTo(page, 1);
-      await expect.poll(() => shownAt(page), { timeout: 8_000 }).toBeGreaterThan(7.9);
+      await expect.poll(() => shownAt(page), { timeout: 8_000 }).toBeGreaterThan((await clipEnd(page)) - 0.1);
       await page.addStyleTag({ content: '.hero.dave h1, .hero.dave h1 *{color:transparent!important;background:transparent!important}' });
       await page.waitForTimeout(400);
       const r = await page.evaluate(() => {
-        const h1 = document.querySelector('.hero.dave h1')!.getBoundingClientRect();
-        const hl = document.querySelector('.hero.dave h1 .hl')!.getBoundingClientRect();
-        return { x: Math.round(h1.left), y: Math.round(h1.top), w: Math.round(hl.width), h: Math.round(hl.top - h1.top) };
+        const range = document.createRange();
+        range.selectNodeContents(document.querySelector('.hero.dave h1 .line')!);
+        const b = range.getBoundingClientRect();
+        return { x: Math.round(b.left), y: Math.round(b.top), w: Math.round(b.width), h: Math.round(b.height) };
       });
       const png = await page.screenshot({ clip: { x: r.x, y: r.y, width: r.w, height: r.h } });
       const { default: sharp } = await import('sharp');

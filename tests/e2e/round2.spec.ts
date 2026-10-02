@@ -76,19 +76,27 @@ test('"Priced for the shed" links to the prices', async ({ page }) => {
   await expect(sec.locator('a[href="/pricing"]')).toHaveCount(1);
 });
 
-test('the hero tagline is two lines before the web fonts arrive, so nothing shifts when they do', async ({ page }) => {
-  // With the narrower fallback face "Less chaos. More making." fitted on one
-  // line at 1440; the swap to Archivo broke it onto two and moved the copy
-  // block and its scrim by 136px.
-  await page.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
-  const lines = await page.locator('.hero.dave h1').evaluate((h) => {
-    const lh = parseFloat(getComputedStyle(h).lineHeight);
-    return Math.round(h.getBoundingClientRect().height / lh);
+// With the narrower fallback face "Less chaos. More making." fitted on one
+// line at 1440; the swap to Archivo broke it onto two and moved the copy block
+// and its scrim by 136px. The break is now set by width, never by the font:
+// one line from 1100px (MVBOLD-33), two below.
+for (const [width, want] of [[1440, 1], [1024, 2]] as const) {
+  test(`the hero tagline is ${want} line(s) at ${width}px with or without the web fonts, so nothing shifts when they arrive`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    const lines = () => page.locator('.hero.dave h1').evaluate((h) => {
+      const lh = parseFloat(getComputedStyle(h).lineHeight);
+      return Math.round(h.getBoundingClientRect().height / lh);
+    });
+    const FONTS = /fonts\.(googleapis|gstatic)\.com/;
+    await page.route(FONTS, (r) => r.abort());
+    await page.goto('/');
+    expect(await lines(), 'fallback face').toBe(want);
+    await page.unroute(FONTS);
+    await page.goto('/');
+    await page.evaluate(() => document.fonts.ready);
+    expect(await lines(), 'web fonts').toBe(want);
   });
-  expect(lines).toBe(2);
-});
+}
 
 test('the header motion switch keeps a visible word at tablet widths', async ({ page }) => {
   await page.setViewportSize({ width: 800, height: 700 });
