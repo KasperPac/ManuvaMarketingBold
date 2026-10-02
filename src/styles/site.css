@@ -624,11 +624,6 @@ main [id]{scroll-margin-top:80px}
    numerals made the reports list read as a second sequence beside the
    onboarding one — identical treatment, so neither won. Same hairlines and
    rhythm, one column, no index. */
-/* No index column. `plain` also quietens the heading; `nonum` is the
-   layout on its own, for lists that keep their full heading size. */
-.nlist.plain li,
-.nlist.nonum li{grid-template-columns:minmax(0,1fr)}
-.nlist.plain h3{font-size:19px;line-height:1.3;max-width:46ch}
 
 /* The platform's six domains (MVBOLD-34), a static grid of field tiles in
    the paper platform section. They were a pinned stage of six full-screen
@@ -759,6 +754,10 @@ main [id]{scroll-margin-top:80px}
 .lead-media{display:grid;gap:12px;min-width:0;align-content:start}
 .hero-intro .site-video{margin:0;width:100%;max-width:none}
 .hero-intro + .platform,.platform + .sec{border-top:2px solid color-mix(in srgb,currentColor 12%,transparent)}
+/* The home pricing comparison moved from ink to paper (MVBOLD-35). The
+   per-seat column's .55 read on ink and measures 4.05:1 on paper; .72 is the
+   value the sector row settled on for ink on paper. */
+.versus .ctable .them{opacity:.72}
 
 /* The header, docked. Transparent over the hero, an opaque bar once it is
    over anything else — Motion.astro fills in the background and ink of the

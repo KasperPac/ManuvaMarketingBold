@@ -16,9 +16,10 @@ import heroFrames from '../../scripts/hero-frames.json';
 // the page's 53 sentences with them — the explainer, the platform grid, the
 // reports highlight, the onboarding steps, the integrations strip, the beta
 // strip and the sectors row. "Keep latest content" was the instruction and
-// that was a straight miss. All of it is back below, re-poured into the new
-// design's own vocabulary (.sec / .split / .nlist) rather than the old
-// components, but word for word.
+// that was a straight miss. All of it came back, re-poured into the new
+// design's own vocabulary rather than the old components, but word for word.
+// Several have since come off on purpose, each noted below; that is a
+// decision, not the same miss.
 //
 // Content is this repo's latest, not the handoff's: the trial is 30 days and
 // prices are AUD, both of which the handoff still carries at their older
@@ -30,9 +31,14 @@ import heroFrames from '../../scripts/hero-frames.json';
 //
 // Field rhythm, per the loud-layer rules — one full-bleed field per fold and
 // never two touching:
-//   Dave hero (cobalt field, never seen) → paper → paper (the six domain
-//   tiles, each a field on paper) → paper → amber → paper → ink → paper →
-//   flare outro
+//   Dave hero (cobalt field, never seen) → paper (intro and video) → paper
+//   (the six domain tiles, each a field on paper) → paper (pricing) → flare
+//   outro
+//
+// MVBOLD-35 (author's call) took three sections off: getting started (not
+// needed until onboarding), the reports highlight (/features carries it) and
+// the integrations strip (an integrations page is coming). The pricing
+// section moved from ink to paper so it would not touch the outro.
 //
 // The pinned stage of six full-screen domain panels came off in MVBOLD-34: a
 // second pinned sequence a short band after the scrubbing hero was too much.
@@ -49,27 +55,6 @@ import heroFrames from '../../scripts/hero-frames.json';
 // on /features (yield %, BOM versioning and "roll back", unlimited users on
 // Growth, real-time webhook sync) and the 30-day trial on /features and
 // /pricing (checked 2026-10-01).
-
-const HIGHLIGHT = {
-  section: 'Reports & analytics',
-  heading: "Operational intelligence, not last week's spreadsheet.",
-  body: 'Ten built-in reports on stock, supplier performance, PO accuracy and dead stock — scoped to any date range, exported to CSV or PDF in a click.',
-  href: '/features#reporting',
-  feats: [
-    'Stock on hand, valuation, movements and dead stock',
-    'Supplier lead-time accuracy and PO variance, scored from your own data',
-    'Every report exports to CSV or a print-ready PDF',
-  ],
-} as const;
-
-const ONBOARDING = [
-  { title: 'Connect Shopify', desc: 'Products, variants, and inventory levels stay in sync between Manuva and Shopify automatically.' },
-  { title: 'Import your BOMs', desc: 'Upload a spreadsheet, or build the first one from a template. Nine minutes, typically.' },
-  { title: 'Count once', desc: 'One stocktake session sets the baseline. Every movement after that is tracked for you.' },
-  { title: 'Run a job', desc: 'Release a work order, allocate stock, and watch the floor scan against it.' },
-] as const;
-
-const INTEGRATIONS = ['Shopify', 'WooCommerce', 'Amazon', 'Etsy', 'Xero', 'QuickBooks', 'MYOB'];
 
 // The old site's own #compare rows. They moved to /alternatives when the home
 // page dropped that section; the new design puts a three-column comparison
@@ -276,58 +261,16 @@ const pad = (n: number) => String(n).padStart(2, '0');
     <a class="pill ink" href="/features" style="justify-self:start">Explore the full feature set &rarr;</a>
   </section>
 
-  {/* Paper, not amber: amber sat directly on the stage's last panel, aqua,
-      and two fields may not touch (MVBOLD-31). The stage is tiles inside the
-      paper section above now (MVBOLD-34), so this is paper after paper and
-      takes the hairline. */}
-  <section class="sec">
-    <div class="split">
-      <div class="stick" style="display:grid;gap:18px">
-        <span class="eyebrow" style="opacity:.7">Getting started</span>
-        <h2 class="disp" style="font-size:min(clamp(40px,9vw,72px),calc(100cqi / var(--fit)))">Four steps and your floor is live.</h2>
-        <p class="sub" style="opacity:.82">
-          Nothing to install and nobody to book. Connect Shopify, bring in your BOMs, count once, then run a
-          job. Most manufacturers finish in an afternoon.
-        </p>
-      </div>
-      <ul class="nlist">
-        {ONBOARDING.map((s, i) => (
-          <li>
-            <span class="i">{pad(i + 1)}</span>
-            <h3>{s.title}</h3>
-            <p>{s.desc}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
-  </section>
-
-  <section class="sec">
-    <div class="split">
-      <div class="stick" style="display:grid;gap:18px">
-        <span class="eyebrow" style="opacity:.6">{HIGHLIGHT.section}</span>
-        <h2 class="disp" style="font-size:min(clamp(40px,9vw,72px),calc(100cqi / var(--fit)))">{HIGHLIGHT.heading}</h2>
-        <p class="sub" style="color:var(--ink-muted)">{HIGHLIGHT.body}</p>
-        <a class="pill ink" href={HIGHLIGHT.href} style="justify-self:start">See every report &rarr;</a>
-      </div>
-      {/* Unnumbered. These are three facts, not three steps, and as a
-          numbered list they were visually identical to the onboarding
-          sequence above — two counted lists competing, only one of them
-          actually a sequence. */}
-      <ul class="nlist plain">
-        {HIGHLIGHT.feats.map((f) => (
-          <li><h3>{f}</h3></li>
-        ))}
-      </ul>
-    </div>
-  </section>
-
-  <section class="sec mv-field-ink">
+  {/* Pricing against legacy MRP. On paper since MVBOLD-35: it was the page's
+      one ink band, and with the integrations strip gone ink would have
+      touched the flare closing band. Paper after the platform's paper, so it
+      takes the hairline. The eyebrow was amber text, which only read on ink. */}
+  <section class="sec versus">
     <div class="split">
       <div class="stick" style="display:grid;gap:20px">
-        <span class="eyebrow" style="color:var(--field-amber)">Versus legacy MRP</span>
+        <span class="eyebrow" style="opacity:.6">Versus legacy MRP</span>
         <h2 class="disp">Priced for the shed, not the boardroom.</h2>
-        <p class="sub" style="opacity:.75">
+        <p class="sub" style="color:var(--ink-muted)">
           Flat pricing, unlimited users from Growth up. Connect Shopify, import your BOMs, run your first job today.
         </p>
         {/* The section argued price with nowhere to go next (MVBOLD-31). */}
@@ -337,7 +280,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
         <div class="r h" role="row">
           <span role="columnheader"><span class="vh">Plan</span></span>
           <span class="eyebrow limechip" role="columnheader">Manuva</span>
-          <span class="eyebrow" role="columnheader" style="opacity:.5">Per-seat MRP</span>
+          <span class="eyebrow" role="columnheader" style="opacity:.72">Per-seat MRP</span>
         </div>
         {COMPARE.map(([k, us, them]) => (
           <div class="r" role="row">
@@ -348,13 +291,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
         ))}
       </div>
     </div>
-  </section>
-
-  <section class="sec">
-    <p class="eyebrow" style="opacity:.6;margin:0">Integrates with the tools you already use</p>
-    <ul class="logorow">
-      {INTEGRATIONS.map((name) => <li>{name}</li>)}
-    </ul>
   </section>
 
   <section class="outro mv-field-flare">
