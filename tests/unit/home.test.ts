@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { expect, test } from 'vitest';
+import { DOMAINS } from '../../src/site';
 
 const html = () => readFileSync('dist/index.html', 'utf8');
 
@@ -213,18 +214,17 @@ test('lime never touches mint again', () => {
 // as the page's second beat — so that survives the hue change; the hue itself
 // is now guarded by the no-navy test in field-separation.test.ts, which covers
 // every route rather than this one line.
-test('the video is the first thing under the hero, ahead of the stage lead-in', () => {
+test('the video is the first thing under the hero, ahead of the platform section', () => {
   const h = html();
   const band = h.indexOf('<section class="sec hero-intro"');
   const bandEnd = h.indexOf('</section>', band);
   const video = h.indexOf('data-youtube-id=');
-  const lead = h.indexOf('class="sec stage-lead"');
+  const lead = h.indexOf('class="sec platform"');
   expect(video, 'the video sits in the band under the hero').toBeGreaterThan(band);
   expect(video, 'the video sits in the band under the hero').toBeLessThan(bandEnd);
   expect(h, 'the line the old section was headed by survives as the caption').toContain('What Manuva actually does');
   expect(lead).toBeGreaterThan(bandEnd);
   expect(h.slice(lead, h.indexOf('</section>', lead)), 'the lead-in no longer carries a video').not.toContain('site-video');
-  expect(h.indexOf('<section class="stage"')).toBeGreaterThan(lead);
 });
 
 
@@ -272,4 +272,26 @@ test('the highlighted latest feature replaced the showcase split', () => {
   // #reports was one of the nine areas; reporting is the domain that
   // absorbed it.
   expect(h).toContain('/features#reporting');
+});
+
+// MVBOLD-34: the six domains were a pinned stage, six full-screen panels
+// wiping in over each other for five screens of scroll, a short band after
+// the scrubbing hero. Two pinned sequences on one page was too much; the hero
+// keeps the motion, and the domains are a static grid in the platform section.
+test('the six domains are a static grid of field tiles in the platform section', () => {
+  const h = html();
+  expect(h, 'no pinned stage').not.toContain('<section class="stage"');
+  const start = h.indexOf('<section class="sec platform"');
+  expect(start, 'the platform section').toBeGreaterThan(-1);
+  const sec = h.slice(start, h.indexOf('</section>', start));
+  const tiles = [...sec.matchAll(/<a class="tile mv-field-([a-z]+)" href="\/features#([a-z]+)"[^>]*>([\s\S]*?)<\/a>/g)];
+  expect(tiles.map((t) => [t[1], t[2]]), 'one tile per domain, in order, on its own field').toEqual(
+    DOMAINS.map((d) => [d.field, d.id]),
+  );
+  tiles.forEach((t, i) => {
+    const d = DOMAINS[i];
+    expect(t[3], `${d.name}: its name is a heading under the section's h2`).toMatch(new RegExp(`<h3[^>]*>${d.name}</h3>`));
+    expect(t[3], `${d.name}: its line, verbatim`).toContain(d.line);
+    expect(t[3]).toContain(`See ${d.name.toLowerCase()}`);
+  });
 });

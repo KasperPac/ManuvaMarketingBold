@@ -127,15 +127,13 @@ const ogImageUrl = Astro.site ? new URL(ogImage, Astro.site) : ogImage;
         document.documentElement.dataset.motion = m;
       })();
     </script>
-    {/* With JS off the attribute is never set, and the stage would paint six
-        absolutely-positioned panels stacked in one 100svh box. The flat
-        layout is the correct no-JS rendering. */}
+    {/* With JS off the attribute is never set, and the shape cuts would pin
+        for screens of scroll with nothing moving. The flat layout is the
+        correct no-JS rendering. (The home stage was flattened here too until
+        it became a static grid, MVBOLD-34.) */}
     <noscript><style>
       .intro{height:auto}.ipin{position:relative;height:auto;min-height:100svh}
       .cut{position:relative;min-height:100svh}
-      .stage{height:auto}.stage .pin{position:relative;height:auto;overflow:visible}
-      .stage .panel{position:relative;inset:auto;min-height:100svh}
-      .ticks{display:none}
     </style></noscript>
 
     {schema && schema.length > 0 && (

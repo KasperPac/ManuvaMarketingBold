@@ -69,7 +69,7 @@ for (const w of [1440, 390]) {
     await page.setViewportSize({ width: w, height: 900 });
     for (const path of ['/features', '/']) {
       await page.goto(path);
-      const lone = await page.locator('.cut .pline, .stage .panel .pline').evaluateAll((ps) => ps.filter((p) => {
+      const lone = await page.locator('.cut .pline, .domains .pline').evaluateAll((ps) => ps.filter((p) => {
         const n = p.firstChild!; const t = (n.textContent ?? '').trimEnd();
         const words = [...t.matchAll(/\S+/g)];
         if (words.length < 2) return false;
@@ -108,26 +108,23 @@ test('the video poster has no dark line along its top edge', async ({ request })
   expect(rowLum(0), 'top row against row 12').toBeGreaterThan(rowLum(12) - 25);
 });
 
-// N-8: each home stage panel is one link, and the design system's a:hover
-// repainted its text in --brand-dark: 2.4:1 on violet, about 2.2:1 on
-// cobalt. Present on the live site since the rebuild; the critic's scripts
-// never had the pointer over the stage until the fourth pass.
-test('hovering a home stage panel keeps its field ink', async ({ page }) => {
+// N-8: each home domain is one link that is itself a field, and the design
+// system's a:hover repainted its text in --brand-dark: 2.4:1 on violet, about
+// 2.2:1 on cobalt. Found on the pinned stage panels; the tiles that replaced
+// them (MVBOLD-34) are the same kind of link.
+test('hovering a home domain tile keeps its field ink', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
-  for (const i of [0, 4]) {
-    await page.evaluate((i) => {
-      const s = document.querySelector('.stage') as HTMLElement;
-      const top = s.getBoundingClientRect().top + scrollY;
-      scrollTo(0, top + (s.offsetHeight - innerHeight) * (i / 5));
-    }, i);
-    await page.waitForTimeout(900);
-    const h2 = page.locator('.stage .panel').nth(i).locator('h2');
-    await page.mouse.move(10, 10);
-    const before = await h2.evaluate((h) => getComputedStyle(h).color);
-    await page.mouse.move(720, 450);
+  const tiles = page.locator('.domains .tile');
+  expect(await tiles.count()).toBe(6);
+  for (let i = 0; i < 6; i++) {
+    const t = tiles.nth(i);
+    await t.scrollIntoViewIfNeeded();
+    await page.mouse.move(2, 2);
+    const ink = () => t.locator('h3').evaluate((h) => getComputedStyle(h).color);
+    const before = await ink();
+    await t.hover();
     await page.waitForTimeout(300);
-    const after = await h2.evaluate((h) => getComputedStyle(h).color);
-    expect(after, `panel ${i}`).toBe(before);
+    expect(await ink(), `tile ${i}`).toBe(before);
   }
 });

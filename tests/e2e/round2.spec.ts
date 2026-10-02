@@ -2,47 +2,9 @@ import { test, expect, type Page } from '@playwright/test';
 
 // Re-score round (MVBOLD-31): what the critics' second pass still found.
 
-// "Production" text showed under "Sales" while the shape cut was half in.
-// The first fix clipped the outgoing copy from the start of the cut, which
-// sliced it on a plain field before the incoming shape was even on screen
-// (the UI critic's N-5). The outgoing copy now stays whole until the
-// incoming shape is covering, then fades through its colour.
-const stageTo = (page: Page, x: number) => page.evaluate((x) => {
-  const s = document.querySelector('.stage') as HTMLElement;
-  const top = s.getBoundingClientRect().top + scrollY;
-  scrollTo(0, top + (s.offsetHeight - innerHeight) * (x / 5));
-}, x);
-const h2 = (page: Page, i: number) => page.locator('.stage .panel').nth(i).locator('h2')
-  .evaluate((h) => ({ color: getComputedStyle(h).color, clip: getComputedStyle(h).clipPath }));
-
-test("early in a cut, the outgoing panel's copy is whole and drawn", async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
-  await stageTo(page, 2.06);
-  await page.waitForTimeout(1200);
-  const m = await h2(page, 2);
-  expect(m.clip).toBe('none');
-  expect(m.color).not.toBe('rgba(0, 0, 0, 0)');
-});
-
-test("a quarter into a cut, the outgoing panel's copy has already faded", async ({ page }) => {
-  // Fading at 42% let the incoming shape cross the still-solid heading first
-  // (the UX critic's fourth pass); the fade now comes at 20%.
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
-  await stageTo(page, 2.25);
-  await page.waitForTimeout(1200);
-  expect((await h2(page, 2)).color).toBe('rgba(0, 0, 0, 0)');
-});
-
-test('a focused home panel shows its focus ring inside the screen', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
-  const p = page.locator('.stage .panel').first();
-  await p.focus();
-  const offset = await p.evaluate((e) => parseFloat(getComputedStyle(e).outlineOffset));
-  expect(offset, 'an inset ring: the panel fills the viewport').toBeLessThan(0);
-});
+// The home stage's three tests (the outgoing panel's copy whole early in a
+// cut, faded a quarter in, and an inset focus ring) went with the stage
+// (MVBOLD-34). The tiles' ring is covered in access.spec.ts.
 
 test('the integration names on home read at 4.5:1', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });

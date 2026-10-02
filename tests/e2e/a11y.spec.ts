@@ -5,28 +5,12 @@ import { ALL_ROUTES } from '../../src/site';
 for (const route of ALL_ROUTES) {
   test(`${route} has no WCAG A or AA violations`, async ({ page }) => {
     await page.goto(route);
-    // axe misreads the background behind the pinned stage panels. Each
-    // .panel is position:absolute inside a sticky, overflow:hidden .pin in
-    // a 600svh section, and axe resolves its background to <body>
-    // (#fafaf9) rather than the panel's own field, reporting white on paper
-    // at 1.04:1. document.elementsFromPoint over that text returns
-    // `span.eyebrow (transparent) -> a.panel bg=rgb(58,94,255) -> div.pin`,
-    // so the real pair is --on-cobalt on --field-cobalt. The panels are
-    // still measured for contrast, by the field test below, which reads
-    // each field's own computed background rather than hit-testing for it.
+    // Nothing is excluded. The home stage's pinned panels used to be: axe
+    // resolved their background to <body> and reported white on paper. The
+    // domains are in-flow tiles now (MVBOLD-34), so axe reads their fields.
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-      .exclude('.stage .panel')
       .analyze();
-    // The panels keep every other rule -- link name, aria, landmarks.
-    if (await page.locator('.stage .panel').count()) {
-      const panels = await new AxeBuilder({ page })
-        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-        .include('.stage .panel')
-        .disableRules(['color-contrast'])
-        .analyze();
-      results.violations.push(...panels.violations);
-    }
     expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
   });
 }

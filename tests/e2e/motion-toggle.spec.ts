@@ -1,59 +1,58 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 // The site is static, so the motion mode is decided in the browser before
 // first paint and written to <html data-motion>. Everything else — the CSS
-// blocks that flatten the stage, the engine's own `reduce` flag, the toggle's
+// blocks that release the pins, the engine's own `reduce` flag, the toggle's
 // pressed state — reads that one attribute. These assert the attribute really
 // is the single switch, in both directions, because the symptom it exists to
 // fix (no animation, cause unclear) is one nobody can debug by eye.
+//
+// The probe is /features' shape cuts, six pinned sections that each clip in
+// on a shape. It was the home stage until that became a static grid
+// (MVBOLD-34); the cuts are the same pin-and-clip machinery.
+
+// Scrolls to `at` (0..1) of the way through intro i's cut: introU in
+// Motion.astro starts when the intro's top is 80% of the way up the screen
+// and runs over 80% of the intro's travel.
+const toCut = (page: Page, i: number, at: number, extra = 0) =>
+  page.evaluate(([i, at, extra]) => {
+    const n = document.querySelectorAll<HTMLElement>('.intro')[i];
+    const H = innerHeight;
+    const span = n.offsetHeight - H + H * 0.8;
+    scrollTo(0, n.getBoundingClientRect().top + scrollY - (H * 0.8 - span * 0.8 * at) + extra);
+  }, [i, at, extra] as const);
 
 test('with reduced motion preferred, the page opens flat and says so', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/');
+  await page.goto('/features');
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'off');
 
-  // Height is NOT the discriminator: flat mode is also about six viewports
-  // tall, because the six panels become stacked min-height:100svh sections
-  // instead of overlaying in one pin. What separates the modes is whether
-  // the pin sticks and whether the panels are taken out of flow.
-  const flat = await page.locator('.stage').evaluate((s) => ({
-    pin: getComputedStyle(s.querySelector('.pin')!).position,
-    panels: [...s.querySelectorAll('.panel')].map((p) => getComputedStyle(p).position),
-    clips: [...s.querySelectorAll('.panel')].map((p) => getComputedStyle(p).clipPath),
-    visible: [...s.querySelectorAll('.panel')].filter(
-      (p) => getComputedStyle(p).visibility === 'visible').length,
+  // What separates the modes is whether the pins stick and whether the cuts
+  // are clipped, not the page's height.
+  const flat = await page.evaluate(() => ({
+    pins: [...document.querySelectorAll('.ipin')].map((p) => getComputedStyle(p).position),
+    clips: [...document.querySelectorAll('.cut')].map((c) => getComputedStyle(c).clipPath),
   }));
-  expect(flat.pin, 'the pin is released').toBe('relative');
-  expect(flat.panels.every((p) => p === 'relative'), 'panels are back in flow').toBe(true);
+  expect(flat.pins.length).toBe(6);
+  expect(flat.pins.every((p) => p === 'relative'), 'the pins are released').toBe(true);
   expect(flat.clips.every((c) => c === 'none'), 'nothing is clipped').toBe(true);
-  expect(flat.visible, 'all six read as ordinary sections').toBe(6);
   await expect(page.locator('.site-foot .motion-toggle')).toHaveAttribute('aria-pressed', 'false');
   await expect(page.locator('.site-foot .motion-label')).toHaveText('Motion off');
 });
 
-test('with motion allowed, the stage pins and the panels clip', async ({ page }) => {
+test('with motion allowed, the cuts pin and clip', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
-  await page.goto('/');
+  await page.goto('/features');
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'on');
 
-  const live = await page.locator('.stage').evaluate((s) => ({
-    pin: getComputedStyle(s.querySelector('.pin')!).position,
-    panels: [...s.querySelectorAll('.panel')].map((p) => getComputedStyle(p).position),
-    inlineHeight: (s as HTMLElement).style.height,
-  }));
-  expect(live.pin, 'the pin sticks').toBe('sticky');
-  expect(live.panels.every((p) => p === 'absolute'), 'panels overlay in one pin').toBe(true);
-  expect(live.inlineHeight, 'the engine gave the stage its scroll length').toMatch(/svh$/);
+  const pins = await page.locator('.ipin').evaluateAll((ps) => ps.map((p) => getComputedStyle(p).position));
+  expect(pins.length).toBe(6);
+  expect(pins.every((p) => p === 'sticky'), 'the pins stick').toBe(true);
 
-  // Scroll into the second panel's transition and confirm it is mid-clip —
-  // not absent, and not finished.
-  const clip = await page.evaluate(async () => {
-    const s = document.querySelector('.stage') as HTMLElement;
-    const top = s.getBoundingClientRect().top + scrollY;
-    scrollTo(0, top + s.offsetHeight * 0.12);
-    await new Promise((r) => setTimeout(r, 300));
-    return getComputedStyle(s.querySelectorAll('.panel')[1]).clipPath;
-  });
+  // Halfway into the first cut it is mid-clip: not absent, and not finished.
+  await toCut(page, 0, 0.5);
+  await page.waitForTimeout(500);
+  const clip = await page.locator('.cut').first().evaluate((c) => getComputedStyle(c).clipPath);
   expect(clip).toMatch(/circle\(/);
   expect(clip).not.toBe('none');
   await expect(page.locator('.site-foot .motion-toggle')).toHaveAttribute('aria-pressed', 'true');
@@ -72,8 +71,8 @@ test('the toggle overrides the system preference and survives a reload', async (
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'on');
   await expect(page.locator('.site-foot .motion-label')).toHaveText('Motion on');
 
-  const pin = await page.locator('.stage .pin').evaluate((p) => getComputedStyle(p).position);
-  expect(pin, 'the stage pins once motion is forced on').toBe('sticky');
+  // The home page's motion is the Dave hero: forced on, the engine pins it.
+  await expect(page.locator('.hero.dave'), 'the hero scrubs once motion is forced on').toHaveAttribute('data-scrub', /^(pre|calm)$/);
 
   // And it persists rather than reverting to the system preference.
   await page.reload();
@@ -113,21 +112,18 @@ test.describe('smoothness', () => {
 
   test('a scroll jump sweeps the shape rather than snapping it', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto('/');
+    await page.goto('/features');
     await page.waitForTimeout(300);
 
+    // The first cut is the iris (circle): its radius is the first number.
+    await toCut(page, 0, 0.35);
+    await page.waitForTimeout(500);                     // let it settle
     const t = await page.evaluate(async () => {
-      const s = document.querySelector('.stage') as HTMLElement;
-      const top = s.getBoundingClientRect().top + scrollY;
-      const per = (s.offsetHeight - innerHeight) / 5;
-      const radius = () =>
-        parseFloat((getComputedStyle(s.querySelectorAll('.panel')[1]).clipPath.match(/[\d.]+/) || ['0'])[0]);
-
-      scrollTo(0, top + per * 0.5);
-      await new Promise((r) => setTimeout(r, 500));   // let it settle
+      const c = document.querySelectorAll('.cut')[0];
+      const radius = () => parseFloat((getComputedStyle(c).clipPath.match(/[\d.]+/) || ['0'])[0]);
       const from = radius();
 
-      scrollTo(0, top + per * 0.5 + 100);             // one wheel notch
+      scrollTo(0, scrollY + 100);                       // one wheel notch
       const mid: number[] = [];
       for (let i = 0; i < 4; i++) {
         await new Promise((r) => requestAnimationFrame(() => r(null)));
@@ -148,21 +144,16 @@ test.describe('smoothness', () => {
   test('the loop idles off-screen and wakes again on scroll', async ({ page }) => {
     // The marquee used to hold a permanently-running rAF open. The shared loop
     // stops when nothing is near the viewport, which is only safe if scrolling
-    // back restarts it — otherwise the stage silently stops animating for the
+    // back restarts it — otherwise the cuts silently stop animating for the
     // rest of the session.
     await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto('/');
+    await page.goto('/features');
     await page.evaluate(() => scrollTo(0, document.body.scrollHeight));
     await page.waitForTimeout(700);
 
-    const revived = await page.evaluate(async () => {
-      const s = document.querySelector('.stage') as HTMLElement;
-      const top = s.getBoundingClientRect().top + scrollY;
-      const per = (s.offsetHeight - innerHeight) / 5;
-      scrollTo(0, top + per * 1.5);
-      await new Promise((r) => setTimeout(r, 700));
-      return getComputedStyle(s.querySelectorAll('.panel')[2]).clipPath;
-    });
+    await toCut(page, 1, 0.5);
+    await page.waitForTimeout(700);
+    const revived = await page.locator('.cut').nth(1).evaluate((c) => getComputedStyle(c).clipPath);
     expect(revived, 'the second shape animates after the loop had idled').not.toBe('none');
     expect(revived).toMatch(/polygon\(/);
   });

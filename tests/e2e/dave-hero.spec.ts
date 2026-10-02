@@ -74,7 +74,7 @@ for (const width of [1280, 1366, 1440, 1920, 2560]) {
     const m = await page.evaluate(() => ({
       h1: Number.parseFloat(getComputedStyle(document.querySelector('.hero.dave h1')!).fontSize),
       h2: Math.max(...[...document.querySelectorAll('main h2')]
-        .filter((h) => !h.closest('.cut, .stage .panel'))
+        .filter((h) => !h.closest('.cut'))
         .map((h) => Number.parseFloat(getComputedStyle(h).fontSize))),
     }));
     expect(m.h1, `h1 ${m.h1}px against h2 ${m.h2}px`).toBeGreaterThan(m.h2);

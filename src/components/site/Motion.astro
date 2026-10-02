@@ -69,10 +69,15 @@
     // changed when the hit-test ran, and the header copied its own ink
     // (MANUVA-37). Skipping the header's own elements needs no hiding.
     const el = document.elementsFromPoint(innerWidth / 2, 32).find((e) => !head.contains(e)) ?? null;
+    // Only a background as wide as the bar counts. A field tile under the
+    // middle of the bar (the home domains, MVBOLD-34) is not the surface the
+    // bar sits on: taking its colour flashed the bar through six fields while
+    // the grid scrolled past. The section the tiles sit in is.
+    const wide = innerWidth * 0.9;
     let n: Element | null = el;
     while (n && n !== document.body) {
       const bgc = getComputedStyle(n).backgroundColor;
-      if (bgc && bgc !== 'rgba(0, 0, 0, 0)' && bgc !== 'transparent') break;
+      if (bgc && bgc !== 'rgba(0, 0, 0, 0)' && bgc !== 'transparent' && n.getBoundingClientRect().width >= wide) break;
       n = n.parentElement;
     }
     const under = getComputedStyle(n || document.body);
@@ -123,36 +128,9 @@
   const introEnd = (n: HTMLElement) =>
     n.getBoundingClientRect().top + scrollY + (n.offsetHeight - innerHeight) * 0.85;
 
-  // 2 · stage — many panels, one pin.
-  const stages = [...document.querySelectorAll<HTMLElement>('.stage')].map((s) => {
-    const panels = [...s.querySelectorAll<HTMLElement>('.panel')];
-    // Not under reduced motion: the pin is released there, so giving the
-    // stage six screens of height would leave six screens of nothing to
-    // scroll past. The design says "pins released"; its own CSS only released
-    // .intro, so the stage kept pinning and swapped panels abruptly.
-    if (!reduce) {
-      s.style.height = panels.length * 100 + 'svh';
-      panels.forEach((p, i) => (p.style.zIndex = String(i)));
-    }
-    const t = document.createElement('div');
-    t.className = 'ticks';
-    t.setAttribute('aria-hidden', 'true');
-    t.innerHTML = panels.map(() => '<i></i>').join('');
-    s.querySelector('.pin')?.appendChild(t);
-    // Tabbing onto a panel's link scrolls to where that panel is fully shown,
-    // so a keyboard can reach all six rather than the one on screen
-    // (MVBOLD-31). With motion off the panels are in normal flow and the
-    // browser's own focus scrolling does this.
-    if (!reduce) {
-      s.addEventListener('focusin', (e) => {
-        const i = panels.findIndex((p) => p.contains(e.target as Node));
-        if (i < 0) return;
-        const top = s.getBoundingClientRect().top + scrollY;
-        scrollTo({ top: top + (s.offsetHeight - innerHeight) * (i / Math.max(1, panels.length - 1)), behavior: 'auto' });
-      });
-    }
-    return { s, panels, ticks: [...t.children] as HTMLElement[], x: null as number | null };
-  });
+  // 2 · stage — the design's pinned home stage, six panels in one pin, came
+  // off in MVBOLD-34: a second pinned sequence a short band after the Dave
+  // hero's scrub was too much. The home domains are a static grid of tiles.
 
   // 3 · marquee — base drift, boosted by scroll velocity, decaying per frame.
   const mq = [...document.querySelectorAll<HTMLElement>('.marquee .track')];
@@ -396,43 +374,6 @@
       drift(c, 1 - u);
     });
 
-    stages.forEach((st) => {
-      const { s, panels, ticks } = st;
-      const r = s.getBoundingClientRect();
-      const h = s.offsetHeight - H;
-      const p = cl(-r.top / h);
-      const targetX = p * (panels.length - 1);
-      // Damped on the stage's own progress rather than per panel, so the
-      // whole sequence keeps its timing relative to itself — panel 3 cannot
-      // drift out of step with panel 2 because they share one follower.
-      st.x = st.x === null ? targetX : damp(st.x, targetX, dt);
-      if (Math.abs(targetX - st.x) > SETTLED) busy = true;
-      const x = st.x;
-      panels.forEach((el, i) => {
-        if (i > 0 && !reduce) {
-          const u = ease(cl(x - (i - 1)));
-          el.style.clipPath = SHAPES[(Number(el.dataset.shape) || i - 1) % SHAPES.length](u);
-          // Clipped, not hidden, so a keyboard can reach every panel's link;
-          // the focus handler below scrolls each into view (MVBOLD-31).
-          el.style.pointerEvents = u <= 0 ? 'none' : '';
-          // The panel this one is covering fades its copy out (CSS, through
-          // colour) a fifth of the way into the cut. Clipping it from the
-          // start of the cut sliced the copy on a plain field before the
-          // new shape was even on screen.
-          // Keyed to the raw progress through this cut, not the eased u:
-          // at u >= 0.3 the fade came 42% of the way through, after the new
-          // shape had already crossed the heading.
-          panels[i - 1].dataset.leaving = x - (i - 1) >= 0.2 ? '1' : '';
-        }
-        if (!reduce) drift(el, (x - i) * -1.2);
-      });
-      // Rounded off the target, not the damped value: the tick bar is a
-      // position readout and should not lag the panel it reports.
-      const a = Math.round(targetX);
-      if (ticks[0]?.parentElement) ticks[0].parentElement.style.color = getComputedStyle(panels[a]).color;
-      ticks.forEach((t, j) => (t.dataset.on = j === a ? '1' : ''));
-    });
-
     if (stepScrubs(dt, H)) busy = true;
 
     if (!reduce && ghosts.length) {
@@ -476,7 +417,7 @@
       const r = el.getBoundingClientRect();
       return r.bottom > -H && r.top < H * 2;
     };
-    if (!busy && !stages.some((o) => near(o.s)) && !intros.some((o) => near(o.n)) && !scrubs.some((o) => !o.dead && near(o.h))) {
+    if (!busy && !intros.some((o) => near(o.n)) && !scrubs.some((o) => !o.dead && near(o.h))) {
       running = false;
       raf = 0;
       return;
@@ -498,10 +439,7 @@
     wake();
   }, { passive: true });
 
-  addEventListener('resize', () => {
-    if (!reduce) stages.forEach(({ s, panels }) => (s.style.height = panels.length * 100 + 'svh'));
-    wake();
-  });
+  addEventListener('resize', wake);
 
   wake();
 </script>

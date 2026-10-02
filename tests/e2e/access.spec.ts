@@ -15,21 +15,30 @@ test('the domain headings on /features are in the accessibility tree before they
   expect(vis.every((v) => v === 'visible'), vis.join(',')).toBe(true);
 });
 
-test('every home stage panel can be reached by keyboard, and focusing one shows it', async ({ page }) => {
+// The home domains are tiles that are themselves fields, on paper (MVBOLD-34).
+// A ring drawn outside a tile would sit on paper in the tile's own --ring,
+// which is white on cobalt and violet: invisible. The ring goes inside, on
+// the field it was chosen for.
+test('a focused home domain tile shows a ring inside it, in its field\'s ring colour', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
-  const panels = page.locator('.stage .panel');
-  const n = await panels.count();
-  expect(n).toBe(6);
-  for (let i = 0; i < n; i++) {
-    await panels.nth(i).focus();
-    await expect(panels.nth(i)).toBeFocused();
-    // The focused panel is the one on screen: it is the topmost thing at
-    // the middle of the viewport once the pinned stage has settled.
-    await expect.poll(() => page.evaluate((i) => {
-      const el = document.elementFromPoint(innerWidth / 2, innerHeight / 2);
-      return el?.closest('.stage .panel') === document.querySelectorAll('.stage .panel')[i];
-    }, i), { timeout: 3_000 }).toBe(true);
+  const tiles = page.locator('.domains .tile');
+  expect(await tiles.count()).toBe(6);
+  await tiles.first().focus();
+  await page.keyboard.press('Shift+Tab');
+  for (let i = 0; i < 6; i++) {
+    await page.keyboard.press('Tab');
+    const t = tiles.nth(i);
+    await expect(t).toBeFocused();
+    const m = await t.evaluate((e) => {
+      const cs = getComputedStyle(e);
+      return { style: cs.outlineStyle, width: parseFloat(cs.outlineWidth), offset: parseFloat(cs.outlineOffset), color: cs.outlineColor, field: [...e.classList].find((c) => c.startsWith('mv-field-')) };
+    });
+    expect(m.style, `tile ${i}`).not.toBe('none');
+    expect(m.width, `tile ${i}`).toBeGreaterThanOrEqual(2);
+    expect(m.offset + m.width, `tile ${i}: the ring is inside the tile`).toBeLessThanOrEqual(0);
+    const white = m.field === 'mv-field-cobalt' || m.field === 'mv-field-violet';
+    expect(m.color, `tile ${i} (${m.field})`).toBe(white ? 'rgb(255, 255, 255)' : 'rgb(20, 20, 19)');
   }
 });
 
